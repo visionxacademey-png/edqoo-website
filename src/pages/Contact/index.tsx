@@ -5,6 +5,7 @@ import * as zod from 'zod';
 import { Mail, Phone, MapPin, Send, HelpCircle, CheckCircle2 } from 'lucide-react';
 import { Accordion } from '../../components/ui/Accordion';
 import { SEO } from '../../components/common/SEO';
+import { enquiryService } from '../../services/enquiryService';
 
 // Form validation schema using Zod
 const contactSchema = zod.object({
@@ -30,14 +31,22 @@ export const Contact: React.FC = () => {
   });
 
   const onSubmit = async (data: ContactFormData) => {
-    // Simulate API delivery delay
-    await new Promise((resolve) => setTimeout(resolve, 1000));
-    console.log('Submitting support request:', data);
-    setSubmitted(true);
-    reset();
-    setTimeout(() => {
-      setSubmitted(false);
-    }, 4000);
+    try {
+      await enquiryService.submitEnquiry({
+        name: data.name,
+        email: data.email,
+        phone: data.phone || 'N/A',
+        program: `Contact Form: ${data.subject}`,
+        message: data.message
+      });
+      setSubmitted(true);
+      reset();
+      setTimeout(() => {
+        setSubmitted(false);
+      }, 5000);
+    } catch {
+      console.error('Failed to submit contact enquiry');
+    }
   };
 
   const faqItems = [

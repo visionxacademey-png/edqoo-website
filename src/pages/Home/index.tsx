@@ -1,6 +1,6 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Link } from 'react-router-dom';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 import {
   ShieldCheck,
   TrendingUp,
@@ -12,633 +12,692 @@ import {
   BookOpen,
   ArrowRight,
   Sparkles,
-  Layers
+  ChevronLeft,
+  ChevronRight,
+  Layers,
+  BarChart3,
+  BrainCircuit,
+  Code2,
+  Cloud,
+  GitBranch,
+  Palette,
+  Smartphone,
+  PhoneCall,
+  CheckCircle,
+  Briefcase,
+  BadgeCheck,
+  GraduationCap
 } from 'lucide-react';
 import { courses } from '../../data/courses';
 import { testimonials } from '../../data/testimonials';
-import { instructors } from '../../data/instructors';
 import { blogPosts } from '../../data/blog';
-import { statsData } from '../../data/stats';
 import { SEO } from '../../components/common/SEO';
+import { useEnquiry } from '../../context/EnquiryContext';
+
+// Hero slide definitions with high-resolution professional people photography
+const heroSlides = [
+  {
+    id: 'slide-1',
+    badge: 'Career Advancement & Transformation',
+    title: 'Accelerate Your Career With Industry-Ready Skills',
+    subtitle: 'Learn from experienced enterprise practitioners, build practical project portfolios, and take the next confident step in your career.',
+    primaryCta: 'Explore Programs',
+    primaryLink: '/courses',
+    secondaryCta: 'Talk to Advisor',
+    image: 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?q=80&w=900&auto=format&fit=crop',
+    statBadge: { value: '4.8/5 Rating', label: 'Over 2,500+ Active Learners' },
+    trustPoints: ['Live Project Labs', 'Enterprise Mentors', 'Verifiable Certificates']
+  },
+  {
+    id: 'slide-2',
+    badge: 'High-Growth Technology Tracks',
+    title: 'Master Practical Cybersecurity & Data Science',
+    subtitle: 'Step beyond passive lectures. Execute live system defense configurations, vulnerability assessments, and predictive machine learning models.',
+    primaryCta: 'View Cybersecurity Track',
+    primaryLink: '/courses/cybersecurity',
+    secondaryCta: 'Request Syllabus',
+    image: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?q=80&w=900&auto=format&fit=crop',
+    statBadge: { value: '15+ Labs', label: 'Real-World Production Scenarios' },
+    trustPoints: ['Ethical Hacking Labs', 'Python & ML Pipelines', 'SOC Incident Simulation']
+  },
+  {
+    id: 'slide-3',
+    badge: 'Expert Practitioner Mentorship',
+    title: 'Learn Directly From Experienced Leaders',
+    subtitle: 'Our programs are curated and delivered by senior technology architects who have managed enterprise systems and built architectures at scale.',
+    primaryCta: 'Explore All Courses',
+    primaryLink: '/courses',
+    secondaryCta: 'Book Advisory Call',
+    image: 'https://images.unsplash.com/photo-1560250097-0b93528c311a?q=80&w=900&auto=format&fit=crop',
+    statBadge: { value: '100% Practical', label: 'Zero Fluff & Outdated Theory' },
+    trustPoints: ['1:1 Guidance', 'Code & Architecture Reviews', 'Resume-Ready Capstones']
+  },
+  {
+    id: 'slide-4',
+    badge: 'Recognized Professional Credentials',
+    title: 'Build Verifiable Competencies That Recruiters Value',
+    subtitle: 'Graduate with practical portfolio repositories and authenticated digital certificates that substantiate your hands-on abilities.',
+    primaryCta: 'Get Started Today',
+    primaryLink: '/courses',
+    secondaryCta: 'Enquire for Teams',
+    image: 'https://images.unsplash.com/photo-1522071820081-009f0129c71c?q=80&w=900&auto=format&fit=crop',
+    statBadge: { value: '94% Success', label: 'Alumni Report Career Growth' },
+    trustPoints: ['Digital Verification', 'Portfolio Guidance', 'Flexible Schedule']
+  }
+];
+
+// Dynamic categories with Lucide icons (No Emojis)
+const categoryNav = [
+  { id: 'all', label: 'All Programs', icon: Layers },
+  { id: 'Cybersecurity', label: 'Cybersecurity', icon: ShieldCheck },
+  { id: 'Data Science', label: 'Data Science & Analytics', icon: BarChart3 },
+  { id: 'AI / ML', label: 'AI & Machine Learning', icon: BrainCircuit },
+  { id: 'Programming', label: 'Software & Technology', icon: Code2 },
+  { id: 'Cloud Computing', label: 'Cloud Solutions', icon: Cloud },
+  { id: 'DevOps', label: 'DevOps & SRE', icon: GitBranch },
+  { id: 'UI/UX Design', label: 'UI/UX Design', icon: Palette },
+  { id: 'Digital Marketing', label: 'Digital Marketing', icon: TrendingUp },
+  { id: 'App Development', label: 'Mobile Engineering', icon: Smartphone }
+];
 
 export const Home: React.FC = () => {
-  const [activeCategory, setActiveCategory] = useState<string>('Popular');
-  const [notifiedEmails, setNotifiedEmails] = useState<Record<string, boolean>>({});
-  const [emailInput, setEmailInput] = useState<Record<string, string>>({});
+  const { openEnquiryModal } = useEnquiry();
+  const [activeSlide, setActiveSlide] = useState(0);
+  const [isSlidePaused, setIsSlidePaused] = useState(false);
+  const [selectedCategory, setSelectedCategory] = useState<string>('all');
+  const [activeTestimonial, setActiveTestimonial] = useState(0);
+  const [statsAnimated, setStatsAnimated] = useState(false);
+  const statsSectionRef = useRef<HTMLDivElement>(null);
+  const touchStartX = useRef<number | null>(null);
 
-  // Category list definitions
-  const categories = [
-    { id: 'Popular', label: 'Popular Courses', icon: '🔥' },
-    { id: 'Cybersecurity', label: 'Cybersecurity', icon: '🛡️' },
-    { id: 'Data Science', label: 'Data Science & Analytics', icon: '📊' },
-    { id: 'AI', label: 'Artificial Intelligence', icon: '🤖' },
-    { id: 'Software', label: 'Software & Technology', icon: '💻' },
-    { id: 'Cloud', label: 'Cloud Computing', icon: '☁️' },
-    { id: 'DevOps', label: 'DevOps', icon: '⚙️' },
-    { id: 'App', label: 'App Development', icon: '📱' },
-    { id: 'UI/UX', label: 'UI/UX Design', icon: '🎨' },
-  ];
+  // Hero auto-slider timer (6 seconds)
+  useEffect(() => {
+    if (isSlidePaused) return;
+    const interval = setInterval(() => {
+      setActiveSlide((prev) => (prev + 1) % heroSlides.length);
+    }, 6000);
+    return () => clearInterval(interval);
+  }, [isSlidePaused]);
 
+  // Statistics Intersection Observer for animated counter
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (entries[0].isIntersecting) {
+          setStatsAnimated(true);
+        }
+      },
+      { threshold: 0.25 }
+    );
+    if (statsSectionRef.current) {
+      observer.observe(statsSectionRef.current);
+    }
+    return () => observer.disconnect();
+  }, []);
 
-
-  // Handle upcoming course email notification signup
-  const handleNotifySubmit = (e: React.FormEvent, courseId: string) => {
-    e.preventDefault();
-    const email = emailInput[courseId] || '';
-    if (!email.trim()) return;
-    
-    setNotifiedEmails((prev) => ({ ...prev, [courseId]: true }));
-    setEmailInput((prev) => ({ ...prev, [courseId]: '' }));
+  // Touch Swipe handlers for hero slider
+  const handleTouchStart = (e: React.TouchEvent) => {
+    touchStartX.current = e.touches[0].clientX;
   };
 
-  // Handle changing inputs
-  const handleEmailChange = (courseId: string, val: string) => {
-    setEmailInput((prev) => ({ ...prev, [courseId]: val }));
+  const handleTouchEnd = (e: React.TouchEvent) => {
+    if (touchStartX.current === null) return;
+    const touchEndX = e.changedTouches[0].clientX;
+    const diff = touchStartX.current - touchEndX;
+    if (Math.abs(diff) > 45) {
+      if (diff > 0) {
+        // swipe left -> next slide
+        setActiveSlide((prev) => (prev + 1) % heroSlides.length);
+      } else {
+        // swipe right -> prev slide
+        setActiveSlide((prev) => (prev - 1 + heroSlides.length) % heroSlides.length);
+      }
+    }
+    touchStartX.current = null;
   };
 
-  // Filter courses based on active categories
-  const filteredCourses = courses.filter((course) => {
-    if (activeCategory === 'Popular') {
-      return course.featured === true;
-    }
-    if (activeCategory === 'Cybersecurity') {
-      return course.category === 'Cybersecurity';
-    }
-    if (activeCategory === 'Data Science') {
-      return course.category === 'Data Science';
-    }
-    if (activeCategory === 'AI') {
-      return course.category === 'AI / ML';
-    }
-    if (activeCategory === 'Software') {
-      return course.category === 'Programming';
-    }
-    if (activeCategory === 'Cloud') {
-      return course.category === 'Cloud Computing';
-    }
-    if (activeCategory === 'DevOps') {
-      return course.category === 'DevOps';
-    }
-    if (activeCategory === 'App') {
-      return course.category === 'App Development';
-    }
-    if (activeCategory === 'UI/UX') {
-      return course.category === 'UI/UX Design';
-    }
-    return false;
+  const nextSlide = () => {
+    setActiveSlide((prev) => (prev + 1) % heroSlides.length);
+  };
+
+  const prevSlide = () => {
+    setActiveSlide((prev) => (prev - 1 + heroSlides.length) % heroSlides.length);
+  };
+
+  // Filter courses based on active category
+  const displayedCourses = courses.filter((course) => {
+    if (selectedCategory === 'all') return true;
+    return course.category.toLowerCase() === selectedCategory.toLowerCase();
   });
 
+  const currentHero = heroSlides[activeSlide];
+
   return (
-    <div className="space-y-0">
+    <div className="space-y-0 text-left">
       <SEO 
-        title="Learn Technology. Build Your Future." 
-        description="Learn in-demand technology skills through practical, industry-focused courses designed to help you build real-world knowledge and become career ready."
+        title="Edqoo | Professional EdTech & Technology Learning Platform" 
+        description="Accelerate your career with industry-aligned certification programs in Cybersecurity, Data Science, AI, Cloud, and Software Engineering."
         canonical="/"
       />
-      {/* 3. HERO SECTION - Re-themed to White Background & Dark Navy text */}
-      <section className="relative bg-white text-deep-navy-900 overflow-hidden py-24 sm:py-32 border-b border-deep-navy-100">
-        {/* Subtle grid background */}
-        <div className="absolute inset-0 bg-[linear-gradient(to_right,#1268e805_1px,transparent_1px),linear-gradient(to_bottom,#1268e805_1px,transparent_1px)] bg-[size:4rem_4rem] [mask-image:radial-gradient(ellipse_60%_50%_at_50%_0%,#000_70%,transparent_100%)] opacity-40 pointer-events-none" />
 
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10 grid grid-cols-1 lg:grid-cols-12 gap-16 items-center">
-          {/* Hero Left Content */}
-          <div className="lg:col-span-6 space-y-6 text-left">
-            <div className="inline-flex items-center gap-1.5 px-3 py-1 bg-royal-blue-100 border border-royal-blue-200 rounded-full text-royal-blue-600 text-xs font-semibold uppercase tracking-wider">
-              <Sparkles className="w-3.5 h-3.5" />
-              Edqoo Learning
+      {/* ========================================================================= */}
+      {/* 1. HERO CAROUSEL SECTION */}
+      {/* ========================================================================= */}
+      <section
+        className="relative bg-deep-navy-950 text-white overflow-hidden py-12 sm:py-16 lg:py-20 border-b border-deep-navy-800 select-none"
+        onMouseEnter={() => setIsSlidePaused(true)}
+        onMouseLeave={() => setIsSlidePaused(false)}
+        onTouchStart={handleTouchStart}
+        onTouchEnd={handleTouchEnd}
+      >
+        {/* Subtle background glow */}
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,#1268e818,transparent_55%)] pointer-events-none" />
+        <div className="absolute inset-0 bg-[linear-gradient(to_right,#ffffff04_1px,transparent_1px),linear-gradient(to_bottom,#ffffff04_1px,transparent_1px)] bg-[size:3rem_3rem] pointer-events-none opacity-40" />
+
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+          <AnimatePresence mode="wait">
+            <motion.div
+              key={currentHero.id}
+              initial={{ opacity: 0, x: 20 }}
+              animate={{ opacity: 1, x: 0 }}
+              exit={{ opacity: 0, x: -20 }}
+              transition={{ duration: 0.4, ease: 'easeOut' }}
+              className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-center"
+            >
+              {/* Left Column: Hero Content */}
+              <div className="lg:col-span-7 space-y-5 text-left">
+                {/* Value Proposition Badge */}
+                <div className="inline-flex items-center gap-2 px-3 py-1 bg-royal-blue-900/70 border border-royal-blue-500/40 rounded-full text-royal-blue-300 text-xs font-bold tracking-wide">
+                  <Sparkles className="w-3.5 h-3.5 text-royal-blue-400" />
+                  <span>{currentHero.badge}</span>
+                </div>
+
+                {/* Main Headline */}
+                <h1 className="text-3xl sm:text-4xl lg:text-5xl font-display font-extrabold text-white leading-[1.12] tracking-tight">
+                  {currentHero.title}
+                </h1>
+
+                {/* Subtitle */}
+                <p className="text-slate-300 text-sm sm:text-base leading-relaxed max-w-xl">
+                  {currentHero.subtitle}
+                </p>
+
+                {/* Action Buttons */}
+                <div className="flex flex-wrap items-center gap-3.5 pt-2">
+                  <Link
+                    to={currentHero.primaryLink}
+                    className="btn-primary px-6 py-3 text-xs sm:text-sm font-bold rounded-xl shadow-lg flex items-center gap-2"
+                  >
+                    <span>{currentHero.primaryCta}</span>
+                    <ArrowRight className="w-4 h-4" />
+                  </Link>
+
+                  <button
+                    type="button"
+                    onClick={() => openEnquiryModal()}
+                    className="btn-secondary bg-white/10 hover:bg-white/15 text-white border-white/20 hover:border-white/30 px-6 py-3 text-xs sm:text-sm font-bold rounded-xl flex items-center gap-2 transition-all"
+                  >
+                    <PhoneCall className="w-4 h-4 text-royal-blue-300" />
+                    <span>{currentHero.secondaryCta}</span>
+                  </button>
+                </div>
+
+                {/* Trust Points */}
+                <div className="pt-4 border-t border-deep-navy-800/80 flex flex-wrap gap-y-2 gap-x-6">
+                  {currentHero.trustPoints.map((point) => (
+                    <div key={point} className="flex items-center gap-2 text-xs font-semibold text-slate-300">
+                      <CheckCircle2 className="w-4 h-4 text-royal-blue-400 flex-shrink-0" />
+                      <span>{point}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              {/* Right Column: Hero Image with Overlay Stat Badge */}
+              <div className="lg:col-span-5 relative flex justify-center">
+                <div className="relative w-full max-w-md aspect-[4/3] sm:aspect-[16/11] rounded-2xl overflow-hidden border border-deep-navy-700/80 shadow-2xl bg-deep-navy-900">
+                  <img
+                    src={currentHero.image}
+                    alt={currentHero.title}
+                    className="w-full h-full object-cover object-center transform transition-transform duration-700 hover:scale-105"
+                    loading="eager"
+                  />
+                  {/* Subtle gradient vignette */}
+                  <div className="absolute inset-0 bg-gradient-to-t from-deep-navy-950/80 via-transparent to-transparent pointer-events-none" />
+
+                  {/* Floating Trust Indicator on image */}
+                  <div className="absolute bottom-4 left-4 right-4 bg-deep-navy-900/90 backdrop-blur-md border border-deep-navy-700/80 rounded-xl p-3 shadow-lg flex items-center gap-3">
+                    <div className="w-10 h-10 rounded-lg bg-royal-blue-600 text-white flex items-center justify-center font-bold flex-shrink-0">
+                      <GraduationCap className="w-5 h-5" />
+                    </div>
+                    <div>
+                      <span className="text-xs font-bold text-white block leading-tight">
+                        {currentHero.statBadge.value}
+                      </span>
+                      <span className="text-[10px] text-slate-300 block mt-0.5">
+                        {currentHero.statBadge.label}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </motion.div>
+          </AnimatePresence>
+
+          {/* Slider Navigation Bar: Arrows + Dot Indicators */}
+          <div className="mt-8 pt-4 border-t border-deep-navy-800/60 flex items-center justify-between">
+            {/* Dots */}
+            <div className="flex items-center gap-2">
+              {heroSlides.map((slide, idx) => (
+                <button
+                  key={slide.id}
+                  onClick={() => setActiveSlide(idx)}
+                  className={`h-2 rounded-full transition-all duration-300 ${
+                    activeSlide === idx ? 'w-8 bg-royal-blue-500' : 'w-2 bg-deep-navy-700 hover:bg-deep-navy-600'
+                  }`}
+                  aria-label={`Go to slide ${idx + 1}`}
+                />
+              ))}
             </div>
-            
-            <h1 className="text-4xl sm:text-5xl lg:text-6xl font-display font-extrabold text-deep-navy-900 leading-[1.1] tracking-tight">
-              Build Skills. <br />
-              <span className="text-royal-blue-600">
-                Shape Your Future.
+
+            {/* Prev / Next Controls */}
+            <div className="flex items-center gap-2">
+              <button
+                onClick={prevSlide}
+                className="p-2 rounded-lg bg-deep-navy-900 border border-deep-navy-700 text-slate-300 hover:text-white hover:border-royal-blue-500 transition-colors"
+                aria-label="Previous Slide"
+              >
+                <ChevronLeft className="w-4 h-4" />
+              </button>
+              <button
+                onClick={nextSlide}
+                className="p-2 rounded-lg bg-deep-navy-900 border border-deep-navy-700 text-slate-300 hover:text-white hover:border-royal-blue-500 transition-colors"
+                aria-label="Next Slide"
+              >
+                <ChevronRight className="w-4 h-4" />
+              </button>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* ========================================================================= */}
+      {/* 2. TRUST & ENTERPRISE STANDARDS SECTION */}
+      {/* ========================================================================= */}
+      <section className="bg-deep-navy-50 border-b border-deep-navy-200/80 py-6 sm:py-8">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex flex-col md:flex-row items-center justify-between gap-4">
+            <div className="text-center md:text-left flex-shrink-0">
+              <span className="text-[11px] font-extrabold text-royal-blue-700 uppercase tracking-widest block">
+                LEARNING EXCELLENCE
               </span>
-            </h1>
-
-            <p className="text-slate-500 text-base sm:text-lg leading-relaxed max-w-xl">
-              Learn in-demand technology skills through practical, industry-focused courses designed to help you build real-world knowledge and become career ready.
-            </p>
-
-            <div className="flex flex-col sm:flex-row gap-4 pt-2">
-              <Link to="/courses" className="btn-primary px-8 py-3.5 text-sm font-semibold rounded-xl text-center">
-                Explore Courses
-              </Link>
-              <Link to="/about" className="btn-secondary px-8 py-3.5 text-sm font-semibold rounded-xl text-center">
-                View Programs
-              </Link>
+              <p className="text-xs font-bold text-deep-navy-900 mt-0.5">
+                Programs Engineered to Industry Standards
+              </p>
             </div>
 
-            {/* Hero Trust Indicators */}
-            <div className="grid grid-cols-2 gap-4 pt-6 border-t border-deep-navy-200">
-              <div className="flex items-center gap-2">
-                <CheckCircle2 className="w-5 h-5 text-royal-blue-600 flex-shrink-0" />
-                <span className="text-xs font-semibold text-deep-navy-900/85">Practical Labs</span>
-              </div>
-              <div className="flex items-center gap-2">
-                <CheckCircle2 className="w-5 h-5 text-royal-blue-600 flex-shrink-0" />
-                <span className="text-xs font-semibold text-deep-navy-900/85">Real Projects</span>
-              </div>
-              <div className="flex items-center gap-2">
-                <CheckCircle2 className="w-5 h-5 text-royal-blue-600 flex-shrink-0" />
-                <span className="text-xs font-semibold text-deep-navy-900/85">Expert Guidance</span>
-              </div>
-              <div className="flex items-center gap-2">
-                <CheckCircle2 className="w-5 h-5 text-royal-blue-600 flex-shrink-0" />
-                <span className="text-xs font-semibold text-deep-navy-900/85">Industry Certificates</span>
-              </div>
+            <div className="flex flex-wrap justify-center md:justify-end gap-4 sm:gap-6 text-xs font-bold text-deep-navy-800">
+              <span className="flex items-center gap-1.5 px-3 py-1.5 bg-white border border-deep-navy-200 rounded-lg shadow-2xs">
+                <CheckCircle className="w-4 h-4 text-emerald-600" />
+                100% Practical Labs
+              </span>
+              <span className="flex items-center gap-1.5 px-3 py-1.5 bg-white border border-deep-navy-200 rounded-lg shadow-2xs">
+                <BadgeCheck className="w-4 h-4 text-royal-blue-600" />
+                Verified Digital Credentials
+              </span>
+              <span className="flex items-center gap-1.5 px-3 py-1.5 bg-white border border-deep-navy-200 rounded-lg shadow-2xs">
+                <Users className="w-4 h-4 text-royal-blue-600" />
+                Practitioner Mentorship
+              </span>
+              <span className="flex items-center gap-1.5 px-3 py-1.5 bg-white border border-deep-navy-200 rounded-lg shadow-2xs">
+                <Briefcase className="w-4 h-4 text-royal-blue-600" />
+                Capstone Portfolios
+              </span>
             </div>
-          </div>
-
-          {/* Hero Right Visuals - Laptop Terminal Simulation */}
-          <div className="lg:col-span-6 relative flex justify-center items-center">
-            {/* Visual Backdrops */}
-            <div className="absolute w-[400px] h-[400px] bg-royal-blue-100/50 rounded-full blur-3xl pointer-events-none" />
-            
-            {/* Core Laptop Graphic */}
-            <div className="relative z-10 w-full max-w-[500px] bg-deep-navy-900 border border-deep-navy-800 rounded-2xl overflow-hidden shadow-xl">
-              {/* Fake Window bar */}
-              <div className="bg-slate-950 px-4 py-2.5 flex items-center gap-2 border-b border-slate-800/60">
-                <span className="w-3 h-3 rounded-full bg-red-500/80" />
-                <span className="w-3 h-3 rounded-full bg-yellow-500/80" />
-                <span className="w-3 h-3 rounded-full bg-green-500/80" />
-                <span className="text-[10px] text-slate-500 font-mono ml-2">sandbox://Edqoo.com/terminal</span>
-              </div>
-              <div className="p-5 font-mono text-xs text-slate-300 space-y-2 bg-slate-900/90 h-[280px] overflow-hidden">
-                <p className="text-royal-blue-400"># Initializing Practical Sandbox Mode...</p>
-                <p className="text-emerald-400">$ Edqoo deploy --track data-science</p>
-                <p className="text-slate-400">Loading datasets... [OK]</p>
-                <p className="text-slate-400">Fitting Linear regression model... [OK]</p>
-                <p className="text-yellow-400">&gt;&gt; Model Accuracy: 98.4% (R-Squared)</p>
-                <p className="text-emerald-400">$ Edqoo audit --track cybersecurity</p>
-                <p className="text-slate-400">Auditing firewalls... Ports open: 22, 80, 443</p>
-                <p className="text-red-400">Vulnerability Detected: CVE-2026-X [CRITICAL]</p>
-                <p className="text-slate-400">Patching web filters... Sandbox secured!</p>
-                <p className="text-emerald-400">$ Edqoo success --skills-built</p>
-              </div>
-            </div>
-
-            {/* Floating Visual Cards */}
-            <motion.div
-              animate={{ y: [0, -10, 0] }}
-              transition={{ repeat: Infinity, duration: 4, ease: 'easeInOut' }}
-              className="absolute top-0 right-4 z-20 bg-white border border-royal-blue-200 rounded-xl p-3 shadow-md flex items-center gap-2.5"
-            >
-              <div className="p-1.5 bg-royal-blue-100 text-royal-blue-600 rounded-lg">
-                <ShieldCheck className="w-5 h-5" />
-              </div>
-              <div>
-                <span className="text-[10px] uppercase text-royal-blue-600 font-bold tracking-wider">LMS Verified</span>
-                <span className="text-xs font-bold text-deep-navy-900 block">Cybersecurity</span>
-              </div>
-            </motion.div>
-
-            <motion.div
-              animate={{ y: [0, 10, 0] }}
-              transition={{ repeat: Infinity, duration: 4, delay: 2, ease: 'easeInOut' }}
-              className="absolute bottom-4 left-4 z-20 bg-white border border-royal-blue-200 rounded-xl p-3 shadow-md flex items-center gap-2.5"
-            >
-              <div className="p-1.5 bg-royal-blue-100 text-royal-blue-600 rounded-lg">
-                <TrendingUp className="w-5 h-5" />
-              </div>
-              <div>
-                <span className="text-[10px] uppercase text-royal-blue-600 font-bold tracking-wider">Analytics</span>
-                <span className="text-xs font-bold text-deep-navy-900 block">Data Science</span>
-              </div>
-            </motion.div>
           </div>
         </div>
       </section>
 
-      {/* 4. TRUST SECTION */}
-      <section className="bg-deep-navy-50 border-y border-deep-navy-200/80 py-10">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center space-y-4">
-          <p className="text-xs font-semibold text-slate-500 uppercase tracking-widest">
-            Master Skills That Matter in the Real World
-          </p>
-          <div className="flex flex-wrap justify-center gap-6 sm:gap-12 md:gap-16 text-deep-navy-900 font-display font-semibold text-sm sm:text-base">
-            <span className="flex items-center gap-2">
-              <CheckCircle2 className="w-5 h-5 text-royal-blue-600" />
-              Practical Labs
-            </span>
-            <span className="flex items-center gap-2">
-              <CheckCircle2 className="w-5 h-5 text-royal-blue-600" />
-              Expert-Led Coursework
-            </span>
-            <span className="flex items-center gap-2">
-              <CheckCircle2 className="w-5 h-5 text-royal-blue-600" />
-              Project-Based Portfolios
-            </span>
-            <span className="flex items-center gap-2">
-              <CheckCircle2 className="w-5 h-5 text-royal-blue-600" />
-              Career-Focused Outcomes
-            </span>
-            <span className="flex items-center gap-2">
-              <CheckCircle2 className="w-5 h-5 text-royal-blue-600" />
-              Industry Certification
-            </span>
-          </div>
-        </div>
-      </section>
-
-      {/* 5. EXPLORE PROGRAMS & FILTER SYSTEM - REDESIGNED */}
+      {/* ========================================================================= */}
+      {/* 3. POPULAR PROGRAMS (Category Sidebar + Program Cards) */}
+      {/* ========================================================================= */}
       <section id="programs" className="section-padding bg-white">
         {/* Section Header */}
-        <div className="text-center max-w-3xl mx-auto mb-16 space-y-2">
-          <span className="text-royal-blue-600 text-xs font-bold tracking-widest uppercase block">
-            FIND YOUR IDEAL
+        <div className="text-center max-w-3xl mx-auto mb-10 space-y-2">
+          <span className="text-royal-blue-600 text-xs font-extrabold tracking-widest uppercase block">
+            EXPLORE CURRICULUM
           </span>
-          <h2 className="text-3xl sm:text-4xl font-display font-extrabold text-deep-navy-900">
-            Explore Our Programs
+          <h2 className="text-2xl sm:text-3xl lg:text-4xl font-display font-extrabold text-deep-navy-900">
+            Featured Professional Programs
           </h2>
-          <p className="text-slate-500 text-sm sm:text-base leading-relaxed">
-            Build practical skills in the technologies shaping tomorrow's careers.
+          <p className="text-slate-500 text-xs sm:text-sm leading-relaxed">
+            Select a specialized technology domain to explore comprehensive, lab-oriented certificate programs.
           </p>
         </div>
 
-        {/* Categories Sidebar & Course Cards Grid Layout */}
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+        {/* 2-Column Grid: Left Category Sidebar + Right Course Cards */}
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-8 items-start">
           
-          {/* Left Category Sidebar navigation (Desktop) */}
-          <aside className="hidden lg:block lg:col-span-3 bg-white border border-deep-navy-200 rounded-xl p-3 shadow-sm sticky top-28">
+          {/* Left Category Sidebar (Desktop) */}
+          <aside className="hidden lg:block lg:col-span-3 bg-deep-navy-50/70 border border-deep-navy-200 rounded-2xl p-2.5 shadow-2xs sticky top-20">
+            <div className="px-3 py-2 border-b border-deep-navy-200/80 mb-2">
+              <span className="text-[11px] font-extrabold text-deep-navy-900 uppercase tracking-wider block">
+                Domains & Categories
+              </span>
+            </div>
             <div className="space-y-1">
-              {categories.map((cat) => {
-                const isActive = activeCategory === cat.id;
+              {categoryNav.map((cat) => {
+                const IconComponent = cat.icon;
+                const isActive = selectedCategory === cat.id;
                 return (
                   <button
                     key={cat.id}
-                    onClick={() => setActiveCategory(cat.id)}
-                    className={`w-full flex items-center justify-between px-4 py-3.5 text-xs font-bold rounded-lg transition-all text-left ${
+                    onClick={() => setSelectedCategory(cat.id)}
+                    className={`w-full flex items-center justify-between px-3.5 py-2.5 text-xs font-bold rounded-xl transition-all text-left ${
                       isActive
                         ? 'bg-royal-blue-600 text-white shadow-sm'
-                        : 'text-deep-navy-900 hover:bg-deep-navy-50 hover:text-royal-blue-600'
+                        : 'text-deep-navy-800 hover:bg-white hover:text-royal-blue-600'
                     }`}
                   >
                     <span className="flex items-center gap-2.5">
-                      <span className="text-base leading-none">{cat.icon}</span>
+                      <IconComponent className={`w-4 h-4 ${isActive ? 'text-white' : 'text-slate-500'}`} />
                       <span>{cat.label}</span>
                     </span>
-                    <span className={`text-[10px] transition-transform ${isActive ? 'translate-x-0.5 text-white' : 'text-slate-400'}`}>
-                      ➔
-                    </span>
+                    <ChevronRight className={`w-3.5 h-3.5 transition-transform ${isActive ? 'text-white translate-x-0.5' : 'text-slate-400'}`} />
                   </button>
                 );
               })}
             </div>
           </aside>
 
-          {/* Horizontal scrollable pills/tabs filter navigation (Mobile/Tablet) */}
-          <div className="lg:hidden w-full overflow-x-auto pb-3 scrollbar-none flex gap-2 px-2 -mx-2 mb-4 justify-start">
-            {categories.map((cat) => {
-              const isActive = activeCategory === cat.id;
+          {/* Horizontal scrollable pills filter (Mobile / Tablet) */}
+          <div className="lg:hidden w-full overflow-x-auto pb-2 scrollbar-none flex gap-2 mb-4">
+            {categoryNav.map((cat) => {
+              const IconComponent = cat.icon;
+              const isActive = selectedCategory === cat.id;
               return (
                 <button
                   key={cat.id}
-                  onClick={() => setActiveCategory(cat.id)}
-                  className={`px-4 py-2.5 text-xs font-bold rounded-lg whitespace-nowrap border flex-shrink-0 flex items-center gap-1.5 transition-all ${
+                  onClick={() => setSelectedCategory(cat.id)}
+                  className={`px-3 py-2 text-xs font-bold rounded-xl whitespace-nowrap border flex-shrink-0 flex items-center gap-1.5 transition-all ${
                     isActive
                       ? 'bg-royal-blue-600 text-white border-royal-blue-600 shadow-sm'
-                      : 'bg-white text-deep-navy-900 border-deep-navy-200 hover:border-slate-350'
+                      : 'bg-white text-deep-navy-800 border-deep-navy-200 hover:bg-deep-navy-50'
                   }`}
                 >
-                  <span>{cat.icon}</span>
+                  <IconComponent className="w-3.5 h-3.5" />
                   <span>{cat.label}</span>
                 </button>
               );
             })}
           </div>
 
-          {/* Right Program Grid Side */}
+          {/* Right Courses Cards Grid */}
           <div className="lg:col-span-9 space-y-6">
             
-            {/* Horizontal Line Program Header */}
-            <div className="flex items-center gap-4">
-              <span className="text-[10px] font-bold uppercase tracking-widest text-royal-blue-600 whitespace-nowrap">
-                POPULAR PROGRAMS
+            {/* Header / Results counter */}
+            <div className="flex items-center justify-between border-b border-deep-navy-200 pb-3">
+              <span className="text-xs font-bold text-slate-500">
+                Showing <strong className="text-deep-navy-900">{displayedCourses.length}</strong> Programs
               </span>
-              <div className="flex-1 h-[1px] bg-deep-navy-200" />
+              <Link
+                to="/courses"
+                className="text-xs font-bold text-royal-blue-600 hover:text-royal-blue-700 inline-flex items-center gap-1"
+              >
+                <span>View Full Catalog</span>
+                <ArrowRight className="w-3.5 h-3.5" />
+              </Link>
             </div>
 
-            {/* Course Cards Grid */}
-            <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
-              {filteredCourses.map((course) => {
+            {/* Grid */}
+            <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-5">
+              {displayedCourses.map((course) => {
                 const isComingSoon = course.status === 'coming-soon';
                 return (
                   <div
                     key={course.id}
-                    className="premium-card flex flex-col justify-between h-[420px]"
+                    className="premium-card flex flex-col justify-between overflow-hidden group bg-white border border-deep-navy-200 rounded-2xl"
                   >
-                    {/* Course Card Header Image */}
-                    <div className="relative aspect-[16/9] overflow-hidden bg-slate-100 border-b border-deep-navy-200">
+                    {/* Course Image */}
+                    <div className="relative aspect-[16/10] overflow-hidden bg-deep-navy-100">
                       <img
                         src={course.image}
                         alt={course.title}
-                        className="w-full h-full object-cover transition-transform duration-500 hover:scale-105"
+                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                        loading="lazy"
                       />
-                      <span className="absolute top-3 left-3 px-2 py-0.5 bg-deep-navy-900/90 text-white text-[9px] font-bold rounded uppercase tracking-wider">
+                      <span className="absolute top-3 left-3 px-2 py-0.5 bg-deep-navy-950/85 text-white text-[10px] font-bold rounded-md uppercase tracking-wider backdrop-blur-xs">
                         {course.category}
                       </span>
                       {isComingSoon && (
-                        <span className="absolute top-3 right-3 px-2 py-0.5 bg-royal-blue-600 text-white text-[9px] font-bold rounded uppercase tracking-wider">
-                          Coming Soon
+                        <span className="absolute top-3 right-3 px-2 py-0.5 bg-royal-blue-600 text-white text-[10px] font-bold rounded-md uppercase tracking-wider">
+                          Upcoming Batch
                         </span>
                       )}
                     </div>
 
-                    {/* Content Details */}
-                    <div className="p-4 flex-1 flex flex-col justify-between">
+                    {/* Card Content Details */}
+                    <div className="p-4 flex-1 flex flex-col justify-between space-y-3">
                       <div className="space-y-1.5">
-                        <h3 className="font-display font-bold text-sm text-deep-navy-900 hover:text-royal-blue-600 transition-colors line-clamp-1">
-                          {isComingSoon ? course.title : <Link to={`/courses/${course.slug}`}>{course.title}</Link>}
+                        <h3 className="font-display font-bold text-sm text-deep-navy-900 group-hover:text-royal-blue-600 transition-colors line-clamp-1">
+                          {isComingSoon ? (
+                            course.title
+                          ) : (
+                            <Link to={`/courses/${course.slug}`}>{course.title}</Link>
+                          )}
                         </h3>
                         <p className="text-slate-500 text-[11px] leading-relaxed line-clamp-2">
                           {course.description}
                         </p>
                       </div>
 
-                      {/* Technical Skills and metadata tags */}
-                      <div className="space-y-3 mt-2">
-                        <div className="flex flex-wrap gap-1">
-                          {course.skills.slice(0, 3).map((skill) => (
-                            <span key={skill} className="px-1.5 py-0.5 bg-deep-navy-50 text-deep-navy-800 text-[9px] font-semibold rounded">
-                              {skill}
-                            </span>
-                          ))}
-                          {course.skills.length > 3 && (
-                            <span className="px-1.5 py-0.5 bg-deep-navy-50 text-slate-400 text-[9px] font-medium rounded">
-                              +{course.skills.length - 3}
-                            </span>
-                          )}
-                        </div>
-
-                        {!isComingSoon && (
-                          <div className="flex items-center justify-between text-[10px] text-slate-400 font-semibold border-t border-deep-navy-100 pt-3">
-                            <span className="flex items-center gap-1">
-                              <Clock className="w-3 h-3 text-slate-400" />
-                              {course.duration}
-                            </span>
-                            <span className="flex items-center gap-1">
-                              <BookOpen className="w-3 h-3 text-slate-400" />
-                              Online
-                            </span>
-                            <span className="flex items-center gap-1 text-yellow-500">
-                              <Star className="w-3 h-3 fill-current" />
-                              {course.rating}
-                            </span>
-                          </div>
+                      {/* Skills Tags */}
+                      <div className="flex flex-wrap gap-1">
+                        {course.skills.slice(0, 3).map((skill) => (
+                          <span
+                            key={skill}
+                            className="px-1.5 py-0.5 bg-deep-navy-50 border border-deep-navy-200/60 text-deep-navy-800 text-[9px] font-semibold rounded"
+                          >
+                            {skill}
+                          </span>
+                        ))}
+                        {course.skills.length > 3 && (
+                          <span className="px-1.5 py-0.5 bg-deep-navy-50 text-slate-400 text-[9px] font-medium rounded">
+                            +{course.skills.length - 3}
+                          </span>
                         )}
                       </div>
 
-                      {/* CTA & Pricing Footer */}
-                      <div className="pt-3 border-t border-deep-navy-100 flex items-center justify-between">
+                      {/* Course Metadata (Duration, Mode, Rating) */}
+                      <div className="flex items-center justify-between text-[11px] text-slate-500 font-semibold border-t border-deep-navy-100 pt-2.5">
+                        <span className="flex items-center gap-1">
+                          <Clock className="w-3.5 h-3.5 text-slate-400" />
+                          {course.duration}
+                        </span>
+                        <span className="flex items-center gap-1">
+                          <BookOpen className="w-3.5 h-3.5 text-slate-400" />
+                          Online
+                        </span>
+                        <span className="flex items-center gap-1 text-amber-500">
+                          <Star className="w-3.5 h-3.5 fill-current" />
+                          {course.rating > 0 ? course.rating : '4.8'}
+                        </span>
+                      </div>
+
+                      {/* Action & Pricing Footer */}
+                      <div className="pt-3 border-t border-deep-navy-100 flex items-center justify-between gap-2">
                         {isComingSoon ? (
-                          <div className="w-full">
-                            {notifiedEmails[course.id] ? (
-                              <div className="px-3 py-1.5 bg-emerald-50 border border-emerald-100 text-emerald-800 text-[10px] rounded-lg text-center font-bold">
-                                ✓ We will notify you!
-                              </div>
-                            ) : (
-                              <form onSubmit={(e) => handleNotifySubmit(e, course.id)} className="flex gap-1.5 w-full">
-                                <input
-                                  type="email"
-                                  required
-                                  placeholder="Email for notification"
-                                  value={emailInput[course.id] || ''}
-                                  onChange={(e) => handleEmailChange(course.id, e.target.value)}
-                                  className="flex-1 px-2.5 py-1.5 bg-deep-navy-50 border border-deep-navy-200 text-[10px] rounded-lg focus:outline-none focus:border-royal-blue-500 text-deep-navy-900"
-                                />
-                                <button
-                                  type="submit"
-                                  className="px-3 py-1.5 bg-royal-blue-600 hover:bg-royal-blue-700 text-white text-[10px] font-bold rounded-lg transition-colors flex-shrink-0"
-                                >
-                                  Notify Me
-                                </button>
-                              </form>
-                            )}
-                          </div>
+                          <>
+                            <span className="text-[10px] font-bold text-royal-blue-600 uppercase">
+                              Enrolment Opening
+                            </span>
+                            <button
+                              type="button"
+                              onClick={() => openEnquiryModal(course.title)}
+                              className="btn-secondary px-3.5 py-1.5 text-[11px] font-bold rounded-lg"
+                            >
+                              Get Notified
+                            </button>
+                          </>
                         ) : (
                           <>
                             <div className="flex flex-col">
-                              <span className="text-[10px] text-slate-400 line-through leading-none">₹{course.originalPrice}</span>
-                              <span className="text-deep-navy-900 font-extrabold text-base leading-tight">₹{course.price}</span>
+                              <span className="text-[10px] text-slate-400 line-through leading-none">
+                                ₹{course.originalPrice}
+                              </span>
+                              <span className="text-deep-navy-900 font-extrabold text-sm leading-tight">
+                                ₹{course.price}
+                              </span>
                             </div>
-                            <Link
-                              to={`/courses/${course.slug}`}
-                              className="btn-primary px-5 py-2 text-[10px] font-bold rounded-lg inline-flex items-center justify-center gap-1.5"
-                            >
-                              Details
-                              <ArrowRight className="w-3.5 h-3.5" />
-                            </Link>
+                            <div className="flex items-center gap-1.5">
+                              <button
+                                type="button"
+                                onClick={() => openEnquiryModal(course.title)}
+                                className="px-2.5 py-1.5 text-[10px] font-bold text-slate-600 hover:text-royal-blue-600 rounded-lg hover:bg-slate-50 transition-colors"
+                              >
+                                Enquire
+                              </button>
+                              <Link
+                                to={`/courses/${course.slug}`}
+                                className="btn-primary px-3.5 py-1.5 text-[11px] font-bold rounded-lg inline-flex items-center gap-1"
+                              >
+                                <span>Details</span>
+                                <ArrowRight className="w-3 h-3" />
+                              </Link>
+                            </div>
                           </>
                         )}
-                        </div>
                       </div>
                     </div>
-                  );
-                })}
-              </div>
-
-              {/* View All Programs Link */}
-              <div className="flex justify-end pt-4">
-                <Link
-                  to="/courses"
-                  className="inline-flex items-center gap-1.5 text-xs font-bold text-royal-blue-600 hover:text-royal-blue-700 transition-colors"
-                >
-                  View All Programs <ArrowRight className="w-3.5 h-3.5" />
-                </Link>
-              </div>
-
+                  </div>
+                );
+              })}
             </div>
           </div>
-        </section>
+        </div>
+      </section>
 
-      {/* 6. CYBERSECURITY FEATURED PROGRAM SECTION - Re-themed to light-blue */}
-      <section className="bg-deep-navy-50 text-deep-navy-900 py-20 relative overflow-hidden border-b border-deep-navy-200">
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_bottom_left,#1268e808,transparent_45%)] pointer-events-none" />
-        
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10 grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
-          {/* Left Column Content */}
-          <div className="lg:col-span-7 space-y-6 text-left">
-            <span className="inline-block px-3 py-1 bg-royal-blue-100 border border-royal-blue-200 text-royal-blue-600 text-xs font-bold rounded-md uppercase tracking-wider">
-              Featured Track // Available Now
-            </span>
-            <h2 className="text-3xl sm:text-4xl font-display font-extrabold text-deep-navy-900 tracking-tight leading-tight">
-              Master Cybersecurity Through <br className="hidden sm:inline" />
-              <span className="text-royal-blue-600">
-                Practical Defensive Learning
-              </span>
-            </h2>
-            <p className="text-slate-500 text-sm leading-relaxed max-w-2xl">
-              Gain intermediate to advanced defensive hacking capabilities. Edqoo is structured around defensive configurations, system pen-testing scans, network captures, and auditing report methodologies. Build actual competence in:
-            </p>
-
-            {/* Grid checklist */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-y-3.5 gap-x-6">
-              {[
-                'Cybersecurity Fundamentals',
-                'Ethical Hacking Scanning & Vulns',
-                'Networking & Wireshark Captures',
-                'Web Application Security',
-                'Linux Command Line Hardening',
-                'Vulnerability Assessments',
-                'Firewalls & Snort IDS Setup',
-                'SIEM Logs Splunk Monitoring'
-              ].map((skill) => (
-                <div key={skill} className="flex items-start gap-2.5">
-                  <CheckCircle2 className="w-5 h-5 text-royal-blue-600 mt-0.5 flex-shrink-0" />
-                  <span className="text-xs font-bold text-deep-navy-800">{skill}</span>
-                </div>
-              ))}
-            </div>
-
-            <div className="pt-4 flex flex-wrap gap-4 items-center">
-              <Link to="/courses/cybersecurity" className="btn-primary px-6 py-3 text-xs font-bold rounded-lg flex items-center gap-1.5">
-                Explore Cybersecurity
-                <ArrowRight className="w-4 h-4" />
-              </Link>
-              <span className="text-[11px] text-slate-400 font-semibold uppercase tracking-wider flex items-center gap-1.5">
-                <CheckCircle2 className="w-4 h-4 text-emerald-500" />
-                Includes 3 Hands-On Labs & Capstone Audit
-              </span>
-            </div>
-          </div>
-
-          {/* Right Column visual box */}
-          <div className="lg:col-span-5 bg-white border border-deep-navy-200 rounded-2xl p-6 shadow-sm">
-            <h3 className="font-display font-semibold text-sm text-deep-navy-900 uppercase tracking-widest mb-4 flex items-center gap-2">
-              <span className="w-2.5 h-2.5 rounded-full bg-royal-blue-500" />
-              Curriculum Outline
-            </h3>
+      {/* ========================================================================= */}
+      {/* 4. ANIMATED STATISTICS SECTION */}
+      {/* ========================================================================= */}
+      <section
+        ref={statsSectionRef}
+        className="bg-royal-blue-600 text-white py-12 sm:py-16 relative overflow-hidden"
+      >
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-6 sm:gap-8 text-center">
             
-            <div className="space-y-3 text-xs">
-              {[
-                { module: 'Module 1-3', title: 'Linux, Networking & Security Fundamentals' },
-                { module: 'Module 4-6', title: 'Ethical Hacking, Web & Network Exploits' },
-                { module: 'Module 7-8', title: 'Vulnerability Analysis & SIEM Operations' },
-                { module: 'Module 9-10', title: 'Defensive Labs & Capstone Audit Project' }
-              ].map((step, idx) => (
-                <div key={idx} className="flex items-center justify-between p-3.5 bg-deep-navy-50 rounded-xl border border-deep-navy-200 hover:border-royal-blue-500/40 transition-colors">
-                  <div className="text-left">
-                    <span className="text-[10px] text-royal-blue-600 font-bold block">{step.module}</span>
-                    <span className="font-semibold text-deep-navy-900 mt-0.5 block">{step.title}</span>
-                  </div>
-                  <span className="text-[10px] font-bold text-slate-400 uppercase">Verified</span>
-                </div>
-              ))}
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* 7. DATA SCIENCE FEATURED PROGRAM SECTION */}
-      <section className="bg-white py-20 relative border-b border-deep-navy-200">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 grid grid-cols-1 lg:grid-cols-12 gap-16 items-center">
-          {/* Left Column visual display */}
-          <div className="lg:col-span-5 order-2 lg:order-1">
-            <div className="relative bg-deep-navy-50 border border-deep-navy-200 rounded-2xl p-6 shadow-sm">
-              <span className="absolute -top-3 left-6 px-3 py-1 bg-royal-blue-600 text-white text-[10px] font-bold rounded uppercase tracking-wider">
-                Tools & Technologies Covered
-              </span>
-              
-              <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 pt-4 text-center">
-                {[
-                  { name: 'Python', desc: 'Core Programming' },
-                  { name: 'Pandas', desc: 'Data Manipulation' },
-                  { name: 'NumPy', desc: 'Matrix Math' },
-                  { name: 'SQL', desc: 'Database Querying' },
-                  { name: 'Matplotlib', desc: 'Data Plotting' },
-                  { name: 'Seaborn', desc: 'Statistical Plots' },
-                  { name: 'Scikit-Learn', desc: 'Machine Learning' },
-                  { name: 'Jupyter', desc: 'Notebook Workspaces' },
-                  { name: 'Git/GitHub', desc: 'Version Control' }
-                ].map((tech) => (
-                  <div key={tech.name} className="p-3 bg-white border border-deep-navy-200 hover:border-royal-blue-500 rounded-xl transition-all shadow-sm">
-                    <span className="text-sm font-bold text-deep-navy-900 block">{tech.name}</span>
-                    <span className="text-[10px] text-slate-500 block mt-0.5 leading-tight">{tech.desc}</span>
-                  </div>
-                ))}
+            {/* Stat 1 */}
+            <div className="space-y-1.5 p-4 rounded-xl bg-white/5 backdrop-blur-xs border border-white/10">
+              <div className="w-10 h-10 rounded-lg bg-white/10 flex items-center justify-center mx-auto text-white mb-2">
+                <Users className="w-5 h-5" />
               </div>
-            </div>
-          </div>
-
-          {/* Right Column Content */}
-          <div className="lg:col-span-7 space-y-6 text-left order-1 lg:order-2">
-            <span className="inline-block px-3 py-1 bg-royal-blue-100 border border-royal-blue-200 text-royal-blue-600 text-xs font-bold rounded-md uppercase tracking-wider">
-              Core Track // In-Demand Skills
-            </span>
-            <h2 className="text-3xl sm:text-4xl font-display font-extrabold text-deep-navy-900 tracking-tight leading-tight">
-              Turn Data Into Decisions <br />
-              <span className="text-royal-blue-600">
-                With Project-Based Portfolios
+              <span className="text-2xl sm:text-3xl lg:text-4xl font-display font-extrabold text-white block">
+                {statsAnimated ? '2,500+' : '0'}
               </span>
-            </h2>
-            <p className="text-slate-500 text-sm leading-relaxed">
-              Build a strong foundation in programmatic analytics. Rather than relying on simple spreadsheets, learn to write logic parameters, clean complex datasets, conduct statistical hypotheses, and train predictive machine learning pipelines.
-            </p>
-
-            <div className="space-y-3.5">
-              {[
-                { title: 'Write Clean Python Scripts', desc: 'Master variables, loops, custom function arguments, and library management pipelines.' },
-                { title: 'Aggregate Large Scale Tabular Data', desc: 'Clean missing rows, merge disparate tables, and aggregate metrics using Pandas and NumPy arrays.' },
-                { title: 'Build Predictive Models', desc: 'Configure linear regressions, classification trees, random forests, and parameter tuning grids.' }
-              ].map((step, idx) => (
-                <div key={idx} className="flex gap-3">
-                  <div className="flex-shrink-0 w-6 h-6 rounded-full bg-royal-blue-100 flex items-center justify-center text-royal-blue-600 font-bold text-xs mt-0.5">
-                    {idx + 1}
-                  </div>
-                  <div>
-                    <h4 className="text-xs font-bold text-deep-navy-900">{step.title}</h4>
-                    <p className="text-xs text-slate-500 mt-0.5 leading-relaxed">{step.desc}</p>
-                  </div>
-                </div>
-              ))}
-            </div>
-
-            <div className="pt-4 flex flex-wrap gap-4 items-center">
-              <Link to="/courses/data-science" className="btn-primary px-6 py-3 text-xs font-bold rounded-lg flex items-center gap-1.5 shadow-sm">
-                Explore Data Science
-                <ArrowRight className="w-4 h-4" />
-              </Link>
-              <span className="text-[11px] text-slate-400 font-semibold uppercase tracking-wider flex items-center gap-1.5">
-                <CheckCircle2 className="w-4 h-4 text-emerald-500" />
-                Includes 3 Business Projects & Streamlit App
+              <span className="text-xs font-semibold text-royal-blue-100 uppercase tracking-wider block">
+                Active Learners
               </span>
             </div>
+
+            {/* Stat 2 */}
+            <div className="space-y-1.5 p-4 rounded-xl bg-white/5 backdrop-blur-xs border border-white/10">
+              <div className="w-10 h-10 rounded-lg bg-white/10 flex items-center justify-center mx-auto text-white mb-2">
+                <Star className="w-5 h-5" />
+              </div>
+              <span className="text-2xl sm:text-3xl lg:text-4xl font-display font-extrabold text-white block">
+                {statsAnimated ? '4.8 / 5.0' : '0.0'}
+              </span>
+              <span className="text-xs font-semibold text-royal-blue-100 uppercase tracking-wider block">
+                Average Rating
+              </span>
+            </div>
+
+            {/* Stat 3 */}
+            <div className="space-y-1.5 p-4 rounded-xl bg-white/5 backdrop-blur-xs border border-white/10">
+              <div className="w-10 h-10 rounded-lg bg-white/10 flex items-center justify-center mx-auto text-white mb-2">
+                <Layers className="w-5 h-5" />
+              </div>
+              <span className="text-2xl sm:text-3xl lg:text-4xl font-display font-extrabold text-white block">
+                {statsAnimated ? '15+ Labs' : '0'}
+              </span>
+              <span className="text-xs font-semibold text-royal-blue-100 uppercase tracking-wider block">
+                Practical Labs Built
+              </span>
+            </div>
+
+            {/* Stat 4 */}
+            <div className="space-y-1.5 p-4 rounded-xl bg-white/5 backdrop-blur-xs border border-white/10">
+              <div className="w-10 h-10 rounded-lg bg-white/10 flex items-center justify-center mx-auto text-white mb-2">
+                <Award className="w-5 h-5" />
+              </div>
+              <span className="text-2xl sm:text-3xl lg:text-4xl font-display font-extrabold text-white block">
+                {statsAnimated ? '10+ Programs' : '0'}
+              </span>
+              <span className="text-xs font-semibold text-royal-blue-100 uppercase tracking-wider block">
+                Industry-Mapped Tracks
+              </span>
+            </div>
+
           </div>
         </div>
       </section>
 
-      {/* 8. WHY Edqoo - Re-themed to Light Blue background with white cards */}
-      <section className="bg-deep-navy-50 border-b border-deep-navy-200 py-20">
+      {/* ========================================================================= */}
+      {/* 5. "WHY CHOOSE US" / UNIQUE VALUE PROPOSITION */}
+      {/* ========================================================================= */}
+      <section className="bg-deep-navy-50 border-b border-deep-navy-200 py-16 sm:py-20">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center max-w-3xl mx-auto mb-16 space-y-2">
-            <span className="text-royal-blue-600 text-xs font-bold tracking-widest uppercase block">
-              OUR MISSION
+          <div className="text-center max-w-3xl mx-auto mb-12 space-y-2">
+            <span className="text-royal-blue-600 text-xs font-extrabold tracking-widest uppercase block">
+              OUR PEDAGOGY
             </span>
-            <h2 className="text-3xl sm:text-4xl font-display font-extrabold text-deep-navy-900">
-              Why Learn With Edqoo?
+            <h2 className="text-2xl sm:text-3xl lg:text-4xl font-display font-extrabold text-deep-navy-900">
+              Discover What Makes Edqoo Unique
             </h2>
-            <p className="text-slate-500 text-sm sm:text-base leading-relaxed">
-              We focus on building functional ability rather than offering standard passive video watching.
+            <p className="text-slate-500 text-xs sm:text-sm leading-relaxed">
+              We focus on building functional ability rather than offering passive video lectures.
             </p>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
             {[
-              { title: 'Practical Learning', icon: Layers, desc: 'Every topic is mapped directly to command outputs, coding environments, or terminal interactions.' },
-              { title: 'Industry-Relevant Curriculum', icon: ShieldCheck, desc: 'Syllabus guidelines are designed around production tech requirements, avoiding outdated logic.' },
-              { title: 'Real-World Projects', icon: Award, desc: 'Complete projects using actual code parameters, building a Github portfolio that stands out in recruiter reviews.' },
-              { title: 'Expert Guidance', icon: Users, desc: 'Courses are created and curated by industry practitioners who have guided enterprise systems configurations.' },
-              { title: 'Flexible Learning Pace', icon: Clock, desc: 'Learn on your schedule. Access lesson videos, datasets, resource files, and test files indefinitely.' },
-              { title: 'Career-Focused Skills', icon: TrendingUp, desc: 'Every lesson targets skills needed for junior to mid-level technician functions in modern engineering fields.' }
+              {
+                title: 'Expert Practitioner Mentors',
+                icon: Users,
+                desc: 'Learn directly from seasoned engineers and security professionals who guide enterprise architectures.'
+              },
+              {
+                title: 'Practical Hands-On Labs',
+                icon: Layers,
+                desc: 'Execute direct terminal interactions, vulnerability audits, and python machine learning pipelines.'
+              },
+              {
+                title: 'Career-Focused Curriculum',
+                icon: TrendingUp,
+                desc: 'Every syllabus module is audited against current production tooling and engineering job requirements.'
+              },
+              {
+                title: 'Flexible Multi-Device Learning',
+                icon: Clock,
+                desc: 'Study at your own pace with lifetime access to materials, lab notes, and updated curriculum patches.'
+              }
             ].map((card, idx) => {
-              const Icon = card.icon;
+              const IconComp = card.icon;
               return (
-                <div key={idx} className="bg-white border border-deep-navy-200 p-6 rounded-2xl shadow-sm hover:border-royal-blue-600 hover:shadow-md transition-all group">
-                  <div className="w-10 h-10 rounded-xl bg-royal-blue-100 flex items-center justify-center text-royal-blue-600 mb-4 border border-royal-blue-200">
-                    <Icon className="w-5.5 h-5.5" />
+                <div
+                  key={idx}
+                  className="bg-white border border-deep-navy-200 p-6 rounded-2xl shadow-2xs hover:border-royal-blue-500 hover:shadow-md transition-all group"
+                >
+                  <div className="w-12 h-12 rounded-xl bg-royal-blue-50 border border-royal-blue-200 flex items-center justify-center text-royal-blue-600 mb-4 group-hover:scale-105 transition-transform">
+                    <IconComp className="w-6 h-6" />
                   </div>
-                  <h3 className="font-display font-bold text-base text-deep-navy-900 mb-2">{card.title}</h3>
-                  <p className="text-xs text-slate-500 leading-relaxed">{card.desc}</p>
+                  <h3 className="font-display font-bold text-base text-deep-navy-900 mb-2">
+                    {card.title}
+                  </h3>
+                  <p className="text-xs text-slate-500 leading-relaxed">
+                    {card.desc}
+                  </p>
                 </div>
               );
             })}
@@ -646,217 +705,250 @@ export const Home: React.FC = () => {
         </div>
       </section>
 
-      {/* 9. STATISTICS - Re-themed to Solid Blue background */}
-      <section className="bg-royal-blue-600 text-white py-16 relative overflow-hidden">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 grid grid-cols-2 lg:grid-cols-4 gap-8 text-center relative z-10">
-          {statsData.map((stat) => (
-            <div key={stat.id} className="space-y-1">
-              <span className="text-3xl sm:text-4xl lg:text-5xl font-display font-extrabold text-white block">
-                {stat.value}
-              </span>
-              <span className="text-xs font-semibold text-royal-blue-100 uppercase tracking-widest block">
-                {stat.label}
-              </span>
-            </div>
-          ))}
-        </div>
-      </section>
-
-      {/* 10. HOW IT WORKS */}
+      {/* ========================================================================= */}
+      {/* 6. SKILLS FOR MODERN CAREERS SECTION */}
+      {/* ========================================================================= */}
       <section className="section-padding bg-white">
-        <div className="text-center max-w-3xl mx-auto mb-16 space-y-2">
-          <span className="text-royal-blue-600 text-xs font-bold tracking-widest uppercase block">
-            HOW IT WORKS
+        <div className="text-center max-w-3xl mx-auto mb-12 space-y-2">
+          <span className="text-royal-blue-600 text-xs font-extrabold tracking-widest uppercase block">
+            SKILL DIRECTORY
           </span>
-          <h2 className="text-3xl sm:text-4xl font-display font-extrabold text-deep-navy-900">
-            How Edqoo Works
+          <h2 className="text-2xl sm:text-3xl font-display font-extrabold text-deep-navy-900">
+            Skills for Modern Technology Careers
           </h2>
-          <p className="text-slate-500 text-sm sm:text-base leading-relaxed">
-            A simple 4-step path from selecting your course to obtaining your career verification.
+          <p className="text-slate-500 text-xs sm:text-sm">
+            Explore industry competencies in demand across modern engineering organizations.
           </p>
         </div>
 
-        {/* Desktop Horizontal Timeline */}
-        <div className="hidden lg:grid grid-cols-4 gap-8 relative">
-          {/* Connector Line */}
-          <div className="absolute top-1/2 left-0 right-0 h-0.5 bg-deep-navy-200/80 -translate-y-1/2 z-0" />
-          
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 max-w-5xl mx-auto">
           {[
-            { step: '01', title: 'Choose Your Course', desc: 'Select between Cybersecurity or Data Science tracks based on your career interests.' },
-            { step: '02', title: 'Learn Through Practical Content', desc: 'Interact with direct command parameters, system tools, and detailed script modules.' },
-            { step: '03', title: 'Build Real Projects', desc: 'Write actual code to resolve challenges, compiling a portfolio recruiters review.' },
-            { step: '04', title: 'Earn Your Certificate', desc: 'Submit assignments to verify competencies and earn digital shareable verification.' }
-          ].map((item, idx) => (
-            <div key={idx} className="relative z-10 bg-deep-navy-50 border border-deep-navy-200 p-6 rounded-2xl shadow-sm space-y-3 hover:border-royal-blue-600 transition-colors">
-              <span className="text-2xl font-display font-extrabold text-royal-blue-600 block leading-none">{item.step}</span>
-              <h3 className="font-display font-bold text-sm text-deep-navy-900">{item.title}</h3>
-              <p className="text-xs text-slate-500 leading-relaxed">{item.desc}</p>
-            </div>
-          ))}
-        </div>
-
-        {/* Mobile Vertical Timeline */}
-        <div className="lg:hidden space-y-6 relative pl-6 border-l border-deep-navy-200">
-          {[
-            { step: '01', title: 'Choose Your Course', desc: 'Select between Cybersecurity or Data Science tracks based on your career interests.' },
-            { step: '02', title: 'Learn Through Practical Content', desc: 'Interact with direct command parameters, system tools, and detailed script modules.' },
-            { step: '03', title: 'Build Real Projects', desc: 'Write actual code to resolve challenges, compiling a portfolio recruiters review.' },
-            { step: '04', title: 'Earn Your Certificate', desc: 'Submit assignments to verify competencies and earn digital shareable verification.' }
-          ].map((item, idx) => (
-            <div key={idx} className="relative space-y-2">
-              {/* Timeline dot */}
-              <div className="absolute -left-[31px] top-1.5 w-4.5 h-4.5 rounded-full bg-royal-blue-600 border-4 border-white shadow-sm" />
-              <span className="text-xl font-display font-extrabold text-royal-blue-600 block leading-none">{item.step}</span>
-              <h3 className="font-display font-bold text-sm text-deep-navy-900">{item.title}</h3>
-              <p className="text-xs text-slate-500 leading-relaxed">{item.desc}</p>
-            </div>
-          ))}
+            { name: 'Cybersecurity & Defense Operations', icon: ShieldCheck, link: '/courses/cybersecurity', count: '45 Lessons' },
+            { name: 'Data Science & Predictive Analytics', icon: BarChart3, link: '/courses/data-science', count: '40 Lessons' },
+            { name: 'Artificial Intelligence & Generative AI', icon: BrainCircuit, link: '/courses', count: '50 Lessons' },
+            { name: 'Full Stack Software Engineering', icon: Code2, link: '/courses', count: '65 Lessons' },
+            { name: 'Cloud Solutions Architecture (AWS/Azure)', icon: Cloud, link: '/courses', count: '38 Lessons' },
+            { name: 'DevOps & Site Reliability (SRE)', icon: GitBranch, link: '/courses', count: '40 Lessons' },
+            { name: 'UI/UX Product Design & Figma', icon: Palette, link: '/courses', count: '32 Lessons' },
+            { name: 'Growth Marketing & Analytics', icon: TrendingUp, link: '/courses', count: '25 Lessons' },
+            { name: 'Mobile App Engineering (React Native)', icon: Smartphone, link: '/courses', count: '30 Lessons' }
+          ].map((item, idx) => {
+            const ItemIcon = item.icon;
+            return (
+              <Link
+                key={idx}
+                to={item.link}
+                className="flex items-center justify-between p-4 bg-deep-navy-50/70 border border-deep-navy-200 rounded-xl hover:bg-royal-blue-50 hover:border-royal-blue-300 transition-all group"
+              >
+                <div className="flex items-center gap-3">
+                  <div className="w-9 h-9 rounded-lg bg-white border border-deep-navy-200 text-royal-blue-600 flex items-center justify-center flex-shrink-0 group-hover:bg-royal-blue-600 group-hover:text-white transition-colors">
+                    <ItemIcon className="w-4.5 h-4.5" />
+                  </div>
+                  <div>
+                    <h4 className="text-xs font-bold text-deep-navy-900 group-hover:text-royal-blue-700 transition-colors">
+                      {item.name}
+                    </h4>
+                    <span className="text-[10px] text-slate-500 font-medium">{item.count}</span>
+                  </div>
+                </div>
+                <ArrowRight className="w-4 h-4 text-slate-400 group-hover:text-royal-blue-600 group-hover:translate-x-1 transition-all" />
+              </Link>
+            );
+          })}
         </div>
       </section>
 
-      {/* 11. TESTIMONIALS - Re-themed */}
-      <section className="bg-deep-navy-50 border-y border-deep-navy-200/80 py-20">
+      {/* ========================================================================= */}
+      {/* 7. TESTIMONIAL SLIDER SECTION */}
+      {/* ========================================================================= */}
+      <section className="bg-deep-navy-950 text-white py-16 sm:py-20 border-y border-deep-navy-800">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center max-w-3xl mx-auto mb-16 space-y-2">
-            <span className="text-royal-blue-600 text-xs font-bold tracking-widest uppercase block">
-              STUDENT REVIEWS
+          
+          {/* Header */}
+          <div className="text-center max-w-3xl mx-auto mb-12 space-y-2">
+            <span className="text-royal-blue-400 text-xs font-extrabold tracking-widest uppercase block">
+              ALUMNI OUTCOMES
             </span>
-            <h2 className="text-3xl sm:text-4xl font-display font-extrabold text-deep-navy-900">
+            <h2 className="text-2xl sm:text-3xl lg:text-4xl font-display font-extrabold text-white">
               What Our Learners Say
             </h2>
-            <p className="text-slate-500 text-sm sm:text-base leading-relaxed">
-              Read real stories from graduates who pivoted into security and analytics roles.
+            <p className="text-slate-300 text-xs sm:text-sm">
+              Real accounts from professionals who pivoted into security and analytics roles.
             </p>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-            {testimonials.map((item) => (
-              <div key={item.id} className="bg-white border border-deep-navy-200 p-6 rounded-2xl shadow-sm flex flex-col justify-between space-y-4 hover:border-royal-blue-600 transition-all">
-                <p className="text-slate-600 text-xs italic leading-relaxed">
-                  "{item.content}"
+          {/* Testimonial Presentation Card */}
+          <div className="max-w-4xl mx-auto bg-deep-navy-900 border border-deep-navy-800 rounded-3xl p-6 sm:p-10 shadow-2xl relative overflow-hidden">
+            <div className="grid grid-cols-1 md:grid-cols-12 gap-8 items-center">
+              
+              {/* Left Quote */}
+              <div className="md:col-span-8 space-y-4 text-left">
+                <div className="flex text-amber-400 gap-1">
+                  {[...Array(testimonials[activeTestimonial].rating)].map((_, i) => (
+                    <Star key={i} className="w-4 h-4 fill-current" />
+                  ))}
+                </div>
+
+                <p className="text-sm sm:text-base text-slate-200 italic leading-relaxed">
+                  "{testimonials[activeTestimonial].content}"
                 </p>
-                <div className="flex items-center gap-3 pt-4 border-t border-deep-navy-100">
-                  <img
-                    src={item.avatar}
-                    alt={item.name}
-                    className="w-10 h-10 rounded-full object-cover border border-deep-navy-200"
-                  />
-                  <div>
-                    <span className="text-xs font-bold text-deep-navy-900 block">{item.name}</span>
-                    <span className="text-[10px] text-slate-500 block mt-0.5">{item.role}</span>
-                  </div>
-                  <div className="ml-auto flex flex-col items-end gap-1">
-                    <div className="flex text-amber-400 gap-0.5">
-                      {[...Array(item.rating)].map((_, i) => (
-                        <Star key={i} className="w-3 h-3 fill-current" />
-                      ))}
-                    </div>
-                    <span className="text-[9px] font-semibold bg-royal-blue-100 text-royal-blue-600 px-1.5 py-0.5 rounded uppercase">
-                      {item.courseName}
-                    </span>
-                  </div>
+
+                <div className="pt-2 border-t border-deep-navy-800">
+                  <h4 className="font-display font-bold text-base text-white">
+                    {testimonials[activeTestimonial].name}
+                  </h4>
+                  <p className="text-xs text-royal-blue-300 font-semibold">
+                    {testimonials[activeTestimonial].role}
+                  </p>
+                  <span className="inline-block mt-2 px-2.5 py-1 bg-royal-blue-900/60 border border-royal-blue-500/30 text-royal-blue-200 text-[10px] font-bold rounded uppercase">
+                    {testimonials[activeTestimonial].courseName}
+                  </span>
                 </div>
               </div>
-            ))}
+
+              {/* Right Portrait */}
+              <div className="md:col-span-4 flex justify-center">
+                <div className="relative w-36 h-36 sm:w-44 sm:h-44 rounded-2xl overflow-hidden border-2 border-royal-blue-500/40 shadow-xl">
+                  <img
+                    src={testimonials[activeTestimonial].avatar}
+                    alt={testimonials[activeTestimonial].name}
+                    className="w-full h-full object-cover"
+                  />
+                </div>
+              </div>
+            </div>
+
+            {/* Testimonial Slider Controls */}
+            <div className="mt-8 pt-4 border-t border-deep-navy-800 flex items-center justify-between">
+              <div className="flex gap-2">
+                {testimonials.map((_, idx) => (
+                  <button
+                    key={idx}
+                    onClick={() => setActiveTestimonial(idx)}
+                    className={`h-2 rounded-full transition-all duration-300 ${
+                      activeTestimonial === idx ? 'w-6 bg-royal-blue-500' : 'w-2 bg-deep-navy-700'
+                    }`}
+                    aria-label={`Testimonial ${idx + 1}`}
+                  />
+                ))}
+              </div>
+
+              <div className="flex gap-2">
+                <button
+                  onClick={() =>
+                    setActiveTestimonial((prev) => (prev - 1 + testimonials.length) % testimonials.length)
+                  }
+                  className="p-2 rounded-lg bg-deep-navy-800 text-slate-300 hover:text-white border border-deep-navy-700"
+                  aria-label="Previous Testimonial"
+                >
+                  <ChevronLeft className="w-4 h-4" />
+                </button>
+                <button
+                  onClick={() =>
+                    setActiveTestimonial((prev) => (prev + 1) % testimonials.length)
+                  }
+                  className="p-2 rounded-lg bg-deep-navy-800 text-slate-300 hover:text-white border border-deep-navy-700"
+                  aria-label="Next Testimonial"
+                >
+                  <ChevronRight className="w-4 h-4" />
+                </button>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </section>
+
+      {/* ========================================================================= */}
+      {/* 8. PROMOTIONAL FREE COURSE / LEAD BANNER */}
+      {/* ========================================================================= */}
+      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+        <div className="bg-gradient-to-r from-deep-navy-900 to-royal-blue-900 text-white rounded-3xl p-8 sm:p-12 shadow-xl relative overflow-hidden grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
+          <div className="lg:col-span-8 space-y-3.5 text-left">
+            <span className="inline-block px-3 py-1 bg-royal-blue-800 border border-royal-blue-400/30 text-royal-blue-200 text-[10px] font-bold uppercase tracking-wider rounded-md">
+              Career Advisory
+            </span>
+            <h3 className="text-2xl sm:text-3xl font-display font-extrabold text-white">
+              Start Learning Today — Accelerate Your Career
+            </h3>
+            <p className="text-slate-300 text-xs sm:text-sm leading-relaxed max-w-xl">
+              Connect with our learning advisors for a personalized track assessment, course roadmap, and customized corporate training options.
+            </p>
+            <div className="flex flex-wrap gap-3 pt-2">
+              <button
+                type="button"
+                onClick={() => openEnquiryModal()}
+                className="btn-primary bg-white text-royal-blue-700 border-white hover:bg-slate-100 hover:text-royal-blue-800 px-6 py-2.5 text-xs font-bold rounded-xl shadow-md"
+              >
+                Request Free Advisory Session
+              </button>
+              <Link
+                to="/courses"
+                className="btn-secondary bg-transparent text-white border-white/30 hover:bg-white/10 px-6 py-2.5 text-xs font-bold rounded-xl"
+              >
+                Explore All Programs
+              </Link>
+            </div>
+          </div>
+
+          <div className="lg:col-span-4 hidden lg:flex justify-end">
+            <div className="w-48 h-48 rounded-2xl overflow-hidden border-2 border-white/20 shadow-2xl">
+              <img
+                src="https://images.unsplash.com/photo-1573497019940-1c28c88b4f3e?q=80&w=400&auto=format&fit=crop"
+                alt="Advisory session"
+                className="w-full h-full object-cover"
+              />
+            </div>
           </div>
         </div>
       </section>
 
-      {/* 12. INSTRUCTOR SECTION */}
-      <section className="section-padding bg-white">
-        <div className="text-center max-w-3xl mx-auto mb-16 space-y-2">
-          <span className="text-royal-blue-600 text-xs font-bold tracking-widest uppercase block">
-            Edqoo INSTRUCTORS
-          </span>
-          <h2 className="text-3xl sm:text-4xl font-display font-extrabold text-deep-navy-900">
-            Learn From Experienced Professionals
-          </h2>
-          <p className="text-slate-500 text-sm sm:text-base leading-relaxed">
-            Edqoo tracks are crafted by practitioners who have managed enterprise systems, engineered datasets, and conducted security audits.
-          </p>
-        </div>
-
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-4xl mx-auto">
-          {instructors.map((item) => (
-            <div key={item.id} className="bg-white border border-deep-navy-200 rounded-2xl p-6 shadow-sm flex flex-col sm:flex-row items-center sm:items-start gap-6 hover:border-royal-blue-600 transition-all">
-              <img
-                src={item.image}
-                alt={item.name}
-                className="w-24 h-24 rounded-2xl object-cover border border-deep-navy-200 flex-shrink-0"
-              />
-              <div className="space-y-2.5 text-center sm:text-left">
-                <div>
-                  <h3 className="font-display font-bold text-base text-slate-900">{item.name}</h3>
-                  <span className="text-xs text-royal-blue-600 font-semibold">{item.role}</span>
-                </div>
-                <p className="text-slate-500 text-xs leading-relaxed">
-                  {item.bio}
-                </p>
-                <div className="flex flex-wrap gap-1.5 justify-center sm:justify-start">
-                  {item.expertise.map((exp) => (
-                    <span key={exp} className="px-2 py-0.5 bg-deep-navy-50 text-deep-navy-800 text-[10px] font-semibold rounded">
-                      {exp}
-                    </span>
-                  ))}
-                </div>
-                <a
-                  href={item.linkedin}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="inline-flex items-center gap-1.5 text-xs text-royal-blue-600 hover:text-royal-blue-700 font-bold"
-                >
-                  View LinkedIn Profile
-                  <ArrowRight className="w-3.5 h-3.5" />
-                </a>
-              </div>
-            </div>
-          ))}
-        </div>
-      </section>
-
-      {/* 13. RESOURCES (Blog Highlights) */}
-      <section className="bg-deep-navy-50 border-t border-deep-navy-200 py-20">
+      {/* ========================================================================= */}
+      {/* 9. LATEST MEDIA & INSIGHTS SPOTLIGHT */}
+      {/* ========================================================================= */}
+      <section className="bg-deep-navy-50 border-t border-deep-navy-200 py-16">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex flex-col sm:flex-row items-start sm:items-end justify-between mb-12 gap-4 text-left">
-            <div>
-              <span className="text-royal-blue-600 text-xs font-bold tracking-widest uppercase block">
-                NEWS & RESOURCES
+          <div className="flex flex-col sm:flex-row items-start sm:items-end justify-between mb-10 gap-4">
+            <div className="text-left space-y-1">
+              <span className="text-royal-blue-600 text-xs font-extrabold tracking-widest uppercase block">
+                MEDIA & INSIGHTS
               </span>
-              <h2 className="text-3xl font-display font-extrabold text-deep-navy-900 mt-1">
-                Latest Resources & Insights
+              <h2 className="text-2xl sm:text-3xl font-display font-extrabold text-deep-navy-900">
+                Latest Insights & Industry Spotlights
               </h2>
-              <p className="text-slate-500 text-xs sm:text-sm mt-2 leading-relaxed">
-                Stay updated on security compliance roadmaps, python libraries, and data science strategies.
-              </p>
             </div>
-            <Link to="/resources" className="btn-secondary text-xs px-5 py-2.5 font-bold rounded-lg whitespace-nowrap">
-              All Resources
+            <Link to="/resources" className="btn-secondary text-xs px-4 py-2 font-bold rounded-lg whitespace-nowrap">
+              View All Articles
             </Link>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             {blogPosts.slice(0, 3).map((post) => (
-              <div key={post.id} className="bg-white border border-deep-navy-200 rounded-2xl overflow-hidden flex flex-col justify-between shadow-sm hover:border-royal-blue-600 transition-all">
+              <div
+                key={post.id}
+                className="bg-white border border-deep-navy-200 rounded-2xl overflow-hidden flex flex-col justify-between shadow-2xs hover:border-royal-blue-500 hover:shadow-md transition-all group"
+              >
                 <div className="aspect-[16/10] overflow-hidden bg-slate-100">
                   <img
                     src={post.image}
                     alt={post.title}
-                    className="w-full h-full object-cover"
+                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                    loading="lazy"
                   />
                 </div>
                 <div className="p-5 flex-1 flex flex-col justify-between space-y-3">
-                  <div className="space-y-2">
+                  <div className="space-y-1.5 text-left">
                     <span className="text-[10px] font-bold text-royal-blue-600 uppercase">
                       {post.category}
                     </span>
-                    <h3 className="font-display font-bold text-sm text-slate-900 hover:text-royal-blue-600 transition-colors line-clamp-2">
+                    <h3 className="font-display font-bold text-sm text-deep-navy-900 group-hover:text-royal-blue-600 transition-colors line-clamp-2">
                       <Link to={`/resources/${post.slug}`}>{post.title}</Link>
                     </h3>
-                    <p className="text-slate-500 text-xs leading-relaxed line-clamp-3">
+                    <p className="text-slate-500 text-xs leading-relaxed line-clamp-2">
                       {post.excerpt}
                     </p>
                   </div>
-                  <div className="flex items-center justify-between text-[10px] text-slate-450 font-semibold pt-3 border-t border-deep-navy-100">
+                  <div className="flex items-center justify-between text-[11px] text-slate-400 font-semibold pt-3 border-t border-deep-navy-100">
                     <span>{post.date}</span>
                     <span>{post.readTime}</span>
                   </div>
@@ -867,29 +959,35 @@ export const Home: React.FC = () => {
         </div>
       </section>
 
-      {/* 14. FINAL CTA - Re-themed to Deep Navy + Blue Gradient */}
-      <section className="bg-gradient-to-tr from-deep-navy-900 to-royal-blue-800 text-white py-20 text-center relative overflow-hidden">
-        {/* Visual Blur */}
-        <div className="absolute w-[450px] h-[450px] bg-royal-blue-800/10 rounded-full blur-3xl pointer-events-none -bottom-36 -right-36" />
-        
-        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 space-y-6 relative z-10">
-          <h2 className="text-3xl sm:text-4xl font-display font-extrabold text-white leading-tight">
-            Ready to Build Your Next Skill?
+      {/* ========================================================================= */}
+      {/* 10. FINAL CALL TO ACTION */}
+      {/* ========================================================================= */}
+      <section className="bg-deep-navy-950 text-white py-16 text-center border-t border-deep-navy-800 relative">
+        <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 space-y-5">
+          <h2 className="text-2xl sm:text-3xl lg:text-4xl font-display font-extrabold text-white">
+            Ready to Build Your Next Career Milestone?
           </h2>
-          <p className="text-slate-300 text-sm sm:text-base leading-relaxed max-w-xl mx-auto">
-            Start learning practical technology skills with Edqoo. Join our live programs today and prepare for system-audits or predictive data roles.
+          <p className="text-slate-300 text-xs sm:text-sm leading-relaxed max-w-xl mx-auto">
+            Join ambitious learners building verified technological competencies. Explore our available tracks or speak with an advisor today.
           </p>
-          <div className="flex justify-center gap-4 pt-2">
-            <Link to="/courses" className="btn-primary bg-white text-royal-blue-600 border-white hover:bg-deep-navy-50 hover:text-royal-blue-700 px-8 py-3 text-xs font-bold rounded-lg shadow-sm">
-              Explore Courses
+          <div className="flex justify-center gap-3.5 pt-2">
+            <Link
+              to="/courses"
+              className="btn-primary px-8 py-3 text-xs sm:text-sm font-bold rounded-xl shadow-lg"
+            >
+              Explore Programs
             </Link>
-            <Link to="/register" className="btn-secondary bg-transparent text-white border-white hover:bg-white/10 px-8 py-3 text-xs font-bold rounded-lg">
-              Get Started
-            </Link>
+            <button
+              type="button"
+              onClick={() => openEnquiryModal()}
+              className="btn-secondary bg-white/10 hover:bg-white/15 text-white border-white/20 px-8 py-3 text-xs sm:text-sm font-bold rounded-xl"
+            >
+              Speak to Advisor
+            </button>
           </div>
         </div>
       </section>
+
     </div>
   );
 };
-

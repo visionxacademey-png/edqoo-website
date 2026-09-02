@@ -4,6 +4,7 @@ import { HelmetProvider } from 'react-helmet-async';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { AuthProvider } from './context/AuthContext';
 import { CartProvider } from './context/CartContext';
+import { EnquiryProvider } from './context/EnquiryContext';
 import { AppRoutes } from './routes';
 
 // Initialize TanStack React Query Client for API management
@@ -24,9 +25,11 @@ const App: React.FC = () => {
         <BrowserRouter>
           <AuthProvider>
             <CartProvider>
-              <div className="page-transition">
-                <AppRoutes />
-              </div>
+              <EnquiryProvider>
+                <div className="page-transition">
+                  <AppRoutes />
+                </div>
+              </EnquiryProvider>
             </CartProvider>
           </AuthProvider>
         </BrowserRouter>
