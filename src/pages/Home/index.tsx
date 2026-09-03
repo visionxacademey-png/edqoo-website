@@ -105,7 +105,6 @@ export const Home: React.FC = () => {
   const [activeSlide, setActiveSlide] = useState(0);
   const [isSlidePaused, setIsSlidePaused] = useState(false);
   const [selectedCategory, setSelectedCategory] = useState<string>('all');
-  const [activeTestimonial, setActiveTestimonial] = useState(0);
   const [statsAnimated, setStatsAnimated] = useState(false);
   const statsSectionRef = useRef<HTMLDivElement>(null);
   const touchStartX = useRef<number | null>(null);
