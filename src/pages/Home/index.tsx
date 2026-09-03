@@ -26,7 +26,6 @@ import {
   BadgeCheck
 } from 'lucide-react';
 import { courses } from '../../data/courses';
-import { testimonials } from '../../data/testimonials';
 import { blogPosts } from '../../data/blog';
 import { SEO } from '../../components/common/SEO';
 import { useEnquiry } from '../../context/EnquiryContext';
