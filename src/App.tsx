@@ -3,7 +3,6 @@ import { BrowserRouter } from 'react-router-dom';
 import { HelmetProvider } from 'react-helmet-async';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { AuthProvider } from './context/AuthContext';
-import { CartProvider } from './context/CartContext';
 import { EnquiryProvider } from './context/EnquiryContext';
 import { AppRoutes } from './routes';
 
@@ -24,13 +23,11 @@ const App: React.FC = () => {
       <HelmetProvider>
         <BrowserRouter>
           <AuthProvider>
-            <CartProvider>
-              <EnquiryProvider>
-                <div className="page-transition">
-                  <AppRoutes />
-                </div>
-              </EnquiryProvider>
-            </CartProvider>
+            <EnquiryProvider>
+              <div className="page-transition">
+                <AppRoutes />
+              </div>
+            </EnquiryProvider>
           </AuthProvider>
         </BrowserRouter>
       </HelmetProvider>

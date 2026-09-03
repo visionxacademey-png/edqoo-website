@@ -2,21 +2,24 @@ import React, { useState } from 'react';
 import { Link, NavLink, Outlet, useNavigate } from 'react-router-dom';
 import {
   LayoutDashboard,
-  BookOpen,
-  Trophy,
-  Award,
+  MessageSquareCheck,
   Settings,
   LogOut,
   Menu,
   X,
-  Bell,
-  Home
+  Home,
+  UserCheck,
+  ShieldCheck,
+  PhoneCall
 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
+import { useEnquiry } from '../context/EnquiryContext';
+import { EnquiryModal } from '../components/ui/EnquiryModal';
 
 export const DashboardLayout: React.FC = () => {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const { user, logout } = useAuth();
+  const { openEnquiryModal } = useEnquiry();
   const navigate = useNavigate();
 
   const handleLogout = () => {
@@ -26,49 +29,67 @@ export const DashboardLayout: React.FC = () => {
 
   const navItems = [
     { to: '/dashboard', label: 'Overview', icon: LayoutDashboard },
-    { to: '/dashboard/my-courses', label: 'My Courses', icon: BookOpen },
-    { to: '/dashboard/progress', label: 'Progress Tracking', icon: Trophy },
-    { to: '/dashboard/certificates', label: 'Certificates', icon: Award },
-    { to: '/dashboard/settings', label: 'Settings', icon: Settings }
+    { to: '/dashboard/enquiries', label: 'My Enquiries', icon: MessageSquareCheck },
+    { to: '/dashboard/settings', label: 'Profile & Settings', icon: Settings },
   ];
 
+  // If user has admin role or for staff lead management
+  const isAdmin = user?.role === 'admin' || user?.email?.toLowerCase().includes('admin');
+
   return (
-    <div className="flex h-screen bg-slate-50 overflow-hidden">
+    <div className="flex h-screen bg-slate-50 overflow-hidden text-left">
       {/* Mobile Sidebar Overlay Drawer */}
       {sidebarOpen && (
         <div 
           onClick={() => setSidebarOpen(false)}
-          className="fixed inset-0 z-40 bg-slate-900/60 backdrop-blur-sm lg:hidden" 
+          className="fixed inset-0 z-40 bg-slate-900/60 backdrop-blur-xs lg:hidden" 
         />
       )}
 
       {/* Sidebar Container */}
       <aside
-        className={`fixed inset-y-0 left-0 z-50 flex flex-col w-64 bg-deep-navy-950 text-slate-300 border-r border-slate-900/80 transition-transform duration-300 transform lg:static lg:translate-x-0 ${
+        className={`fixed inset-y-0 left-0 z-50 flex flex-col w-64 bg-white text-slate-700 border-r border-slate-200 transition-transform duration-300 transform lg:static lg:translate-x-0 ${
           sidebarOpen ? 'translate-x-0' : '-translate-x-full'
         }`}
       >
-        {/* Sidebar Header Branding */}
-        <div className="flex items-center justify-between px-6 py-5 border-b border-slate-900/60 bg-deep-navy-950">
-          <Link to="/" className="flex items-center gap-2">
-            <div className="w-8 h-8 rounded bg-gradient-to-tr from-royal-blue-600 to-light-blue-400 flex items-center justify-center text-white font-display font-extrabold text-sm shadow">
-              E
-            </div>
-            <span className="font-display font-extrabold text-lg text-white tracking-tight">
-              Edqoo LMS
-            </span>
+        {/* Sidebar Header Official Branding */}
+        <div className="flex items-center justify-between px-6 py-5 border-b border-slate-200 bg-white">
+          <Link to="/" className="flex items-center">
+            <img 
+              src="/logo.jpg" 
+              alt="EDQOO - Your skill partner" 
+              className="h-9 w-auto object-contain max-w-[140px]" 
+            />
           </Link>
           <button
             onClick={() => setSidebarOpen(false)}
-            className="p-1 rounded-lg text-slate-400 hover:text-white hover:bg-slate-900 lg:hidden"
+            className="p-1.5 rounded-lg text-slate-400 hover:text-slate-700 hover:bg-slate-100 lg:hidden"
             aria-label="Close sidebar"
           >
             <X className="w-5 h-5" />
           </button>
         </div>
 
+        {/* User Info Capsule */}
+        <div className="p-4 mx-3 my-3 bg-purple-50/70 border border-purple-100 rounded-xl flex items-center gap-3">
+          <img
+            src={user?.avatar || 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?q=80&w=100&auto=format&fit=crop'}
+            alt={user?.name || 'User'}
+            className="w-10 h-10 rounded-full object-cover border border-purple-200"
+          />
+          <div className="overflow-hidden flex-1">
+            <span className="text-xs font-bold text-slate-900 block truncate">{user?.name || 'User'}</span>
+            <span className="text-[10px] text-purple-700 font-medium block truncate">{user?.email}</span>
+          </div>
+        </div>
+
         {/* Sidebar Navigation Items */}
-        <nav className="flex-1 px-4 py-6 space-y-1.5 overflow-y-auto">
+        <nav className="flex-1 px-4 py-2 space-y-1.5 overflow-y-auto">
+          <div className="px-2 pb-1.5">
+            <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400 block">
+              User Menu
+            </span>
+          </div>
           {navItems.map((item) => {
             const Icon = item.icon;
             return (
@@ -78,35 +99,79 @@ export const DashboardLayout: React.FC = () => {
                 end={item.to === '/dashboard'}
                 onClick={() => setSidebarOpen(false)}
                 className={({ isActive }) =>
-                  `flex items-center gap-3 px-4 py-3 text-sm font-semibold rounded-xl transition-all duration-200 ${
+                  `flex items-center gap-3 px-3.5 py-2.5 text-xs font-bold rounded-xl transition-all duration-200 ${
                     isActive
-                      ? 'bg-royal-blue-900 text-white shadow-md'
-                      : 'hover:bg-slate-900 hover:text-white'
+                      ? 'bg-purple-600 text-white shadow-xs'
+                      : 'text-slate-600 hover:bg-slate-100 hover:text-purple-600'
                   }`
                 }
               >
-                <Icon className="w-5 h-5" />
-                {item.label}
+                <Icon className="w-4 h-4 flex-shrink-0" />
+                <span>{item.label}</span>
               </NavLink>
             );
           })}
+
+          {/* Admin Lead Management Link */}
+          {isAdmin && (
+            <div className="pt-4 border-t border-slate-100 mt-3 space-y-1.5">
+              <div className="px-2 pb-1">
+                <span className="text-[10px] font-bold uppercase tracking-wider text-purple-600 flex items-center gap-1">
+                  <ShieldCheck className="w-3 h-3" />
+                  Staff / Admin
+                </span>
+              </div>
+              <NavLink
+                to="/dashboard/admin-leads"
+                onClick={() => setSidebarOpen(false)}
+                className={({ isActive }) =>
+                  `flex items-center gap-3 px-3.5 py-2.5 text-xs font-bold rounded-xl transition-all duration-200 ${
+                    isActive
+                      ? 'bg-purple-600 text-white shadow-xs'
+                      : 'text-slate-600 hover:bg-slate-100 hover:text-purple-600'
+                  }`
+                }
+              >
+                <UserCheck className="w-4 h-4 flex-shrink-0" />
+                <span>Lead Management</span>
+              </NavLink>
+            </div>
+          )}
         </nav>
 
+        {/* Sidebar Quick Action CTA */}
+        <div className="p-4 mx-3 mb-2 bg-slate-50 border border-slate-200 rounded-xl space-y-2">
+          <span className="text-[11px] font-bold text-slate-900 block leading-tight">
+            Need Course Guidance?
+          </span>
+          <p className="text-[10px] text-slate-500 leading-relaxed">
+            Speak directly with an academic counselor.
+          </p>
+          <button
+            type="button"
+            onClick={() => openEnquiryModal()}
+            className="w-full btn-primary py-1.5 text-[11px] font-bold rounded-lg flex items-center justify-center gap-1.5"
+          >
+            <PhoneCall className="w-3 h-3" />
+            <span>New Enquiry</span>
+          </button>
+        </div>
+
         {/* Sidebar Footer User controls */}
-        <div className="p-4 border-t border-slate-900/60 bg-deep-navy-950/40">
+        <div className="p-4 border-t border-slate-200 bg-slate-50/50">
           <Link
             to="/"
-            className="flex items-center gap-3 px-4 py-2.5 text-xs font-semibold rounded-lg text-slate-400 hover:text-white hover:bg-slate-900 transition-colors mb-2"
+            className="flex items-center gap-2.5 px-3 py-2 text-xs font-semibold rounded-lg text-slate-600 hover:text-purple-600 hover:bg-white transition-colors mb-1.5"
           >
             <Home className="w-4 h-4" />
-            Back to Public Website
+            <span>Public Website</span>
           </Link>
           <button
             onClick={handleLogout}
-            className="flex items-center gap-3 w-full px-4 py-2.5 text-xs font-semibold rounded-lg text-red-400 hover:bg-red-950/30 hover:text-red-300 transition-colors"
+            className="flex items-center gap-2.5 w-full px-3 py-2 text-xs font-semibold rounded-lg text-red-600 hover:bg-red-50 hover:text-red-700 transition-colors text-left"
           >
             <LogOut className="w-4 h-4" />
-            Log Out
+            <span>Sign Out</span>
           </button>
         </div>
       </aside>
@@ -114,7 +179,7 @@ export const DashboardLayout: React.FC = () => {
       {/* Main Panel Content Area */}
       <div className="flex-1 flex flex-col h-full overflow-hidden">
         {/* Dashboard Top Header */}
-        <header className="bg-white border-b border-slate-200/80 px-6 py-4 flex items-center justify-between shadow-sm">
+        <header className="bg-white border-b border-slate-200 px-6 py-4 flex items-center justify-between shadow-2xs flex-shrink-0">
           <div className="flex items-center gap-3">
             <button
               onClick={() => setSidebarOpen(true)}
@@ -123,43 +188,43 @@ export const DashboardLayout: React.FC = () => {
             >
               <Menu className="w-5.5 h-5.5" />
             </button>
-            <div className="hidden sm:block">
-              <h1 className="text-lg font-bold text-slate-900 font-display">Student Workspace</h1>
-              <p className="text-xs text-slate-500 mt-0.5">Welcome back, {user?.name || 'Learner'}</p>
+            <div>
+              <h1 className="text-base sm:text-lg font-bold text-slate-950 font-display">
+                Profile & Enquiry Dashboard
+              </h1>
+              <p className="text-[11px] text-slate-500 hidden sm:block">
+                Manage your account profile and track submitted program enquiries.
+              </p>
             </div>
           </div>
 
-          {/* User profile actions */}
-          <div className="flex items-center gap-4">
-            {/* Notification Bell */}
-            <button 
-              className="p-1.5 rounded-full text-slate-400 hover:text-slate-600 hover:bg-slate-50 transition-colors relative"
-              aria-label="View notifications"
+          {/* Right Header Actions */}
+          <div className="flex items-center gap-3">
+            <button
+              onClick={() => openEnquiryModal()}
+              className="btn-primary px-3.5 py-1.5 text-xs font-bold rounded-lg shadow-xs flex items-center gap-1.5"
             >
-              <Bell className="w-5 h-5" />
-              <span className="absolute top-1 right-1 w-2 h-2 rounded-full bg-royal-blue-500" />
+              <PhoneCall className="w-3.5 h-3.5" />
+              <span className="hidden sm:inline">Enquire Now</span>
             </button>
 
-            {/* Profile Avatar Card */}
-            <div className="flex items-center gap-2.5 border-l border-slate-200 pl-4">
-              <img
-                src={user?.avatar || 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?q=80&w=100&auto=format&fit=crop'}
-                alt={user?.name}
-                className="w-9 h-9 rounded-full object-cover border border-slate-200"
-              />
-              <div className="hidden md:block">
-                <span className="text-xs font-bold text-slate-800 block leading-tight">{user?.name}</span>
-                <span className="text-[10px] text-slate-500 block leading-none">{user?.email}</span>
-              </div>
-            </div>
+            <Link
+              to="/courses"
+              className="hidden md:inline-flex px-3 py-1.5 text-xs font-semibold text-slate-700 hover:text-purple-600 hover:bg-purple-50 border border-slate-200 rounded-lg transition-colors"
+            >
+              Explore Programs
+            </Link>
           </div>
         </header>
 
         {/* Dashboard Pages Viewer */}
-        <main className="flex-1 overflow-y-auto p-6 bg-slate-50">
+        <main className="flex-1 overflow-y-auto p-4 sm:p-6 lg:p-8 bg-slate-50">
           <Outlet />
         </main>
       </div>
+
+      {/* Global Enquiry / Advisory Modal for Dashboard */}
+      <EnquiryModal />
     </div>
   );
 };

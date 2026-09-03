@@ -82,12 +82,33 @@ export interface StatItem {
   icon: string;
 }
 
-export interface CartItem {
-  courseId: string;
-  title: string;
-  price: number;
-  image: string;
-  slug: string;
+export type EnquiryStatus = 
+  | 'Submitted' 
+  | 'Under Review' 
+  | 'Contacted' 
+  | 'Follow-up Required' 
+  | 'Resolved' 
+  | 'Converted' 
+  | 'Closed';
+
+export interface Enquiry {
+  id: string;
+  userId?: string;
+  name: string;
+  email: string;
+  phone: string;
+  program: string;
+  experienceLevel?: string;
+  learningMode?: string;
+  location?: string;
+  preferredContactMethod?: string;
+  preferredCallbackTime?: string;
+  message?: string;
+  status: EnquiryStatus;
+  notes?: string;
+  lastContactedDate?: string;
+  submittedAt: string;
+  updatedAt?: string;
 }
 
 export interface User {
@@ -96,6 +117,7 @@ export interface User {
   email: string;
   phone?: string;
   avatar?: string;
-  enrolledCourses: string[]; // Course IDs
-  progress: Record<string, string[]>; // courseId -> array of completed lessonIds
+  role?: 'user' | 'admin';
+  createdAt?: string;
 }
+

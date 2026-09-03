@@ -7,11 +7,9 @@ import {
   Award,
   Users,
   Star,
-  CheckCircle2,
   Clock,
   BookOpen,
   ArrowRight,
-  Sparkles,
   ChevronLeft,
   ChevronRight,
   Layers,
@@ -25,8 +23,7 @@ import {
   PhoneCall,
   CheckCircle,
   Briefcase,
-  BadgeCheck,
-  GraduationCap
+  BadgeCheck
 } from 'lucide-react';
 import { courses } from '../../data/courses';
 import { testimonials } from '../../data/testimonials';
@@ -34,55 +31,59 @@ import { blogPosts } from '../../data/blog';
 import { SEO } from '../../components/common/SEO';
 import { useEnquiry } from '../../context/EnquiryContext';
 
-// Hero slide definitions with high-resolution professional people photography
+// Hero slide definitions matching EDQOO visual identity
 const heroSlides = [
   {
     id: 'slide-1',
-    badge: 'Career Advancement & Transformation',
-    title: 'Accelerate Your Career With Industry-Ready Skills',
-    subtitle: 'Learn from experienced enterprise practitioners, build practical project portfolios, and take the next confident step in your career.',
-    primaryCta: 'Explore Programs',
+    launchBadge: 'Enterprise Technology Masterclasses & Live Hybrid Tracks',
+    accentLine: 'Learn Practical Tech.',
+    mainLine: 'Build Production Systems from Day 1',
+    pills: ['AI-Age Curriculum', 'Hands-on Cloud Labs', 'Real-World Projects'],
+    primaryCta: 'Explore All Programs',
     primaryLink: '/courses',
     secondaryCta: 'Talk to Advisor',
-    image: 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?q=80&w=900&auto=format&fit=crop',
-    statBadge: { value: '4.8/5 Rating', label: 'Over 2,500+ Active Learners' },
-    trustPoints: ['Live Project Labs', 'Enterprise Mentors', 'Verifiable Certificates']
+    image: 'https://images.unsplash.com/photo-1531482615713-2afd69097998?q=80&w=1600&auto=format&fit=crop',
+    statHighlight: '53% of learners received 50% and above salary hike post completion of the program*',
+    partnerLogo: 'Enterprise Benchmark'
   },
   {
     id: 'slide-2',
-    badge: 'High-Growth Technology Tracks',
-    title: 'Master Practical Cybersecurity & Data Science',
-    subtitle: 'Step beyond passive lectures. Execute live system defense configurations, vulnerability assessments, and predictive machine learning models.',
+    launchBadge: 'Practical Cybersecurity & Defense Operations',
+    accentLine: 'Defend Live Systems.',
+    mainLine: 'Master Ethical Hacking from Day 1',
+    pills: ['SOC Simulation Labs', 'Threat Hunting', 'Verifiable Credentials'],
     primaryCta: 'View Cybersecurity Track',
     primaryLink: '/courses/cybersecurity',
     secondaryCta: 'Request Syllabus',
-    image: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?q=80&w=900&auto=format&fit=crop',
-    statBadge: { value: '15+ Labs', label: 'Real-World Production Scenarios' },
-    trustPoints: ['Ethical Hacking Labs', 'Python & ML Pipelines', 'SOC Incident Simulation']
+    image: 'https://images.unsplash.com/photo-1504384308090-c894fdcc538d?q=80&w=1600&auto=format&fit=crop',
+    statHighlight: '94% of alumni report direct career advancement in cybersecurity operations*',
+    partnerLogo: 'Accredited Labs'
   },
   {
     id: 'slide-3',
-    badge: 'Expert Practitioner Mentorship',
-    title: 'Learn Directly From Experienced Leaders',
-    subtitle: 'Our programs are curated and delivered by senior technology architects who have managed enterprise systems and built architectures at scale.',
-    primaryCta: 'Explore All Courses',
-    primaryLink: '/courses',
+    launchBadge: 'Data Science & Predictive Analytics Track',
+    accentLine: 'Engineer Real AI.',
+    mainLine: 'Deploy Predictive Models from Day 1',
+    pills: ['Python & PyTorch', 'MLOps Pipelines', '1:1 Mentor Reviews'],
+    primaryCta: 'View Data Science Track',
+    primaryLink: '/courses/data-science',
     secondaryCta: 'Book Advisory Call',
-    image: 'https://images.unsplash.com/photo-1560250097-0b93528c311a?q=80&w=900&auto=format&fit=crop',
-    statBadge: { value: '100% Practical', label: 'Zero Fluff & Outdated Theory' },
-    trustPoints: ['1:1 Guidance', 'Code & Architecture Reviews', 'Resume-Ready Capstones']
+    image: 'https://images.unsplash.com/photo-1524178232363-1fb2b075b655?q=80&w=1600&auto=format&fit=crop',
+    statHighlight: 'Over 2,500+ active practitioners enrolled across modern engineering tracks*',
+    partnerLogo: 'Global Standards'
   },
   {
     id: 'slide-4',
-    badge: 'Recognized Professional Credentials',
-    title: 'Build Verifiable Competencies That Recruiters Value',
-    subtitle: 'Graduate with practical portfolio repositories and authenticated digital certificates that substantiate your hands-on abilities.',
-    primaryCta: 'Get Started Today',
+    launchBadge: 'Cloud Computing & Full Stack Engineering',
+    accentLine: 'Master Modern Code.',
+    mainLine: 'Architect Microservices from Day 1',
+    pills: ['Docker & Kubernetes', 'AWS / Azure Cloud', 'Capstone Portfolios'],
+    primaryCta: 'Explore Software Tracks',
     primaryLink: '/courses',
     secondaryCta: 'Enquire for Teams',
-    image: 'https://images.unsplash.com/photo-1522071820081-009f0129c71c?q=80&w=900&auto=format&fit=crop',
-    statBadge: { value: '94% Success', label: 'Alumni Report Career Growth' },
-    trustPoints: ['Digital Verification', 'Portfolio Guidance', 'Flexible Schedule']
+    image: 'https://images.unsplash.com/photo-1522071820081-009f0129c71c?q=80&w=1600&auto=format&fit=crop',
+    statHighlight: '100% lab-driven curriculum audited and verified by enterprise architects*',
+    partnerLogo: 'Industry Verified'
   }
 ];
 
@@ -146,10 +147,8 @@ export const Home: React.FC = () => {
     const diff = touchStartX.current - touchEndX;
     if (Math.abs(diff) > 45) {
       if (diff > 0) {
-        // swipe left -> next slide
         setActiveSlide((prev) => (prev + 1) % heroSlides.length);
       } else {
-        // swipe right -> prev slide
         setActiveSlide((prev) => (prev - 1 + heroSlides.length) % heroSlides.length);
       }
     }
@@ -173,146 +172,174 @@ export const Home: React.FC = () => {
   const currentHero = heroSlides[activeSlide];
 
   return (
-    <div className="space-y-0 text-left">
+    <div className="space-y-0 text-left bg-white">
       <SEO 
-        title="Edqoo | Professional EdTech & Technology Learning Platform" 
+        title="Edqoo | Your Skill Partner - Professional Tech Education" 
         description="Accelerate your career with industry-aligned certification programs in Cybersecurity, Data Science, AI, Cloud, and Software Engineering."
         canonical="/"
       />
 
       {/* ========================================================================= */}
-      {/* 1. HERO CAROUSEL SECTION */}
+      {/* 1. HERO SLIDER SECTION (EDQOO BRAND THEME) */}
       {/* ========================================================================= */}
       <section
-        className="relative bg-deep-navy-950 text-white overflow-hidden py-12 sm:py-16 lg:py-20 border-b border-deep-navy-800 select-none"
+        className="relative bg-white text-slate-900 overflow-hidden pt-8 pb-0 sm:pt-14 sm:pb-0 border-b border-slate-200 select-none min-h-[520px] lg:min-h-[580px] flex flex-col justify-between"
         onMouseEnter={() => setIsSlidePaused(true)}
         onMouseLeave={() => setIsSlidePaused(false)}
         onTouchStart={handleTouchStart}
         onTouchEnd={handleTouchEnd}
       >
-        {/* Subtle background glow */}
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,#1268e818,transparent_55%)] pointer-events-none" />
-        <div className="absolute inset-0 bg-[linear-gradient(to_right,#ffffff04_1px,transparent_1px),linear-gradient(to_bottom,#ffffff04_1px,transparent_1px)] bg-[size:3rem_3rem] pointer-events-none opacity-40" />
-
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+        {/* Right-aligned Photographic Banner with Left Seamless Fade Mask */}
+        <div className="absolute top-0 right-0 bottom-0 w-full lg:w-[62%] h-full pointer-events-none z-0 overflow-hidden">
           <AnimatePresence mode="wait">
-            <motion.div
+            <motion.img
               key={currentHero.id}
-              initial={{ opacity: 0, x: 20 }}
-              animate={{ opacity: 1, x: 0 }}
-              exit={{ opacity: 0, x: -20 }}
-              transition={{ duration: 0.4, ease: 'easeOut' }}
-              className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-center"
-            >
-              {/* Left Column: Hero Content */}
-              <div className="lg:col-span-7 space-y-5 text-left">
-                {/* Value Proposition Badge */}
-                <div className="inline-flex items-center gap-2 px-3 py-1 bg-royal-blue-900/70 border border-royal-blue-500/40 rounded-full text-royal-blue-300 text-xs font-bold tracking-wide">
-                  <Sparkles className="w-3.5 h-3.5 text-royal-blue-400" />
-                  <span>{currentHero.badge}</span>
+              src={currentHero.image}
+              alt={currentHero.mainLine}
+              initial={{ opacity: 0, scale: 1.04 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.6, ease: 'easeOut' }}
+              className="w-full h-full object-cover object-center lg:object-right"
+            />
+          </AnimatePresence>
+
+          {/* Seamless Left Fade Mask directly into pure white background */}
+          <div className="absolute inset-y-0 left-0 w-full sm:w-2/3 lg:w-1/2 bg-gradient-to-r from-white via-white/95 to-transparent pointer-events-none" />
+          {/* Seamless Bottom Fade Mask */}
+          <div className="absolute inset-x-0 bottom-0 h-16 bg-gradient-to-t from-white to-transparent pointer-events-none" />
+          {/* Mobile backdrop tint for crisp legibility */}
+          <div className="absolute inset-0 bg-white/85 lg:hidden pointer-events-none" />
+        </div>
+
+        {/* Hero Text Content Container */}
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10 w-full py-4 flex-1 flex flex-col justify-center">
+          <div className="max-w-2xl text-left space-y-6">
+            <AnimatePresence mode="wait">
+              <motion.div
+                key={currentHero.id}
+                initial={{ opacity: 0, y: 14 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -14 }}
+                transition={{ duration: 0.35, ease: 'easeOut' }}
+                className="space-y-6"
+              >
+                {/* Top Subhead with EDQOO Purple Accent Underline */}
+                <div>
+                  <span className="inline-block border-b-2 border-purple-600 pb-1 font-bold text-xs sm:text-sm text-slate-900 tracking-tight">
+                    {currentHero.launchBadge}
+                  </span>
                 </div>
 
-                {/* Main Headline */}
-                <h1 className="text-3xl sm:text-4xl lg:text-5xl font-display font-extrabold text-white leading-[1.12] tracking-tight">
-                  {currentHero.title}
+                {/* Headline: Purple line 1 + Solid Dark line 2 */}
+                <h1 className="font-display tracking-tight leading-[1.12]">
+                  <span className="text-purple-600 block font-black text-3xl sm:text-4xl lg:text-[3.25rem]">
+                    {currentHero.accentLine}
+                  </span>
+                  <span className="text-slate-950 block font-black text-3xl sm:text-4xl lg:text-[3.25rem] mt-1">
+                    {currentHero.mainLine}
+                  </span>
                 </h1>
 
-                {/* Subtitle */}
-                <p className="text-slate-300 text-sm sm:text-base leading-relaxed max-w-xl">
-                  {currentHero.subtitle}
-                </p>
+                {/* Feature Pills Row */}
+                <div className="flex flex-wrap gap-2.5 pt-1">
+                  {currentHero.pills.map((pill) => (
+                    <span
+                      key={pill}
+                      className="inline-flex items-center px-4 py-1.5 rounded-full border border-slate-300 text-xs sm:text-[13px] font-semibold text-slate-800 bg-white shadow-2xs"
+                    >
+                      {pill}
+                    </span>
+                  ))}
+                </div>
 
                 {/* Action Buttons */}
                 <div className="flex flex-wrap items-center gap-3.5 pt-2">
                   <Link
                     to={currentHero.primaryLink}
-                    className="btn-primary px-6 py-3 text-xs sm:text-sm font-bold rounded-xl shadow-lg flex items-center gap-2"
+                    className="btn-primary px-7 py-3.5 text-xs sm:text-sm font-bold rounded-xl shadow-md hover:shadow-lg transition-all transform hover:-translate-y-0.5"
                   >
                     <span>{currentHero.primaryCta}</span>
-                    <ArrowRight className="w-4 h-4" />
                   </Link>
 
                   <button
                     type="button"
                     onClick={() => openEnquiryModal()}
-                    className="btn-secondary bg-white/10 hover:bg-white/15 text-white border-white/20 hover:border-white/30 px-6 py-3 text-xs sm:text-sm font-bold rounded-xl flex items-center gap-2 transition-all"
+                    className="btn-secondary px-6 py-3.5 text-xs sm:text-sm font-bold rounded-xl shadow-2xs transition-all flex items-center gap-2"
                   >
-                    <PhoneCall className="w-4 h-4 text-royal-blue-300" />
+                    <PhoneCall className="w-4 h-4 text-purple-600" />
                     <span>{currentHero.secondaryCta}</span>
                   </button>
                 </div>
+              </motion.div>
+            </AnimatePresence>
+          </div>
 
-                {/* Trust Points */}
-                <div className="pt-4 border-t border-deep-navy-800/80 flex flex-wrap gap-y-2 gap-x-6">
-                  {currentHero.trustPoints.map((point) => (
-                    <div key={point} className="flex items-center gap-2 text-xs font-semibold text-slate-300">
-                      <CheckCircle2 className="w-4 h-4 text-royal-blue-400 flex-shrink-0" />
-                      <span>{point}</span>
-                    </div>
-                  ))}
-                </div>
+          {/* Centered Dots Pagination */}
+          <div className="flex justify-center items-center gap-2 pt-8 sm:pt-12">
+            {heroSlides.map((slide, idx) => (
+              <button
+                key={slide.id}
+                onClick={() => setActiveSlide(idx)}
+                className={`transition-all duration-300 rounded-full ${
+                  activeSlide === idx
+                    ? 'w-3 h-3 bg-purple-600 ring-2 ring-purple-400/40'
+                    : 'w-2.5 h-2.5 bg-slate-300 hover:bg-slate-400'
+                }`}
+                aria-label={`Go to slide ${idx + 1}`}
+              />
+            ))}
+          </div>
+        </div>
+
+        {/* Bottom Process Advisors / Outcome Highlight Strip */}
+        <div className="w-full bg-purple-50/70 border-t border-purple-100 mt-6 py-3 px-4 sm:px-6 lg:px-8 relative z-20">
+          <div className="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-3 text-xs">
+            
+            {/* Left: Process Advisors logo mark */}
+            <div className="flex items-center gap-2 flex-shrink-0">
+              <div className="w-6 h-6 rounded bg-purple-600 text-white font-black text-[11px] flex items-center justify-center shadow-2xs">
+                ▲
               </div>
-
-              {/* Right Column: Hero Image with Overlay Stat Badge */}
-              <div className="lg:col-span-5 relative flex justify-center">
-                <div className="relative w-full max-w-md aspect-[4/3] sm:aspect-[16/11] rounded-2xl overflow-hidden border border-deep-navy-700/80 shadow-2xl bg-deep-navy-900">
-                  <img
-                    src={currentHero.image}
-                    alt={currentHero.title}
-                    className="w-full h-full object-cover object-center transform transition-transform duration-700 hover:scale-105"
-                    loading="eager"
-                  />
-                  {/* Subtle gradient vignette */}
-                  <div className="absolute inset-0 bg-gradient-to-t from-deep-navy-950/80 via-transparent to-transparent pointer-events-none" />
-
-                  {/* Floating Trust Indicator on image */}
-                  <div className="absolute bottom-4 left-4 right-4 bg-deep-navy-900/90 backdrop-blur-md border border-deep-navy-700/80 rounded-xl p-3 shadow-lg flex items-center gap-3">
-                    <div className="w-10 h-10 rounded-lg bg-royal-blue-600 text-white flex items-center justify-center font-bold flex-shrink-0">
-                      <GraduationCap className="w-5 h-5" />
-                    </div>
-                    <div>
-                      <span className="text-xs font-bold text-white block leading-tight">
-                        {currentHero.statBadge.value}
-                      </span>
-                      <span className="text-[10px] text-slate-300 block mt-0.5">
-                        {currentHero.statBadge.label}
-                      </span>
-                    </div>
-                  </div>
-                </div>
+              <div className="text-left">
+                <span className="text-[10px] font-bold text-slate-500 uppercase tracking-wider block leading-tight">
+                  Process Advisors
+                </span>
+                <span className="text-xs font-extrabold text-slate-900 block leading-tight">
+                  {currentHero.partnerLogo}
+                </span>
               </div>
-            </motion.div>
-          </AnimatePresence>
-
-          {/* Slider Navigation Bar: Arrows + Dot Indicators */}
-          <div className="mt-8 pt-4 border-t border-deep-navy-800/60 flex items-center justify-between">
-            {/* Dots */}
-            <div className="flex items-center gap-2">
-              {heroSlides.map((slide, idx) => (
-                <button
-                  key={slide.id}
-                  onClick={() => setActiveSlide(idx)}
-                  className={`h-2 rounded-full transition-all duration-300 ${
-                    activeSlide === idx ? 'w-8 bg-royal-blue-500' : 'w-2 bg-deep-navy-700 hover:bg-deep-navy-600'
-                  }`}
-                  aria-label={`Go to slide ${idx + 1}`}
-                />
-              ))}
             </div>
 
-            {/* Prev / Next Controls */}
-            <div className="flex items-center gap-2">
+            {/* Center: Stat Statement with smooth text transition */}
+            <div className="flex-1 text-center px-4">
+              <AnimatePresence mode="wait">
+                <motion.p
+                  key={currentHero.id}
+                  initial={{ opacity: 0, y: 4 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -4 }}
+                  transition={{ duration: 0.25 }}
+                  className="text-xs sm:text-[13px] font-bold text-slate-900 leading-snug"
+                >
+                  {currentHero.statHighlight}
+                </motion.p>
+              </AnimatePresence>
+            </div>
+
+            {/* Right: Next / Prev Arrow Controls */}
+            <div className="flex items-center gap-1.5 flex-shrink-0">
               <button
                 onClick={prevSlide}
-                className="p-2 rounded-lg bg-deep-navy-900 border border-deep-navy-700 text-slate-300 hover:text-white hover:border-royal-blue-500 transition-colors"
-                aria-label="Previous Slide"
+                className="p-1.5 rounded-lg bg-white hover:bg-purple-50 text-slate-700 hover:text-purple-700 border border-purple-200 transition-colors shadow-2xs"
+                aria-label="Previous outcome"
               >
                 <ChevronLeft className="w-4 h-4" />
               </button>
               <button
                 onClick={nextSlide}
-                className="p-2 rounded-lg bg-deep-navy-900 border border-deep-navy-700 text-slate-300 hover:text-white hover:border-royal-blue-500 transition-colors"
-                aria-label="Next Slide"
+                className="p-1.5 rounded-lg bg-white hover:bg-purple-50 text-slate-700 hover:text-purple-700 border border-purple-200 transition-colors shadow-2xs"
+                aria-label="Next outcome"
               >
                 <ChevronRight className="w-4 h-4" />
               </button>
@@ -324,33 +351,33 @@ export const Home: React.FC = () => {
       {/* ========================================================================= */}
       {/* 2. TRUST & ENTERPRISE STANDARDS SECTION */}
       {/* ========================================================================= */}
-      <section className="bg-deep-navy-50 border-b border-deep-navy-200/80 py-6 sm:py-8">
+      <section className="bg-slate-50 border-b border-slate-200/80 py-6 sm:py-8">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex flex-col md:flex-row items-center justify-between gap-4">
             <div className="text-center md:text-left flex-shrink-0">
-              <span className="text-[11px] font-extrabold text-royal-blue-700 uppercase tracking-widest block">
+              <span className="text-[11px] font-extrabold text-purple-700 uppercase tracking-widest block">
                 LEARNING EXCELLENCE
               </span>
-              <p className="text-xs font-bold text-deep-navy-900 mt-0.5">
+              <p className="text-xs font-bold text-slate-900 mt-0.5">
                 Programs Engineered to Industry Standards
               </p>
             </div>
 
-            <div className="flex flex-wrap justify-center md:justify-end gap-4 sm:gap-6 text-xs font-bold text-deep-navy-800">
-              <span className="flex items-center gap-1.5 px-3 py-1.5 bg-white border border-deep-navy-200 rounded-lg shadow-2xs">
+            <div className="flex flex-wrap justify-center md:justify-end gap-3 sm:gap-4 text-xs font-bold text-slate-800">
+              <span className="flex items-center gap-1.5 px-3 py-1.5 bg-white border border-slate-200 rounded-lg shadow-2xs">
                 <CheckCircle className="w-4 h-4 text-emerald-600" />
                 100% Practical Labs
               </span>
-              <span className="flex items-center gap-1.5 px-3 py-1.5 bg-white border border-deep-navy-200 rounded-lg shadow-2xs">
-                <BadgeCheck className="w-4 h-4 text-royal-blue-600" />
+              <span className="flex items-center gap-1.5 px-3 py-1.5 bg-white border border-slate-200 rounded-lg shadow-2xs">
+                <BadgeCheck className="w-4 h-4 text-purple-600" />
                 Verified Digital Credentials
               </span>
-              <span className="flex items-center gap-1.5 px-3 py-1.5 bg-white border border-deep-navy-200 rounded-lg shadow-2xs">
-                <Users className="w-4 h-4 text-royal-blue-600" />
+              <span className="flex items-center gap-1.5 px-3 py-1.5 bg-white border border-slate-200 rounded-lg shadow-2xs">
+                <Users className="w-4 h-4 text-purple-600" />
                 Practitioner Mentorship
               </span>
-              <span className="flex items-center gap-1.5 px-3 py-1.5 bg-white border border-deep-navy-200 rounded-lg shadow-2xs">
-                <Briefcase className="w-4 h-4 text-royal-blue-600" />
+              <span className="flex items-center gap-1.5 px-3 py-1.5 bg-white border border-slate-200 rounded-lg shadow-2xs">
+                <Briefcase className="w-4 h-4 text-purple-600" />
                 Capstone Portfolios
               </span>
             </div>
@@ -364,10 +391,10 @@ export const Home: React.FC = () => {
       <section id="programs" className="section-padding bg-white">
         {/* Section Header */}
         <div className="text-center max-w-3xl mx-auto mb-10 space-y-2">
-          <span className="text-royal-blue-600 text-xs font-extrabold tracking-widest uppercase block">
+          <span className="text-purple-600 text-xs font-extrabold tracking-widest uppercase block">
             EXPLORE CURRICULUM
           </span>
-          <h2 className="text-2xl sm:text-3xl lg:text-4xl font-display font-extrabold text-deep-navy-900">
+          <h2 className="text-2xl sm:text-3xl lg:text-4xl font-display font-extrabold text-slate-950">
             Featured Professional Programs
           </h2>
           <p className="text-slate-500 text-xs sm:text-sm leading-relaxed">
@@ -379,9 +406,9 @@ export const Home: React.FC = () => {
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-8 items-start">
           
           {/* Left Category Sidebar (Desktop) */}
-          <aside className="hidden lg:block lg:col-span-3 bg-deep-navy-50/70 border border-deep-navy-200 rounded-2xl p-2.5 shadow-2xs sticky top-20">
-            <div className="px-3 py-2 border-b border-deep-navy-200/80 mb-2">
-              <span className="text-[11px] font-extrabold text-deep-navy-900 uppercase tracking-wider block">
+          <aside className="hidden lg:block lg:col-span-3 bg-slate-50 border border-slate-200 rounded-2xl p-2.5 shadow-2xs sticky top-20">
+            <div className="px-3 py-2 border-b border-slate-200/80 mb-2">
+              <span className="text-[11px] font-extrabold text-slate-900 uppercase tracking-wider block">
                 Domains & Categories
               </span>
             </div>
@@ -395,8 +422,8 @@ export const Home: React.FC = () => {
                     onClick={() => setSelectedCategory(cat.id)}
                     className={`w-full flex items-center justify-between px-3.5 py-2.5 text-xs font-bold rounded-xl transition-all text-left ${
                       isActive
-                        ? 'bg-royal-blue-600 text-white shadow-sm'
-                        : 'text-deep-navy-800 hover:bg-white hover:text-royal-blue-600'
+                        ? 'bg-purple-600 text-white shadow-sm'
+                        : 'text-slate-700 hover:bg-white hover:text-purple-600'
                     }`}
                   >
                     <span className="flex items-center gap-2.5">
@@ -421,8 +448,8 @@ export const Home: React.FC = () => {
                   onClick={() => setSelectedCategory(cat.id)}
                   className={`px-3 py-2 text-xs font-bold rounded-xl whitespace-nowrap border flex-shrink-0 flex items-center gap-1.5 transition-all ${
                     isActive
-                      ? 'bg-royal-blue-600 text-white border-royal-blue-600 shadow-sm'
-                      : 'bg-white text-deep-navy-800 border-deep-navy-200 hover:bg-deep-navy-50'
+                      ? 'bg-purple-600 text-white border-purple-600 shadow-sm'
+                      : 'bg-white text-slate-800 border-slate-200 hover:bg-slate-50'
                   }`}
                 >
                   <IconComponent className="w-3.5 h-3.5" />
@@ -436,13 +463,13 @@ export const Home: React.FC = () => {
           <div className="lg:col-span-9 space-y-6">
             
             {/* Header / Results counter */}
-            <div className="flex items-center justify-between border-b border-deep-navy-200 pb-3">
+            <div className="flex items-center justify-between border-b border-slate-200 pb-3">
               <span className="text-xs font-bold text-slate-500">
-                Showing <strong className="text-deep-navy-900">{displayedCourses.length}</strong> Programs
+                Showing <strong className="text-slate-900">{displayedCourses.length}</strong> Programs
               </span>
               <Link
                 to="/courses"
-                className="text-xs font-bold text-royal-blue-600 hover:text-royal-blue-700 inline-flex items-center gap-1"
+                className="text-xs font-bold text-purple-600 hover:text-purple-700 inline-flex items-center gap-1"
               >
                 <span>View Full Catalog</span>
                 <ArrowRight className="w-3.5 h-3.5" />
@@ -456,30 +483,30 @@ export const Home: React.FC = () => {
                 return (
                   <div
                     key={course.id}
-                    className="premium-card flex flex-col justify-between overflow-hidden group bg-white border border-deep-navy-200 rounded-2xl"
+                    className="premium-card flex flex-col justify-between overflow-hidden group bg-white border border-slate-200 rounded-2xl shadow-2xs hover:border-purple-300 hover:shadow-md transition-all"
                   >
                     {/* Course Image */}
-                    <div className="relative aspect-[16/10] overflow-hidden bg-deep-navy-100">
+                    <div className="relative aspect-[16/10] overflow-hidden bg-slate-100">
                       <img
                         src={course.image}
                         alt={course.title}
                         className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                         loading="lazy"
                       />
-                      <span className="absolute top-3 left-3 px-2 py-0.5 bg-deep-navy-950/85 text-white text-[10px] font-bold rounded-md uppercase tracking-wider backdrop-blur-xs">
+                      <span className="absolute top-3 left-3 px-2 py-0.5 bg-purple-100 border border-purple-200/60 text-purple-800 text-[10px] font-bold rounded-md uppercase tracking-wider backdrop-blur-xs">
                         {course.category}
                       </span>
                       {isComingSoon && (
-                        <span className="absolute top-3 right-3 px-2 py-0.5 bg-royal-blue-600 text-white text-[10px] font-bold rounded-md uppercase tracking-wider">
+                        <span className="absolute top-3 right-3 px-2 py-0.5 bg-purple-600 text-white text-[10px] font-bold rounded-md uppercase tracking-wider">
                           Upcoming Batch
                         </span>
                       )}
                     </div>
 
                     {/* Card Content Details */}
-                    <div className="p-4 flex-1 flex flex-col justify-between space-y-3">
+                    <div className="p-4 flex-1 flex flex-col justify-between space-y-3 text-left">
                       <div className="space-y-1.5">
-                        <h3 className="font-display font-bold text-sm text-deep-navy-900 group-hover:text-royal-blue-600 transition-colors line-clamp-1">
+                        <h3 className="font-display font-bold text-sm text-slate-950 group-hover:text-purple-600 transition-colors line-clamp-1">
                           {isComingSoon ? (
                             course.title
                           ) : (
@@ -496,20 +523,20 @@ export const Home: React.FC = () => {
                         {course.skills.slice(0, 3).map((skill) => (
                           <span
                             key={skill}
-                            className="px-1.5 py-0.5 bg-deep-navy-50 border border-deep-navy-200/60 text-deep-navy-800 text-[9px] font-semibold rounded"
+                            className="px-1.5 py-0.5 bg-purple-50/70 border border-purple-100 text-purple-800 text-[9px] font-semibold rounded"
                           >
                             {skill}
                           </span>
                         ))}
                         {course.skills.length > 3 && (
-                          <span className="px-1.5 py-0.5 bg-deep-navy-50 text-slate-400 text-[9px] font-medium rounded">
+                          <span className="px-1.5 py-0.5 bg-slate-50 text-slate-400 text-[9px] font-medium rounded">
                             +{course.skills.length - 3}
                           </span>
                         )}
                       </div>
 
                       {/* Course Metadata (Duration, Mode, Rating) */}
-                      <div className="flex items-center justify-between text-[11px] text-slate-500 font-semibold border-t border-deep-navy-100 pt-2.5">
+                      <div className="flex items-center justify-between text-[11px] text-slate-500 font-semibold border-t border-slate-100 pt-2.5">
                         <span className="flex items-center gap-1">
                           <Clock className="w-3.5 h-3.5 text-slate-400" />
                           {course.duration}
@@ -518,17 +545,17 @@ export const Home: React.FC = () => {
                           <BookOpen className="w-3.5 h-3.5 text-slate-400" />
                           Online
                         </span>
-                        <span className="flex items-center gap-1 text-amber-500">
+                        <span className="flex items-center gap-1 text-amber-500 font-bold">
                           <Star className="w-3.5 h-3.5 fill-current" />
                           {course.rating > 0 ? course.rating : '4.8'}
                         </span>
                       </div>
 
                       {/* Action & Pricing Footer */}
-                      <div className="pt-3 border-t border-deep-navy-100 flex items-center justify-between gap-2">
+                      <div className="pt-3 border-t border-slate-100 flex items-center justify-between gap-2">
                         {isComingSoon ? (
                           <>
-                            <span className="text-[10px] font-bold text-royal-blue-600 uppercase">
+                            <span className="text-[10px] font-bold text-purple-600 uppercase">
                               Enrolment Opening
                             </span>
                             <button
@@ -545,7 +572,7 @@ export const Home: React.FC = () => {
                               <span className="text-[10px] text-slate-400 line-through leading-none">
                                 ₹{course.originalPrice}
                               </span>
-                              <span className="text-deep-navy-900 font-extrabold text-sm leading-tight">
+                              <span className="text-slate-950 font-extrabold text-sm leading-tight">
                                 ₹{course.price}
                               </span>
                             </div>
@@ -553,13 +580,14 @@ export const Home: React.FC = () => {
                               <button
                                 type="button"
                                 onClick={() => openEnquiryModal(course.title)}
-                                className="px-2.5 py-1.5 text-[10px] font-bold text-slate-600 hover:text-royal-blue-600 rounded-lg hover:bg-slate-50 transition-colors"
+                                className="btn-primary px-3 py-1.5 text-[10px] font-bold rounded-lg inline-flex items-center gap-1 shadow-2xs"
                               >
-                                Enquire
+                                <PhoneCall className="w-3 h-3" />
+                                <span>Enquire Now</span>
                               </button>
                               <Link
                                 to={`/courses/${course.slug}`}
-                                className="btn-primary px-3.5 py-1.5 text-[11px] font-bold rounded-lg inline-flex items-center gap-1"
+                                className="px-2.5 py-1.5 text-[10px] font-bold text-slate-600 hover:text-purple-600 rounded-lg hover:bg-purple-50 border border-slate-200 transition-colors inline-flex items-center gap-1"
                               >
                                 <span>Details</span>
                                 <ArrowRight className="w-3 h-3" />
@@ -582,59 +610,59 @@ export const Home: React.FC = () => {
       {/* ========================================================================= */}
       <section
         ref={statsSectionRef}
-        className="bg-royal-blue-600 text-white py-12 sm:py-16 relative overflow-hidden"
+        className="bg-gradient-to-r from-purple-800 via-purple-600 to-purple-900 text-white py-12 sm:py-16 relative overflow-hidden"
       >
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
           <div className="grid grid-cols-2 lg:grid-cols-4 gap-6 sm:gap-8 text-center">
             
             {/* Stat 1 */}
-            <div className="space-y-1.5 p-4 rounded-xl bg-white/5 backdrop-blur-xs border border-white/10">
+            <div className="space-y-1.5 p-4 rounded-xl bg-white/10 backdrop-blur-xs border border-white/15">
               <div className="w-10 h-10 rounded-lg bg-white/10 flex items-center justify-center mx-auto text-white mb-2">
                 <Users className="w-5 h-5" />
               </div>
               <span className="text-2xl sm:text-3xl lg:text-4xl font-display font-extrabold text-white block">
                 {statsAnimated ? '2,500+' : '0'}
               </span>
-              <span className="text-xs font-semibold text-royal-blue-100 uppercase tracking-wider block">
+              <span className="text-xs font-semibold text-purple-100 uppercase tracking-wider block">
                 Active Learners
               </span>
             </div>
 
             {/* Stat 2 */}
-            <div className="space-y-1.5 p-4 rounded-xl bg-white/5 backdrop-blur-xs border border-white/10">
+            <div className="space-y-1.5 p-4 rounded-xl bg-white/10 backdrop-blur-xs border border-white/15">
               <div className="w-10 h-10 rounded-lg bg-white/10 flex items-center justify-center mx-auto text-white mb-2">
                 <Star className="w-5 h-5" />
               </div>
               <span className="text-2xl sm:text-3xl lg:text-4xl font-display font-extrabold text-white block">
-                {statsAnimated ? '4.8 / 5.0' : '0.0'}
+                {statsAnimated ? '4.9 / 5.0' : '0.0'}
               </span>
-              <span className="text-xs font-semibold text-royal-blue-100 uppercase tracking-wider block">
+              <span className="text-xs font-semibold text-purple-100 uppercase tracking-wider block">
                 Average Rating
               </span>
             </div>
 
             {/* Stat 3 */}
-            <div className="space-y-1.5 p-4 rounded-xl bg-white/5 backdrop-blur-xs border border-white/10">
+            <div className="space-y-1.5 p-4 rounded-xl bg-white/10 backdrop-blur-xs border border-white/15">
               <div className="w-10 h-10 rounded-lg bg-white/10 flex items-center justify-center mx-auto text-white mb-2">
                 <Layers className="w-5 h-5" />
               </div>
               <span className="text-2xl sm:text-3xl lg:text-4xl font-display font-extrabold text-white block">
                 {statsAnimated ? '15+ Labs' : '0'}
               </span>
-              <span className="text-xs font-semibold text-royal-blue-100 uppercase tracking-wider block">
+              <span className="text-xs font-semibold text-purple-100 uppercase tracking-wider block">
                 Practical Labs Built
               </span>
             </div>
 
             {/* Stat 4 */}
-            <div className="space-y-1.5 p-4 rounded-xl bg-white/5 backdrop-blur-xs border border-white/10">
+            <div className="space-y-1.5 p-4 rounded-xl bg-white/10 backdrop-blur-xs border border-white/15">
               <div className="w-10 h-10 rounded-lg bg-white/10 flex items-center justify-center mx-auto text-white mb-2">
                 <Award className="w-5 h-5" />
               </div>
               <span className="text-2xl sm:text-3xl lg:text-4xl font-display font-extrabold text-white block">
                 {statsAnimated ? '10+ Programs' : '0'}
               </span>
-              <span className="text-xs font-semibold text-royal-blue-100 uppercase tracking-wider block">
+              <span className="text-xs font-semibold text-purple-100 uppercase tracking-wider block">
                 Industry-Mapped Tracks
               </span>
             </div>
@@ -646,13 +674,13 @@ export const Home: React.FC = () => {
       {/* ========================================================================= */}
       {/* 5. "WHY CHOOSE US" / UNIQUE VALUE PROPOSITION */}
       {/* ========================================================================= */}
-      <section className="bg-deep-navy-50 border-b border-deep-navy-200 py-16 sm:py-20">
+      <section className="bg-slate-50 border-b border-slate-200 py-16 sm:py-20">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center max-w-3xl mx-auto mb-12 space-y-2">
-            <span className="text-royal-blue-600 text-xs font-extrabold tracking-widest uppercase block">
+            <span className="text-purple-600 text-xs font-extrabold tracking-widest uppercase block">
               OUR PEDAGOGY
             </span>
-            <h2 className="text-2xl sm:text-3xl lg:text-4xl font-display font-extrabold text-deep-navy-900">
+            <h2 className="text-2xl sm:text-3xl lg:text-4xl font-display font-extrabold text-slate-950">
               Discover What Makes Edqoo Unique
             </h2>
             <p className="text-slate-500 text-xs sm:text-sm leading-relaxed">
@@ -687,12 +715,12 @@ export const Home: React.FC = () => {
               return (
                 <div
                   key={idx}
-                  className="bg-white border border-deep-navy-200 p-6 rounded-2xl shadow-2xs hover:border-royal-blue-500 hover:shadow-md transition-all group"
+                  className="bg-white border border-slate-200 p-6 rounded-2xl shadow-2xs hover:border-purple-400 hover:shadow-md transition-all group text-left"
                 >
-                  <div className="w-12 h-12 rounded-xl bg-royal-blue-50 border border-royal-blue-200 flex items-center justify-center text-royal-blue-600 mb-4 group-hover:scale-105 transition-transform">
+                  <div className="w-12 h-12 rounded-xl bg-purple-50 border border-purple-200 flex items-center justify-center text-purple-600 mb-4 group-hover:scale-105 transition-transform">
                     <IconComp className="w-6 h-6" />
                   </div>
-                  <h3 className="font-display font-bold text-base text-deep-navy-900 mb-2">
+                  <h3 className="font-display font-bold text-base text-slate-950 mb-2">
                     {card.title}
                   </h3>
                   <p className="text-xs text-slate-500 leading-relaxed">
@@ -708,12 +736,12 @@ export const Home: React.FC = () => {
       {/* ========================================================================= */}
       {/* 6. SKILLS FOR MODERN CAREERS SECTION */}
       {/* ========================================================================= */}
-      <section className="section-padding bg-white">
+      {/* <section className="section-padding bg-white">
         <div className="text-center max-w-3xl mx-auto mb-12 space-y-2">
-          <span className="text-royal-blue-600 text-xs font-extrabold tracking-widest uppercase block">
+          <span className="text-purple-600 text-xs font-extrabold tracking-widest uppercase block">
             SKILL DIRECTORY
           </span>
-          <h2 className="text-2xl sm:text-3xl font-display font-extrabold text-deep-navy-900">
+          <h2 className="text-2xl sm:text-3xl font-display font-extrabold text-slate-950">
             Skills for Modern Technology Careers
           </h2>
           <p className="text-slate-500 text-xs sm:text-sm">
@@ -738,77 +766,74 @@ export const Home: React.FC = () => {
               <Link
                 key={idx}
                 to={item.link}
-                className="flex items-center justify-between p-4 bg-deep-navy-50/70 border border-deep-navy-200 rounded-xl hover:bg-royal-blue-50 hover:border-royal-blue-300 transition-all group"
+                className="flex items-center justify-between p-4 bg-slate-50 border border-slate-200 rounded-xl hover:bg-purple-50 hover:border-purple-300 transition-all group text-left"
               >
                 <div className="flex items-center gap-3">
-                  <div className="w-9 h-9 rounded-lg bg-white border border-deep-navy-200 text-royal-blue-600 flex items-center justify-center flex-shrink-0 group-hover:bg-royal-blue-600 group-hover:text-white transition-colors">
+                  <div className="w-9 h-9 rounded-lg bg-white border border-slate-200 text-purple-600 flex items-center justify-center flex-shrink-0 group-hover:bg-purple-600 group-hover:text-white transition-colors">
                     <ItemIcon className="w-4.5 h-4.5" />
                   </div>
                   <div>
-                    <h4 className="text-xs font-bold text-deep-navy-900 group-hover:text-royal-blue-700 transition-colors">
+                    <h4 className="text-xs font-bold text-slate-900 group-hover:text-purple-700 transition-colors">
                       {item.name}
                     </h4>
                     <span className="text-[10px] text-slate-500 font-medium">{item.count}</span>
                   </div>
                 </div>
-                <ArrowRight className="w-4 h-4 text-slate-400 group-hover:text-royal-blue-600 group-hover:translate-x-1 transition-all" />
+                <ArrowRight className="w-4 h-4 text-slate-400 group-hover:text-purple-600 group-hover:translate-x-1 transition-all" />
               </Link>
             );
           })}
         </div>
-      </section>
+      </section> */}
 
       {/* ========================================================================= */}
       {/* 7. TESTIMONIAL SLIDER SECTION */}
       {/* ========================================================================= */}
-      <section className="bg-deep-navy-950 text-white py-16 sm:py-20 border-y border-deep-navy-800">
+      {/* <section className="bg-gradient-to-b from-slate-50 to-white text-slate-900 py-16 sm:py-20 border-y border-slate-200">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           
-          {/* Header */}
+          
           <div className="text-center max-w-3xl mx-auto mb-12 space-y-2">
-            <span className="text-royal-blue-400 text-xs font-extrabold tracking-widest uppercase block">
+            <span className="text-purple-600 text-xs font-extrabold tracking-widest uppercase block">
               ALUMNI OUTCOMES
             </span>
-            <h2 className="text-2xl sm:text-3xl lg:text-4xl font-display font-extrabold text-white">
+            <h2 className="text-2xl sm:text-3xl lg:text-4xl font-display font-extrabold text-slate-950">
               What Our Learners Say
             </h2>
-            <p className="text-slate-300 text-xs sm:text-sm">
+            <p className="text-slate-500 text-xs sm:text-sm">
               Real accounts from professionals who pivoted into security and analytics roles.
             </p>
           </div>
 
-          {/* Testimonial Presentation Card */}
-          <div className="max-w-4xl mx-auto bg-deep-navy-900 border border-deep-navy-800 rounded-3xl p-6 sm:p-10 shadow-2xl relative overflow-hidden">
+          <div className="max-w-4xl mx-auto bg-white border border-slate-200 rounded-3xl p-6 sm:p-10 shadow-xl relative overflow-hidden">
             <div className="grid grid-cols-1 md:grid-cols-12 gap-8 items-center">
               
-              {/* Left Quote */}
               <div className="md:col-span-8 space-y-4 text-left">
-                <div className="flex text-amber-400 gap-1">
+                <div className="flex text-amber-500 gap-1">
                   {[...Array(testimonials[activeTestimonial].rating)].map((_, i) => (
                     <Star key={i} className="w-4 h-4 fill-current" />
                   ))}
                 </div>
 
-                <p className="text-sm sm:text-base text-slate-200 italic leading-relaxed">
+                <p className="text-sm sm:text-base text-slate-700 italic leading-relaxed font-medium">
                   "{testimonials[activeTestimonial].content}"
                 </p>
 
-                <div className="pt-2 border-t border-deep-navy-800">
-                  <h4 className="font-display font-bold text-base text-white">
+                <div className="pt-3 border-t border-slate-100">
+                  <h4 className="font-display font-bold text-base text-slate-950">
                     {testimonials[activeTestimonial].name}
                   </h4>
-                  <p className="text-xs text-royal-blue-300 font-semibold">
+                  <p className="text-xs text-purple-600 font-semibold">
                     {testimonials[activeTestimonial].role}
                   </p>
-                  <span className="inline-block mt-2 px-2.5 py-1 bg-royal-blue-900/60 border border-royal-blue-500/30 text-royal-blue-200 text-[10px] font-bold rounded uppercase">
+                  <span className="inline-block mt-2 px-2.5 py-1 bg-purple-50 border border-purple-200 text-purple-700 text-[10px] font-bold rounded uppercase">
                     {testimonials[activeTestimonial].courseName}
                   </span>
                 </div>
               </div>
 
-              {/* Right Portrait */}
               <div className="md:col-span-4 flex justify-center">
-                <div className="relative w-36 h-36 sm:w-44 sm:h-44 rounded-2xl overflow-hidden border-2 border-royal-blue-500/40 shadow-xl">
+                <div className="relative w-36 h-36 sm:w-44 sm:h-44 rounded-2xl overflow-hidden border-2 border-purple-400/40 shadow-lg">
                   <img
                     src={testimonials[activeTestimonial].avatar}
                     alt={testimonials[activeTestimonial].name}
@@ -818,15 +843,14 @@ export const Home: React.FC = () => {
               </div>
             </div>
 
-            {/* Testimonial Slider Controls */}
-            <div className="mt-8 pt-4 border-t border-deep-navy-800 flex items-center justify-between">
+            <div className="mt-8 pt-4 border-t border-slate-100 flex items-center justify-between">
               <div className="flex gap-2">
                 {testimonials.map((_, idx) => (
                   <button
                     key={idx}
                     onClick={() => setActiveTestimonial(idx)}
                     className={`h-2 rounded-full transition-all duration-300 ${
-                      activeTestimonial === idx ? 'w-6 bg-royal-blue-500' : 'w-2 bg-deep-navy-700'
+                      activeTestimonial === idx ? 'w-6 bg-purple-600' : 'w-2 bg-slate-200 hover:bg-slate-300'
                     }`}
                     aria-label={`Testimonial ${idx + 1}`}
                   />
@@ -838,7 +862,7 @@ export const Home: React.FC = () => {
                   onClick={() =>
                     setActiveTestimonial((prev) => (prev - 1 + testimonials.length) % testimonials.length)
                   }
-                  className="p-2 rounded-lg bg-deep-navy-800 text-slate-300 hover:text-white border border-deep-navy-700"
+                  className="p-2 rounded-lg bg-slate-100 text-slate-600 hover:text-purple-600 hover:bg-purple-50 border border-slate-200 transition-colors"
                   aria-label="Previous Testimonial"
                 >
                   <ChevronLeft className="w-4 h-4" />
@@ -847,7 +871,7 @@ export const Home: React.FC = () => {
                   onClick={() =>
                     setActiveTestimonial((prev) => (prev + 1) % testimonials.length)
                   }
-                  className="p-2 rounded-lg bg-deep-navy-800 text-slate-300 hover:text-white border border-deep-navy-700"
+                  className="p-2 rounded-lg bg-slate-100 text-slate-600 hover:text-purple-600 hover:bg-purple-50 border border-slate-200 transition-colors"
                   aria-label="Next Testimonial"
                 >
                   <ChevronRight className="w-4 h-4" />
@@ -857,34 +881,34 @@ export const Home: React.FC = () => {
           </div>
 
         </div>
-      </section>
+      </section> */}
 
       {/* ========================================================================= */}
       {/* 8. PROMOTIONAL FREE COURSE / LEAD BANNER */}
       {/* ========================================================================= */}
       <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-        <div className="bg-gradient-to-r from-deep-navy-900 to-royal-blue-900 text-white rounded-3xl p-8 sm:p-12 shadow-xl relative overflow-hidden grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
+        <div className="bg-gradient-to-r from-purple-800 via-purple-700 to-purple-900 text-white rounded-3xl p-8 sm:p-12 shadow-xl relative overflow-hidden grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
           <div className="lg:col-span-8 space-y-3.5 text-left">
-            <span className="inline-block px-3 py-1 bg-royal-blue-800 border border-royal-blue-400/30 text-royal-blue-200 text-[10px] font-bold uppercase tracking-wider rounded-md">
+            <span className="inline-block px-3 py-1 bg-white/20 border border-white/30 text-white text-[10px] font-bold uppercase tracking-wider rounded-md backdrop-blur-xs">
               Career Advisory
             </span>
             <h3 className="text-2xl sm:text-3xl font-display font-extrabold text-white">
               Start Learning Today — Accelerate Your Career
             </h3>
-            <p className="text-slate-300 text-xs sm:text-sm leading-relaxed max-w-xl">
+            <p className="text-purple-100 text-xs sm:text-sm leading-relaxed max-w-xl">
               Connect with our learning advisors for a personalized track assessment, course roadmap, and customized corporate training options.
             </p>
             <div className="flex flex-wrap gap-3 pt-2">
               <button
                 type="button"
                 onClick={() => openEnquiryModal()}
-                className="btn-primary bg-white text-royal-blue-700 border-white hover:bg-slate-100 hover:text-royal-blue-800 px-6 py-2.5 text-xs font-bold rounded-xl shadow-md"
+                className="btn-primary bg-white text-purple-800 border-white hover:bg-purple-50 hover:text-purple-900 px-6 py-2.5 text-xs font-bold rounded-xl shadow-md"
               >
                 Request Free Advisory Session
               </button>
               <Link
                 to="/courses"
-                className="btn-secondary bg-transparent text-white border-white/30 hover:bg-white/10 px-6 py-2.5 text-xs font-bold rounded-xl"
+                className="btn-secondary bg-transparent text-white border-white/40 hover:bg-white/15 px-6 py-2.5 text-xs font-bold rounded-xl"
               >
                 Explore All Programs
               </Link>
@@ -906,14 +930,14 @@ export const Home: React.FC = () => {
       {/* ========================================================================= */}
       {/* 9. LATEST MEDIA & INSIGHTS SPOTLIGHT */}
       {/* ========================================================================= */}
-      <section className="bg-deep-navy-50 border-t border-deep-navy-200 py-16">
+      <section className="bg-slate-50 border-t border-slate-200 py-16">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex flex-col sm:flex-row items-start sm:items-end justify-between mb-10 gap-4">
             <div className="text-left space-y-1">
-              <span className="text-royal-blue-600 text-xs font-extrabold tracking-widest uppercase block">
+              <span className="text-purple-600 text-xs font-extrabold tracking-widest uppercase block">
                 MEDIA & INSIGHTS
               </span>
-              <h2 className="text-2xl sm:text-3xl font-display font-extrabold text-deep-navy-900">
+              <h2 className="text-2xl sm:text-3xl font-display font-extrabold text-slate-950">
                 Latest Insights & Industry Spotlights
               </h2>
             </div>
@@ -926,7 +950,7 @@ export const Home: React.FC = () => {
             {blogPosts.slice(0, 3).map((post) => (
               <div
                 key={post.id}
-                className="bg-white border border-deep-navy-200 rounded-2xl overflow-hidden flex flex-col justify-between shadow-2xs hover:border-royal-blue-500 hover:shadow-md transition-all group"
+                className="bg-white border border-slate-200 rounded-2xl overflow-hidden flex flex-col justify-between shadow-2xs hover:border-purple-300 hover:shadow-md transition-all group text-left"
               >
                 <div className="aspect-[16/10] overflow-hidden bg-slate-100">
                   <img
@@ -938,17 +962,17 @@ export const Home: React.FC = () => {
                 </div>
                 <div className="p-5 flex-1 flex flex-col justify-between space-y-3">
                   <div className="space-y-1.5 text-left">
-                    <span className="text-[10px] font-bold text-royal-blue-600 uppercase">
+                    <span className="text-[10px] font-bold text-purple-600 uppercase">
                       {post.category}
                     </span>
-                    <h3 className="font-display font-bold text-sm text-deep-navy-900 group-hover:text-royal-blue-600 transition-colors line-clamp-2">
+                    <h3 className="font-display font-bold text-sm text-slate-950 group-hover:text-purple-600 transition-colors line-clamp-2">
                       <Link to={`/resources/${post.slug}`}>{post.title}</Link>
                     </h3>
                     <p className="text-slate-500 text-xs leading-relaxed line-clamp-2">
                       {post.excerpt}
                     </p>
                   </div>
-                  <div className="flex items-center justify-between text-[11px] text-slate-400 font-semibold pt-3 border-t border-deep-navy-100">
+                  <div className="flex items-center justify-between text-[11px] text-slate-400 font-semibold pt-3 border-t border-slate-100">
                     <span>{post.date}</span>
                     <span>{post.readTime}</span>
                   </div>
@@ -962,25 +986,25 @@ export const Home: React.FC = () => {
       {/* ========================================================================= */}
       {/* 10. FINAL CALL TO ACTION */}
       {/* ========================================================================= */}
-      <section className="bg-deep-navy-950 text-white py-16 text-center border-t border-deep-navy-800 relative">
+      <section className="bg-gradient-to-b from-white via-purple-50/40 to-slate-50 text-slate-950 py-16 text-center border-t border-slate-200 relative">
         <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 space-y-5">
-          <h2 className="text-2xl sm:text-3xl lg:text-4xl font-display font-extrabold text-white">
+          <h2 className="text-2xl sm:text-3xl lg:text-4xl font-display font-extrabold text-slate-950">
             Ready to Build Your Next Career Milestone?
           </h2>
-          <p className="text-slate-300 text-xs sm:text-sm leading-relaxed max-w-xl mx-auto">
+          <p className="text-slate-600 text-xs sm:text-sm leading-relaxed max-w-xl mx-auto font-normal">
             Join ambitious learners building verified technological competencies. Explore our available tracks or speak with an advisor today.
           </p>
           <div className="flex justify-center gap-3.5 pt-2">
             <Link
               to="/courses"
-              className="btn-primary px-8 py-3 text-xs sm:text-sm font-bold rounded-xl shadow-lg"
+              className="btn-primary px-8 py-3.5 text-xs sm:text-sm font-bold rounded-xl shadow-md"
             >
               Explore Programs
             </Link>
             <button
               type="button"
               onClick={() => openEnquiryModal()}
-              className="btn-secondary bg-white/10 hover:bg-white/15 text-white border-white/20 px-8 py-3 text-xs sm:text-sm font-bold rounded-xl"
+              className="btn-secondary px-8 py-3.5 text-xs sm:text-sm font-bold rounded-xl shadow-2xs"
             >
               Speak to Advisor
             </button>

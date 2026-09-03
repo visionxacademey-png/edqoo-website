@@ -20,7 +20,7 @@ export const Footer: React.FC = () => {
   };
 
   return (
-    <footer className="bg-deep-navy-950 text-slate-400 border-t border-deep-navy-800 pt-14 pb-8 text-left">
+    <footer className="bg-white text-slate-600 border-t border-slate-200 pt-14 pb-8 text-left">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         
         {/* Top Grid */}
@@ -28,42 +28,41 @@ export const Footer: React.FC = () => {
           
           {/* Brand & Newsletter (4 cols) */}
           <div className="lg:col-span-4 space-y-4">
-            <Link to="/" className="flex items-center gap-2.5 group">
-              <div className="w-8 h-8 rounded-xl bg-gradient-to-tr from-royal-blue-600 to-royal-blue-500 flex items-center justify-center text-white font-display font-black text-base shadow">
-                E
-              </div>
-              <span className="font-display font-extrabold text-xl tracking-tight text-white">
-                Edqoo
-              </span>
+            <Link to="/" className="inline-block">
+              <img 
+                src="/logo.jpg" 
+                alt="EDQOO - Your skill partner" 
+                className="h-10 w-auto object-contain max-w-[160px]" 
+              />
             </Link>
             
-            <p className="text-xs sm:text-sm leading-relaxed text-slate-400 max-w-sm">
-              Edqoo is a modern technology education platform. Build in-demand software engineering, cybersecurity, data science, and cloud systems capabilities through practical, industry-aligned curricula.
+            <p className="text-xs sm:text-sm leading-relaxed text-slate-500 max-w-sm">
+              Edqoo is your premier technology skill partner. Build in-demand software engineering, cybersecurity, data science, and cloud systems capabilities through practical, industry-aligned curricula.
             </p>
 
             {/* Newsletter */}
             <div className="pt-2">
-              <span className="text-xs font-bold text-white uppercase tracking-wider block mb-2">
+              <span className="text-xs font-bold text-slate-900 uppercase tracking-wider block mb-2">
                 Stay Updated On New Programs
               </span>
               {isSubscribed ? (
-                <div className="p-2.5 bg-emerald-950/60 border border-emerald-500/40 text-emerald-300 text-xs rounded-lg flex items-center gap-2">
-                  <CheckCircle2 className="w-4 h-4 text-emerald-400" />
+                <div className="p-2.5 bg-purple-50 border border-purple-200 text-purple-900 text-xs rounded-lg flex items-center gap-2 font-medium">
+                  <CheckCircle2 className="w-4 h-4 text-purple-600" />
                   <span>Thank you for subscribing to Edqoo insights!</span>
                 </div>
               ) : (
                 <form onSubmit={handleNewsletterSubmit} className="flex gap-2 max-w-sm">
                   <input
                     type="email"
-                    placeholder="Enter your corporate or personal email"
+                    placeholder="Enter your email address"
                     value={newsletterEmail}
                     onChange={(e) => setNewsletterEmail(e.target.value)}
                     required
-                    className="flex-1 px-3.5 py-2 text-xs bg-deep-navy-900 border border-deep-navy-700 rounded-lg focus:outline-none focus:border-royal-blue-500 text-white placeholder-slate-500"
+                    className="flex-1 px-3.5 py-2 text-xs bg-slate-50 border border-slate-200 rounded-lg focus:outline-none focus:bg-white focus:border-purple-600 text-slate-900 placeholder-slate-400 shadow-2xs"
                   />
                   <button
                     type="submit"
-                    className="p-2 bg-royal-blue-600 text-white hover:bg-royal-blue-700 rounded-lg transition-colors flex items-center justify-center"
+                    className="p-2 bg-purple-600 hover:bg-purple-800 text-white rounded-lg transition-colors flex items-center justify-center shadow-2xs"
                     aria-label="Subscribe to newsletter"
                   >
                     <ArrowRight className="w-4 h-4" />
@@ -75,37 +74,37 @@ export const Footer: React.FC = () => {
 
           {/* Column 1: Core Programs (2 cols) */}
           <div className="lg:col-span-2 space-y-3">
-            <h4 className="font-display font-bold text-white text-xs uppercase tracking-wider">
+            <h4 className="font-display font-bold text-slate-950 text-xs uppercase tracking-wider">
               Core Tracks
             </h4>
             <ul className="space-y-2 text-xs">
               <li>
-                <Link to="/courses/cybersecurity" className="hover:text-white transition-colors">
+                <Link to="/courses/cybersecurity" className="hover:text-purple-600 transition-colors">
                   Cybersecurity Program
                 </Link>
               </li>
               <li>
-                <Link to="/courses/data-science" className="hover:text-white transition-colors">
+                <Link to="/courses/data-science" className="hover:text-purple-600 transition-colors">
                   Data Science Program
                 </Link>
               </li>
               <li>
-                <Link to="/courses" className="hover:text-white transition-colors">
+                <Link to="/courses" className="hover:text-purple-600 transition-colors">
                   AI & Deep Learning
                 </Link>
               </li>
               <li>
-                <Link to="/courses" className="hover:text-white transition-colors">
+                <Link to="/courses" className="hover:text-purple-600 transition-colors">
                   Full Stack Engineering
                 </Link>
               </li>
               <li>
-                <Link to="/courses" className="hover:text-white transition-colors">
-                  Cloud Solutions Architecture
+                <Link to="/courses" className="hover:text-purple-600 transition-colors">
+                  Cloud Architecture
                 </Link>
               </li>
               <li>
-                <Link to="/courses" className="hover:text-white transition-colors">
+                <Link to="/courses" className="hover:text-purple-600 transition-colors">
                   DevOps & SRE
                 </Link>
               </li>
@@ -114,32 +113,32 @@ export const Footer: React.FC = () => {
 
           {/* Column 2: Categories (2 cols) */}
           <div className="lg:col-span-2 space-y-3">
-            <h4 className="font-display font-bold text-white text-xs uppercase tracking-wider">
+            <h4 className="font-display font-bold text-slate-950 text-xs uppercase tracking-wider">
               Specializations
             </h4>
             <ul className="space-y-2 text-xs">
               <li>
-                <Link to="/courses" className="hover:text-white transition-colors">
+                <Link to="/courses" className="hover:text-purple-600 transition-colors">
                   Ethical Hacking & SOC
                 </Link>
               </li>
               <li>
-                <Link to="/courses" className="hover:text-white transition-colors">
+                <Link to="/courses" className="hover:text-purple-600 transition-colors">
                   Predictive Analytics
                 </Link>
               </li>
               <li>
-                <Link to="/courses" className="hover:text-white transition-colors">
+                <Link to="/courses" className="hover:text-purple-600 transition-colors">
                   UI/UX Product Design
                 </Link>
               </li>
               <li>
-                <Link to="/courses" className="hover:text-white transition-colors">
+                <Link to="/courses" className="hover:text-purple-600 transition-colors">
                   Mobile App Development
                 </Link>
               </li>
               <li>
-                <Link to="/courses" className="hover:text-white transition-colors">
+                <Link to="/courses" className="hover:text-purple-600 transition-colors">
                   Growth Marketing
                 </Link>
               </li>
@@ -148,22 +147,22 @@ export const Footer: React.FC = () => {
 
           {/* Column 3: Company & Support (2 cols) */}
           <div className="lg:col-span-2 space-y-3">
-            <h4 className="font-display font-bold text-white text-xs uppercase tracking-wider">
+            <h4 className="font-display font-bold text-slate-950 text-xs uppercase tracking-wider">
               Company
             </h4>
             <ul className="space-y-2 text-xs">
               <li>
-                <Link to="/about" className="hover:text-white transition-colors">
+                <Link to="/about" className="hover:text-purple-600 transition-colors">
                   About Edqoo
                 </Link>
               </li>
               <li>
-                <Link to="/resources" className="hover:text-white transition-colors">
+                <Link to="/resources" className="hover:text-purple-600 transition-colors">
                   Resources & Insights
                 </Link>
               </li>
               <li>
-                <Link to="/contact" className="hover:text-white transition-colors">
+                <Link to="/contact" className="hover:text-purple-600 transition-colors">
                   Contact Support
                 </Link>
               </li>
@@ -171,7 +170,7 @@ export const Footer: React.FC = () => {
                 <button
                   type="button"
                   onClick={() => openEnquiryModal()}
-                  className="hover:text-white text-royal-blue-400 transition-colors text-left"
+                  className="hover:text-purple-800 text-purple-600 font-semibold transition-colors text-left"
                 >
                   Request Advisory
                 </button>
@@ -181,22 +180,22 @@ export const Footer: React.FC = () => {
 
           {/* Column 4: Contact info (2 cols) */}
           <div className="lg:col-span-2 space-y-3">
-            <h4 className="font-display font-bold text-white text-xs uppercase tracking-wider">
+            <h4 className="font-display font-bold text-slate-950 text-xs uppercase tracking-wider">
               Contact Us
             </h4>
-            <div className="space-y-2.5 text-xs">
+            <div className="space-y-2.5 text-xs text-slate-600">
               <div className="flex items-start gap-2">
-                <Mail className="w-4 h-4 text-royal-blue-400 mt-0.5 flex-shrink-0" />
-                <a href="mailto:support@Edqoo.com" className="hover:text-white transition-colors">
-                  support@Edqoo.com
+                <Mail className="w-4 h-4 text-purple-600 mt-0.5 flex-shrink-0" />
+                <a href="mailto:support@edqoo.com" className="hover:text-purple-600 transition-colors">
+                  support@edqoo.com
                 </a>
               </div>
               <div className="flex items-start gap-2">
-                <Phone className="w-4 h-4 text-royal-blue-400 mt-0.5 flex-shrink-0" />
-                <span>+1 (555) 019-2844</span>
+                <Phone className="w-4 h-4 text-purple-600 mt-0.5 flex-shrink-0" />
+                <span>+91 9999999999</span>
               </div>
               <div className="flex items-start gap-2">
-                <MapPin className="w-4 h-4 text-royal-blue-400 mt-0.5 flex-shrink-0" />
+                <MapPin className="w-4 h-4 text-purple-600 mt-0.5 flex-shrink-0" />
                 <span>100 Pine St, San Francisco, CA</span>
               </div>
             </div>
@@ -205,17 +204,17 @@ export const Footer: React.FC = () => {
         </div>
 
         {/* Bottom Bar: Copyright & Socials */}
-        <div className="border-t border-deep-navy-800 pt-6 flex flex-col sm:flex-row items-center justify-between gap-4">
+        <div className="border-t border-slate-200 pt-6 flex flex-col sm:flex-row items-center justify-between gap-4">
           <p className="text-xs text-slate-500">
-            &copy; {currentYear} Edqoo. All rights reserved. Professional EdTech Platform.
+            &copy; {currentYear} Edqoo. All rights reserved. Your skill partner in professional tech education.
           </p>
 
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-2.5">
             <a
               href="https://linkedin.com"
               target="_blank"
               rel="noopener noreferrer"
-              className="p-2 bg-deep-navy-900 hover:bg-royal-blue-600 text-slate-400 hover:text-white rounded-lg transition-colors"
+              className="p-2 bg-slate-50 hover:bg-purple-600 text-slate-600 hover:text-white border border-slate-200 rounded-lg shadow-2xs transition-colors"
               aria-label="LinkedIn"
             >
               <svg className="w-4 h-4 fill-current" viewBox="0 0 24 24">
@@ -227,7 +226,7 @@ export const Footer: React.FC = () => {
               href="https://youtube.com"
               target="_blank"
               rel="noopener noreferrer"
-              className="p-2 bg-deep-navy-900 hover:bg-royal-blue-600 text-slate-400 hover:text-white rounded-lg transition-colors"
+              className="p-2 bg-slate-50 hover:bg-purple-600 text-slate-600 hover:text-white border border-slate-200 rounded-lg shadow-2xs transition-colors"
               aria-label="YouTube"
             >
               <svg className="w-4 h-4 fill-current" viewBox="0 0 24 24">
@@ -239,7 +238,7 @@ export const Footer: React.FC = () => {
               href="https://facebook.com"
               target="_blank"
               rel="noopener noreferrer"
-              className="p-2 bg-deep-navy-900 hover:bg-royal-blue-600 text-slate-400 hover:text-white rounded-lg transition-colors"
+              className="p-2 bg-slate-50 hover:bg-purple-600 text-slate-600 hover:text-white border border-slate-200 rounded-lg shadow-2xs transition-colors"
               aria-label="Facebook"
             >
               <svg className="w-4 h-4 fill-current" viewBox="0 0 24 24">

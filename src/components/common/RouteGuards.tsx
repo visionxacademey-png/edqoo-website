@@ -11,7 +11,7 @@ export const ProtectedRoute: React.FC = () => {
   if (isLoading) {
     return (
       <div className="min-h-screen flex flex-col items-center justify-center bg-slate-50">
-        <Loader2 className="w-10 h-10 text-royal-blue-900 animate-spin mb-3" />
+        <Loader2 className="w-10 h-10 text-purple-600 animate-spin mb-3" />
         <span className="text-xs font-semibold text-slate-500">Checking credentials...</span>
       </div>
     );
@@ -32,7 +32,7 @@ export const PublicRoute: React.FC = () => {
   if (isLoading) {
     return (
       <div className="min-h-screen flex flex-col items-center justify-center bg-slate-50">
-        <Loader2 className="w-10 h-10 text-royal-blue-900 animate-spin mb-3" />
+        <Loader2 className="w-10 h-10 text-purple-600 animate-spin mb-3" />
       </div>
     );
   }

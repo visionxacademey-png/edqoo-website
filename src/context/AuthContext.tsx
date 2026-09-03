@@ -8,10 +8,7 @@ interface AuthContextType {
   login: (email: string, password: string) => Promise<boolean>;
   register: (name: string, email: string, phone: string, password: string) => Promise<boolean>;
   logout: () => void;
-  enrollInCourse: (courseId: string) => Promise<void>;
-  isEnrolled: (courseId: string) => boolean;
-  completeLesson: (courseId: string, lessonId: string) => Promise<void>;
-  isLessonCompleted: (courseId: string, lessonId: string) => boolean;
+  updateUserProfile: (name: string, phone: string) => void;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -20,10 +17,10 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 const USER_KEY = 'Edqoo_user';
 const TOKEN_KEY = 'Edqoo_token';
 
-// Simple base64 mock JWT generator for prepare-for-backend design
-const generateMockJWT = (email: string) => {
+// Simple base64 mock JWT generator
+const generateMockJWT = (email: string, role: string = 'user') => {
   const header = btoa(JSON.stringify({ alg: 'HS256', typ: 'JWT' }));
-  const payload = btoa(JSON.stringify({ sub: email, role: 'student', exp: Math.floor(Date.now() / 1000) + 3600 }));
+  const payload = btoa(JSON.stringify({ sub: email, role, exp: Math.floor(Date.now() / 1000) + 86400 }));
   const signature = 'mock_signature_part';
   return `${header}.${payload}.${signature}`;
 };
@@ -38,32 +35,39 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     const token = localStorage.getItem(TOKEN_KEY);
     
     if (savedUser && token) {
-      setUser(JSON.parse(savedUser));
+      try {
+        const parsed: User = JSON.parse(savedUser);
+        if (parsed.phone && (parsed.phone.includes('+1') || parsed.phone.includes('555'))) {
+          parsed.phone = '+91 9999999999';
+          localStorage.setItem(USER_KEY, JSON.stringify(parsed));
+        }
+        setUser(parsed);
+      } catch {
+        localStorage.removeItem(USER_KEY);
+        localStorage.removeItem(TOKEN_KEY);
+      }
     }
     setIsLoading(false);
   }, []);
 
   const login = async (email: string, password: string): Promise<boolean> => {
     setIsLoading(true);
-    // Simulate backend network latency and log inputs safely to prevent unused variable checks
-    console.log('Demo Login payload processing:', email, '*'.repeat(password.length));
-    await new Promise((resolve) => setTimeout(resolve, 800));
+    if (password.length < 6) return false;
+    await new Promise((resolve) => setTimeout(resolve, 600));
 
-    // Simple email login simulation
+    // Simple profile generation for authentication
     const mockUser: User = {
       id: 'usr-9284',
       name: email.split('@')[0].toUpperCase(),
       email,
-      phone: '+1 555-0199',
+      phone: '+91 9999999999',
       avatar: 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?q=80&w=150&auto=format&fit=crop',
-      enrolledCourses: ['cybersecurity'], // Default mock enrollment for demo
-      progress: {
-        'cybersecurity': ['cs-l-1', 'cs-l-2']
-      }
+      role: email.toLowerCase().includes('admin') ? 'admin' : 'user',
+      createdAt: '2026-08-15T09:00:00.000Z'
     };
 
     localStorage.setItem(USER_KEY, JSON.stringify(mockUser));
-    localStorage.setItem(TOKEN_KEY, generateMockJWT(email));
+    localStorage.setItem(TOKEN_KEY, generateMockJWT(email, mockUser.role));
     setUser(mockUser);
     setIsLoading(false);
     return true;
@@ -71,9 +75,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const register = async (name: string, email: string, phone: string, password: string): Promise<boolean> => {
     setIsLoading(true);
-    // Simulate latency and log variables to prevent unused checks
-    console.log('Demo Register payload processing:', email, '*'.repeat(password.length));
-    await new Promise((resolve) => setTimeout(resolve, 1000));
+    if (password.length < 6) return false;
+    await new Promise((resolve) => setTimeout(resolve, 800));
 
     const mockUser: User = {
       id: `usr-${Math.floor(1000 + Math.random() * 9000)}`,
@@ -81,12 +84,12 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       email,
       phone,
       avatar: 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?q=80&w=150&auto=format&fit=crop',
-      enrolledCourses: [],
-      progress: {}
+      role: email.toLowerCase().includes('admin') ? 'admin' : 'user',
+      createdAt: new Date().toISOString()
     };
 
     localStorage.setItem(USER_KEY, JSON.stringify(mockUser));
-    localStorage.setItem(TOKEN_KEY, generateMockJWT(email));
+    localStorage.setItem(TOKEN_KEY, generateMockJWT(email, mockUser.role));
     setUser(mockUser);
     setIsLoading(false);
     return true;
@@ -98,51 +101,11 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     setUser(null);
   };
 
-  const enrollInCourse = async (courseId: string) => {
+  const updateUserProfile = (name: string, phone: string) => {
     if (!user) return;
-    
-    // Simulate API delay
-    await new Promise((resolve) => setTimeout(resolve, 500));
-
-    const updatedUser = {
-      ...user,
-      enrolledCourses: user.enrolledCourses.includes(courseId)
-        ? user.enrolledCourses
-        : [...user.enrolledCourses, courseId]
-    };
-    
-    localStorage.setItem(USER_KEY, JSON.stringify(updatedUser));
-    setUser(updatedUser);
-  };
-
-  const isEnrolled = (courseId: string) => {
-    if (!user) return false;
-    return user.enrolledCourses.includes(courseId);
-  };
-
-  const completeLesson = async (courseId: string, lessonId: string) => {
-    if (!user) return;
-
-    const currentProgress = user.progress[courseId] || [];
-    if (currentProgress.includes(lessonId)) return; // Already completed
-
-    const updatedProgress = {
-      ...user.progress,
-      [courseId]: [...currentProgress, lessonId]
-    };
-
-    const updatedUser = {
-      ...user,
-      progress: updatedProgress
-    };
-
-    localStorage.setItem(USER_KEY, JSON.stringify(updatedUser));
-    setUser(updatedUser);
-  };
-
-  const isLessonCompleted = (courseId: string, lessonId: string) => {
-    if (!user || !user.progress[courseId]) return false;
-    return user.progress[courseId].includes(lessonId);
+    const updated: User = { ...user, name, phone };
+    localStorage.setItem(USER_KEY, JSON.stringify(updated));
+    setUser(updated);
   };
 
   return (
@@ -154,10 +117,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         login,
         register,
         logout,
-        enrollInCourse,
-        isEnrolled,
-        completeLesson,
-        isLessonCompleted
+        updateUserProfile
       }}
     >
       {children}

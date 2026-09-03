@@ -1,31 +1,79 @@
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Outfit:wght@400;500;600;700;800;900&display=swap');
 @import "tailwindcss";
 
-@theme {
-  /* Edqoo Premium Corporate Color Palette */
-  --color-deep-navy-50: #F8FAFC;
-  --color-deep-navy-100: #F1F5F9;
-  --color-deep-navy-200: #E2E8F0;
-  --color-deep-navy-300: #CBD5E1;
-  --color-deep-navy-400: #94A3B8;
-  --color-deep-navy-500: #64748B;
-  --color-deep-navy-600: #475569;
-  --color-deep-navy-700: #334155;
-  --color-deep-navy-800: #1E293B;
-  --color-deep-navy-900: #0F172A;
-  --color-deep-navy-950: #07101E;
+:root {
+  /* EDQOO Central Design Token System */
+  --brand-primary: #6D22B5;
+  --brand-primary-dark: #4B1680;
+  --brand-primary-light: #F1E8FA;
+  --brand-primary-soft: #F8F4FC;
+  --brand-dark: #202126;
+  --brand-text: #34343A;
+  --background: #FFFFFF;
+  --surface: #FFFFFF;
+  --border: #E6E3EA;
+}
 
-  --color-royal-blue-50: #EFF6FF;
-  --color-royal-blue-100: #DBEAFE;
-  --color-royal-blue-200: #BFDBFE;
-  --color-royal-blue-300: #93C5FD;
-  --color-royal-blue-400: #60A5FA;
-  --color-royal-blue-500: #3B82F6;
-  --color-royal-blue-600: #1268E8; /* Primary Edqoo Blue */
-  --color-royal-blue-700: #0B4DBB; /* Hover Blue */
-  --color-royal-blue-800: #083785;
-  --color-royal-blue-900: #07265C;
-  --color-royal-blue-950: #031330;
+@theme {
+  /* EDQOO Official Palette Tokens */
+  --color-brand-primary: #6D22B5;
+  --color-brand-primary-dark: #4B1680;
+  --color-brand-primary-light: #F1E8FA;
+  --color-brand-primary-soft: #F8F4FC;
+  --color-brand-dark: #202126;
+  --color-brand-text: #34343A;
+  --color-brand-border: #E6E3EA;
+
+  /* Purple Color Scale */
+  --color-purple-50: #F8F4FC;
+  --color-purple-100: #F1E8FA;
+  --color-purple-200: #E0CEF5;
+  --color-purple-300: #C5A5EE;
+  --color-purple-400: #9F6AE2;
+  --color-purple-500: #853FD5;
+  --color-purple-600: #6D22B5; /* Brand Primary */
+  --color-purple-700: #5C1C9A;
+  --color-purple-800: #4B1680; /* Brand Primary Dark */
+  --color-purple-900: #381061;
+  --color-purple-950: #22083D;
+
+  /* Neutrals */
+  --color-slate-50: #F8F4FC;
+  --color-slate-100: #F1E8FA;
+  --color-slate-200: #E6E3EA;
+  --color-slate-300: #D3CFD9;
+  --color-slate-400: #9B98A3;
+  --color-slate-500: #6B6875;
+  --color-slate-600: #4D4A56;
+  --color-slate-700: #34343A;
+  --color-slate-800: #29292F;
+  --color-slate-900: #202126;
+  --color-slate-950: #141518;
+
+  /* Aliases for smooth compatibility across legacy utility classes */
+  --color-royal-blue-50: #F8F4FC;
+  --color-royal-blue-100: #F1E8FA;
+  --color-royal-blue-200: #E0CEF5;
+  --color-royal-blue-300: #C5A5EE;
+  --color-royal-blue-400: #9F6AE2;
+  --color-royal-blue-500: #853FD5;
+  --color-royal-blue-600: #6D22B5;
+  --color-royal-blue-700: #5C1C9A;
+  --color-royal-blue-800: #4B1680;
+  --color-royal-blue-900: #381061;
+  --color-royal-blue-950: #22083D;
+
+  --color-deep-navy-50: #FAFAFC;
+  --color-deep-navy-100: #F3F1F6;
+  --color-deep-navy-200: #E6E3EA;
+  --color-deep-navy-300: #D3CFD9;
+  --color-deep-navy-400: #9B98A3;
+  --color-deep-navy-500: #6B6875;
+  --color-deep-navy-600: #4D4A56;
+  --color-deep-navy-700: #34343A;
+  --color-deep-navy-800: #29292F;
+  --color-deep-navy-900: #202126;
+  --color-deep-navy-950: #141518;
 
   --font-sans: 'Inter', system-ui, -apple-system, sans-serif;
   --font-display: 'Outfit', system-ui, -apple-system, sans-serif;
@@ -38,7 +86,7 @@
 
   body {
     background-color: #FFFFFF;
-    color: #0F172A;
+    color: #202126;
     font-family: 'Inter', system-ui, -apple-system, sans-serif;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
@@ -49,7 +97,7 @@
     font-family: 'Outfit', system-ui, -apple-system, sans-serif;
     letter-spacing: -0.025em;
     font-weight: 700;
-    color: inherit;
+    color: #202126;
   }
 }
 
@@ -72,7 +120,7 @@
   pointer-events: none;
 }
 
-/* Primary Button: Vibrant Royal Blue with subtle depth */
+/* Primary Button: Rich EDQOO Purple */
 .btn-primary {
   display: inline-flex;
   align-items: center;
@@ -80,19 +128,19 @@
   font-weight: 600;
   border-radius: 0.5rem;
   transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-  background-color: #1268E8;
+  background-color: #6D22B5;
   color: #ffffff;
-  border: 1px solid #1268E8;
-  box-shadow: 0 1px 3px 0 rgba(18, 104, 232, 0.2);
+  border: 1px solid #6D22B5;
+  box-shadow: 0 1px 3px 0 rgba(109, 34, 181, 0.2);
 }
 
 .btn-primary:hover {
-  background-color: #0B4DBB;
-  border-color: #0B4DBB;
-  box-shadow: 0 4px 12px 0 rgba(18, 104, 232, 0.3);
+  background-color: #4B1680;
+  border-color: #4B1680;
+  box-shadow: 0 4px 12px 0 rgba(109, 34, 181, 0.3);
 }
 
-/* Secondary Button: Clean white with blue border */
+/* Secondary Button: Clean white with purple border */
 .btn-secondary {
   display: inline-flex;
   align-items: center;
@@ -101,33 +149,33 @@
   border-radius: 0.5rem;
   transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
   background-color: #ffffff;
-  color: #1268E8;
-  border: 1px solid #CBD5E1;
-  box-shadow: 0 1px 2px 0 rgba(15, 23, 42, 0.05);
+  color: #6D22B5;
+  border: 1px solid #E6E3EA;
+  box-shadow: 0 1px 2px 0 rgba(32, 33, 38, 0.04);
 }
 
 .btn-secondary:hover {
-  background-color: #F8FAFC;
-  border-color: #1268E8;
-  color: #0B4DBB;
+  background-color: #F8F4FC;
+  border-color: #6D22B5;
+  color: #4B1680;
 }
 
-/* Navy Accent Button */
-.btn-navy {
+/* Brand Accent Button */
+.btn-navy, .btn-dark {
   display: inline-flex;
   align-items: center;
   justify-content: center;
   font-weight: 600;
   border-radius: 0.5rem;
   transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-  background-color: #0F172A;
+  background-color: #202126;
   color: #ffffff;
-  border: 1px solid #0F172A;
+  border: 1px solid #202126;
 }
 
-.btn-navy:hover {
-  background-color: #1E293B;
-  border-color: #1E293B;
+.btn-navy:hover, .btn-dark:hover {
+  background-color: #34343A;
+  border-color: #34343A;
 }
 
 /* Ghost Button */
@@ -139,30 +187,30 @@
   border-radius: 0.5rem;
   transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
   background-color: transparent;
-  color: #334155;
+  color: #34343A;
 }
 
 .btn-ghost:hover {
-  background-color: #F1F5F9;
-  color: #1268E8;
+  background-color: #F1E8FA;
+  color: #6D22B5;
 }
 
 /* Premium Card Styles */
 .premium-card {
   background-color: #ffffff;
-  border: 1px solid #E2E8F0;
+  border: 1px solid #E6E3EA;
   border-radius: 0.875rem;
-  box-shadow: 0 1px 3px 0 rgba(15, 23, 42, 0.04), 0 1px 2px -1px rgba(15, 23, 42, 0.04);
+  box-shadow: 0 1px 3px 0 rgba(32, 33, 38, 0.04), 0 1px 2px -1px rgba(32, 33, 38, 0.04);
   transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .premium-card:hover {
-  box-shadow: 0 12px 24px -4px rgba(15, 23, 42, 0.08), 0 4px 6px -2px rgba(15, 23, 42, 0.03);
+  box-shadow: 0 12px 24px -4px rgba(109, 34, 181, 0.08), 0 4px 6px -2px rgba(32, 33, 38, 0.03);
   transform: translateY(-3px);
-  border-color: #93C5FD;
+  border-color: #C5A5EE;
 }
 
-/* Section Spacing System - Intentional and Compact */
+/* Section Spacing System */
 .section-padding {
   padding-top: 3.5rem;
   padding-bottom: 3.5rem;
@@ -198,16 +246,16 @@
 }
 
 ::-webkit-scrollbar-track {
-  background-color: #F8FAFC;
+  background-color: #F8F4FC;
 }
 
 ::-webkit-scrollbar-thumb {
-  background-color: #CBD5E1;
+  background-color: #D3CFD9;
   border-radius: 9999px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background-color: #94A3B8;
+  background-color: #9F6AE2;
 }
 
 /* Animation utilities */

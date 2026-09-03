@@ -47,26 +47,25 @@ export const Login: React.FC = () => {
   };
 
   return (
-    <div className="bg-deep-navy-50/70 min-h-screen flex items-center justify-center py-16 px-4">
+    <div className="bg-slate-50 min-h-screen flex items-center justify-center py-16 px-4">
       <SEO 
         title="Sign In to Edqoo" 
-        description="Sign in to your Edqoo account to access your enrolled courses, practical labs, and dashboard."
+        description="Sign in to your Edqoo account to manage your profile, view course enquiries, and track counselor feedback."
         canonical="/login"
       />
-      <div className="w-full max-w-md bg-white border border-deep-navy-200 p-8 rounded-2xl shadow-xl space-y-6 text-left">
+      <div className="w-full max-w-md bg-white border border-slate-200 p-8 rounded-2xl shadow-xl space-y-6 text-left">
         
         {/* Header Logo */}
-        <div className="text-center space-y-2">
-          <Link to="/" className="inline-flex items-center gap-2 group justify-center">
-            <div className="w-9 h-9 rounded-xl bg-gradient-to-tr from-royal-blue-600 to-royal-blue-500 flex items-center justify-center text-white font-display font-black text-lg shadow-sm">
-              E
-            </div>
-            <span className="font-display font-extrabold text-xl tracking-tight text-deep-navy-900">
-              Edqoo
-            </span>
+        <div className="text-center space-y-3">
+          <Link to="/" className="inline-block focus:outline-none">
+            <img 
+              src="/logo.jpg" 
+              alt="EDQOO - Your skill partner" 
+              className="h-11 w-auto object-contain mx-auto max-w-[170px]" 
+            />
           </Link>
-          <h2 className="text-xl font-display font-bold text-deep-navy-900 mt-2">Welcome Back</h2>
-          <p className="text-xs text-slate-500">Sign in to resume building your practical technology capabilities.</p>
+          <h2 className="text-xl font-display font-bold text-slate-900 mt-2">Welcome Back</h2>
+          <p className="text-xs text-slate-500">Sign in to manage your profile and track course enquiries.</p>
         </div>
 
         {errorMsg && (
@@ -79,7 +78,7 @@ export const Login: React.FC = () => {
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
           {/* Field: Email */}
           <div className="space-y-1">
-            <label htmlFor="login-email" className="text-[10px] font-bold text-deep-navy-800 uppercase tracking-wider block">
+            <label htmlFor="login-email" className="text-[10px] font-bold text-slate-700 uppercase tracking-wider block">
               Email Address
             </label>
             <div className="relative">
@@ -88,8 +87,8 @@ export const Login: React.FC = () => {
                 id="login-email"
                 placeholder="e.g. name@example.com"
                 {...register('email')}
-                className={`w-full pl-9 pr-3 py-2 bg-deep-navy-50 border rounded-lg text-xs text-deep-navy-900 focus:outline-none focus:bg-white transition-all ${
-                  errors.email ? 'border-red-400 focus:border-red-500' : 'border-deep-navy-200 focus:border-royal-blue-600'
+                className={`w-full pl-9 pr-3 py-2.5 bg-slate-50 border rounded-lg text-xs text-slate-900 focus:outline-none focus:bg-white transition-all ${
+                  errors.email ? 'border-red-400 focus:border-red-500' : 'border-slate-300 focus:border-purple-600'
                 }`}
               />
               <Mail className="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
@@ -100,10 +99,10 @@ export const Login: React.FC = () => {
           {/* Field: Password */}
           <div className="space-y-1">
             <div className="flex justify-between items-center">
-              <label htmlFor="login-password" className="text-[10px] font-bold text-deep-navy-800 uppercase tracking-wider">
+              <label htmlFor="login-password" className="text-[10px] font-bold text-slate-700 uppercase tracking-wider">
                 Password
               </label>
-              <Link to="/forgot-password" className="text-[10px] font-semibold text-royal-blue-600 hover:text-royal-blue-700">
+              <Link to="/forgot-password" className="text-[10px] font-semibold text-purple-600 hover:text-purple-800">
                 Forgot Password?
               </Link>
             </div>
@@ -113,15 +112,15 @@ export const Login: React.FC = () => {
                 id="login-password"
                 placeholder="••••••••"
                 {...register('password')}
-                className={`w-full pl-9 pr-10 py-2 bg-deep-navy-50 border rounded-lg text-xs text-deep-navy-900 focus:outline-none focus:bg-white transition-all ${
-                  errors.password ? 'border-red-400 focus:border-red-500' : 'border-deep-navy-200 focus:border-royal-blue-600'
+                className={`w-full pl-9 pr-10 py-2.5 bg-slate-50 border rounded-lg text-xs text-slate-900 focus:outline-none focus:bg-white transition-all ${
+                  errors.password ? 'border-red-400 focus:border-red-500' : 'border-slate-300 focus:border-purple-600'
                 }`}
               />
               <Key className="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
               <button
                 type="button"
                 onClick={() => setShowPassword(!showPassword)}
-                className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-deep-navy-900 focus:outline-none"
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-900 focus:outline-none"
                 aria-label={showPassword ? 'Hide password' : 'Show password'}
               >
                 {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
@@ -136,7 +135,7 @@ export const Login: React.FC = () => {
               type="checkbox"
               id="remember-me"
               {...register('rememberMe')}
-              className="w-4 h-4 border-deep-navy-300 rounded text-royal-blue-600 focus:ring-royal-blue-500"
+              className="w-4 h-4 border-slate-300 rounded text-purple-600 focus:ring-purple-500"
             />
             <label htmlFor="remember-me" className="ml-2 text-xs text-slate-600 select-none">
               Remember me on this device
@@ -146,7 +145,7 @@ export const Login: React.FC = () => {
           <button
             type="submit"
             disabled={isSubmitting}
-            className="btn-primary w-full py-3 font-bold text-xs rounded-xl flex items-center justify-center gap-1.5 shadow-md"
+            className="btn-primary w-full py-3 font-bold text-xs rounded-xl flex items-center justify-center gap-1.5 shadow-md hover:shadow-lg"
           >
             {isSubmitting ? (
               <>
@@ -162,10 +161,10 @@ export const Login: React.FC = () => {
           </button>
         </form>
 
-        <div className="border-t border-deep-navy-100 pt-4 text-center">
+        <div className="border-t border-slate-100 pt-4 text-center">
           <p className="text-xs text-slate-500">
             Don't have an account yet?{' '}
-            <Link to="/register" className="font-bold text-royal-blue-600 hover:text-royal-blue-700">
+            <Link to="/register" className="font-bold text-purple-600 hover:text-purple-800">
               Sign Up
             </Link>
           </p>

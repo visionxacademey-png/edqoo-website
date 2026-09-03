@@ -17,7 +17,7 @@ export const Resources: React.FC = () => {
         
         {/* Page Header */}
         <div className="text-left space-y-2">
-          <h1 className="text-3xl font-display font-extrabold text-deep-navy-900">Edqoo Resources</h1>
+          <h1 className="text-3xl font-display font-extrabold text-slate-900">Edqoo Resources</h1>
           <p className="text-slate-500 text-xs sm:text-sm">
             Read roadmaps, technical cheat sheets, library reviews, and career pivot strategies.
           </p>
@@ -25,7 +25,7 @@ export const Resources: React.FC = () => {
 
         {/* Featured Post Card */}
         {blogPosts.length > 0 && (
-          <div className="bg-white border border-slate-200/80 rounded-2xl overflow-hidden shadow-sm hover:shadow-md transition-shadow grid grid-cols-1 md:grid-cols-12">
+          <div className="bg-white border border-slate-200 rounded-2xl overflow-hidden shadow-2xs hover:shadow-md transition-shadow grid grid-cols-1 md:grid-cols-12">
             <div className="md:col-span-7 bg-slate-100 aspect-[16/10] md:aspect-auto">
               <img
                 src={blogPosts[0].image}
@@ -35,10 +35,10 @@ export const Resources: React.FC = () => {
             </div>
             <div className="md:col-span-5 p-6 sm:p-8 flex flex-col justify-between text-left space-y-6">
               <div className="space-y-3">
-                <span className="inline-block px-2.5 py-1 bg-royal-blue-900 text-white text-[10px] font-bold rounded uppercase tracking-wider">
+                <span className="inline-block px-2.5 py-1 bg-purple-100 border border-purple-200 text-purple-800 text-[10px] font-bold rounded uppercase tracking-wider">
                   Featured Article
                 </span>
-                <h2 className="text-xl sm:text-2xl font-display font-extrabold text-slate-900 hover:text-royal-blue-900 transition-colors leading-tight">
+                <h2 className="text-xl sm:text-2xl font-display font-extrabold text-slate-900 hover:text-purple-600 transition-colors leading-tight">
                   <Link to={`/resources/${blogPosts[0].slug}`}>{blogPosts[0].title}</Link>
                 </h2>
                 <p className="text-slate-500 text-xs sm:text-sm leading-relaxed line-clamp-4">
@@ -65,7 +65,7 @@ export const Resources: React.FC = () => {
           {blogPosts.slice(1).map((post) => (
             <div
               key={post.id}
-              className="bg-white border border-slate-200/60 rounded-2xl overflow-hidden flex flex-col justify-between shadow-sm hover:shadow-md transition-shadow text-left"
+              className="bg-white border border-slate-200 rounded-2xl overflow-hidden flex flex-col justify-between shadow-2xs hover:shadow-md transition-shadow text-left"
             >
               <div className="aspect-[16/10] overflow-hidden bg-slate-100">
                 <img
@@ -77,10 +77,10 @@ export const Resources: React.FC = () => {
 
               <div className="p-6 flex-1 flex flex-col justify-between space-y-4">
                 <div className="space-y-2">
-                  <span className="text-[10px] font-bold text-royal-blue-900 uppercase">
+                  <span className="text-[10px] font-bold text-purple-600 uppercase">
                     {post.category}
                   </span>
-                  <h3 className="font-display font-bold text-sm sm:text-base text-slate-900 hover:text-royal-blue-900 transition-colors line-clamp-2">
+                  <h3 className="font-display font-bold text-sm sm:text-base text-slate-900 hover:text-purple-600 transition-colors line-clamp-2">
                     <Link to={`/resources/${post.slug}`}>{post.title}</Link>
                   </h3>
                   <p className="text-slate-500 text-xs leading-relaxed line-clamp-3">
@@ -131,7 +131,7 @@ export const ResourceDetails: React.FC = () => {
         {/* Navigation & breadcrumb */}
         <Link
           to="/resources"
-          className="inline-flex items-center gap-1.5 text-xs font-semibold text-slate-500 hover:text-slate-900 transition-colors"
+          className="inline-flex items-center gap-1.5 text-xs font-semibold text-slate-500 hover:text-purple-600 transition-colors"
         >
           <ArrowLeft className="w-4 h-4" />
           Back to Resources
@@ -139,15 +139,15 @@ export const ResourceDetails: React.FC = () => {
 
         {/* Article Meta Header */}
         <div className="space-y-4">
-          <span className="px-2.5 py-1 bg-royal-blue-900 text-white text-[10px] font-bold rounded uppercase tracking-wider">
+          <span className="px-2.5 py-1 bg-purple-100 border border-purple-200 text-purple-800 text-[10px] font-bold rounded uppercase tracking-wider">
             {post.category}
           </span>
           
-          <h1 className="text-2xl sm:text-3xl lg:text-4xl font-display font-extrabold text-deep-navy-900 leading-tight">
+          <h1 className="text-2xl sm:text-3xl lg:text-4xl font-display font-extrabold text-slate-900 leading-tight">
             {post.title}
           </h1>
 
-          <div className="flex items-center gap-4 text-xs text-slate-455 font-medium border-y border-slate-200/80 py-3.5">
+          <div className="flex items-center gap-4 text-xs text-slate-500 font-medium border-y border-slate-200 py-3.5">
             <span className="flex items-center gap-1">
               <Calendar className="w-4 h-4 text-slate-400" />
               {post.date}
@@ -161,7 +161,7 @@ export const ResourceDetails: React.FC = () => {
         </div>
 
         {/* Hero image */}
-        <div className="aspect-[21/9] rounded-2xl overflow-hidden bg-slate-100 shadow-sm border">
+        <div className="aspect-[21/9] rounded-2xl overflow-hidden bg-slate-100 shadow-sm border border-slate-200">
           <img
             src={post.image}
             alt={post.title}
@@ -171,12 +171,11 @@ export const ResourceDetails: React.FC = () => {
 
         {/* Content Body */}
         <div className="prose prose-slate max-w-none text-slate-700 text-sm sm:text-base leading-relaxed space-y-4">
-          {/* Simple mock renderer parsing headings and bullets manually to keep component simple */}
           {post.content.split('\n\n').map((paragraph, index) => {
             const trimmed = paragraph.trim();
             if (trimmed.startsWith('# ')) {
               return (
-                <h2 key={index} className="text-xl sm:text-2xl font-display font-bold text-deep-navy-900 pt-4 mb-2">
+                <h2 key={index} className="text-xl sm:text-2xl font-display font-bold text-slate-900 pt-4 mb-2">
                   {trimmed.replace('# ', '')}
                 </h2>
               );
@@ -199,7 +198,7 @@ export const ResourceDetails: React.FC = () => {
             }
             if (trimmed.startsWith('`')) {
               return (
-                <pre key={index} className="p-4 bg-slate-900 text-white rounded-xl font-mono text-xs overflow-x-auto my-4 border">
+                <pre key={index} className="p-4 bg-slate-900 text-white rounded-xl font-mono text-xs overflow-x-auto my-4 border border-slate-800">
                   {trimmed.replace(/`/g, '')}
                 </pre>
               );
@@ -217,7 +216,7 @@ export const ResourceDetails: React.FC = () => {
           <img
             src={post.author.avatar}
             alt={post.author.name}
-            className="w-12 h-12 rounded-full object-cover border border-slate-250"
+            className="w-12 h-12 rounded-full object-cover border border-slate-200"
           />
           <div>
             <span className="text-xs font-bold text-slate-900 block">{post.author.name}</span>
