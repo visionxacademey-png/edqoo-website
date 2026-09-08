@@ -1,7 +1,7 @@
 import axios from 'axios';
 
-// Get API URL from env, falling back to localhost mock for development
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
+// Get API URL from env, falling back to /api (handled by Vite dev proxy or production reverse proxy)
+const API_URL = import.meta.env.VITE_API_URL || '/api';
 
 const api = axios.create({
   baseURL: API_URL,

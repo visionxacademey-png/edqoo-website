@@ -122,6 +122,14 @@ export const DashboardLayout: React.FC = () => {
                 </span>
               </div>
               <NavLink
+                to="/admin"
+                onClick={() => setSidebarOpen(false)}
+                className="flex items-center gap-3 px-3.5 py-2.5 text-xs font-bold rounded-xl transition-all duration-200 bg-purple-50 text-purple-700 hover:bg-purple-100 border border-purple-200"
+              >
+                <ShieldCheck className="w-4 h-4 flex-shrink-0 text-purple-600" />
+                <span>Admin Control Center</span>
+              </NavLink>
+              <NavLink
                 to="/dashboard/admin-leads"
                 onClick={() => setSidebarOpen(false)}
                 className={({ isActive }) =>

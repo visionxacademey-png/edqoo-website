@@ -1,59 +1,39 @@
 import api from './api';
+import type { User } from '../types';
 
 export const authService = {
-  login: async (email: string, password: string) => {
+  login: async (email: string, password: string): Promise<{ success: boolean; token: string; user: User }> => {
+    const response = await api.post('/auth/login', { email, password });
+    return response.data;
+  },
+
+  register: async (name: string, email: string, phone: string, password: string): Promise<{ success: boolean; token: string; user: User }> => {
+    const response = await api.post('/auth/register', { name, email, phone, password });
+    return response.data;
+  },
+
+  logout: async (): Promise<{ success: boolean }> => {
     try {
-      const response = await api.post('/auth/login', { email, password });
+      const response = await api.post('/auth/logout');
       return response.data;
     } catch {
-      console.warn('Backend unavailable, falling back to mock login state.');
-      return {
-        success: true,
-        token: 'mock_jwt_token_string',
-        user: {
-          id: 'usr-9284',
-          name: email.split('@')[0].toUpperCase(),
-          email,
-          phone: '+91 9999999999',
-          avatar: 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?q=80&w=150&auto=format&fit=crop',
-          role: 'user',
-          createdAt: new Date().toISOString()
-        }
-      };
+      return { success: true };
     }
   },
 
-  register: async (name: string, email: string, phone: string, password: string) => {
-    try {
-      const response = await api.post('/auth/register', { name, email, phone, password });
-      return response.data;
-    } catch {
-      console.warn('Backend unavailable, falling back to mock registration state.');
-      return {
-        success: true,
-        token: 'mock_jwt_token_string',
-        user: {
-          id: `usr-${Math.floor(1000 + Math.random() * 9000)}`,
-          name,
-          email,
-          phone,
-          avatar: 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?q=80&w=150&auto=format&fit=crop',
-          role: 'user',
-          createdAt: new Date().toISOString()
-        }
-      };
-    }
+  getMe: async (): Promise<User> => {
+    const response = await api.get('/auth/me');
+    return response.data;
   },
 
-  forgotPassword: async (email: string) => {
+  forgotPassword: async (email: string): Promise<{ success: boolean; message: string }> => {
     try {
       const response = await api.post('/auth/forgot-password', { email });
       return response.data;
     } catch {
-      console.warn('Backend unavailable, simulating password reset link send.');
       return {
         success: true,
-        message: 'Password reset link sent successfully.'
+        message: 'If an account exists with this email, password reset instructions have been sent.'
       };
     }
   }

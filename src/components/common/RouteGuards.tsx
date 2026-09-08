@@ -43,3 +43,29 @@ export const PublicRoute: React.FC = () => {
 
   return <Outlet />;
 };
+
+// Admin Route Guard: restricts access strictly to authorized administrators
+export const AdminRoute: React.FC = () => {
+  const { isAuthenticated, isAdmin, isLoading } = useAuth();
+  const location = useLocation();
+
+  if (isLoading) {
+    return (
+      <div className="min-h-screen flex flex-col items-center justify-center bg-slate-900 text-white">
+        <Loader2 className="w-10 h-10 text-purple-500 animate-spin mb-3" />
+        <span className="text-xs font-semibold text-slate-400">Verifying Admin Access...</span>
+      </div>
+    );
+  }
+
+  if (!isAuthenticated) {
+    return <Navigate to={`/login?redirect=${encodeURIComponent(location.pathname)}`} replace />;
+  }
+
+  if (!isAdmin) {
+    return <Navigate to="/dashboard" replace />;
+  }
+
+  return <Outlet />;
+};
+

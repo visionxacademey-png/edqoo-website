@@ -12,7 +12,8 @@ import {
   PhoneCall,
   MessageSquareCheck,
   Settings,
-  LayoutDashboard
+  LayoutDashboard,
+  ShieldCheck
 } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import { useEnquiry } from '../../context/EnquiryContext';
@@ -164,6 +165,16 @@ export const Navbar: React.FC = () => {
                       </div>
 
                       <div className="py-1">
+                        {user.role === 'admin' && (
+                          <Link
+                            to="/admin"
+                            onClick={() => setIsUserMenuOpen(false)}
+                            className="flex items-center gap-2.5 px-4 py-2 text-xs font-bold text-purple-700 bg-purple-50/80 hover:bg-purple-100 transition-colors border-b border-purple-100 mb-1"
+                          >
+                            <ShieldCheck className="w-4 h-4 text-purple-600" />
+                            <span>Admin Portal</span>
+                          </Link>
+                        )}
                         <Link
                           to="/dashboard"
                           onClick={() => setIsUserMenuOpen(false)}
@@ -313,6 +324,16 @@ export const Navbar: React.FC = () => {
           <div className="border-t border-slate-200 pt-5 mt-auto pb-8 flex flex-col gap-3">
             {isAuthenticated ? (
               <>
+                {user?.role === 'admin' && (
+                  <Link
+                    to="/admin"
+                    onClick={() => setIsMobileMenuOpen(false)}
+                    className="w-full py-2.5 bg-purple-900 text-white rounded-xl text-center font-bold text-xs shadow-sm flex items-center justify-center gap-1.5"
+                  >
+                    <ShieldCheck className="w-4 h-4 text-purple-300" />
+                    <span>Admin Control Portal</span>
+                  </Link>
+                )}
                 <Link
                   to="/dashboard"
                   onClick={() => setIsMobileMenuOpen(false)}

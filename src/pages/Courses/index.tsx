@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
 import {
   Search,
@@ -11,7 +11,9 @@ import {
   AlertCircle,
   PhoneCall
 } from 'lucide-react';
-import { courses } from '../../data/courses';
+import { courses as defaultCourses } from '../../data/courses';
+import { courseService } from '../../services/courseService';
+import type { Course } from '../../types';
 import { SEO } from '../../components/common/SEO';
 import { useEnquiry } from '../../context/EnquiryContext';
 
@@ -20,10 +22,19 @@ export const Courses: React.FC = () => {
   const initialSearch = searchParams.get('search') || '';
 
   const { openEnquiryModal } = useEnquiry();
+  const [courseList, setCourseList] = useState<Course[]>(defaultCourses);
   const [searchTerm, setSearchTerm] = useState(initialSearch);
   const [selectedCategory, setSelectedCategory] = useState<string>('all');
   const [selectedLevel, setSelectedLevel] = useState<string>('all');
   const [sortBy, setSortBy] = useState<string>('popular');
+
+  useEffect(() => {
+    courseService.getCourses().then((data) => {
+      if (data && data.length > 0) {
+        setCourseList(data);
+      }
+    }).catch(console.warn);
+  }, []);
 
   const handleClearFilters = () => {
     setSearchTerm('');
@@ -34,7 +45,7 @@ export const Courses: React.FC = () => {
 
   // Filter & Sort computation
   const filteredCourses = useMemo(() => {
-    return courses
+    return courseList
       .filter((course) => {
         const matchesSearch =
           course.title.toLowerCase().includes(searchTerm.toLowerCase()) ||

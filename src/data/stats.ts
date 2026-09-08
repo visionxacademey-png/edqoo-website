@@ -14,12 +14,6 @@ export const statsData: StatItem[] = [
     icon: 'BookOpen'
   },
   {
-    id: 'projects',
-    value: '15+ Labs',
-    label: 'Real-World Projects Built',
-    icon: 'FolderGit'
-  },
-  {
     id: 'rating',
     value: '4.8 / 5.0',
     label: 'Average Student Rating',

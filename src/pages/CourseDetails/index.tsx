@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import {
   Star,
@@ -14,9 +14,12 @@ import {
   PhoneCall,
   MessageCircle,
   HelpCircle,
-  Briefcase
+  Briefcase,
+  Loader2
 } from 'lucide-react';
-import { courses } from '../../data/courses';
+import { courses as defaultCourses } from '../../data/courses';
+import { courseService } from '../../services/courseService';
+import type { Course } from '../../types';
 import { Accordion } from '../../components/ui/Accordion';
 import { SEO } from '../../components/common/SEO';
 import { useEnquiry } from '../../context/EnquiryContext';
@@ -26,9 +29,29 @@ export const CourseDetails: React.FC = () => {
   const { openEnquiryModal } = useEnquiry();
 
   const [activeTab, setActiveTab] = useState<'overview' | 'curriculum' | 'instructor' | 'faqs'>('overview');
+  const [course, setCourse] = useState<Course | null>(() => {
+    return defaultCourses.find((c) => c.slug === slug || c.id === slug) || null;
+  });
+  const [loading, setLoading] = useState(!course);
 
-  // Find course matching slug
-  const course = courses.find((c) => c.slug === slug);
+  useEffect(() => {
+    if (slug) {
+      courseService.getCourseBySlug(slug).then((fetched) => {
+        if (fetched) {
+          setCourse(fetched);
+        }
+      }).catch(console.warn).finally(() => setLoading(false));
+    }
+  }, [slug]);
+
+  if (loading) {
+    return (
+      <div className="min-h-[50vh] flex flex-col items-center justify-center">
+        <Loader2 className="w-8 h-8 text-purple-600 animate-spin mb-2" />
+        <span className="text-xs text-slate-400 font-semibold uppercase">Loading Program...</span>
+      </div>
+    );
+  }
 
   if (!course) {
     return (

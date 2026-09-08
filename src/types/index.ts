@@ -118,6 +118,43 @@ export interface User {
   phone?: string;
   avatar?: string;
   role?: 'user' | 'admin';
+  isActive?: boolean;
   createdAt?: string;
+  lastLoginAt?: string;
+}
+
+export interface AdminUser extends User {
+  activeSessionsCount?: number;
+}
+
+export interface UserSession {
+  id: string;
+  userId: string;
+  userName: string;
+  email: string;
+  userRole: 'user' | 'admin';
+  avatar?: string;
+  ipAddress: string;
+  userAgent: string;
+  isActive: boolean;
+  createdAt: string;
+  lastActiveAt: string;
+  expiresAt?: string;
+}
+
+export interface AdminStats {
+  totalUsers: number;
+  activeSessions: number;
+  totalCourses: number;
+  totalEnquiries: number;
+  adminCount: number;
+  dbType: 'neondb_postgresql' | 'in_memory_fallback';
+}
+
+export interface DbStatus {
+  connected: boolean;
+  type: 'neondatabase_postgresql' | 'in_memory_fallback';
+  databaseUrlConfigured: boolean;
+  error?: string | null;
 }
 

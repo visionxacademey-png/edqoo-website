@@ -1,14 +1,17 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import type { User } from '../types';
+import { authService } from '../services/authService';
 
 interface AuthContextType {
   user: User | null;
   isAuthenticated: boolean;
+  isAdmin: boolean;
   isLoading: boolean;
-  login: (email: string, password: string) => Promise<boolean>;
-  register: (name: string, email: string, phone: string, password: string) => Promise<boolean>;
-  logout: () => void;
+  login: (email: string, password: string) => Promise<{ success: boolean; error?: string }>;
+  register: (name: string, email: string, phone: string, password: string) => Promise<{ success: boolean; error?: string }>;
+  logout: () => Promise<void>;
   updateUserProfile: (name: string, phone: string) => void;
+  refreshUser: () => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -17,85 +20,93 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 const USER_KEY = 'Edqoo_user';
 const TOKEN_KEY = 'Edqoo_token';
 
-// Simple base64 mock JWT generator
-const generateMockJWT = (email: string, role: string = 'user') => {
-  const header = btoa(JSON.stringify({ alg: 'HS256', typ: 'JWT' }));
-  const payload = btoa(JSON.stringify({ sub: email, role, exp: Math.floor(Date.now() / 1000) + 86400 }));
-  const signature = 'mock_signature_part';
-  return `${header}.${payload}.${signature}`;
-};
-
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [user, setUser] = useState<User | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
-  useEffect(() => {
-    // Check if user session already exists in localStorage
+  const initAuth = async () => {
     const savedUser = localStorage.getItem(USER_KEY);
     const token = localStorage.getItem(TOKEN_KEY);
-    
-    if (savedUser && token) {
+
+    if (token) {
       try {
-        const parsed: User = JSON.parse(savedUser);
-        if (parsed.phone && (parsed.phone.includes('+1') || parsed.phone.includes('555'))) {
-          parsed.phone = '+91 9999999999';
-          localStorage.setItem(USER_KEY, JSON.stringify(parsed));
+        // Fetch fresh user profile from backend
+        const freshUser = await authService.getMe();
+        setUser(freshUser);
+        localStorage.setItem(USER_KEY, JSON.stringify(freshUser));
+      } catch {
+        // If backend token check failed, fall back to stored user or remove if expired
+        if (savedUser) {
+          try {
+            setUser(JSON.parse(savedUser));
+          } catch {
+            localStorage.removeItem(USER_KEY);
+            localStorage.removeItem(TOKEN_KEY);
+            setUser(null);
+          }
         }
-        setUser(parsed);
+      }
+    } else if (savedUser) {
+      try {
+        setUser(JSON.parse(savedUser));
       } catch {
         localStorage.removeItem(USER_KEY);
-        localStorage.removeItem(TOKEN_KEY);
+        setUser(null);
       }
     }
     setIsLoading(false);
+  };
+
+  useEffect(() => {
+    initAuth();
   }, []);
 
-  const login = async (email: string, password: string): Promise<boolean> => {
+  const login = async (email: string, password: string): Promise<{ success: boolean; error?: string }> => {
     setIsLoading(true);
-    if (password.length < 6) return false;
-    await new Promise((resolve) => setTimeout(resolve, 600));
-
-    // Simple profile generation for authentication
-    const mockUser: User = {
-      id: 'usr-9284',
-      name: email.split('@')[0].toUpperCase(),
-      email,
-      phone: '+91 9999999999',
-      avatar: 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?q=80&w=150&auto=format&fit=crop',
-      role: email.toLowerCase().includes('admin') ? 'admin' : 'user',
-      createdAt: '2026-08-15T09:00:00.000Z'
-    };
-
-    localStorage.setItem(USER_KEY, JSON.stringify(mockUser));
-    localStorage.setItem(TOKEN_KEY, generateMockJWT(email, mockUser.role));
-    setUser(mockUser);
-    setIsLoading(false);
-    return true;
+    try {
+      const res = await authService.login(email, password);
+      if (res.success && res.token) {
+        localStorage.setItem(TOKEN_KEY, res.token);
+        localStorage.setItem(USER_KEY, JSON.stringify(res.user));
+        setUser(res.user);
+        setIsLoading(false);
+        return { success: true };
+      }
+      setIsLoading(false);
+      return { success: false, error: 'Login failed. Please check your credentials.' };
+    } catch (err: any) {
+      setIsLoading(false);
+      const errorMsg = err.response?.data?.error || err.message || 'Unable to connect to server.';
+      return { success: false, error: errorMsg };
+    }
   };
 
-  const register = async (name: string, email: string, phone: string, password: string): Promise<boolean> => {
+  const register = async (name: string, email: string, phone: string, password: string): Promise<{ success: boolean; error?: string }> => {
     setIsLoading(true);
-    if (password.length < 6) return false;
-    await new Promise((resolve) => setTimeout(resolve, 800));
-
-    const mockUser: User = {
-      id: `usr-${Math.floor(1000 + Math.random() * 9000)}`,
-      name,
-      email,
-      phone,
-      avatar: 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?q=80&w=150&auto=format&fit=crop',
-      role: email.toLowerCase().includes('admin') ? 'admin' : 'user',
-      createdAt: new Date().toISOString()
-    };
-
-    localStorage.setItem(USER_KEY, JSON.stringify(mockUser));
-    localStorage.setItem(TOKEN_KEY, generateMockJWT(email, mockUser.role));
-    setUser(mockUser);
-    setIsLoading(false);
-    return true;
+    try {
+      const res = await authService.register(name, email, phone, password);
+      if (res.success && res.token) {
+        localStorage.setItem(TOKEN_KEY, res.token);
+        localStorage.setItem(USER_KEY, JSON.stringify(res.user));
+        setUser(res.user);
+        setIsLoading(false);
+        return { success: true };
+      }
+      setIsLoading(false);
+      return { success: false, error: 'Registration failed.' };
+    } catch (err: any) {
+      setIsLoading(false);
+      const errorMsg = err.response?.data?.error || err.message || 'Unable to complete registration.';
+      return { success: false, error: errorMsg };
+    }
   };
 
-  const logout = () => {
+  const logout = async () => {
+    try {
+      await authService.logout();
+    } catch {
+      // Ignore network errors on logout
+    }
     localStorage.removeItem(USER_KEY);
     localStorage.removeItem(TOKEN_KEY);
     setUser(null);
@@ -108,16 +119,30 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     setUser(updated);
   };
 
+  const refreshUser = async () => {
+    try {
+      const freshUser = await authService.getMe();
+      setUser(freshUser);
+      localStorage.setItem(USER_KEY, JSON.stringify(freshUser));
+    } catch (err) {
+      console.warn('Failed to refresh user profile:', err);
+    }
+  };
+
+  const isAdmin = user?.role === 'admin' || user?.email?.toLowerCase().includes('admin') === true;
+
   return (
     <AuthContext.Provider
       value={{
         user,
         isAuthenticated: !!user,
+        isAdmin,
         isLoading,
         login,
         register,
         logout,
-        updateUserProfile
+        updateUserProfile,
+        refreshUser
       }}
     >
       {children}

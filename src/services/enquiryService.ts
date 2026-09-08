@@ -23,7 +23,7 @@ const defaultSeedEnquiries: Enquiry[] = [
     id: 'enq-101',
     name: 'Sarah Jenkins',
     email: 'sarah.j@example.com',
-    phone: '+91 9999999999',
+    phone: '+91 90744 50935',
     program: 'Cybersecurity Master Certification',
     experienceLevel: '0-2 Years',
     learningMode: 'Online Live / Interactive',
@@ -40,7 +40,7 @@ const defaultSeedEnquiries: Enquiry[] = [
     id: 'enq-102',
     name: 'David Kumar',
     email: 'david.k@example.com',
-    phone: '+91 9999999999',
+    phone: '+91 90744 50935',
     program: 'Data Science & Machine Learning Specialist',
     experienceLevel: '3-5 Years',
     learningMode: 'Online Live / Interactive',
@@ -66,7 +66,7 @@ const getStoredEnquiries = (): Enquiry[] => {
     const sanitized = parsed.map((item) => {
       if (item.phone && (item.phone.includes('+1') || item.phone.includes('555'))) {
         modified = true;
-        return { ...item, phone: '+91 9999999999' };
+        return { ...item, phone: '+91 90744 50935' };
       }
       return item;
     });

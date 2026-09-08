@@ -34,7 +34,7 @@ export const Contact: React.FC = () => {
     await enquiryService.submitEnquiry({
       name: data.name,
       email: data.email,
-      phone: data.phone || '+91 9999999999',
+      phone: data.phone || '+91 90744 50935',
       program: `Contact Inquiry: ${data.subject}`,
       message: data.message
     });
@@ -158,7 +158,7 @@ export const Contact: React.FC = () => {
                 <input
                   type="text"
                   id="contact-phone"
-                  placeholder="e.g. +91 9999999999"
+                  placeholder="e.g. +91 90744 50935"
                   {...register('phone')}
                   className="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-lg text-xs text-slate-900 focus:outline-none focus:bg-white focus:border-purple-600"
                 />
@@ -231,7 +231,7 @@ export const Contact: React.FC = () => {
                 <Phone className="w-4.5 h-4.5 text-purple-600 mt-0.5 flex-shrink-0" />
                 <div>
                   <span className="font-bold text-slate-900 block">Phone Inquiries</span>
-                  <span className="text-slate-600 font-semibold">+91 9999999999</span>
+                  <span className="text-slate-600 font-semibold">+91 90744 50935</span>
                 </div>
               </div>
 

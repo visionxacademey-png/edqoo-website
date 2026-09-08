@@ -639,18 +639,7 @@ export const Home: React.FC = () => {
               </span>
             </div>
 
-            {/* Stat 3 */}
-            <div className="space-y-1.5 p-4 rounded-xl bg-white/10 backdrop-blur-xs border border-white/15">
-              <div className="w-10 h-10 rounded-lg bg-white/10 flex items-center justify-center mx-auto text-white mb-2">
-                <Layers className="w-5 h-5" />
-              </div>
-              <span className="text-2xl sm:text-3xl lg:text-4xl font-display font-extrabold text-white block">
-                {statsAnimated ? '15+ Labs' : '0'}
-              </span>
-              <span className="text-xs font-semibold text-purple-100 uppercase tracking-wider block">
-                Practical Labs Built
-              </span>
-            </div>
+           
 
             {/* Stat 4 */}
             <div className="space-y-1.5 p-4 rounded-xl bg-white/10 backdrop-blur-xs border border-white/15">
@@ -692,11 +681,6 @@ export const Home: React.FC = () => {
                 title: 'Expert Practitioner Mentors',
                 icon: Users,
                 desc: 'Learn directly from seasoned engineers and security professionals who guide enterprise architectures.'
-              },
-              {
-                title: 'Practical Hands-On Labs',
-                icon: Layers,
-                desc: 'Execute direct terminal interactions, vulnerability audits, and python machine learning pipelines.'
               },
               {
                 title: 'Career-Focused Curriculum',

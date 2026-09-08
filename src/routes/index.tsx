@@ -5,9 +5,10 @@ import { Loader2 } from 'lucide-react';
 // Layouts
 import { MainLayout } from '../layouts/MainLayout';
 import { DashboardLayout } from '../layouts/DashboardLayout';
+import { AdminLayout } from '../layouts/AdminLayout';
 
 // Guard components
-import { ProtectedRoute, PublicRoute } from '../components/common/RouteGuards';
+import { ProtectedRoute, PublicRoute, AdminRoute } from '../components/common/RouteGuards';
 
 // Lazy Loaded Pages to optimize bundle size
 const Home = React.lazy(() => import('../pages/Home').then(module => ({ default: module.Home })));
@@ -30,6 +31,13 @@ const Dashboard = React.lazy(() => import('../pages/Dashboard').then(module => (
 const MyEnquiries = React.lazy(() => import('../pages/Dashboard/DashboardViews').then(module => ({ default: module.MyEnquiries })));
 const Settings = React.lazy(() => import('../pages/Dashboard/DashboardViews').then(module => ({ default: module.Settings })));
 const AdminLeadManagement = React.lazy(() => import('../pages/Dashboard/DashboardViews').then(module => ({ default: module.AdminLeadManagement })));
+
+// Admin Console Pages
+const AdminOverview = React.lazy(() => import('../pages/Admin/AdminOverview').then(module => ({ default: module.AdminOverview })));
+const AdminUsers = React.lazy(() => import('../pages/Admin/AdminUsers').then(module => ({ default: module.AdminUsers })));
+const AdminCourses = React.lazy(() => import('../pages/Admin/AdminCourses').then(module => ({ default: module.AdminCourses })));
+const AdminCourseForm = React.lazy(() => import('../pages/Admin/AdminCourseForm').then(module => ({ default: module.AdminCourseForm })));
+const AdminLeads = React.lazy(() => import('../pages/Admin/AdminLeads').then(module => ({ default: module.AdminLeads })));
 
 // Reusable Loading Skeleton for Suspense Fallbacks
 const SuspenseLoader = () => (
@@ -76,6 +84,18 @@ export const AppRoutes: React.FC = () => {
             <Route path="my-courses" element={<Navigate to="/dashboard/enquiries" replace />} />
             <Route path="progress" element={<Navigate to="/dashboard/enquiries" replace />} />
             <Route path="certificates" element={<Navigate to="/dashboard" replace />} />
+          </Route>
+        </Route>
+
+        {/* Secure High-Privilege Admin Portal Area */}
+        <Route element={<AdminRoute />}>
+          <Route path="/admin" element={<AdminLayout />}>
+            <Route index element={<AdminOverview />} />
+            <Route path="users" element={<AdminUsers />} />
+            <Route path="courses" element={<AdminCourses />} />
+            <Route path="courses/new" element={<AdminCourseForm />} />
+            <Route path="courses/edit/:id" element={<AdminCourseForm />} />
+            <Route path="leads" element={<AdminLeads />} />
           </Route>
         </Route>
 
