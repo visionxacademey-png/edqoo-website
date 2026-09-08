@@ -56,6 +56,18 @@ export const getDbStatus = () => ({
   error: connectionError
 });
 
+let initPromise: Promise<void> | null = null;
+
+export function ensureDbInitialized() {
+  if (!initPromise) {
+    initPromise = initDb().catch((err) => {
+      console.error('Database initialization error:', err);
+      initPromise = null;
+    });
+  }
+  return initPromise;
+}
+
 /**
  * Initializes the Neon PostgreSQL pool and creates required tables
  */
