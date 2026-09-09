@@ -219,7 +219,7 @@ export const Dashboard: React.FC = () => {
                 No course enquiries submitted yet
               </h4>
               <p className="text-xs text-slate-500 leading-relaxed max-w-sm mx-auto">
-                Explore our Cybersecurity and Data Science programs to submit an enquiry or request a counseling callback.
+                Explore our Master Programs and Tools And Upskills tracks to submit an enquiry or request a counseling callback.
               </p>
               <div className="pt-2 flex justify-center gap-3">
                 <Link to="/courses" className="btn-primary px-5 py-2.5 text-xs font-bold rounded-lg shadow-sm">

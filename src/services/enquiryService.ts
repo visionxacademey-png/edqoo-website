@@ -24,7 +24,7 @@ const defaultSeedEnquiries: Enquiry[] = [
     name: 'Sarah Jenkins',
     email: 'sarah.j@example.com',
     phone: '+91 90744 50935',
-    program: 'Cybersecurity Master Certification',
+    program: 'Master Program in Data Science and AI',
     experienceLevel: '0-2 Years',
     learningMode: 'Online Live / Interactive',
     location: 'Austin, TX',

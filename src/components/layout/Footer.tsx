@@ -37,7 +37,7 @@ export const Footer: React.FC = () => {
             </Link>
             
             <p className="text-xs sm:text-sm leading-relaxed text-slate-500 max-w-sm">
-              Edqoo is your premier technology skill partner. Build in-demand software engineering, cybersecurity, data science, and cloud systems capabilities through practical, industry-aligned curricula.
+              Edqoo is your premier technology skill partner. Master Data Science, AI, Python, Analytics, and executive workplace tools through practical, industry-aligned curricula taught by NIT faculty.
             </p>
 
             {/* Newsletter */}
@@ -72,113 +72,81 @@ export const Footer: React.FC = () => {
             </div>
           </div>
 
-          {/* Column 1: Core Programs (2 cols) */}
-          <div className="lg:col-span-2 space-y-3">
+          {/* Column 1: Master Programs (2 cols) */}
+          <div className="lg:col-span-3 space-y-3">
             <h4 className="font-display font-bold text-slate-950 text-xs uppercase tracking-wider">
-              Core Tracks
+              Master Programs
             </h4>
             <ul className="space-y-2 text-xs">
               <li>
-                <Link to="/courses/cybersecurity" className="hover:text-purple-600 transition-colors">
-                  Cybersecurity Program
+                <Link to="/courses/master-program-data-science-ai" className="hover:text-purple-600 transition-colors">
+                  Data Science and AI
                 </Link>
               </li>
               <li>
-                <Link to="/courses/data-science" className="hover:text-purple-600 transition-colors">
-                  Data Science Program
+                <Link to="/courses/master-program-python" className="hover:text-purple-600 transition-colors">
+                  Python Master Program
                 </Link>
               </li>
               <li>
-                <Link to="/courses" className="hover:text-purple-600 transition-colors">
-                  AI & Deep Learning
+                <Link to="/courses/master-program-ai-machine-learning" className="hover:text-purple-600 transition-colors">
+                  AI and Machine Learning
                 </Link>
               </li>
               <li>
-                <Link to="/courses" className="hover:text-purple-600 transition-colors">
-                  Full Stack Engineering
+                <Link to="/courses/master-program-data-analytics-ai" className="hover:text-purple-600 transition-colors">
+                  Data Analytics and AI
                 </Link>
               </li>
               <li>
-                <Link to="/courses" className="hover:text-purple-600 transition-colors">
-                  Cloud Architecture
-                </Link>
-              </li>
-              <li>
-                <Link to="/courses" className="hover:text-purple-600 transition-colors">
-                  DevOps & SRE
+                <Link to="/courses" className="hover:text-purple-600 font-bold text-purple-700 transition-colors inline-flex items-center gap-1">
+                  <span>View Full Catalog</span>
+                  <ArrowRight className="w-3 h-3" />
                 </Link>
               </li>
             </ul>
           </div>
 
-          {/* Column 2: Categories (2 cols) */}
-          <div className="lg:col-span-2 space-y-3">
+          {/* Column 2: Tools And Upskills (2 cols) */}
+          <div className="lg:col-span-3 space-y-3">
             <h4 className="font-display font-bold text-slate-950 text-xs uppercase tracking-wider">
-              Specializations
+              Tools And Upskills (24–36 Hrs)
             </h4>
             <ul className="space-y-2 text-xs">
               <li>
-                <Link to="/courses" className="hover:text-purple-600 transition-colors">
-                  Ethical Hacking & SOC
+                <Link to="/courses/advance-executive-python" className="hover:text-purple-600 transition-colors">
+                  Advance Executive in Python
                 </Link>
               </li>
               <li>
-                <Link to="/courses" className="hover:text-purple-600 transition-colors">
-                  Predictive Analytics
+                <Link to="/courses/advance-executive-sql" className="hover:text-purple-600 transition-colors">
+                  Advance Executive in SQL
                 </Link>
               </li>
               <li>
-                <Link to="/courses" className="hover:text-purple-600 transition-colors">
-                  UI/UX Product Design
+                <Link to="/courses/advance-executive-excel" className="hover:text-purple-600 transition-colors">
+                  Advance Executive in Excel
                 </Link>
               </li>
               <li>
-                <Link to="/courses" className="hover:text-purple-600 transition-colors">
-                  Mobile App Development
+                <Link to="/courses/advance-executive-power-bi" className="hover:text-purple-600 transition-colors">
+                  Advance Executive in Power BI
                 </Link>
               </li>
               <li>
-                <Link to="/courses" className="hover:text-purple-600 transition-colors">
-                  Growth Marketing
+                <Link to="/courses/advance-executive-ms-office" className="hover:text-purple-600 transition-colors">
+                  Advance Executive in MS Office
+                </Link>
+              </li>
+              <li>
+                <Link to="/courses/advance-executive-prompt-engineering" className="hover:text-purple-600 transition-colors">
+                  Advance Executive in Prompt Engineering
                 </Link>
               </li>
             </ul>
           </div>
 
-          {/* Column 3: Company & Support (2 cols) */}
-          <div className="lg:col-span-2 space-y-3">
-            <h4 className="font-display font-bold text-slate-950 text-xs uppercase tracking-wider">
-              Company
-            </h4>
-            <ul className="space-y-2 text-xs">
-              <li>
-                <Link to="/about" className="hover:text-purple-600 transition-colors">
-                  About Edqoo
-                </Link>
-              </li>
-              <li>
-                <Link to="/resources" className="hover:text-purple-600 transition-colors">
-                  Resources & Insights
-                </Link>
-              </li>
-              <li>
-                <Link to="/contact" className="hover:text-purple-600 transition-colors">
-                  Contact Support
-                </Link>
-              </li>
-              <li>
-                <button
-                  type="button"
-                  onClick={() => openEnquiryModal()}
-                  className="hover:text-purple-800 text-purple-600 font-semibold transition-colors text-left"
-                >
-                  Request Advisory
-                </button>
-              </li>
-            </ul>
-          </div>
-
-          {/* Column 4: Contact info (2 cols) */}
+          {/* Column 3: Contact & Advisory (2 cols) */}
           <div className="lg:col-span-2 space-y-3">
             <h4 className="font-display font-bold text-slate-950 text-xs uppercase tracking-wider">
               Contact Us
@@ -197,6 +165,16 @@ export const Footer: React.FC = () => {
               <div className="flex items-start gap-2">
                 <MapPin className="w-4 h-4 text-purple-600 mt-0.5 flex-shrink-0" />
                 <span>100 Pine St, San Francisco, CA</span>
+              </div>
+              <div className="pt-2">
+                <button
+                  type="button"
+                  onClick={() => openEnquiryModal()}
+                  className="px-3 py-1.5 bg-purple-50 border border-purple-200 text-purple-700 font-bold rounded-lg hover:bg-purple-100 transition-colors text-xs inline-flex items-center gap-1"
+                >
+                  <span>Request Advisory</span>
+                  <ArrowRight className="w-3 h-3" />
+                </button>
               </div>
             </div>
           </div>

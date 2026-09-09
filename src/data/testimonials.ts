@@ -4,37 +4,37 @@ export const testimonials: Testimonial[] = [
   {
     id: 't-1',
     name: 'Sarah Jenkins',
-    role: 'Associate Security Analyst',
+    role: 'Associate AI Engineer',
     avatar: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?q=80&w=150&auto=format&fit=crop',
-    content: 'The Cybersecurity Certificate Program at Edqoo completely transformed my career path. The practical labs simulating active network intrusions taught me more than my college textbook ever did. Within two months of finishing, I landed my first job as a SOC analyst!',
+    content: 'The Master Program in AI and Machine Learning at Edqoo completely transformed my career path. The practical labs simulating neural model training and LLM architectures taught me production techniques from Day 1. Within two months of finishing, I landed my first job as an AI engineer!',
     rating: 5,
-    courseName: 'Cybersecurity Certificate Program'
+    courseName: 'Master Program in AI and Machine Learning'
   },
   {
     id: 't-2',
     name: 'Marcus Chen',
-    role: 'Junior Data Scientist',
+    role: 'Data Scientist',
     avatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?q=80&w=150&auto=format&fit=crop',
-    content: 'The Pandas, NumPy, and Scikit-Learn modules are exceptional. The projects used actual market datasets instead of neat toy examples. I really appreciated the focus on clean, logical Python practices and dataset formatting. Highly recommended for pivots!',
+    content: 'The Master Program in Data Science and AI modules are exceptional. The projects used actual enterprise datasets and covered full-lifecycle generative AI, RAG pipelines, and MLOps. Highly recommended for ambitious career pivots!',
     rating: 5,
-    courseName: 'Data Science Certificate Program'
+    courseName: 'Master Program in Data Science and AI'
   },
   {
     id: 't-3',
     name: 'Aisha Rahman',
-    role: 'Systems Engineer',
+    role: 'Senior Backend Developer',
     avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?q=80&w=150&auto=format&fit=crop',
-    content: 'I already had some basic Linux background, but the ethical hacking, Web security, and vulnerability scanner labs filled massive gaps in my system administration workflow. Setting up Snort and performing scans made concepts incredibly concrete.',
+    content: 'The Master Program in Python filled all gaps in my backend architecture workflow. AsyncIO, FastAPI, microservices, and design patterns made my code production-ready. The NIT faculty mentorship was second to none.',
     rating: 5,
-    courseName: 'Cybersecurity Certificate Program'
+    courseName: 'Master Program in Python'
   },
   {
     id: 't-4',
     name: 'David Kojo',
-    role: 'Business Analytics Consultant',
+    role: 'Lead Business Analyst',
     avatar: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?q=80&w=150&auto=format&fit=crop',
-    content: 'Learning SQL and Statistics in the Data Science track unlocked massive capabilities. The material is very well-paced, starting with clean, basic Python scripts and moving up to complex machine learning pipelines. The capstone project was a huge talking point in interviews.',
-    rating: 4,
-    courseName: 'Data Science Certificate Program'
+    content: 'The Master Program in Data Analytics and AI unlocked massive business intelligence capabilities for me. Building end-to-end Power BI dashboards, SQL data warehouses, and AI-driven predictive models was a game changer.',
+    rating: 5,
+    courseName: 'Master Program in Data Analytics and AI'
   }
 ];

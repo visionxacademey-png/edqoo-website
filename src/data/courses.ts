@@ -1,604 +1,667 @@
 import type { Course } from '../types';
 
 export const courses: Course[] = [
+  // =========================================================================
+  // CATEGORY 1: MASTER PROGRAMS (4 Courses)
+  // =========================================================================
   {
-    id: 'cybersecurity',
-    slug: 'cybersecurity',
-    title: 'Professional Cybersecurity & Ethical Hacking Program',
-    category: 'Cybersecurity',
-    description: 'A 24-week professional cybersecurity and ethical hacking program covering fundamentals, networking, penetration testing, vulnerability assessment, malware analysis, web and API security, Active Directory, enterprise security, cloud, Kubernetes, threat detection, DevSecOps, and a final enterprise capstone.',
-    image: 'https://images.unsplash.com/photo-1563013544-824ae1b704d3?q=80&w=800&auto=format&fit=crop',
-    price: 20000,
-    originalPrice: 40000,
-    duration: '24 Weeks',
-    lessons: 140,
+    id: 'master-program-data-science-ai',
+    slug: 'master-program-data-science-ai',
+    title: 'Master Program in Data Science and AI',
+    category: 'Master Programs',
+    description: 'An exhaustive, industry-vetted master track covering Python foundations, mathematical statistics, machine learning, deep neural networks, computer vision, natural language processing, generative AI, LLM application architecture, and production MLOps.',
+    image: 'https://images.unsplash.com/photo-1551288049-bebda4e38f71?q=80&w=800&auto=format&fit=crop',
+    price: 34999,
+    originalPrice: 69999,
+    duration: '12 Months',
+    lessons: 120,
     level: 'Beginner to Advanced',
-    rating: 4.8,
-    students: 1250,
+    rating: 4.9,
+    students: 1420,
     status: 'available',
     featured: true,
     skills: [
-      'Cybersecurity Fundamentals',
-      'Linux & Windows Security',
-      'Networking',
-      'OSINT & Reconnaissance',
-      'Vulnerability Assessment',
-      'Penetration Testing',
-      'Web & API Security',
-      'Malware Analysis',
-      'Active Directory Security',
-      'SIEM & Threat Detection',
-      'Cloud & Kubernetes Security',
-      'DevSecOps & Zero Trust'
+      'Python Programming',
+      'Mathematical Statistics',
+      'Supervised & Unsupervised ML',
+      'Deep Learning & PyTorch',
+      'Computer Vision & NLP',
+      'Generative AI & LLMs',
+      'RAG & Vector Databases',
+      'MLOps & Cloud Deployment'
     ],
     requirements: [
-      'Basic computer literacy and willingness to learn technical concepts.',
-      'A computer capable of running virtual machines and the recommended security lab environment.',
-      'All offensive-security exercises should be performed only in authorized, isolated lab environments.'
+      'Basic mathematical familiarity with high school algebra and statistics.',
+      'No prior coding background is mandatory; fundamental Python scripting is covered comprehensively from scratch.',
+      'A laptop or desktop with internet access capable of running modern IDEs and Jupyter notebooks.'
     ],
     whoIsItFor: [
-      'Aspiring cybersecurity professionals and SOC analysts.',
-      'Students preparing for penetration testing and security engineering roles.',
-      'IT professionals transitioning into cybersecurity.',
-      'Learners seeking hands-on enterprise security, cloud, and defensive security skills.'
+      'Aspiring Data Scientists, Machine Learning Engineers, and AI Specialists.',
+      'Software engineers transitioning into AI development and predictive intelligence.',
+      'Data Analysts aiming to scale into deep learning and production generative AI workflows.',
+      'Fresh graduates and STEM professionals seeking industry-ready AI portfolios.'
     ],
     modules: [
       {
-        id: 'cybersec-week-1',
-        title: 'Week 1 — Introduction to Cybersecurity',
-        description: 'Curriculum topics, practical work, assignments, assessments, and outcomes from Week 1 of the supplied cybersecurity syllabus.',
+        id: 'ds-ai-mod-1',
+        title: 'Module 1 — Python for Data Science & Numerical Computing',
+        description: 'Core Python syntax, functional programming, OOP, NumPy multidimensional arrays, and Pandas DataFrames.',
         lessons: [
-          { id: 'cs-l-1', title: 'Day 1 — Introduction to Cybersecurity', duration: 'Not specified in syllabus', isPreview: true },
-          { id: 'cs-l-2', title: 'Day 2 — Cyber Threats & Types of Hackers', duration: 'Not specified in syllabus' },
-          { id: 'cs-l-3', title: 'Day 3 — Cyber Attacks & Social Engineering', duration: 'Not specified in syllabus' },
-          { id: 'cs-l-4', title: 'Day 4 — Cybersecurity Domains & Career Paths', duration: 'Not specified in syllabus' },
-          { id: 'cs-l-5', title: 'Day 5 — Cyber Laws & Ethics', duration: 'Not specified in syllabus' },
-          { id: 'cs-l-6', title: 'Day 6 — Setting Up the Ethical Hacking Lab', duration: 'Not specified in syllabus' },
-          { id: 'cs-l-7', title: 'Day 7 — Week 1 Assessment & Hands-on Lab', duration: 'Not specified in syllabus' }
+          { id: 'ds-l-1', title: 'Python Fundamentals & Data Structures', duration: '90 mins', isPreview: true },
+          { id: 'ds-l-2', title: 'Vectorized Operations with NumPy', duration: '90 mins' },
+          { id: 'ds-l-3', title: 'Data Wrangling, Cleaning & Transformation with Pandas', duration: '120 mins' },
+          { id: 'ds-l-4', title: 'Exploratory Data Analysis (EDA) & Data Visualization with Matplotlib/Seaborn', duration: '120 mins' }
         ]
       },
       {
-        id: 'cybersec-week-2',
-        title: 'Week 2 — Linux & Windows Operating System Fundamentals',
-        description: 'Curriculum topics, practical work, assignments, assessments, and outcomes from Week 2 of the supplied cybersecurity syllabus.',
+        id: 'ds-ai-mod-2',
+        title: 'Module 2 — Applied Statistics, Probability & Data Modeling',
+        description: 'Probability distributions, hypothesis testing, inferential statistics, regression analysis, and variance estimation.',
         lessons: [
-          { id: 'cs-l-1', title: 'Day 8 — Introduction to Linux & Installing Kali Linux', duration: 'Not specified in syllabus' },
-          { id: 'cs-l-2', title: 'Day 9 — Linux File System & Directory Structure', duration: 'Not specified in syllabus' },
-          { id: 'cs-l-3', title: 'Day 10 — Linux Command Line Basics', duration: 'Not specified in syllabus' },
-          { id: 'cs-l-4', title: 'Day 11 — Advanced Linux Commands', duration: 'Not specified in syllabus' },
-          { id: 'cs-l-5', title: 'Day 12 — Linux Users, Permissions & Processes', duration: 'Not specified in syllabus' },
-          { id: 'cs-l-6', title: 'Day 13 — Windows Administration Basics', duration: 'Not specified in syllabus' },
-          { id: 'cs-l-7', title: 'Day 14 — Linux Practical Assessment & Weekly Review', duration: 'Not specified in syllabus' }
+          { id: 'ds-l-5', title: 'Descriptive Statistics & Probability Distributions', duration: '90 mins' },
+          { id: 'ds-l-6', title: 'Hypothesis Testing, Z-Tests, T-Tests & ANOVA', duration: '120 mins' },
+          { id: 'ds-l-7', title: 'Linear Algebra & Matrix Decompositions for ML', duration: '90 mins' }
         ]
       },
       {
-        id: 'cybersec-week-3',
-        title: 'Week 3 — Networking Fundamentals for Cybersecurity',
-        description: 'Curriculum topics, practical work, assignments, assessments, and outcomes from Week 3 of the supplied cybersecurity syllabus.',
+        id: 'ds-ai-mod-3',
+        title: 'Module 3 — Classical Machine Learning & Feature Engineering',
+        description: 'Supervised and unsupervised algorithms, hyperparameter tuning, model evaluation, and ensemble methods.',
         lessons: [
-          { id: 'cs-l-1', title: 'Day 15 — Introduction to Computer Networking', duration: 'Not specified in syllabus' },
-          { id: 'cs-l-2', title: 'Day 16 — OSI Model', duration: 'Not specified in syllabus' },
-          { id: 'cs-l-3', title: 'Day 17 — TCP/IP Model & Common Protocols', duration: 'Not specified in syllabus' },
-          { id: 'cs-l-4', title: 'Day 18 — IP Addressing & Subnetting', duration: 'Not specified in syllabus' },
-          { id: 'cs-l-5', title: 'Day 19 — DNS, DHCP , NAT & Routing', duration: 'Not specified in syllabus' },
-          { id: 'cs-l-6', title: 'Day 20 — Packet Analysis with Wireshark & tcpdump', duration: 'Not specified in syllabus' },
-          { id: 'cs-l-7', title: 'Day 21 — Weekly Assessment & Networking Mini Project', duration: 'Not specified in syllabus' }
+          { id: 'ds-l-8', title: 'Linear & Logistic Regression with Regularization (Lasso/Ridge)', duration: '120 mins' },
+          { id: 'ds-l-9', title: 'Tree-Based Models: Decision Trees, Random Forests & XGBoost', duration: '120 mins' },
+          { id: 'ds-l-10', title: 'Unsupervised Learning: K-Means, Hierarchical Clustering & PCA', duration: '90 mins' },
+          { id: 'ds-l-11', title: 'Model Evaluation Metrics, Cross-Validation & Pipeline Construction', duration: '90 mins' }
         ]
       },
       {
-        id: 'cybersec-week-4',
-        title: 'Week 4 — Virtual Lab Setup & Introduction to Penetration Testing',
-        description: 'Curriculum topics, practical work, assignments, assessments, and outcomes from Week 4 of the supplied cybersecurity syllabus.',
+        id: 'ds-ai-mod-4',
+        title: 'Module 4 — Deep Learning, Computer Vision & NLP',
+        description: 'Multi-layer perceptrons, convolutional neural networks (CNNs), sequence models, and Transformer architectures.',
         lessons: [
-          { id: 'cs-l-1', title: 'Day 22 — Building the Ethical Hacking Lab', duration: 'Not specified in syllabus' },
-          { id: 'cs-l-2', title: 'Day 23 — Introduction to Penetration Testing', duration: 'Not specified in syllabus' },
-          { id: 'cs-l-3', title: 'Day 24 — Information Gathering & Reconnaissance', duration: 'Not specified in syllabus' },
-          { id: 'cs-l-4', title: 'Day 25 — Vulnerability Basics & Risk Assessment', duration: 'Not specified in syllabus' },
-          { id: 'cs-l-5', title: 'Day 26 — Introduction to Penetration Testing Tools', duration: 'Not specified in syllabus' },
-          { id: 'cs-l-6', title: 'Day 27 — First Hands-on Penetration Testing Lab', duration: 'Not specified in syllabus' },
-          { id: 'cs-l-7', title: 'Day 28 — Week 4 Assessment & Mini Project', duration: 'Not specified in syllabus' }
+          { id: 'ds-l-12', title: 'Neural Networks Architecture & Backpropagation with PyTorch', duration: '120 mins' },
+          { id: 'ds-l-13', title: 'Convolutional Neural Networks (CNN) for Image Recognition', duration: '120 mins' },
+          { id: 'ds-l-14', title: 'Natural Language Processing: Embeddings, Transformers & BERT', duration: '120 mins' }
         ]
       },
       {
-        id: 'cybersec-week-5',
-        title: 'Week 5 — Footprinting & Reconnaissance (OSINT)',
-        description: 'Curriculum topics, practical work, assignments, assessments, and outcomes from Week 5 of the supplied cybersecurity syllabus.',
+        id: 'ds-ai-mod-5',
+        title: 'Module 5 — Generative AI, Large Language Models & MLOps',
+        description: 'Prompt engineering, Retrieval-Augmented Generation (RAG), vector stores (Chroma/Pinecone), LangChain, and Dockerized deployment.',
         lessons: [
-          { id: 'cs-l-1', title: 'Day 29 — Introduction to Footprinting & Reconnaissance', duration: 'Not specified in syllabus' },
-          { id: 'cs-l-2', title: 'Day 30 — Domain Intelligence & WHOIS Enumeration', duration: 'Not specified in syllabus' },
-          { id: 'cs-l-3', title: 'Day 31 — Google Dorking & Search Engine Intelligence', duration: 'Not specified in syllabus' },
-          { id: 'cs-l-4', title: 'Day 32 — Email Footprinting & Metadata Analysis', duration: 'Not specified in syllabus' },
-          { id: 'cs-l-5', title: 'Day 33 — Technology Fingerprinting', duration: 'Not specified in syllabus' },
-          { id: 'cs-l-6', title: 'Day 34 — Introduction to OSINT Frameworks', duration: 'Not specified in syllabus' },
-          { id: 'cs-l-7', title: 'Day 35 — Weekly Assessment & Mini Project', duration: 'Not specified in syllabus' }
-        ]
-      },
-      {
-        id: 'cybersec-week-6',
-        title: 'Week 6 — Scanning & Enumeration',
-        description: 'Curriculum topics, practical work, assignments, assessments, and outcomes from Week 6 of the supplied cybersecurity syllabus.',
-        lessons: [
-          { id: 'cs-l-1', title: 'Day 36 — Introduction to Network Scanning', duration: 'Not specified in syllabus' },
-          { id: 'cs-l-2', title: 'Day 37 — Advanced Nmap Scanning', duration: 'Not specified in syllabus' },
-          { id: 'cs-l-3', title: 'Day 38 — Service Enumeration', duration: 'Not specified in syllabus' },
-          { id: 'cs-l-4', title: 'Day 39 — SMB & FTP Enumeration', duration: 'Not specified in syllabus' },
-          { id: 'cs-l-5', title: 'Day 40 — DNS & SNMP Enumeration', duration: 'Not specified in syllabus' },
-          { id: 'cs-l-6', title: 'Day 41 — Scan Analysis & Documentation', duration: 'Not specified in syllabus' },
-          { id: 'cs-l-7', title: 'Day 42 — Weekly Assessment & Mini Project', duration: 'Not specified in syllabus' }
-        ]
-      },
-      {
-        id: 'cybersec-week-7',
-        title: 'Week 7 — Vulnerability Assessment',
-        description: 'Curriculum topics, practical work, assignments, assessments, and outcomes from Week 7 of the supplied cybersecurity syllabus.',
-        lessons: [
-          { id: 'cs-l-1', title: 'Day 43 — Introduction to Vulnerability Assessment', duration: 'Not specified in syllabus' },
-          { id: 'cs-l-2', title: 'Day 44 — CVE, CVSS & Vulnerability Databases', duration: 'Not specified in syllabus' },
-          { id: 'cs-l-3', title: 'Day 45 — Nessus Essentials', duration: 'Not specified in syllabus' },
-          { id: 'cs-l-4', title: 'Day 46 — OpenVAS / Greenbone Community Edition', duration: 'Not specified in syllabus' },
-          { id: 'cs-l-5', title: 'Day 47 — Manual Vulnerability Assessment', duration: 'Not specified in syllabus' },
-          { id: 'cs-l-6', title: 'Day 48 — Risk Assessment & Professional Reporting', duration: 'Not specified in syllabus' },
-          { id: 'cs-l-7', title: 'Day 49 — Weekly Assessment & Mini Project', duration: 'Not specified in syllabus' }
-        ]
-      },
-      {
-        id: 'cybersec-week-8',
-        title: 'Week 8 — System Hacking Basics',
-        description: 'Curriculum topics, practical work, assignments, assessments, and outcomes from Week 8 of the supplied cybersecurity syllabus.',
-        lessons: [
-          { id: 'cs-l-1', title: 'Day 50 — Introduction to System Hacking & Authentication', duration: 'Not specified in syllabus' },
-          { id: 'cs-l-2', title: 'Day 51 — Password Hashes & Hash Security', duration: 'Not specified in syllabus' },
-          { id: 'cs-l-3', title: 'Day 52 — Password Auditing Concepts', duration: 'Not specified in syllabus' },
-          { id: 'cs-l-4', title: 'Day 53 — Windows Privilege Management', duration: 'Not specified in syllabus' },
-          { id: 'cs-l-5', title: 'Day 54 — Linux Users, Groups & Privilege Management', duration: 'Not specified in syllabus' },
-          { id: 'cs-l-6', title: 'Day 55 — Introduction to Security Monitoring & Logging', duration: 'Not specified in syllabus' },
-          { id: 'cs-l-7', title: 'Day 56 — Weekly Assessment & Mini Project', duration: 'Not specified in syllabus' }
-        ]
-      },
-      {
-        id: 'cybersec-week-9',
-        title: 'Week 9 — Metasploit Framework',
-        description: 'Curriculum topics, practical work, assignments, assessments, and outcomes from Week 9 of the supplied cybersecurity syllabus.',
-        lessons: [
-          { id: 'cs-l-1', title: 'Day 57 — Introduction to Metasploit Framework', duration: 'Not specified in syllabus' },
-          { id: 'cs-l-2', title: 'Day 58 — Navigating MSFConsole', duration: 'Not specified in syllabus' },
-          { id: 'cs-l-3', title: 'Day 59 — Understanding Payloads', duration: 'Not specified in syllabus' },
-          { id: 'cs-l-4', title: 'Day 60 — Exploit Modules & Lab Validation', duration: 'Not specified in syllabus' },
-          { id: 'cs-l-5', title: 'Day 61 — Post-Exploitation Concepts', duration: 'Not specified in syllabus' },
-          { id: 'cs-l-6', title: 'Day 62 — Reporting & Documentation', duration: 'Not specified in syllabus' },
-          { id: 'cs-l-7', title: 'Day 63 — Weekly Assessment & Mini Project', duration: 'Not specified in syllabus' }
-        ]
-      },
-      {
-        id: 'cybersec-week-10',
-        title: 'Week 10 — Malware Analysis & Remote Access Tools (RATs)',
-        description: 'Curriculum topics, practical work, assignments, assessments, and outcomes from Week 10 of the supplied cybersecurity syllabus.',
-        lessons: [
-          { id: 'cs-l-1', title: 'Day 64 — Introduction to Malware', duration: 'Not specified in syllabus' },
-          { id: 'cs-l-2', title: 'Day 65 — Malware Analysis Fundamentals (Static Analysis)', duration: 'Not specified in syllabus' },
-          { id: 'cs-l-3', title: 'Day 66 — Dynamic Malware Analysis', duration: 'Not specified in syllabus' },
-          { id: 'cs-l-4', title: 'Day 67 — Remote Access Tools (RATs) & Command-and-Control', duration: 'Not specified in syllabus' },
-          { id: 'cs-l-5', title: 'Day 68 — Malware Detection & Incident Response', duration: 'Not specified in syllabus' },
-          { id: 'cs-l-6', title: 'Day 69 — Malware Investigation & Reporting', duration: 'Not specified in syllabus' },
-          { id: 'cs-l-7', title: 'Day 70 — Weekly Assessment & Mini Project', duration: 'Not specified in syllabus' }
-        ]
-      },
-      {
-        id: 'cybersec-week-11',
-        title: 'Week 11 — Web Application Security & OWASP Top 10',
-        description: 'Curriculum topics, practical work, assignments, assessments, and outcomes from Week 11 of the supplied cybersecurity syllabus.',
-        lessons: [
-          { id: 'cs-l-1', title: 'Day 71 — Introduction to Web Application Security', duration: 'Not specified in syllabus' },
-          { id: 'cs-l-2', title: 'Day 72 — Web Technologies & Burp Suite', duration: 'Not specified in syllabus' },
-          { id: 'cs-l-3', title: 'Day 73 — Authentication & Session Management', duration: 'Not specified in syllabus' },
-          { id: 'cs-l-4', title: 'Day 74 — OWASP Top 10 Overview', duration: 'Not specified in syllabus' },
-          { id: 'cs-l-5', title: 'Day 75 — Secure Headers, Cookies & Input Validation', duration: 'Not specified in syllabus' },
-          { id: 'cs-l-6', title: 'Day 76 — Web Application Assessment Methodology', duration: 'Not specified in syllabus' },
-          { id: 'cs-l-7', title: 'Day 77 — Weekly Assessment & Mini Project', duration: 'Not specified in syllabus' }
-        ]
-      },
-      {
-        id: 'cybersec-week-12',
-        title: 'Week 12 — OWASP Top 10 – SQL Injection, XSS & Web Vulnerability Testing',
-        description: 'Curriculum topics, practical work, assignments, assessments, and outcomes from Week 12 of the supplied cybersecurity syllabus.',
-        lessons: [
-          { id: 'cs-l-1', title: 'Day 78 — SQL Injection Fundamentals', duration: 'Not specified in syllabus' },
-          { id: 'cs-l-2', title: 'Day 79 — Cross-Site Scripting (XSS)', duration: 'Not specified in syllabus' },
-          { id: 'cs-l-3', title: 'Day 80 — Cross-Site Request Forgery (CSRF) & Authentication', duration: 'Not specified in syllabus' },
-          { id: 'cs-l-4', title: 'Day 81 — File Upload Security & Directory Traversal', duration: 'Not specified in syllabus' },
-          { id: 'cs-l-5', title: 'Day 82 — Security Misconfiguration & Access Control', duration: 'Not specified in syllabus' },
-          { id: 'cs-l-6', title: 'Day 83 — Web Security Assessment Methodology', duration: 'Not specified in syllabus' },
-          { id: 'cs-l-7', title: 'Day 84 — Weekly Assessment & Mini Project', duration: 'Not specified in syllabus' }
-        ]
-      },
-      {
-        id: 'cybersec-week-17',
-        title: 'Week 17 — Active Directory Security Fundamentals',
-        description: 'Curriculum topics, practical work, assignments, assessments, and outcomes from Week 17 of the supplied cybersecurity syllabus.',
-        lessons: [
-          { id: 'cs-l-1', title: 'Day 113 — Introduction to Active Directory', duration: 'Not specified in syllabus' },
-          { id: 'cs-l-2', title: 'Day 114 — Active Directory Installation & Domain Management', duration: 'Not specified in syllabus' },
-          { id: 'cs-l-3', title: 'Day 115 — Users, Groups & Organizational Units', duration: 'Not specified in syllabus' },
-          { id: 'cs-l-4', title: 'Day 116 — Group Policy (GPO)', duration: 'Not specified in syllabus' },
-          { id: 'cs-l-5', title: 'Day 117 — Active Directory Security & Hardening', duration: 'Not specified in syllabus' },
-          { id: 'cs-l-6', title: 'Day 118 — Active Directory Monitoring & Logging', duration: 'Not specified in syllabus' },
-          { id: 'cs-l-7', title: 'Day 119 — Weekly Assessment & Mini Project', duration: 'Not specified in syllabus' }
-        ]
-      },
-      {
-        id: 'cybersec-week-18',
-        title: 'Week 18 — Enterprise Active Directory Security & Identity Protection',
-        description: 'Curriculum topics, practical work, assignments, assessments, and outcomes from Week 18 of the supplied cybersecurity syllabus.',
-        lessons: [
-          { id: 'cs-l-1', title: 'Day 120 — Active Directory Authentication', duration: 'Not specified in syllabus' },
-          { id: 'cs-l-2', title: 'Day 121 — PowerShell for Active Directory Administration', duration: 'Not specified in syllabus' },
-          { id: 'cs-l-3', title: 'Day 122 — Advanced Group Policy Security', duration: 'Not specified in syllabus' },
-          { id: 'cs-l-4', title: 'Day 123 — Active Directory Auditing & Monitoring', duration: 'Not specified in syllabus' },
-          { id: 'cs-l-5', title: 'Day 124 — Identity Protection & Zero Trust', duration: 'Not specified in syllabus' },
-          { id: 'cs-l-6', title: 'Day 125 — Microsoft Defender for Identity & Enterprise Detection', duration: 'Not specified in syllabus' },
-          { id: 'cs-l-7', title: 'Day 126 — Weekly Assessment & Enterprise Project', duration: 'Not specified in syllabus' }
-        ]
-      },
-      {
-        id: 'cybersec-week-19',
-        title: 'Week 19 — Enterprise Network Security – Firewalls, VPNs, IDS/IPS & Network Access Control (NAC)',
-        description: 'Curriculum topics, practical work, assignments, assessments, and outcomes from Week 19 of the supplied cybersecurity syllabus.',
-        lessons: [
-          { id: 'cs-l-1', title: 'Day 127 — Enterprise Network Architecture & Segmentation', duration: 'Not specified in syllabus' },
-          { id: 'cs-l-2', title: 'Day 128 — Firewalls & Next-Generation Firewalls (NGFW)', duration: 'Not specified in syllabus' },
-          { id: 'cs-l-3', title: 'Day 129 — VPN Technologies & Secure Remote Access', duration: 'Not specified in syllabus' },
-          { id: 'cs-l-4', title: 'Day 130 — Intrusion Detection & Prevention Systems (IDS/IPS)', duration: 'Not specified in syllabus' },
-          { id: 'cs-l-5', title: 'Day 131 — Network Access Control (NAC) & Network Security', duration: 'Not specified in syllabus' },
-          { id: 'cs-l-6', title: 'Day 132 — Enterprise Network Hardening & Security Assessment', duration: 'Not specified in syllabus' },
-          { id: 'cs-l-7', title: 'Day 133 — Weekly Assessment & Enterprise Project', duration: 'Not specified in syllabus' }
-        ]
-      },
-      {
-        id: 'cybersec-week-20',
-        title: 'Week 20 — DevSecOps, CI/CD Security & Infrastructure as Code (IaC)',
-        description: 'Curriculum topics, practical work, assignments, assessments, and outcomes from Week 20 of the supplied cybersecurity syllabus.',
-        lessons: [
-          { id: 'cs-l-1', title: 'Day 134 — Introduction to DevSecOps & Secure SDLC', duration: 'Not specified in syllabus' },
-          { id: 'cs-l-2', title: 'Day 135 — Git, GitHub & Secure Version Control', duration: 'Not specified in syllabus' },
-          { id: 'cs-l-3', title: 'Day 136 — CI/CD Pipelines & Automated Security Testing', duration: 'Not specified in syllabus' },
-          { id: 'cs-l-4', title: 'Day 137 — Infrastructure as Code (IaC)', duration: 'Not specified in syllabus' },
-          { id: 'cs-l-5', title: 'Day 138 — Container Security & Software Supply Chain', duration: 'Not specified in syllabus' },
-          { id: 'cs-l-6', title: 'Day 139 — Secrets Management & DevSecOps Best Practices', duration: 'Not specified in syllabus' },
-          { id: 'cs-l-7', title: 'Day 140 — Weekly Assessment & Enterprise DevSecOps Project', duration: 'Not specified in syllabus' }
-        ]
-      },
-      {
-        id: 'cybersec-week-21',
-        title: 'Week 21 — Malware Analysis & Reverse Engineering Fundamentals',
-        description: 'Curriculum topics, practical work, assignments, assessments, and outcomes from Week 21 of the supplied cybersecurity syllabus.',
-        lessons: [
-          { id: 'cs-l-1', title: 'Day 141 — Introduction to Malware & Safe Analysis Labs', duration: 'Not specified in syllabus' },
-          { id: 'cs-l-2', title: 'Day 142 — Static Malware Analysis', duration: 'Not specified in syllabus' },
-          { id: 'cs-l-3', title: 'Day 143 — Dynamic Malware Analysis Fundamentals', duration: 'Not specified in syllabus' },
-          { id: 'cs-l-4', title: 'Day 144 — Windows Internals for Malware Analysts', duration: 'Not specified in syllabus' },
-          { id: 'cs-l-5', title: 'Day 145 — Reverse Engineering Fundamentals', duration: 'Not specified in syllabus' },
-          { id: 'cs-l-6', title: 'Day 146 — Malware Reporting & Threat Intelligence', duration: 'Not specified in syllabus' },
-          { id: 'cs-l-7', title: 'Day 147 — Weekly Assessment & Enterprise Malware', duration: 'Not specified in syllabus' }
-        ]
-      },
-      {
-        id: 'cybersec-week-22',
-        title: 'Week 22 — Advanced Threat Detection, Endpoint Detection & Response (EDR), Threat Hunting & Purple Team Operations',
-        description: 'Curriculum topics, practical work, assignments, assessments, and outcomes from Week 22 of the supplied cybersecurity syllabus.',
-        lessons: [
-          { id: 'cs-l-1', title: 'Day 148 — Endpoint Detection & Response (EDR)', duration: 'Not specified in syllabus' },
-          { id: 'cs-l-2', title: 'Day 149 — Extended Detection & Response (XDR)', duration: 'Not specified in syllabus' },
-          { id: 'cs-l-3', title: 'Day 150 — Threat Hunting Methodology', duration: 'Not specified in syllabus' },
-          { id: 'cs-l-4', title: 'Day 151 — Threat Intelligence Platforms (TIP) & IOC Management', duration: 'Not specified in syllabus' },
-          { id: 'cs-l-5', title: 'Day 152 — Purple Team Operations', duration: 'Not specified in syllabus' },
-          { id: 'cs-l-6', title: 'Day 153 — Enterprise Detection Engineering', duration: 'Not specified in syllabus' },
-          { id: 'cs-l-7', title: 'Day 154 — Weekly Assessment & Enterprise', duration: 'Not specified in syllabus' }
-        ]
-      },
-      {
-        id: 'cybersec-week-23',
-        title: 'Week 23 — Advanced Cloud Security, Kubernetes Security, API Security & Zero Trust Architecture',
-        description: 'Curriculum topics, practical work, assignments, assessments, and outcomes from Week 23 of the supplied cybersecurity syllabus.',
-        lessons: [
-          { id: 'cs-l-1', title: 'Day 155 — Advanced Cloud Security Architecture', duration: 'Not specified in syllabus' },
-          { id: 'cs-l-2', title: 'Day 156 — Kubernetes Security Fundamentals', duration: 'Not specified in syllabus' },
-          { id: 'cs-l-3', title: 'Day 157 — Kubernetes Hardening & Runtime Security', duration: 'Not specified in syllabus' },
-          { id: 'cs-l-4', title: 'Day 158 — API Security', duration: 'Not specified in syllabus' },
-          { id: 'cs-l-5', title: 'Day 159 — Zero Trust Architecture (Enterprise)', duration: 'Not specified in syllabus' },
-          { id: 'cs-l-6', title: 'Day 160 — Cloud Detection & Response (CDR) and Security', duration: 'Not specified in syllabus' },
-          { id: 'cs-l-7', title: 'Day 161 — Weekly Assessment & Enterprise Cloud Security', duration: 'Not specified in syllabus' }
-        ]
-      },
-      {
-        id: 'cybersec-week-24',
-        title: 'Week 24 — Enterprise Capstone – Professional Cybersecurity Assessment & Career Readiness',
-        description: 'Curriculum topics, practical work, assignments, assessments, and outcomes from Week 24 of the supplied cybersecurity syllabus.',
-        lessons: [
-          { id: 'cs-l-1', title: 'Day 162 — Enterprise Security Assessment Planning', duration: 'Not specified in syllabus' },
-          { id: 'cs-l-2', title: 'Day 163 — Infrastructure & Network Security Review', duration: 'Not specified in syllabus' },
-          { id: 'cs-l-3', title: 'Day 164 — Application, Cloud & Container Security Assessment', duration: 'Not specified in syllabus' },
-          { id: 'cs-l-4', title: 'Day 165 — SOC Investigation & Digital Forensics', duration: 'Not specified in syllabus' },
-          { id: 'cs-l-5', title: 'Day 166 — Risk Assessment & Executive Reporting', duration: 'Not specified in syllabus' },
-          { id: 'cs-l-6', title: 'Day 167 — Professional Portfolio & Interview Preparation', duration: 'Not specified in syllabus' },
-          { id: 'cs-l-7', title: 'Day 168 — Final Capstone Assessment', duration: 'Not specified in syllabus' }
+          { id: 'ds-l-15', title: 'Generative AI Concepts, LLM Architectures & API Integration', duration: '90 mins' },
+          { id: 'ds-l-16', title: 'Building Production RAG Systems with LangChain & Vector Databases', duration: '150 mins' },
+          { id: 'ds-l-17', title: 'Fine-Tuning Techniques (LoRA, QLoRA) & Open Source Models', duration: '120 mins' },
+          { id: 'ds-l-18', title: 'MLOps: Model Deployment with FastAPI, Docker & CI/CD Pipelines', duration: '120 mins' }
         ]
       }
     ]
   },
   {
-    id: 'data-science',
-    slug: 'data-science',
-    title: 'Data Science Certificate Program',
-    category: 'Data Science',
-    description: 'A comprehensive data science program covering Python, SQL, data analysis, visualization, mathematics and statistics, machine learning, deep learning, computer vision, NLP, generative AI, LLM application development, deployment, MLOps, cloud, and web data collection.',
-    image: 'https://images.unsplash.com/photo-1551288049-bebda4e38f71?q=80&w=800&auto=format&fit=crop',
-    price: 20000,
-    originalPrice: 40000,
-    duration: '17 Modules',
-    lessons: 110,
+    id: 'master-program-python',
+    slug: 'master-program-python',
+    title: 'Master Program in Python',
+    category: 'Master Programs',
+    description: 'Comprehensive software engineering master track focused on professional Python architecture, advanced object-oriented design, asynchronous IO, backend APIs (FastAPI/Django), database integration, and cloud automation.',
+    image: 'https://images.unsplash.com/photo-1526379095098-d400fd0bf935?q=80&w=800&auto=format&fit=crop',
+    price: 29999,
+    originalPrice: 59999,
+    duration: '10 Months',
+    lessons: 95,
     level: 'Beginner to Advanced',
-    rating: 4.7,
-    students: 980,
+    rating: 4.85,
+    students: 1180,
     status: 'available',
     featured: true,
     skills: [
-      'Python Programming',
-      'SQL & Databases',
-      'NumPy & Pandas',
-      'Data Analysis & Visualization',
-      'Mathematics & Statistics',
-      'Machine Learning',
-      'Deep Learning',
-      'Computer Vision',
-      'NLP & Transformers',
-      'Generative AI & LLMs',
-      'RAG & LLM Applications',
-      'Hugging Face & Fine-Tuning',
-      'MLOps, Cloud & Deployment',
-      'Web Scraping & Data Collection'
+      'Advanced Python 3.12+',
+      'Object-Oriented Architecture',
+      'AsyncIO & Concurrency',
+      'FastAPI & Django REST',
+      'PostgreSQL & SQLAlchemy ORM',
+      'Automated PyTest & TDD',
+      'Docker & Cloud Packaging',
+      'Microservices Design'
     ],
     requirements: [
-      'Basic mathematical foundations are helpful; the syllabus covers the required mathematics and statistics.',
-      'No prior programming background is required for the Python foundation.',
-      'A PC or laptop with an internet connection and the ability to install the required development tools.'
+      'Willingness to learn systematic problem-solving and software development principles.',
+      'No prior programming experience required; syllabus starts with fundamentals and advances to system architecture.',
+      'Computer with Windows, macOS, or Linux suitable for standard coding environments.'
     ],
     whoIsItFor: [
-      'Aspiring data analysts and data scientists.',
-      'Developers and engineers building data-driven or AI applications.',
-      'Students wanting practical machine learning, deep learning, and generative AI skills.',
-      'Learners interested in end-to-end data, ML, and LLM application development.'
+      'Software developers looking to master enterprise-grade backend engineering in Python.',
+      'Automation engineers and DevOps professionals building scalable infrastructure tools.',
+      'Graduates wanting a solid, career-defining software development foundation.'
     ],
     modules: [
       {
-        id: 'ds-mod-1',
-        title: 'Module 1 — Python Programming',
-        description: 'Topics and project work grouped from Module 1 of the supplied Data Science syllabus.',
+        id: 'py-mod-1',
+        title: 'Module 1 — Core Python, Data Structures & Algorithmic Thinking',
+        description: 'Variables, memory management, built-in collections, recursion, generators, decorators, and functional tools.',
         lessons: [
-          { id: 'ds-l-1', title: 'Python installation and environment setup; Python syntax and indentation; variables and data types; type casting; input/output; operators', duration: 'Not specified in syllabus', isPreview: true },
-          { id: 'ds-l-2', title: 'Conditional statements; for and while loops; break, continue, pass', duration: 'Not specified in syllabus' },
-          { id: 'ds-l-3', title: 'Functions; lambda functions; recursion', duration: 'Not specified in syllabus' },
-          { id: 'ds-l-4', title: 'Lists, tuples, sets, dictionaries; list/dictionary comprehensions; strings and string manipulation', duration: 'Not specified in syllabus' },
-          { id: 'ds-l-5', title: 'File handling; exception handling; modules and packages; math, random, datetime, os; virtual environments and pip', duration: 'Not specified in syllabus' },
-          { id: 'ds-l-6', title: 'OOP: classes and objects; __init__; instance/class variables; inheritance; polymorphism; encapsulation', duration: 'Not specified in syllabus' },
-          { id: 'ds-l-7', title: 'Git and GitHub basics', duration: 'Not specified in syllabus' },
-          { id: 'ds-l-8', title: 'Project: Python-based Data Processing Application', duration: 'Not specified in syllabus' }
+          { id: 'py-l-1', title: 'Python Execution Model & Deep Dive into Built-in Types', duration: '90 mins', isPreview: true },
+          { id: 'py-l-2', title: 'Functions, Closures, Decorators & Scope Resolution', duration: '120 mins' },
+          { id: 'py-l-3', title: 'Iterators, Generators & Context Managers', duration: '90 mins' },
+          { id: 'py-l-4', title: 'Algorithmic Complexity & Custom Data Structure Implementation', duration: '120 mins' }
         ]
       },
       {
-        id: 'ds-mod-2',
-        title: 'Module 2 — SQL & Databases',
-        description: 'Topics and project work grouped from Module 2 of the supplied Data Science syllabus.',
+        id: 'py-mod-2',
+        title: 'Module 2 — Advanced OOP, Design Patterns & Metaprogramming',
+        description: 'Polymorphism, dunder methods, metaclasses, descriptors, SOLID design principles, and creational/structural patterns.',
         lessons: [
-          { id: 'ds-l-1', title: 'Database fundamentals; relational databases; tables, rows and columns', duration: 'Not specified in syllabus' },
-          { id: 'ds-l-2', title: 'Primary and foreign keys; SQL syntax; SELECT, WHERE, ORDER BY', duration: 'Not specified in syllabus' },
-          { id: 'ds-l-3', title: 'GROUP BY, HAVING; aggregate functions; CASE WHEN', duration: 'Not specified in syllabus' },
-          { id: 'ds-l-4', title: 'JOIN: INNER, LEFT, RIGHT, FULL; subqueries; CTEs; views', duration: 'Not specified in syllabus' },
-          { id: 'ds-l-5', title: 'Window functions: ROW_NUMBER, RANK, LAG, LEAD; date and string functions; NULL handling; query optimization basics; PostgreSQL/MySQL', duration: 'Not specified in syllabus' },
-          { id: 'ds-l-6', title: 'Project: Sales/Customer Analytics using SQL', duration: 'Not specified in syllabus' }
+          { id: 'py-l-5', title: 'Classes, Dunder Methods & Inheritance Models', duration: '90 mins' },
+          { id: 'py-l-6', title: 'Metaclasses, Abstract Base Classes (ABCs) & Descriptors', duration: '120 mins' },
+          { id: 'py-l-7', title: 'Enterprise Design Patterns in Modern Python', duration: '120 mins' }
         ]
       },
       {
-        id: 'ds-mod-3',
-        title: 'Module 3 — NumPy, Pandas & Data Analysis',
-        description: 'Topics and project work grouped from Module 3 of the supplied Data Science syllabus.',
+        id: 'py-mod-3',
+        title: 'Module 3 — Asynchronous Programming & High-Performance Concurrency',
+        description: 'Threading, Multiprocessing, AsyncIO event loops, coroutines, tasks, and non-blocking I/O operations.',
         lessons: [
-          { id: 'ds-l-1', title: 'NumPy arrays; dimensions and shapes; indexing and slicing; broadcasting; array operations; statistical functions; random module', duration: 'Not specified in syllabus' },
-          { id: 'ds-l-2', title: 'Pandas Series and DataFrames; indexing; loc and iloc; boolean filtering', duration: 'Not specified in syllabus' },
-          { id: 'ds-l-3', title: 'Adding/updating/deleting data; sorting; GroupBy; aggregation', duration: 'Not specified in syllabus' },
-          { id: 'ds-l-4', title: 'Merge/join/concat; pivot tables; missing values; duplicate handling; data type conversion', duration: 'Not specified in syllabus' },
-          { id: 'ds-l-5', title: 'Exploratory Data Analysis: data ingestion, read_csv, head, tail, shape, columns, info, dtypes, describe, value_counts', duration: 'Not specified in syllabus' },
-          { id: 'ds-l-6', title: 'Univariate, bivariate and multivariate analysis; outlier detection; correlation analysis', duration: 'Not specified in syllabus' },
-          { id: 'ds-l-7', title: 'Project: Complete EDA on a real-world dataset', duration: 'Not specified in syllabus' }
+          { id: 'py-l-8', title: 'The Global Interpreter Lock (GIL), Threading vs Multiprocessing', duration: '90 mins' },
+          { id: 'py-l-9', title: 'AsyncIO Foundations, Coroutines, Tasks & Event Loops', duration: '120 mins' },
+          { id: 'py-l-10', title: 'Building High-Throughput Concurrent Scrapers and Data Workers', duration: '120 mins' }
         ]
       },
       {
-        id: 'ds-mod-4',
-        title: 'Module 4 — Data Visualization',
-        description: 'Topics and project work grouped from Module 4 of the supplied Data Science syllabus.',
+        id: 'py-mod-4',
+        title: 'Module 4 — Enterprise Web Backends, Databases & Microservices',
+        description: 'FastAPI REST architectures, Pydantic validation, SQLAlchemy 2.0 ORM, PostgreSQL, PyTest, and Docker.',
         lessons: [
-          { id: 'ds-l-1', title: 'Matplotlib: line charts, bar charts, scatter plots, histograms, pie charts, box plots, subplots', duration: 'Not specified in syllabus' },
-          { id: 'ds-l-2', title: 'Matplotlib customization', duration: 'Not specified in syllabus' },
-          { id: 'ds-l-3', title: 'Seaborn: count plots, bar plots, scatter plots, line plots, box plots, violin plots, swarm plots', duration: 'Not specified in syllabus' },
-          { id: 'ds-l-4', title: 'Heatmaps, pair plots and distribution plots', duration: 'Not specified in syllabus' },
-          { id: 'ds-l-5', title: 'Data storytelling; choosing the right visualization; dashboard principles; communicating insights; avoiding misleading visualizations', duration: 'Not specified in syllabus' }
+          { id: 'py-l-11', title: 'High-Performance REST APIs with FastAPI & Pydantic V2', duration: '120 mins' },
+          { id: 'py-l-12', title: 'Relational Database Integration with SQLAlchemy & Alembic Migrations', duration: '120 mins' },
+          { id: 'py-l-13', title: 'Testing with PyTest, Mocking & CI/CD GitHub Actions', duration: '90 mins' },
+          { id: 'py-l-14', title: 'Containerizing Python Applications with Multi-Stage Docker', duration: '90 mins' }
+        ]
+      }
+    ]
+  },
+  {
+    id: 'master-program-ai-machine-learning',
+    slug: 'master-program-ai-machine-learning',
+    title: 'Master Program in AI and Machine Learning',
+    category: 'Master Programs',
+    description: 'An advanced, research-and-engineering blended program focusing on artificial intelligence architectures, machine learning algorithms, deep neural network optimization, computer vision, natural language transformers, and intelligent agents.',
+    image: 'https://images.unsplash.com/photo-1677442136019-21780efad99a?q=80&w=800&auto=format&fit=crop',
+    price: 36999,
+    originalPrice: 74999,
+    duration: '12 Months',
+    lessons: 130,
+    level: 'Intermediate to Advanced',
+    rating: 4.92,
+    students: 1290,
+    status: 'available',
+    featured: true,
+    skills: [
+      'Machine Learning Theory & Code',
+      'Deep Learning & PyTorch',
+      'Computer Vision & Object Detection',
+      'NLP & Transformer Architectures',
+      'Reinforcement Learning Fundamentals',
+      'LLM Fine-Tuning & Quantization',
+      'Autonomous AI Agents & Tool Calling',
+      'Scalable AI Serving (vLLM, TensorRT)'
+    ],
+    requirements: [
+      'Familiarity with programming concepts and foundational algebra/calculus.',
+      'Enthusiasm for mathematics, statistical reasoning, and neural networks.',
+      'A personal workstation suitable for running local machine learning simulations or cloud notebooks (Google Colab / Kaggle).'
+    ],
+    whoIsItFor: [
+      'Software engineers and developers aiming to specialize purely in Artificial Intelligence and Machine Learning.',
+      'Research students and tech professionals wishing to build and deploy complex neural models.',
+      'Data practitioners upgrading their skills to the cutting-edge AI and LLM paradigm.'
+    ],
+    modules: [
+      {
+        id: 'aiml-mod-1',
+        title: 'Module 1 — Mathematical Foundations for Artificial Intelligence',
+        description: 'Vector calculus, linear transformations, eigen-decomposition, probability spaces, and loss optimization landscapes.',
+        lessons: [
+          { id: 'aiml-l-1', title: 'Linear Algebra for High-Dimensional AI Embeddings', duration: '90 mins', isPreview: true },
+          { id: 'aiml-l-2', title: 'Multivariate Calculus, Gradients & Computational Graphs', duration: '90 mins' },
+          { id: 'aiml-l-3', title: 'Bayesian Inference & Information Theory in AI', duration: '90 mins' }
         ]
       },
       {
-        id: 'ds-mod-5',
-        title: 'Module 5 — Mathematics & Statistics',
-        description: 'Topics and project work grouped from Module 5 of the supplied Data Science syllabus.',
+        id: 'aiml-mod-2',
+        title: 'Module 2 — Advanced Machine Learning Algorithms & Optimization',
+        description: 'Convex optimization, gradient descent variants, kernel methods, ensemble frameworks, and dimensional reduction.',
         lessons: [
-          { id: 'ds-l-1', title: 'Basic linear algebra: vectors, matrices, matrix operations, determinants, eigenvalues/eigenvectors', duration: 'Not specified in syllabus' },
-          { id: 'ds-l-2', title: 'Functions, logarithms and basic calculus: derivatives and gradients', duration: 'Not specified in syllabus' },
-          { id: 'ds-l-3', title: 'Probability fundamentals; conditional probability; Bayes theorem; random variables; probability distributions', duration: 'Not specified in syllabus' },
-          { id: 'ds-l-4', title: 'Normal, binomial and Poisson distributions; mean, median, mode, range, variance, standard deviation', duration: 'Not specified in syllabus' },
-          { id: 'ds-l-5', title: 'Percentiles, quartiles, IQR, skewness, kurtosis, covariance, Pearson and Spearman correlation', duration: 'Not specified in syllabus' },
-          { id: 'ds-l-6', title: 'Inferential statistics: sampling, Central Limit Theorem, confidence intervals, point estimation', duration: 'Not specified in syllabus' },
-          { id: 'ds-l-7', title: 'Hypothesis testing: p-value, Type I/II errors, z-test, t-test, Chi-square, ANOVA, A/B testing, bootstrapping', duration: 'Not specified in syllabus' },
-          { id: 'ds-l-8', title: 'Project: Statistical Analysis of a Real Dataset', duration: 'Not specified in syllabus' }
+          { id: 'aiml-l-4', title: 'Support Vector Machines & Kernel Tricks', duration: '90 mins' },
+          { id: 'aiml-l-5', title: 'Ensemble Learning: Gradient Boosted Decision Trees (XGBoost/LightGBM/CatBoost)', duration: '120 mins' },
+          { id: 'aiml-l-6', title: 'Dimensionality Reduction (t-SNE, UMAP, Autoencoders)', duration: '90 mins' }
         ]
       },
       {
-        id: 'ds-mod-6',
-        title: 'Module 6 — Machine Learning Foundations',
-        description: 'Topics and project work grouped from Module 6 of the supplied Data Science syllabus.',
+        id: 'aiml-mod-3',
+        title: 'Module 3 — Deep Neural Networks, CNNs & Computer Vision',
+        description: 'Custom PyTorch layers, ResNet, EfficientNet, YOLO object detection, segmentation, and vision transformers.',
         lessons: [
-          { id: 'ds-l-1', title: 'AI vs ML vs Deep Learning; types of ML: supervised, unsupervised, semi-supervised, reinforcement learning', duration: 'Not specified in syllabus' },
-          { id: 'ds-l-2', title: 'ML workflow and problem formulation', duration: 'Not specified in syllabus' },
-          { id: 'ds-l-3', title: 'Data preprocessing: missing values, duplicates and outliers', duration: 'Not specified in syllabus' },
-          { id: 'ds-l-4', title: 'Encoding; feature engineering; feature selection', duration: 'Not specified in syllabus' },
-          { id: 'ds-l-5', title: 'Train/validation/test split; scaling, normalization and standardization; data leakage', duration: 'Not specified in syllabus' }
+          { id: 'aiml-l-7', title: 'Deep Neural Architectures, Normalization & Optimization Dynamics', duration: '120 mins' },
+          { id: 'aiml-l-8', title: 'Modern Computer Vision: ResNet, Vision Transformers (ViT)', duration: '120 mins' },
+          { id: 'aiml-l-9', title: 'Object Detection & Segmentation with YOLO and Mask R-CNN', duration: '120 mins' }
         ]
       },
       {
-        id: 'ds-mod-7',
-        title: 'Module 7 — Supervised Machine Learning',
-        description: 'Topics and project work grouped from Module 7 of the supplied Data Science syllabus.',
+        id: 'aiml-mod-4',
+        title: 'Module 4 — Transformers, Natural Language Processing & Autonomous AI Agents',
+        description: 'Multi-head self-attention, BERT/GPT architectures, instruction tuning, autonomous agent design, and enterprise LLM inference.',
         lessons: [
-          { id: 'ds-l-1', title: 'Regression: linear regression, multiple linear regression, polynomial regression', duration: 'Not specified in syllabus' },
-          { id: 'ds-l-2', title: 'Ridge regression, Lasso regression, Elastic Net', duration: 'Not specified in syllabus' },
-          { id: 'ds-l-3', title: 'Regression evaluation: MAE, MSE, RMSE, R², adjusted R²', duration: 'Not specified in syllabus' },
-          { id: 'ds-l-4', title: 'Classification: logistic regression, KNN, Naive Bayes, decision trees, random forest', duration: 'Not specified in syllabus' },
-          { id: 'ds-l-5', title: 'SVM, gradient boosting, XGBoost; introduction to LightGBM/CatBoost', duration: 'Not specified in syllabus' },
-          { id: 'ds-l-6', title: 'Classification evaluation: confusion matrix, accuracy, precision, recall, F1-score, ROC-AUC, PR-AUC', duration: 'Not specified in syllabus' },
-          { id: 'ds-l-7', title: 'Project: End-to-End Customer Churn Prediction', duration: 'Not specified in syllabus' }
+          { id: 'aiml-l-10', title: 'The Attention Mechanism & Transformer Deep Dive', duration: '150 mins' },
+          { id: 'aiml-l-11', title: 'LLM Fine-Tuning with PEFT, LoRA, and RLHF concepts', duration: '120 mins' },
+          { id: 'aiml-l-12', title: 'Autonomous Multi-Agent Systems & Tool Orchestration', duration: '120 mins' },
+          { id: 'aiml-l-13', title: 'High-Throughput Model Serving with vLLM, TensorRT & Triton', duration: '120 mins' }
+        ]
+      }
+    ]
+  },
+  {
+    id: 'master-program-data-analytics-ai',
+    slug: 'master-program-data-analytics-ai',
+    title: 'Master Program in Data Analytics and AI',
+    category: 'Master Programs',
+    description: 'Master business intelligence, relational database warehousing, predictive modeling, interactive dashboards, advanced analytical reporting, and AI-accelerated decision intelligence systems.',
+    image: 'https://images.unsplash.com/photo-1460925895917-afdab827c52f?q=80&w=800&auto=format&fit=crop',
+    price: 31999,
+    originalPrice: 63999,
+    duration: '11 Months',
+    lessons: 105,
+    level: 'Beginner to Advanced',
+    rating: 4.88,
+    students: 1340,
+    status: 'available',
+    featured: true,
+    skills: [
+      'Data Analytics & BI Strategy',
+      'Advanced SQL & Data Warehousing',
+      'Interactive Power BI & Tableau',
+      'Python for Analytics (Pandas/Seaborn)',
+      'Predictive Business Modeling',
+      'Statistical Hypothesis Testing',
+      'AI-Powered Analytics & Copilot',
+      'Executive Storytelling with Data'
+    ],
+    requirements: [
+      'Basic logical and numerical reasoning skills.',
+      'No prior programming background necessary.',
+      'A computer with spreadsheet software and internet connectivity for BI and data lab exercises.'
+    ],
+    whoIsItFor: [
+      'Business analysts, financial analysts, and marketing specialists scaling into AI-driven intelligence.',
+      'Aspiring data analysts seeking mastery across SQL, Power BI, Python, and predictive analytics.',
+      'Managers and executives looking to drive data-informed decision strategies.'
+    ],
+    modules: [
+      {
+        id: 'da-ai-mod-1',
+        title: 'Module 1 — Business Analytics Foundations & Advanced SQL',
+        description: 'Relational data modeling, complex joins, subqueries, Common Table Expressions (CTEs), window functions, and analytics queries.',
+        lessons: [
+          { id: 'da-l-1', title: 'Database Design & Relational Schema Fundamentals', duration: '90 mins', isPreview: true },
+          { id: 'da-l-2', title: 'Complex Aggregations, Grouping & Multi-Table Joins', duration: '90 mins' },
+          { id: 'da-l-3', title: 'Window Functions (RANK, DENSE_RANK, LEAD, LAG) & CTEs', duration: '120 mins' },
+          { id: 'da-l-4', title: 'Building Real-World Analytical Data Warehouses', duration: '120 mins' }
         ]
       },
       {
-        id: 'ds-mod-8',
-        title: 'Module 8 — Advanced Machine Learning',
-        description: 'Topics and project work grouped from Module 8 of the supplied Data Science syllabus.',
+        id: 'da-ai-mod-2',
+        title: 'Module 2 — Modern BI Dashboards & Visual Storytelling (Power BI & Tableau)',
+        description: 'Power Query ETL transformations, DAX calculations, relationship modeling, visual storytelling, and executive dashboard delivery.',
         lessons: [
-          { id: 'ds-l-1', title: 'Bias-variance tradeoff; overfitting; underfitting; regularization', duration: 'Not specified in syllabus' },
-          { id: 'ds-l-2', title: 'Cross-validation; hyperparameter tuning; GridSearchCV; RandomizedSearchCV', duration: 'Not specified in syllabus' },
-          { id: 'ds-l-3', title: 'Feature importance; model comparison; ensemble learning', duration: 'Not specified in syllabus' },
-          { id: 'ds-l-4', title: 'Bagging; boosting; stacking; calibration', duration: 'Not specified in syllabus' },
-          { id: 'ds-l-5', title: 'Imbalanced datasets; SMOTE', duration: 'Not specified in syllabus' },
-          { id: 'ds-l-6', title: 'Unsupervised learning: K-Means; elbow method; silhouette score', duration: 'Not specified in syllabus' },
-          { id: 'ds-l-7', title: 'Hierarchical clustering; dendrograms; DBSCAN', duration: 'Not specified in syllabus' },
-          { id: 'ds-l-8', title: 'Dimensionality reduction: PCA, t-SNE, UMAP introduction', duration: 'Not specified in syllabus' }
+          { id: 'da-l-5', title: 'Data Ingestion & Transformation with Power Query', duration: '90 mins' },
+          { id: 'da-l-6', title: 'DAX Calculations, Time Intelligence & Measures', duration: '120 mins' },
+          { id: 'da-l-7', title: 'Designing High-Impact Executive Dashboards & KPI Trackers', duration: '120 mins' }
         ]
       },
       {
-        id: 'ds-mod-9',
-        title: 'Module 9 — Time Series & Recommendation Systems',
-        description: 'Topics and project work grouped from Module 9 of the supplied Data Science syllabus.',
+        id: 'da-ai-mod-3',
+        title: 'Module 3 — Python for Data Analysis & Statistical Modeling',
+        description: 'Automated data cleaning, time series analysis, cohort retention modeling, and inferential testing.',
         lessons: [
-          { id: 'ds-l-1', title: 'Time series components: trend, seasonality and noise', duration: 'Not specified in syllabus' },
-          { id: 'ds-l-2', title: 'Stationarity; moving averages; ACF/PACF; ARIMA; SARIMA', duration: 'Not specified in syllabus' },
-          { id: 'ds-l-3', title: 'Forecast evaluation', duration: 'Not specified in syllabus' },
-          { id: 'ds-l-4', title: 'Content-based recommendation; collaborative filtering; user-item matrix', duration: 'Not specified in syllabus' },
-          { id: 'ds-l-5', title: 'Similarity measures; matrix factorization; hybrid recommendation systems', duration: 'Not specified in syllabus' },
-          { id: 'ds-l-6', title: 'Project: Sales Forecasting + Recommendation Engine', duration: 'Not specified in syllabus' }
+          { id: 'da-l-8', title: 'Automating Data Analysis Pipelines with Python & Pandas', duration: '120 mins' },
+          { id: 'da-l-9', title: 'Statistical Testing & A/B Experimentation in Business', duration: '90 mins' },
+          { id: 'da-l-10', title: 'Time Series Forecasting & Trend Analysis', duration: '120 mins' }
         ]
       },
       {
-        id: 'ds-mod-10',
-        title: 'Module 10 — Deep Learning',
-        description: 'Topics and project work grouped from Module 10 of the supplied Data Science syllabus.',
+        id: 'da-ai-mod-4',
+        title: 'Module 4 — AI-Augmented Analytics & Predictive Insights',
+        description: 'Integrating LLMs into BI pipelines, automated anomaly detection, customer churn forecasting, and AI Copilot integration.',
         lessons: [
-          { id: 'ds-l-1', title: 'Deep learning fundamentals; neural network architecture; perceptron; MLP', duration: 'Not specified in syllabus' },
-          { id: 'ds-l-2', title: 'Activation functions: sigmoid, tanh, ReLU, softmax', duration: 'Not specified in syllabus' },
-          { id: 'ds-l-3', title: 'Forward propagation; backpropagation; loss functions', duration: 'Not specified in syllabus' },
-          { id: 'ds-l-4', title: 'Gradient descent; SGD; Adam; learning rate; batch size; epochs', duration: 'Not specified in syllabus' },
-          { id: 'ds-l-5', title: 'Dropout; batch normalization; early stopping', duration: 'Not specified in syllabus' },
-          { id: 'ds-l-6', title: 'Frameworks: TensorFlow, Keras, PyTorch; tensors; autograd', duration: 'Not specified in syllabus' },
-          { id: 'ds-l-7', title: 'Project: Neural Network Classification', duration: 'Not specified in syllabus' }
+          { id: 'da-l-11', title: 'Predictive Modeling for Customer Lifetime Value & Churn', duration: '120 mins' },
+          { id: 'da-l-12', title: 'Leveraging Generative AI & Natural Language SQL Queries', duration: '90 mins' },
+          { id: 'da-l-13', title: 'Capstone: End-to-End Enterprise Business Intelligence Solution', duration: '150 mins' }
+        ]
+      }
+    ]
+  },
+
+  // =========================================================================
+  // CATEGORY 2: TOOLS AND UPSKILLS (6 Courses — 24–36 Hours Duration)
+  // =========================================================================
+  {
+    id: 'advance-executive-python',
+    slug: 'advance-executive-python',
+    title: 'Advance Executive in Python',
+    category: 'Tools And Upskills',
+    description: 'An intensive executive masterclass in Python focused on rapid automation scripting, OOP design patterns, data extraction, API integrations, and code efficiency for busy professionals.',
+    image: 'https://images.unsplash.com/photo-1515879218367-8466d910aaa4?q=80&w=800&auto=format&fit=crop',
+    price: 8999,
+    originalPrice: 17999,
+    duration: '24–36 Hours',
+    lessons: 28,
+    level: 'Intermediate',
+    rating: 4.88,
+    students: 860,
+    status: 'available',
+    featured: false,
+    skills: [
+      'Advanced Python Scripting',
+      'Automation & Workflow Optimization',
+      'Object-Oriented Design',
+      'REST API Integration',
+      'Error Handling & Logging',
+      'Pandas & CSV Processing'
+    ],
+    requirements: [
+      'Basic familiarity with computer operating systems and spreadsheets.',
+      'Laptop or desktop computer with Python 3.10+ installed (setup guidance provided).'
+    ],
+    whoIsItFor: [
+      'Working professionals seeking to automate repetitive daily tasks with Python.',
+      'Analysts and developers looking to level up their scripting and modular architecture.',
+      'Team leads and managers who want practical code fluency.'
+    ],
+    modules: [
+      {
+        id: 'exec-py-1',
+        title: 'Part 1 — Executive Python Foundations & Idiomatic Code',
+        description: 'Fast-paced review of core types, list comprehensions, functional lambda tools, and error resilience.',
+        lessons: [
+          { id: 'ep-l-1', title: 'Writing Pythonic Code & Data Structures', duration: '3 Hours', isPreview: true },
+          { id: 'ep-l-2', title: 'Advanced File Handling, JSON & CSV Automation', duration: '3 Hours' }
         ]
       },
       {
-        id: 'ds-mod-11',
-        title: 'Module 11 — Computer Vision',
-        description: 'Topics and project work grouped from Module 11 of the supplied Data Science syllabus.',
+        id: 'exec-py-2',
+        title: 'Part 2 — Modular Design, OOP & Automation Libraries',
+        description: 'Building robust classes, connecting to third-party web APIs, and scheduling automated background scripts.',
         lessons: [
-          { id: 'ds-l-1', title: 'Image representation and image preprocessing', duration: 'Not specified in syllabus' },
-          { id: 'ds-l-2', title: 'CNN architecture; convolution; filters/kernels; padding; stride; pooling; fully connected layers', duration: 'Not specified in syllabus' },
-          { id: 'ds-l-3', title: 'Image classification; data augmentation; transfer learning', duration: 'Not specified in syllabus' },
-          { id: 'ds-l-4', title: 'VGG; ResNet; EfficientNet introduction', duration: 'Not specified in syllabus' },
-          { id: 'ds-l-5', title: 'Project: Image Classification System', duration: 'Not specified in syllabus' }
+          { id: 'ep-l-3', title: 'Clean OOP Design Patterns in Python', duration: '4 Hours' },
+          { id: 'ep-l-4', title: 'REST API Integrations & Web Requests', duration: '4 Hours' },
+          { id: 'ep-l-5', title: 'Hands-on Executive Automation Project', duration: '4 Hours' }
+        ]
+      }
+    ]
+  },
+  {
+    id: 'advance-executive-sql',
+    slug: 'advance-executive-sql',
+    title: 'Advance Executive in SQL',
+    category: 'Tools And Upskills',
+    description: 'Master advanced database queries, analytical window functions, complex CTEs, database indexing, query optimization, and enterprise relational data manipulation.',
+    image: 'https://images.unsplash.com/photo-1544383835-bda2bc66a55d?q=80&w=800&auto=format&fit=crop',
+    price: 7999,
+    originalPrice: 15999,
+    duration: '24–36 Hours',
+    lessons: 24,
+    level: 'Intermediate',
+    rating: 4.86,
+    students: 920,
+    status: 'available',
+    featured: false,
+    skills: [
+      'Advanced SQL Querying',
+      'Window Functions (RANK, NTILE, LAG)',
+      'Recursive CTEs & Subqueries',
+      'Query Plan Optimization & Indexing',
+      'Database Modeling & Normalization',
+      'PostgreSQL & MySQL Operations'
+    ],
+    requirements: [
+      'Basic conceptual understanding of tables, rows, and columns.',
+      'A computer with ability to install PostgreSQL or access cloud SQL sandboxes.'
+    ],
+    whoIsItFor: [
+      'Data analysts, BI professionals, and engineers seeking query performance mastery.',
+      'Product managers and business specialists wanting direct database querying authority.'
+    ],
+    modules: [
+      {
+        id: 'exec-sql-1',
+        title: 'Part 1 — Complex Querying, Multi-Table Joins & CTEs',
+        description: 'Advanced relational joins, conditional aggregation, subquery mastery, and Common Table Expressions.',
+        lessons: [
+          { id: 'es-l-1', title: 'Advanced Joins & Hierarchical Data Querying', duration: '3 Hours', isPreview: true },
+          { id: 'es-l-2', title: 'Mastering CTEs and Recursive Data Queries', duration: '3 Hours' }
         ]
       },
       {
-        id: 'ds-mod-12',
-        title: 'Module 12 — NLP & Transformers',
-        description: 'Topics and project work grouped from Module 12 of the supplied Data Science syllabus.',
+        id: 'exec-sql-2',
+        title: 'Part 2 — Analytical Window Functions & Query Optimization',
+        description: 'Ranking, running totals, lead/lag comparisons, index profiling, and execution plan tuning.',
         lessons: [
-          { id: 'ds-l-1', title: 'Traditional NLP: text preprocessing, tokenization, stopwords, stemming, lemmatization', duration: 'Not specified in syllabus' },
-          { id: 'ds-l-2', title: 'Bag of Words, TF-IDF and N-grams', duration: 'Not specified in syllabus' },
-          { id: 'ds-l-3', title: 'NLP machine learning: text classification, sentiment analysis, Naive Bayes for text, Logistic Regression for text', duration: 'Not specified in syllabus' },
-          { id: 'ds-l-4', title: 'Deep learning NLP: RNN, vanishing gradients, LSTM, GRU, sequence modelling', duration: 'Not specified in syllabus' },
-          { id: 'ds-l-5', title: 'Transformers: attention mechanism, self-attention, encoder, decoder, transformer architecture', duration: 'Not specified in syllabus' },
-          { id: 'ds-l-6', title: 'BERT, GPT, tokens, embeddings, context length', duration: 'Not specified in syllabus' },
-          { id: 'ds-l-7', title: 'Project: Sentiment Analysis / Text Classification', duration: 'Not specified in syllabus' }
+          { id: 'es-l-3', title: 'Window Functions: Partitioning, Ordering & Aggregation', duration: '4 Hours' },
+          { id: 'es-l-4', title: 'Query Optimization, Index Strategies & EXPLAIN Analysis', duration: '4 Hours' },
+          { id: 'es-l-5', title: 'Real-World Business Intelligence SQL Project', duration: '4 Hours' }
+        ]
+      }
+    ]
+  },
+  {
+    id: 'advance-executive-excel',
+    slug: 'advance-executive-excel',
+    title: 'Advance Executive in Excel',
+    category: 'Tools And Upskills',
+    description: 'Transform spreadsheet workflows with modern Dynamic Arrays (XLOOKUP, FILTER, UNIQUE), Power Query automated ETL transformations, PivotTables, and executive business modeling.',
+    image: 'https://images.unsplash.com/photo-1551836022-d5d88e9218df?q=80&w=800&auto=format&fit=crop',
+    price: 6999,
+    originalPrice: 13999,
+    duration: '24–36 Hours',
+    lessons: 22,
+    level: 'Beginner to Intermediate',
+    rating: 4.87,
+    students: 1100,
+    status: 'available',
+    featured: false,
+    skills: [
+      'Modern Excel Formulas (XLOOKUP, LET, LAMBDA)',
+      'Dynamic Array Functions (FILTER, SORT, UNIQUE)',
+      'Power Query Automated Data Transformations',
+      'Advanced PivotTables & Slicers',
+      'Financial & Scenario Modeling',
+      'Executive Dashboards & Visual Design'
+    ],
+    requirements: [
+      'Microsoft Excel (2019, 2021, or Microsoft 365 recommended) installed on desktop or laptop.'
+    ],
+    whoIsItFor: [
+      'Business analysts, finance professionals, accountants, and marketing specialists.',
+      'Managers seeking to automate routine reporting and design dynamic executive dashboards.'
+    ],
+    modules: [
+      {
+        id: 'exec-xl-1',
+        title: 'Part 1 — Modern Formula Engine & Dynamic Arrays',
+        description: 'Mastering XLOOKUP, INDEX/MATCH, Dynamic Arrays (FILTER, UNIQUE, SORT), LET, and custom LAMBDA formulas.',
+        lessons: [
+          { id: 'exl-l-1', title: 'Modern Formulas: XLOOKUP, XMATCH & Advanced Logic', duration: '3 Hours', isPreview: true },
+          { id: 'exl-l-2', title: 'Dynamic Arrays & Calculated Spilled Ranges', duration: '3 Hours' }
         ]
       },
       {
-        id: 'ds-mod-13',
-        title: 'Module 13 — Generative AI & LLMs Expanded',
-        description: 'Topics and project work grouped from Module 13 of the supplied Data Science syllabus.',
+        id: 'exec-xl-2',
+        title: 'Part 2 — Power Query & Interactive Executive Dashboards',
+        description: 'Connecting external data, automated unpivoting, building relational data models, and designing C-Suite dashboards.',
         lessons: [
-          { id: 'ds-l-1', title: 'Generative AI fundamentals; generative vs predictive AI', duration: 'Not specified in syllabus' },
-          { id: 'ds-l-2', title: 'GPT, Claude, Gemini and open-source LLMs', duration: 'Not specified in syllabus' },
-          { id: 'ds-l-3', title: 'Tokens, embeddings and context windows', duration: 'Not specified in syllabus' },
-          { id: 'ds-l-4', title: 'Temperature, top-p, inference and latent space', duration: 'Not specified in syllabus' },
-          { id: 'ds-l-5', title: 'Generative models: GANs, VAEs, diffusion models, multimodal models', duration: 'Not specified in syllabus' },
-          { id: 'ds-l-6', title: 'Prompt engineering: zero-shot, few-shot, role, structured prompting, prompt templates and output formatting', duration: 'Not specified in syllabus' },
-          { id: 'ds-l-7', title: 'Prompt evaluation', duration: 'Not specified in syllabus' }
+          { id: 'exl-l-3', title: 'Power Query: Zero-Code Automated Data Cleaning & Merging', duration: '4 Hours' },
+          { id: 'exl-l-4', title: 'Advanced PivotTables, Custom Measures & Slicers', duration: '4 Hours' },
+          { id: 'exl-l-5', title: 'Executive Financial / Operational Dashboard Project', duration: '4 Hours' }
+        ]
+      }
+    ]
+  },
+  {
+    id: 'advance-executive-power-bi',
+    slug: 'advance-executive-power-bi',
+    title: 'Advance Executive in Power BI',
+    category: 'Tools And Upskills',
+    description: 'Build enterprise-grade business intelligence solutions, master DAX computations, design dimensional data models (Star Schema), and deploy executive interactive reporting.',
+    image: 'https://images.unsplash.com/photo-1504868584819-f8e8b4b6d7e3?q=80&w=800&auto=format&fit=crop',
+    price: 8499,
+    originalPrice: 16999,
+    duration: '24–36 Hours',
+    lessons: 25,
+    level: 'Intermediate',
+    rating: 4.89,
+    students: 990,
+    status: 'available',
+    featured: false,
+    skills: [
+      'Power BI Desktop & Service',
+      'Power Query ETL & Data Shaping',
+      'Star Schema & Dimensional Modeling',
+      'DAX Measures & Time Intelligence',
+      'Custom Visuals & Drill-Throughs',
+      'Executive KPI Dashboards'
+    ],
+    requirements: [
+      'A computer running Windows 10/11 capable of running Power BI Desktop (free download).'
+    ],
+    whoIsItFor: [
+      'Professionals aiming to transition from spreadsheets to robust Business Intelligence reporting.',
+      'Data analysts, team leads, and consultants building visual analytics solutions.'
+    ],
+    modules: [
+      {
+        id: 'exec-pbi-1',
+        title: 'Part 1 — Data Ingestion, Shaping & Dimensional Modeling',
+        description: 'Connecting diverse data sources, Power Query data transformation, and Star Schema relationship management.',
+        lessons: [
+          { id: 'pbi-l-1', title: 'Data Extraction & Transformation in Power Query', duration: '3 Hours', isPreview: true },
+          { id: 'pbi-l-2', title: 'Relational Data Modeling: 1-to-Many, Star Schemas & Filter Flow', duration: '3 Hours' }
         ]
       },
       {
-        id: 'ds-mod-14',
-        title: 'Module 14 — LLM Application Development Major Addition',
-        description: 'Topics and project work grouped from Module 14 of the supplied Data Science syllabus.',
+        id: 'exec-pbi-2',
+        title: 'Part 2 — DAX Calculations & Interactive Dashboards',
+        description: 'Calculated columns vs measures, CALCULATE context transition, Time Intelligence functions, and publishing to Power BI Service.',
         lessons: [
-          { id: 'ds-l-1', title: 'LLM APIs: OpenAI API, Gemini API, Anthropic API, Hugging Face APIs', duration: 'Not specified in syllabus' },
-          { id: 'ds-l-2', title: 'Embeddings: text embeddings, similarity search and semantic search', duration: 'Not specified in syllabus' },
-          { id: 'ds-l-3', title: 'RAG: Retrieval-Augmented Generation; document loading; chunking; embedding; vector search; retrieval; context injection; RAG evaluation', duration: 'Not specified in syllabus' },
-          { id: 'ds-l-4', title: 'Vector databases: FAISS, Chroma, Pinecone introduction, Weaviate introduction', duration: 'Not specified in syllabus' },
-          { id: 'ds-l-5', title: 'LLM frameworks: LangChain and LlamaIndex', duration: 'Not specified in syllabus' },
-          { id: 'ds-l-6', title: 'Advanced LLM applications: document Q&A, chatbots, summarization, information extraction, function/tool calling, structured output', duration: 'Not specified in syllabus' },
-          { id: 'ds-l-7', title: 'AI agents and multi-step workflows', duration: 'Not specified in syllabus' },
-          { id: 'ds-l-8', title: 'Major Project: Build a RAG-based AI chatbot over custom documents.', duration: 'Not specified in syllabus' }
+          { id: 'pbi-l-3', title: 'DAX Essentials: CALCULATE, FILTER & Evaluation Context', duration: '4 Hours' },
+          { id: 'pbi-l-4', title: 'Time Intelligence: Year-over-Year, MTD, QTD & Rolling Averages', duration: '4 Hours' },
+          { id: 'pbi-l-5', title: 'Building & Publishing a Live Executive BI Dashboard', duration: '4 Hours' }
+        ]
+      }
+    ]
+  },
+  {
+    id: 'advance-executive-ms-office',
+    slug: 'advance-executive-ms-office',
+    title: 'Advance Executive in MS Office',
+    category: 'Tools And Upskills',
+    description: 'Comprehensive executive suite mastery across Microsoft Word, Excel, PowerPoint, Outlook, and collaborative Microsoft 365 cloud workflows to maximize workplace productivity.',
+    image: 'https://images.unsplash.com/photo-1517245386807-bb43f82c33c4?q=80&w=800&auto=format&fit=crop',
+    price: 6499,
+    originalPrice: 12999,
+    duration: '24–36 Hours',
+    lessons: 20,
+    level: 'Beginner to Intermediate',
+    rating: 4.82,
+    students: 780,
+    status: 'available',
+    featured: false,
+    skills: [
+      'Microsoft 365 Cloud Ecosystem',
+      'Advanced Excel Data Analysis',
+      'Executive Word Document Design',
+      'High-Impact PowerPoint Presentations',
+      'Outlook Workflow & Calendar Automation',
+      'Teams & OneDrive Collaboration'
+    ],
+    requirements: [
+      'Access to Microsoft Office suite or Microsoft 365 subscription on a desktop or laptop.'
+    ],
+    whoIsItFor: [
+      'Executive assistants, office managers, administrative leads, and corporate professionals.',
+      'Anyone seeking end-to-end fluency and productivity across the entire Microsoft productivity suite.'
+    ],
+    modules: [
+      {
+        id: 'exec-mso-1',
+        title: 'Part 1 — Executive Word & High-Impact PowerPoint',
+        description: 'Advanced typography, styles, master slides, visual hierarchy, animations, and professional corporate presentations.',
+        lessons: [
+          { id: 'mso-l-1', title: 'Professional Word: Document Formatting, Styles & Templates', duration: '3 Hours', isPreview: true },
+          { id: 'mso-l-2', title: 'C-Suite PowerPoint: Slide Masters, Visual Storytelling & Clean Animations', duration: '3 Hours' }
         ]
       },
       {
-        id: 'ds-mod-15',
-        title: 'Module 15 — Generative AI: Hugging Face & Fine-Tuning',
-        description: 'Topics and project work grouped from Module 15 of the supplied Data Science syllabus.',
+        id: 'exec-mso-2',
+        title: 'Part 2 — Excel Essentials, Outlook Efficiency & M365 Collaboration',
+        description: 'Spreadsheet formulas, email management, calendar rules, OneDrive cloud syncing, and Microsoft Teams integration.',
         lessons: [
-          { id: 'ds-l-1', title: 'Hugging Face ecosystem; Transformers library; pipelines; Model Hub; tokenizers', duration: 'Not specified in syllabus' },
-          { id: 'ds-l-2', title: 'Pre-trained models; text generation; summarization; classification; image generation', duration: 'Not specified in syllabus' },
-          { id: 'ds-l-3', title: 'Fine-tuning concepts; transfer learning; LoRA; PEFT', duration: 'Not specified in syllabus' },
-          { id: 'ds-l-4', title: 'Quantization and model evaluation', duration: 'Not specified in syllabus' },
-          { id: 'ds-l-5', title: 'Project: Fine-tune/use a pretrained model for a specific application', duration: 'Not specified in syllabus' }
+          { id: 'mso-l-3', title: 'Productivity Excel: Key Formulas, Formatting & Tables', duration: '3 Hours' },
+          { id: 'mso-l-4', title: 'Outlook & Teams: Inbox Zero, Calendar Scheduling & Collaboration', duration: '3 Hours' },
+          { id: 'mso-l-5', title: 'Integrated Corporate Productivity Suite Project', duration: '3 Hours' }
+        ]
+      }
+    ]
+  },
+  {
+    id: 'advance-executive-prompt-engineering',
+    slug: 'advance-executive-prompt-engineering',
+    title: 'Advance Executive in Prompt Engineering',
+    category: 'Tools And Upskills',
+    description: 'Master practical generative AI prompting techniques, Chain-of-Thought, few-shot prompting, structured JSON/XML outputs, automated workflow integrations, and enterprise AI tooling.',
+    image: 'https://images.unsplash.com/photo-1620712943543-bcc4688e7485?q=80&w=800&auto=format&fit=crop',
+    price: 9499,
+    originalPrice: 18999,
+    duration: '24–36 Hours',
+    lessons: 26,
+    level: 'Beginner to Advanced',
+    rating: 4.93,
+    students: 1250,
+    status: 'available',
+    featured: true,
+    skills: [
+      'Prompt Engineering Frameworks',
+      'Few-Shot & Zero-Shot Prompting',
+      'Chain-of-Thought (CoT) & Tree-of-Thought',
+      'Structured Outputs (JSON, YAML, XML)',
+      'System Prompt Design & Guardrails',
+      'AI Workflow Automation & Tool Calling'
+    ],
+    requirements: [
+      'A web browser with internet access to interact with modern AI models (ChatGPT, Claude, Gemini).',
+      'No prior programming knowledge required.'
+    ],
+    whoIsItFor: [
+      'Executives, product managers, software engineers, content strategists, and consultants.',
+      'Professionals eager to multiply their day-to-day productivity using cutting-edge Generative AI.'
+    ],
+    modules: [
+      {
+        id: 'exec-pe-1',
+        title: 'Part 1 — Prompt Engineering Foundations & Mental Models',
+        description: 'LLM token mechanics, temperature and top-p parameters, role prompting, context window management, and structured framing.',
+        lessons: [
+          { id: 'pe-l-1', title: 'How LLMs Process Context: Tokens, Attention & Temperature', duration: '3 Hours', isPreview: true },
+          { id: 'pe-l-2', title: 'Role, Task, Context & Constraint (RTCC) Prompt Frameworks', duration: '3 Hours' }
         ]
       },
       {
-        id: 'ds-mod-16',
-        title: 'Module 16 — Deployment, MLOps & Cloud',
-        description: 'Topics and project work grouped from Module 16 of the supplied Data Science syllabus.',
+        id: 'exec-pe-2',
+        title: 'Part 2 — Advanced Reasoning, Structured Outputs & Workflow Automation',
+        description: 'Chain-of-Thought, Few-Shot exemplars, JSON schema generation, hallucination prevention, and automated multi-step workflows.',
         lessons: [
-          { id: 'ds-l-1', title: 'APIs with Flask and FastAPI; REST APIs; JSON; API authentication basics', duration: 'Not specified in syllabus' },
-          { id: 'ds-l-2', title: 'Deployment; model serialization; Docker; Dockerfiles; containers; Docker Compose basics', duration: 'Not specified in syllabus' },
-          { id: 'ds-l-3', title: 'MLOps: experiment tracking, MLflow, model versioning, data versioning, model monitoring and logging', duration: 'Not specified in syllabus' },
-          { id: 'ds-l-4', title: 'CI/CD basics', duration: 'Not specified in syllabus' },
-          { id: 'ds-l-5', title: 'Cloud: AWS/Azure/GCP fundamentals; cloud storage; compute; basic model deployment', duration: 'Not specified in syllabus' },
-          { id: 'ds-l-6', title: 'Project: Deploy an ML/AI model as a REST API using Docker.', duration: 'Not specified in syllabus' }
-        ]
-      },
-      {
-        id: 'ds-mod-17',
-        title: 'Module 17 — Web Scraping & Data Collection',
-        description: 'Topics and project work grouped from Module 17 of the supplied Data Science syllabus.',
-        lessons: [
-          { id: 'ds-l-1', title: 'HTML basics and HTTP fundamentals', duration: 'Not specified in syllabus' },
-          { id: 'ds-l-2', title: 'Requests; BeautifulSoup; HTML parsing; CSS selectors', duration: 'Not specified in syllabus' },
-          { id: 'ds-l-3', title: 'Selenium; dynamic websites; data extraction', duration: 'Not specified in syllabus' },
-          { id: 'ds-l-4', title: 'Cleaning scraped data; ethical/legal considerations; robots.txt and rate limiting', duration: 'Not specified in syllabus' },
-          { id: 'ds-l-5', title: 'Project: Build an automated data collection pipeline.', duration: 'Not specified in syllabus' }
+          { id: 'pe-l-3', title: 'Chain-of-Thought, ReAct & Decomposition Prompting', duration: '4 Hours' },
+          { id: 'pe-l-4', title: 'Enforcing Deterministic Structured Data (JSON/XML/Markdown)', duration: '4 Hours' },
+          { id: 'pe-l-5', title: 'Capstone: Building an Automated Executive AI Assistant System', duration: '4 Hours' }
         ]
       }
     ]
   }
- ];
-
+];

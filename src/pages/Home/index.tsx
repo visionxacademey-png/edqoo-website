@@ -1,9 +1,8 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
-  ShieldCheck,
-  TrendingUp,
+  Sparkles,
   Award,
   Users,
   Star,
@@ -13,17 +12,18 @@ import {
   ChevronLeft,
   ChevronRight,
   Layers,
-  BarChart3,
-  BrainCircuit,
-  Code2,
-  Cloud,
-  GitBranch,
-  Palette,
-  Smartphone,
+  GraduationCap,
+  Wrench,
   PhoneCall,
   CheckCircle,
   Briefcase,
-  BadgeCheck
+  BadgeCheck,
+  Building2,
+  Headphones,
+  Video,
+  FolderGit2,
+  UserCheck,
+  Cpu
 } from 'lucide-react';
 import { courses } from '../../data/courses';
 import { blogPosts } from '../../data/blog';
@@ -47,37 +47,37 @@ const heroSlides = [
   },
   {
     id: 'slide-2',
-    launchBadge: 'Practical Cybersecurity & Defense Operations',
-    accentLine: 'Defend Live Systems.',
-    mainLine: 'Master Ethical Hacking from Day 1',
-    pills: ['SOC Simulation Labs', 'Threat Hunting', 'Verifiable Credentials'],
-    primaryCta: 'View Cybersecurity Track',
-    primaryLink: '/courses/cybersecurity',
+    launchBadge: 'Master Program in Data Science and AI',
+    accentLine: 'Engineer Real AI.',
+    mainLine: 'Deploy Predictive Models & GenAI from Day 1',
+    pills: ['Python & PyTorch', 'LLMs & RAG Architectures', '1:1 Mentor Reviews'],
+    primaryCta: 'View Data Science & AI',
+    primaryLink: '/courses/master-program-data-science-ai',
     secondaryCta: 'Request Syllabus',
-    image: 'https://images.unsplash.com/photo-1504384308090-c894fdcc538d?q=80&w=1600&auto=format&fit=crop',
-    statHighlight: '94% of alumni report direct career advancement in cybersecurity operations*',
+    image: 'https://images.unsplash.com/photo-1551288049-bebda4e38f71?q=80&w=1600&auto=format&fit=crop',
+    statHighlight: '94% of alumni report direct career advancement in data & AI operations*',
     partnerLogo: 'Accredited Labs'
   },
   {
     id: 'slide-3',
-    launchBadge: 'Data Science & Predictive Analytics Track',
-    accentLine: 'Engineer Real AI.',
-    mainLine: 'Deploy Predictive Models from Day 1',
-    pills: ['Python & PyTorch', 'MLOps Pipelines', '1:1 Mentor Reviews'],
-    primaryCta: 'View Data Science Track',
-    primaryLink: '/courses/data-science',
+    launchBadge: 'Master Program in AI and Machine Learning',
+    accentLine: 'Master Modern AI.',
+    mainLine: 'Build Deep Neural Networks & Autonomous Agents',
+    pills: ['Computer Vision', 'Transformers & NLP', 'vLLM Model Serving'],
+    primaryCta: 'View AI & ML Track',
+    primaryLink: '/courses/master-program-ai-machine-learning',
     secondaryCta: 'Book Advisory Call',
-    image: 'https://images.unsplash.com/photo-1524178232363-1fb2b075b655?q=80&w=1600&auto=format&fit=crop',
+    image: 'https://images.unsplash.com/photo-1677442136019-21780efad99a?q=80&w=1600&auto=format&fit=crop',
     statHighlight: 'Over 2,500+ active practitioners enrolled across modern engineering tracks*',
     partnerLogo: 'Global Standards'
   },
   {
     id: 'slide-4',
-    launchBadge: 'Cloud Computing & Full Stack Engineering',
-    accentLine: 'Master Modern Code.',
-    mainLine: 'Architect Microservices from Day 1',
-    pills: ['Docker & Kubernetes', 'AWS / Azure Cloud', 'Capstone Portfolios'],
-    primaryCta: 'Explore Software Tracks',
+    launchBadge: 'Tools And Upskills — Executive Fast-Track (24–36 Hours)',
+    accentLine: 'Executive Power Skills.',
+    mainLine: 'Master Python, SQL, Power BI & Prompt Engineering',
+    pills: ['24–36 Hours Intensive', 'Executive Certificate', 'Instant Workplace Impact'],
+    primaryCta: 'Explore Tools & Upskills',
     primaryLink: '/courses',
     secondaryCta: 'Enquire for Teams',
     image: 'https://images.unsplash.com/photo-1522071820081-009f0129c71c?q=80&w=1600&auto=format&fit=crop',
@@ -86,21 +86,78 @@ const heroSlides = [
   }
 ];
 
-// Dynamic categories with Lucide icons (No Emojis)
+// Clean category navigation
 const categoryNav = [
-  { id: 'all', label: 'All Programs', icon: Layers },
-  { id: 'Cybersecurity', label: 'Cybersecurity', icon: ShieldCheck },
-  { id: 'Data Science', label: 'Data Science & Analytics', icon: BarChart3 },
-  { id: 'AI / ML', label: 'AI & Machine Learning', icon: BrainCircuit },
-  { id: 'Programming', label: 'Software & Technology', icon: Code2 },
-  { id: 'Cloud Computing', label: 'Cloud Solutions', icon: Cloud },
-  { id: 'DevOps', label: 'DevOps & SRE', icon: GitBranch },
-  { id: 'UI/UX Design', label: 'UI/UX Design', icon: Palette },
-  { id: 'Digital Marketing', label: 'Digital Marketing', icon: TrendingUp },
-  { id: 'App Development', label: 'Mobile Engineering', icon: Smartphone }
+  { id: 'all', label: 'All Programs', count: courses.length, icon: Layers },
+  { id: 'Master Programs', label: 'Master Programs', count: courses.filter(c => c.category === 'Master Programs').length, icon: GraduationCap },
+  { id: 'Tools And Upskills', label: 'Tools And Upskills', count: courses.filter(c => c.category === 'Tools And Upskills').length, icon: Wrench }
+];
+
+// Key Highlights data structured into the recommended groups
+const highlightGroups = [
+  {
+    id: 'learning',
+    category: 'Learning',
+    badgeColor: 'bg-purple-50 text-purple-700 border-purple-200',
+    icon: BookOpen,
+    items: [
+      { text: '218 Hrs of Self-Paced Learning', icon: Clock },
+      { text: '100+ Live Sessions Across 12 Months', icon: Video },
+      { text: '50+ Industry Projects & Case Studies', icon: FolderGit2 }
+    ]
+  },
+  {
+    id: 'faculty-support',
+    category: 'Faculty & Support',
+    badgeColor: 'bg-indigo-50 text-indigo-700 border-indigo-200',
+    icon: Users,
+    items: [
+      { text: 'Learn from NIT Faculty & Industry Practitioners', icon: GraduationCap },
+      { text: '24×7 Support', icon: Headphones },
+      { text: 'Dedicated Learning Management Team', icon: Users }
+    ]
+  },
+  {
+    id: 'technology',
+    category: 'Technology',
+    badgeColor: 'bg-blue-50 text-blue-700 border-blue-200',
+    icon: Cpu,
+    items: [
+      { text: 'AI Powered LMS', icon: Sparkles }
+    ]
+  },
+  {
+    id: 'campus-certification',
+    category: 'Campus & Certification',
+    badgeColor: 'bg-emerald-50 text-emerald-700 border-emerald-200',
+    icon: Award,
+    items: [
+      { text: '2 Days Campus Immersion at theccpeeps', icon: Building2 },
+      { text: 'theccpeeps Certification', icon: BadgeCheck }
+    ]
+  },
+  {
+    id: 'career',
+    category: 'Career',
+    badgeColor: 'bg-amber-50 text-amber-800 border-amber-200',
+    icon: Briefcase,
+    items: [
+      { text: '3 Guaranteed Job Interviews upon movement to Placement Pool', icon: Briefcase }
+    ]
+  },
+  {
+    id: 'audience',
+    category: 'Audience',
+    badgeColor: 'bg-rose-50 text-rose-700 border-rose-200',
+    icon: UserCheck,
+    items: [
+      { text: 'Designed for Working Professionals and Freshers', icon: UserCheck }
+    ]
+  }
 ];
 
 export const Home: React.FC = () => {
+  const navigate = useNavigate();
   const { openEnquiryModal } = useEnquiry();
   const [activeSlide, setActiveSlide] = useState(0);
   const [isSlidePaused, setIsSlidePaused] = useState(false);
@@ -172,8 +229,8 @@ export const Home: React.FC = () => {
   return (
     <div className="space-y-0 text-left bg-white">
       <SEO 
-        title="Edqoo | Your Skill Partner - Professional Tech Education" 
-        description="Accelerate your career with industry-aligned certification programs in Cybersecurity, Data Science, AI, Cloud, and Software Engineering."
+        title="Edqoo | Your Skill Partner - Master Programs & Tools And Upskills" 
+        description="Accelerate your career with industry-aligned Master Programs in Data Science, AI, Python, Data Analytics, and Executive Upskilling tracks with NIT faculty and theccpeeps certification."
         canonical="/"
       />
 
@@ -198,135 +255,91 @@ export const Home: React.FC = () => {
               animate={{ opacity: 1, scale: 1 }}
               exit={{ opacity: 0 }}
               transition={{ duration: 0.6, ease: 'easeOut' }}
-              className="w-full h-full object-cover object-center lg:object-right"
+              className="w-full h-full object-cover object-center lg:object-right opacity-80 sm:opacity-90"
             />
           </AnimatePresence>
-
-          {/* Seamless Left Fade Mask directly into pure white background */}
-          <div className="absolute inset-y-0 left-0 w-full sm:w-2/3 lg:w-1/2 bg-gradient-to-r from-white via-white/95 to-transparent pointer-events-none" />
-          {/* Seamless Bottom Fade Mask */}
-          <div className="absolute inset-x-0 bottom-0 h-16 bg-gradient-to-t from-white to-transparent pointer-events-none" />
-          {/* Mobile backdrop tint for crisp legibility */}
-          <div className="absolute inset-0 bg-white/85 lg:hidden pointer-events-none" />
+          {/* Gradients */}
+          <div className="absolute inset-0 bg-gradient-to-t lg:bg-gradient-to-r from-white via-white/80 to-transparent z-10" />
         </div>
 
-        {/* Hero Text Content Container */}
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10 w-full py-4 flex-1 flex flex-col justify-center">
-          <div className="max-w-2xl text-left space-y-6">
-            <AnimatePresence mode="wait">
-              <motion.div
-                key={currentHero.id}
-                initial={{ opacity: 0, y: 14 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -14 }}
-                transition={{ duration: 0.35, ease: 'easeOut' }}
-                className="space-y-6"
+        {/* Content Container */}
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full relative z-20 py-6 sm:py-10">
+          <div className="max-w-2xl space-y-4 sm:space-y-6">
+            
+            {/* Launch Badge */}
+            <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-purple-50 border border-purple-200 text-purple-700 text-xs font-bold tracking-wide shadow-2xs">
+              <Sparkles className="w-3.5 h-3.5 text-purple-600" />
+              <span>{currentHero.launchBadge}</span>
+            </div>
+
+            {/* Main Headline */}
+            <div className="space-y-1">
+              <span className="block text-purple-600 font-display font-extrabold text-lg sm:text-2xl lg:text-3xl tracking-tight">
+                {currentHero.accentLine}
+              </span>
+              <h1 className="text-3xl sm:text-4xl lg:text-5xl font-display font-black text-slate-950 tracking-tight leading-[1.12]">
+                {currentHero.mainLine}
+              </h1>
+            </div>
+
+            {/* Feature Pills */}
+            <div className="flex flex-wrap gap-2 pt-1">
+              {currentHero.pills.map((pill, idx) => (
+                <span
+                  key={idx}
+                  className="px-3 py-1 bg-slate-100/90 border border-slate-200/80 rounded-lg text-xs font-bold text-slate-700 backdrop-blur-xs"
+                >
+                  {pill}
+                </span>
+              ))}
+            </div>
+
+            {/* Action Buttons */}
+            <div className="flex flex-wrap items-center gap-3 pt-2 sm:pt-4">
+              <Link
+                to={currentHero.primaryLink}
+                className="btn-primary px-6 py-3 text-xs sm:text-sm font-bold rounded-xl shadow-md inline-flex items-center gap-2"
               >
-                {/* Top Subhead with EDQOO Purple Accent Underline */}
-                <div>
-                  <span className="inline-block border-b-2 border-purple-600 pb-1 font-bold text-xs sm:text-sm text-slate-900 tracking-tight">
-                    {currentHero.launchBadge}
-                  </span>
-                </div>
-
-                {/* Headline: Purple line 1 + Solid Dark line 2 */}
-                <h1 className="font-display tracking-tight leading-[1.12]">
-                  <span className="text-purple-600 block font-black text-3xl sm:text-4xl lg:text-[3.25rem]">
-                    {currentHero.accentLine}
-                  </span>
-                  <span className="text-slate-950 block font-black text-3xl sm:text-4xl lg:text-[3.25rem] mt-1">
-                    {currentHero.mainLine}
-                  </span>
-                </h1>
-
-                {/* Feature Pills Row */}
-                <div className="flex flex-wrap gap-2.5 pt-1">
-                  {currentHero.pills.map((pill) => (
-                    <span
-                      key={pill}
-                      className="inline-flex items-center px-4 py-1.5 rounded-full border border-slate-300 text-xs sm:text-[13px] font-semibold text-slate-800 bg-white shadow-2xs"
-                    >
-                      {pill}
-                    </span>
-                  ))}
-                </div>
-
-                {/* Action Buttons */}
-                <div className="flex flex-wrap items-center gap-3.5 pt-2">
-                  <Link
-                    to={currentHero.primaryLink}
-                    className="btn-primary px-7 py-3.5 text-xs sm:text-sm font-bold rounded-xl shadow-md hover:shadow-lg transition-all transform hover:-translate-y-0.5"
-                  >
-                    <span>{currentHero.primaryCta}</span>
-                  </Link>
-
-                  <button
-                    type="button"
-                    onClick={() => openEnquiryModal()}
-                    className="btn-secondary px-6 py-3.5 text-xs sm:text-sm font-bold rounded-xl shadow-2xs transition-all flex items-center gap-2"
-                  >
-                    <PhoneCall className="w-4 h-4 text-purple-600" />
-                    <span>{currentHero.secondaryCta}</span>
-                  </button>
-                </div>
-              </motion.div>
-            </AnimatePresence>
-          </div>
-
-          {/* Centered Dots Pagination */}
-          <div className="flex justify-center items-center gap-2 pt-8 sm:pt-12">
-            {heroSlides.map((slide, idx) => (
+                <span>{currentHero.primaryCta}</span>
+                <ArrowRight className="w-4 h-4" />
+              </Link>
               <button
-                key={slide.id}
-                onClick={() => setActiveSlide(idx)}
-                className={`transition-all duration-300 rounded-full ${
-                  activeSlide === idx
-                    ? 'w-3 h-3 bg-purple-600 ring-2 ring-purple-400/40'
-                    : 'w-2.5 h-2.5 bg-slate-300 hover:bg-slate-400'
-                }`}
-                aria-label={`Go to slide ${idx + 1}`}
-              />
-            ))}
+                type="button"
+                onClick={() => openEnquiryModal()}
+                className="btn-secondary px-6 py-3 text-xs sm:text-sm font-bold rounded-xl shadow-2xs"
+              >
+                {currentHero.secondaryCta}
+              </button>
+            </div>
+
           </div>
         </div>
 
         {/* Bottom Process Advisors / Outcome Highlight Strip */}
-        <div className="w-full bg-purple-50/70 border-t border-purple-100 mt-6 py-3 px-4 sm:px-6 lg:px-8 relative z-20">
+        <div className="relative z-20 bg-white/95 backdrop-blur-md border-t border-slate-200 py-3 px-4 sm:px-6 lg:px-8">
           <div className="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-3 text-xs">
-            
-            {/* Left: Process Advisors logo mark */}
+            <div className="flex items-center gap-2 text-slate-600 font-medium">
+              <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+              <span className="font-bold text-slate-900">{currentHero.partnerLogo}:</span>
+              <span className="truncate max-w-xs sm:max-w-md md:max-w-xl">
+                {currentHero.statHighlight}
+              </span>
+            </div>
+
+            {/* Slider Navigation Dots & Controls */}
             <div className="flex items-center gap-2 flex-shrink-0">
-              <div className="w-6 h-6 rounded bg-purple-600 text-white font-black text-[11px] flex items-center justify-center shadow-2xs">
-                ▲
+              <div className="flex gap-1.5 mr-2">
+                {heroSlides.map((_, idx) => (
+                  <button
+                    key={idx}
+                    onClick={() => setActiveSlide(idx)}
+                    className={`h-1.5 rounded-full transition-all duration-300 ${
+                      activeSlide === idx ? 'w-6 bg-purple-600' : 'w-2 bg-slate-200 hover:bg-slate-300'
+                    }`}
+                    aria-label={`Go to slide ${idx + 1}`}
+                  />
+                ))}
               </div>
-              <div className="text-left">
-                <span className="text-[10px] font-bold text-slate-500 uppercase tracking-wider block leading-tight">
-                  Process Advisors
-                </span>
-                <span className="text-xs font-extrabold text-slate-900 block leading-tight">
-                  {currentHero.partnerLogo}
-                </span>
-              </div>
-            </div>
-
-            {/* Center: Stat Statement with smooth text transition */}
-            <div className="flex-1 text-center px-4">
-              <AnimatePresence mode="wait">
-                <motion.p
-                  key={currentHero.id}
-                  initial={{ opacity: 0, y: 4 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0, y: -4 }}
-                  transition={{ duration: 0.25 }}
-                  className="text-xs sm:text-[13px] font-bold text-slate-900 leading-snug"
-                >
-                  {currentHero.statHighlight}
-                </motion.p>
-              </AnimatePresence>
-            </div>
-
-            {/* Right: Next / Prev Arrow Controls */}
-            <div className="flex items-center gap-1.5 flex-shrink-0">
               <button
                 onClick={prevSlide}
                 className="p-1.5 rounded-lg bg-white hover:bg-purple-50 text-slate-700 hover:text-purple-700 border border-purple-200 transition-colors shadow-2xs"
@@ -368,15 +381,15 @@ export const Home: React.FC = () => {
               </span>
               <span className="flex items-center gap-1.5 px-3 py-1.5 bg-white border border-slate-200 rounded-lg shadow-2xs">
                 <BadgeCheck className="w-4 h-4 text-purple-600" />
-                Verified Digital Credentials
+                theccpeeps Certification
               </span>
               <span className="flex items-center gap-1.5 px-3 py-1.5 bg-white border border-slate-200 rounded-lg shadow-2xs">
-                <Users className="w-4 h-4 text-purple-600" />
-                Practitioner Mentorship
+                <GraduationCap className="w-4 h-4 text-purple-600" />
+                NIT Faculty & Practitioners
               </span>
               <span className="flex items-center gap-1.5 px-3 py-1.5 bg-white border border-slate-200 rounded-lg shadow-2xs">
                 <Briefcase className="w-4 h-4 text-purple-600" />
-                Capstone Portfolios
+                3 Guaranteed Job Interviews*
               </span>
             </div>
           </div>
@@ -384,33 +397,146 @@ export const Home: React.FC = () => {
       </section>
 
       {/* ========================================================================= */}
-      {/* 3. POPULAR PROGRAMS (Category Sidebar + Program Cards) */}
+      {/* 3. KEY HIGHLIGHTS SECTION (New Requirements) */}
+      {/* ========================================================================= */}
+      <section id="highlights" className="section-padding bg-gradient-to-b from-white via-purple-50/20 to-slate-50 border-b border-slate-200">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-10">
+          
+          {/* Section Header */}
+          <div className="text-center max-w-3xl mx-auto space-y-2">
+            <span className="text-purple-600 text-xs font-extrabold tracking-widest uppercase block">
+              PROGRAM PILLARS
+            </span>
+            <h2 className="text-2xl sm:text-3xl lg:text-4xl font-display font-extrabold text-slate-950">
+              Key Highlights
+            </h2>
+            <p className="text-slate-500 text-xs sm:text-sm leading-relaxed">
+              Experience an unmatched standard of practical technology education designed with academic rigor and enterprise outcomes.
+            </p>
+          </div>
+
+          {/* Grouped Highlights Feature Cards Grid */}
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {highlightGroups.map((group) => {
+              const GroupIcon = group.icon;
+              return (
+                <div
+                  key={group.id}
+                  className="bg-white border border-slate-200/90 rounded-2xl p-6 shadow-2xs hover:border-purple-300 hover:shadow-md transition-all flex flex-col justify-between space-y-4 group"
+                >
+                  <div className="space-y-4">
+                    {/* Header with Group Category Badge */}
+                    <div className="flex items-center justify-between border-b border-slate-100 pb-3">
+                      <span className={`px-2.5 py-1 text-[11px] font-bold rounded-lg border ${group.badgeColor}`}>
+                        {group.category}
+                      </span>
+                      <div className="w-8 h-8 rounded-lg bg-purple-50 flex items-center justify-center text-purple-600 group-hover:bg-purple-600 group-hover:text-white transition-colors">
+                        <GroupIcon className="w-4 h-4" />
+                      </div>
+                    </div>
+
+                    {/* Highlights List inside this Card */}
+                    <ul className="space-y-3">
+                      {group.items.map((item, idx) => {
+                        const ItemIcon = item.icon;
+                        return (
+                          <li key={idx} className="flex items-start gap-3">
+                            <div className="mt-0.5 p-1 rounded-md bg-purple-50 text-purple-700 flex-shrink-0">
+                              <ItemIcon className="w-3.5 h-3.5" />
+                            </div>
+                            <span className="text-xs sm:text-sm font-bold text-slate-800 leading-snug">
+                              {item.text}
+                            </span>
+                          </li>
+                        );
+                      })}
+                    </ul>
+                  </div>
+
+                  {/* Micro Accent */}
+                  <div className="pt-2 border-t border-slate-50 flex items-center gap-1.5 text-[10px] font-bold text-purple-600">
+                    <CheckCircle className="w-3 h-3 text-purple-600" />
+                    <span>Verified EDQOO Standard</span>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+
+        </div>
+      </section>
+
+      {/* ========================================================================= */}
+      {/* 4. COURSES / PROGRAMS SECTION (Master Programs & Tools And Upskills) */}
       {/* ========================================================================= */}
       <section id="programs" className="section-padding bg-white">
-        {/* Section Header */}
-        <div className="text-center max-w-3xl mx-auto mb-10 space-y-2">
-          <span className="text-purple-600 text-xs font-extrabold tracking-widest uppercase block">
-            EXPLORE CURRICULUM
-          </span>
-          <h2 className="text-2xl sm:text-3xl lg:text-4xl font-display font-extrabold text-slate-950">
-            Featured Professional Programs
-          </h2>
-          <p className="text-slate-500 text-xs sm:text-sm leading-relaxed">
-            Select a specialized technology domain to explore comprehensive, lab-oriented certificate programs.
-          </p>
-        </div>
-
-        {/* 2-Column Grid: Left Category Sidebar + Right Course Cards */}
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-8 items-start">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-8">
           
-          {/* Left Category Sidebar (Desktop) */}
-          <aside className="hidden lg:block lg:col-span-3 bg-slate-50 border border-slate-200 rounded-2xl p-2.5 shadow-2xs sticky top-20">
-            <div className="px-3 py-2 border-b border-slate-200/80 mb-2">
-              <span className="text-[11px] font-extrabold text-slate-900 uppercase tracking-wider block">
-                Domains & Categories
-              </span>
-            </div>
-            <div className="space-y-1">
+          {/* Section Header */}
+          <div className="text-center max-w-3xl mx-auto space-y-2">
+            <span className="text-purple-600 text-xs font-extrabold tracking-widest uppercase block">
+              EXPLORE CURRICULUM
+            </span>
+            <h2 className="text-2xl sm:text-3xl lg:text-4xl font-display font-extrabold text-slate-950">
+              Featured Programs & Executive Tracks
+            </h2>
+            <p className="text-slate-500 text-xs sm:text-sm leading-relaxed">
+              Choose between comprehensive <strong>Master Programs</strong> for career transformations or intensive <strong>Tools And Upskills</strong> executive tracks (24–36 Hours).
+            </p>
+          </div>
+
+          {/* 2-Column Grid: Left Category Sidebar + Right Course Cards */}
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-8 items-start">
+            
+            {/* Left Category Sidebar (Desktop) */}
+            <aside className="hidden lg:block lg:col-span-3 bg-slate-50 border border-slate-200 rounded-2xl p-3 shadow-2xs sticky top-20">
+              <div className="px-3 py-2 border-b border-slate-200/80 mb-2">
+                <span className="text-[11px] font-extrabold text-slate-900 uppercase tracking-wider block">
+                  Program Tracks
+                </span>
+              </div>
+              <div className="space-y-1.5">
+                {categoryNav.map((cat) => {
+                  const IconComponent = cat.icon;
+                  const isActive = selectedCategory === cat.id;
+                  return (
+                    <button
+                      key={cat.id}
+                      onClick={() => setSelectedCategory(cat.id)}
+                      className={`w-full flex items-center justify-between px-3.5 py-3 text-xs font-bold rounded-xl transition-all text-left ${
+                        isActive
+                          ? 'bg-purple-600 text-white shadow-sm'
+                          : 'text-slate-700 hover:bg-white hover:text-purple-600'
+                      }`}
+                    >
+                      <span className="flex items-center gap-2.5">
+                        <IconComponent className={`w-4 h-4 ${isActive ? 'text-white' : 'text-slate-500'}`} />
+                        <span>{cat.label}</span>
+                      </span>
+                      <span className={`text-[10px] px-2 py-0.5 rounded-full font-extrabold ${
+                        isActive ? 'bg-white/20 text-white' : 'bg-slate-200 text-slate-700'
+                      }`}>
+                        {cat.count}
+                      </span>
+                    </button>
+                  );
+                })}
+              </div>
+
+              {/* Sidebar Info Card */}
+              <div className="mt-4 p-3 bg-purple-50/80 border border-purple-200/70 rounded-xl space-y-1.5 text-left">
+                <div className="flex items-center gap-1.5 text-purple-800 font-bold text-xs">
+                  <BadgeCheck className="w-4 h-4 text-purple-600" />
+                  <span>theccpeeps Certified</span>
+                </div>
+                <p className="text-[11px] text-slate-600 leading-relaxed">
+                  All courses include NIT faculty mentoring, AI-powered LMS access, and placement interview readiness.
+                </p>
+              </div>
+            </aside>
+
+            {/* Horizontal scrollable pills filter (Mobile / Tablet) */}
+            <div className="lg:hidden w-full overflow-x-auto pb-2 scrollbar-none flex gap-2 mb-2">
               {categoryNav.map((cat) => {
                 const IconComponent = cat.icon;
                 const isActive = selectedCategory === cat.id;
@@ -418,193 +544,172 @@ export const Home: React.FC = () => {
                   <button
                     key={cat.id}
                     onClick={() => setSelectedCategory(cat.id)}
-                    className={`w-full flex items-center justify-between px-3.5 py-2.5 text-xs font-bold rounded-xl transition-all text-left ${
+                    className={`px-3.5 py-2 text-xs font-bold rounded-xl whitespace-nowrap border flex-shrink-0 flex items-center gap-2 transition-all ${
                       isActive
-                        ? 'bg-purple-600 text-white shadow-sm'
-                        : 'text-slate-700 hover:bg-white hover:text-purple-600'
+                        ? 'bg-purple-600 text-white border-purple-600 shadow-sm'
+                        : 'bg-white text-slate-800 border-slate-200 hover:bg-slate-50'
                     }`}
                   >
-                    <span className="flex items-center gap-2.5">
-                      <IconComponent className={`w-4 h-4 ${isActive ? 'text-white' : 'text-slate-500'}`} />
-                      <span>{cat.label}</span>
+                    <IconComponent className="w-3.5 h-3.5" />
+                    <span>{cat.label}</span>
+                    <span className={`text-[10px] px-1.5 py-0.2 rounded-full font-bold ${
+                      isActive ? 'bg-white/20 text-white' : 'bg-slate-100 text-slate-600'
+                    }`}>
+                      {cat.count}
                     </span>
-                    <ChevronRight className={`w-3.5 h-3.5 transition-transform ${isActive ? 'text-white translate-x-0.5' : 'text-slate-400'}`} />
                   </button>
                 );
               })}
             </div>
-          </aside>
 
-          {/* Horizontal scrollable pills filter (Mobile / Tablet) */}
-          <div className="lg:hidden w-full overflow-x-auto pb-2 scrollbar-none flex gap-2 mb-4">
-            {categoryNav.map((cat) => {
-              const IconComponent = cat.icon;
-              const isActive = selectedCategory === cat.id;
-              return (
-                <button
-                  key={cat.id}
-                  onClick={() => setSelectedCategory(cat.id)}
-                  className={`px-3 py-2 text-xs font-bold rounded-xl whitespace-nowrap border flex-shrink-0 flex items-center gap-1.5 transition-all ${
-                    isActive
-                      ? 'bg-purple-600 text-white border-purple-600 shadow-sm'
-                      : 'bg-white text-slate-800 border-slate-200 hover:bg-slate-50'
-                  }`}
+            {/* Right Courses Cards Grid */}
+            <div className="lg:col-span-9 space-y-6">
+              
+              {/* Header / Results counter */}
+              <div className="flex items-center justify-between border-b border-slate-200 pb-3">
+                <span className="text-xs font-bold text-slate-500">
+                  Showing <strong className="text-slate-900">{displayedCourses.length}</strong> Programs in{' '}
+                  <span className="text-purple-600">
+                    {selectedCategory === 'all' ? 'All Categories' : selectedCategory}
+                  </span>
+                </span>
+                <Link
+                  to="/courses"
+                  className="text-xs font-bold text-purple-600 hover:text-purple-700 inline-flex items-center gap-1"
                 >
-                  <IconComponent className="w-3.5 h-3.5" />
-                  <span>{cat.label}</span>
-                </button>
-              );
-            })}
-          </div>
+                  <span>View Full Catalog</span>
+                  <ArrowRight className="w-3.5 h-3.5" />
+                </Link>
+              </div>
 
-          {/* Right Courses Cards Grid */}
-          <div className="lg:col-span-9 space-y-6">
-            
-            {/* Header / Results counter */}
-            <div className="flex items-center justify-between border-b border-slate-200 pb-3">
-              <span className="text-xs font-bold text-slate-500">
-                Showing <strong className="text-slate-900">{displayedCourses.length}</strong> Programs
-              </span>
-              <Link
-                to="/courses"
-                className="text-xs font-bold text-purple-600 hover:text-purple-700 inline-flex items-center gap-1"
-              >
-                <span>View Full Catalog</span>
-                <ArrowRight className="w-3.5 h-3.5" />
-              </Link>
-            </div>
-
-            {/* Grid */}
-            <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-5">
-              {displayedCourses.map((course) => {
-                const isComingSoon = course.status === 'coming-soon';
-                return (
-                  <div
-                    key={course.id}
-                    className="premium-card flex flex-col justify-between overflow-hidden group bg-white border border-slate-200 rounded-2xl shadow-2xs hover:border-purple-300 hover:shadow-md transition-all"
-                  >
-                    {/* Course Image */}
-                    <div className="relative aspect-[16/10] overflow-hidden bg-slate-100">
-                      <img
-                        src={course.image}
-                        alt={course.title}
-                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-                        loading="lazy"
-                      />
-                      <span className="absolute top-3 left-3 px-2 py-0.5 bg-purple-100 border border-purple-200/60 text-purple-800 text-[10px] font-bold rounded-md uppercase tracking-wider backdrop-blur-xs">
-                        {course.category}
-                      </span>
-                      {isComingSoon && (
-                        <span className="absolute top-3 right-3 px-2 py-0.5 bg-purple-600 text-white text-[10px] font-bold rounded-md uppercase tracking-wider">
-                          Upcoming Batch
+              {/* Grid */}
+              <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-5">
+                {displayedCourses.map((course) => {
+                  const isToolsAndUpskills = course.category === 'Tools And Upskills';
+                  return (
+                    <div
+                      key={course.id}
+                      onClick={() => navigate(`/courses/${course.slug}`)}
+                      className="premium-card cursor-pointer flex flex-col justify-between overflow-hidden group bg-white border border-slate-200 rounded-2xl shadow-2xs hover:border-purple-300 hover:shadow-md transition-all"
+                    >
+                      {/* Course Image */}
+                      <div className="relative aspect-[16/10] overflow-hidden bg-slate-100">
+                        <img
+                          src={course.image}
+                          alt={course.title}
+                          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                          loading="lazy"
+                        />
+                        <span className={`absolute top-3 left-3 px-2 py-0.5 text-[10px] font-bold rounded-md uppercase tracking-wider backdrop-blur-xs border ${
+                          isToolsAndUpskills
+                            ? 'bg-emerald-50/90 border-emerald-300 text-emerald-800'
+                            : 'bg-purple-50/90 border-purple-300 text-purple-800'
+                        }`}>
+                          {course.category}
                         </span>
-                      )}
-                    </div>
 
-                    {/* Card Content Details */}
-                    <div className="p-4 flex-1 flex flex-col justify-between space-y-3 text-left">
-                      <div className="space-y-1.5">
-                        <h3 className="font-display font-bold text-sm text-slate-950 group-hover:text-purple-600 transition-colors line-clamp-1">
-                          {isComingSoon ? (
-                            course.title
-                          ) : (
-                            <Link to={`/courses/${course.slug}`}>{course.title}</Link>
-                          )}
-                        </h3>
-                        <p className="text-slate-500 text-[11px] leading-relaxed line-clamp-2">
-                          {course.description}
-                        </p>
-                      </div>
-
-                      {/* Skills Tags */}
-                      <div className="flex flex-wrap gap-1">
-                        {course.skills.slice(0, 3).map((skill) => (
-                          <span
-                            key={skill}
-                            className="px-1.5 py-0.5 bg-purple-50/70 border border-purple-100 text-purple-800 text-[9px] font-semibold rounded"
-                          >
-                            {skill}
+                        {isToolsAndUpskills ? (
+                          <span className="absolute top-3 right-3 px-2 py-0.5 bg-slate-900 text-white text-[10px] font-extrabold rounded-md shadow-sm">
+                            24–36 Hours
                           </span>
-                        ))}
-                        {course.skills.length > 3 && (
-                          <span className="px-1.5 py-0.5 bg-slate-50 text-slate-400 text-[9px] font-medium rounded">
-                            +{course.skills.length - 3}
+                        ) : (
+                          <span className="absolute top-3 right-3 px-2 py-0.5 bg-purple-600 text-white text-[10px] font-bold rounded-md shadow-sm">
+                            Master Track
                           </span>
                         )}
                       </div>
 
-                      {/* Course Metadata (Duration, Mode, Rating) */}
-                      <div className="flex items-center justify-between text-[11px] text-slate-500 font-semibold border-t border-slate-100 pt-2.5">
-                        <span className="flex items-center gap-1">
-                          <Clock className="w-3.5 h-3.5 text-slate-400" />
-                          {course.duration}
-                        </span>
-                        <span className="flex items-center gap-1">
-                          <BookOpen className="w-3.5 h-3.5 text-slate-400" />
-                          Online
-                        </span>
-                        <span className="flex items-center gap-1 text-amber-500 font-bold">
-                          <Star className="w-3.5 h-3.5 fill-current" />
-                          {course.rating > 0 ? course.rating : '4.8'}
-                        </span>
-                      </div>
+                      {/* Card Content Details */}
+                      <div className="p-4 flex-1 flex flex-col justify-between space-y-3 text-left">
+                        <div className="space-y-1.5">
+                          <h3 className="font-display font-bold text-sm text-slate-950 group-hover:text-purple-600 transition-colors line-clamp-1">
+                            <Link to={`/courses/${course.slug}`} onClick={(e) => e.stopPropagation()}>
+                              {course.title}
+                            </Link>
+                          </h3>
+                          <p className="text-slate-500 text-[11px] leading-relaxed line-clamp-2">
+                            {course.description}
+                          </p>
+                        </div>
 
-                      {/* Action & Pricing Footer */}
-                      <div className="pt-3 border-t border-slate-100 flex items-center justify-between gap-2">
-                        {isComingSoon ? (
-                          <>
-                            <span className="text-[10px] font-bold text-purple-600 uppercase">
-                              Enrolment Opening
+                        {/* Skills Tags */}
+                        <div className="flex flex-wrap gap-1">
+                          {course.skills.slice(0, 3).map((skill) => (
+                            <span
+                              key={skill}
+                              className="px-1.5 py-0.5 bg-purple-50/70 border border-purple-100 text-purple-800 text-[9px] font-semibold rounded"
+                            >
+                              {skill}
                             </span>
+                          ))}
+                          {course.skills.length > 3 && (
+                            <span className="px-1.5 py-0.5 bg-slate-50 text-slate-400 text-[9px] font-medium rounded">
+                              +{course.skills.length - 3}
+                            </span>
+                          )}
+                        </div>
+
+                        {/* Course Metadata (Duration, Mode, Rating) */}
+                        <div className="flex items-center justify-between text-[11px] text-slate-500 font-semibold border-t border-slate-100 pt-2.5">
+                          <span className="flex items-center gap-1 font-bold text-slate-700">
+                            <Clock className="w-3.5 h-3.5 text-purple-600" />
+                            {course.duration}
+                          </span>
+                          <span className="flex items-center gap-1">
+                            <BookOpen className="w-3.5 h-3.5 text-slate-400" />
+                            {isToolsAndUpskills ? 'Executive' : 'Master Track'}
+                          </span>
+                          <span className="flex items-center gap-1 text-amber-500 font-bold">
+                            <Star className="w-3.5 h-3.5 fill-current" />
+                            {course.rating > 0 ? course.rating : '4.9'}
+                          </span>
+                        </div>
+
+                        {/* Action & Pricing Footer */}
+                        <div className="pt-3 border-t border-slate-100 flex items-center justify-between gap-2">
+                          <div className="flex flex-col">
+                            <span className="text-[10px] text-slate-400 line-through leading-none">
+                              ₹{course.originalPrice}
+                            </span>
+                            <span className="text-slate-950 font-extrabold text-sm leading-tight">
+                              ₹{course.price}
+                            </span>
+                          </div>
+                          <div className="flex items-center gap-1.5">
                             <button
                               type="button"
-                              onClick={() => openEnquiryModal(course.title)}
-                              className="btn-secondary px-3.5 py-1.5 text-[11px] font-bold rounded-lg"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                openEnquiryModal(course.title);
+                              }}
+                              className="btn-primary px-3 py-1.5 text-[10px] font-bold rounded-lg inline-flex items-center gap-1 shadow-2xs"
                             >
-                              Get Notified
+                              <PhoneCall className="w-3 h-3" />
+                              <span>Enquire Now</span>
                             </button>
-                          </>
-                        ) : (
-                          <>
-                            <div className="flex flex-col">
-                              <span className="text-[10px] text-slate-400 line-through leading-none">
-                                ₹{course.originalPrice}
-                              </span>
-                              <span className="text-slate-950 font-extrabold text-sm leading-tight">
-                                ₹{course.price}
-                              </span>
-                            </div>
-                            <div className="flex items-center gap-1.5">
-                              <button
-                                type="button"
-                                onClick={() => openEnquiryModal(course.title)}
-                                className="btn-primary px-3 py-1.5 text-[10px] font-bold rounded-lg inline-flex items-center gap-1 shadow-2xs"
-                              >
-                                <PhoneCall className="w-3 h-3" />
-                                <span>Enquire Now</span>
-                              </button>
-                              <Link
-                                to={`/courses/${course.slug}`}
-                                className="px-2.5 py-1.5 text-[10px] font-bold text-slate-600 hover:text-purple-600 rounded-lg hover:bg-purple-50 border border-slate-200 transition-colors inline-flex items-center gap-1"
-                              >
-                                <span>Details</span>
-                                <ArrowRight className="w-3 h-3" />
-                              </Link>
-                            </div>
-                          </>
-                        )}
+                            <Link
+                              to={`/courses/${course.slug}`}
+                              onClick={(e) => e.stopPropagation()}
+                              className="px-2.5 py-1.5 text-[10px] font-bold text-slate-600 hover:text-purple-600 rounded-lg hover:bg-purple-50 border border-slate-200 transition-colors inline-flex items-center gap-1"
+                            >
+                              <span>Details</span>
+                              <ArrowRight className="w-3 h-3" />
+                            </Link>
+                          </div>
+                        </div>
                       </div>
                     </div>
-                  </div>
-                );
-              })}
+                  );
+                })}
+              </div>
+
             </div>
           </div>
         </div>
       </section>
 
       {/* ========================================================================= */}
-      {/* 4. ANIMATED STATISTICS SECTION */}
+      {/* 5. ANIMATED STATISTICS SECTION */}
       {/* ========================================================================= */}
       <section
         ref={statsSectionRef}
@@ -639,7 +744,18 @@ export const Home: React.FC = () => {
               </span>
             </div>
 
-           
+            {/* Stat 3 */}
+            <div className="space-y-1.5 p-4 rounded-xl bg-white/10 backdrop-blur-xs border border-white/15">
+              <div className="w-10 h-10 rounded-lg bg-white/10 flex items-center justify-center mx-auto text-white mb-2">
+                <Briefcase className="w-5 h-5" />
+              </div>
+              <span className="text-2xl sm:text-3xl lg:text-4xl font-display font-extrabold text-white block">
+                {statsAnimated ? '3 Guaranteed' : '0'}
+              </span>
+              <span className="text-xs font-semibold text-purple-100 uppercase tracking-wider block">
+                Placement Interviews*
+              </span>
+            </div>
 
             {/* Stat 4 */}
             <div className="space-y-1.5 p-4 rounded-xl bg-white/10 backdrop-blur-xs border border-white/15">
@@ -647,10 +763,10 @@ export const Home: React.FC = () => {
                 <Award className="w-5 h-5" />
               </div>
               <span className="text-2xl sm:text-3xl lg:text-4xl font-display font-extrabold text-white block">
-                {statsAnimated ? '10+ Programs' : '0'}
+                {statsAnimated ? '10 Programs' : '0'}
               </span>
               <span className="text-xs font-semibold text-purple-100 uppercase tracking-wider block">
-                Industry-Mapped Tracks
+                Master & Executive Tracks
               </span>
             </div>
 
@@ -659,7 +775,7 @@ export const Home: React.FC = () => {
       </section>
 
       {/* ========================================================================= */}
-      {/* 5. "WHY CHOOSE US" / UNIQUE VALUE PROPOSITION */}
+      {/* 6. "WHY CHOOSE US" / PEDAGOGY */}
       {/* ========================================================================= */}
       <section className="bg-slate-50 border-b border-slate-200 py-16 sm:py-20">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -671,26 +787,26 @@ export const Home: React.FC = () => {
               Discover What Makes Edqoo Unique
             </h2>
             <p className="text-slate-500 text-xs sm:text-sm leading-relaxed">
-              We focus on building functional ability rather than offering passive video lectures.
+              We focus on building functional ability through hands-on labs, NIT faculty mentoring, and verified industry credentials.
             </p>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {[
               {
-                title: 'Expert Practitioner Mentors',
-                icon: Users,
-                desc: 'Learn directly from seasoned engineers and security professionals who guide enterprise architectures.'
+                title: 'NIT Faculty & Industry Practitioners',
+                icon: GraduationCap,
+                desc: 'Learn directly from NIT faculty and seasoned technology leaders who architect enterprise systems.'
               },
               {
-                title: 'Career-Focused Curriculum',
-                icon: TrendingUp,
-                desc: 'Every syllabus module is audited against current production tooling and engineering job requirements.'
+                title: 'theccpeeps Certification & Campus Immersion',
+                icon: Award,
+                desc: 'Gain verified industry credentials and participate in an exclusive 2-day campus immersion experience.'
               },
               {
-                title: 'Flexible Multi-Device Learning',
-                icon: Clock,
-                desc: 'Study at your own pace with lifetime access to materials, lab notes, and updated curriculum patches.'
+                title: 'Career Placement & 24×7 Support',
+                icon: Briefcase,
+                desc: 'Access 3 guaranteed job interviews upon placement pool entry, backed by our dedicated learning management team.'
               }
             ].map((card, idx) => {
               const IconComp = card.icon;
@@ -716,157 +832,7 @@ export const Home: React.FC = () => {
       </section>
 
       {/* ========================================================================= */}
-      {/* 6. SKILLS FOR MODERN CAREERS SECTION */}
-      {/* ========================================================================= */}
-      {/* <section className="section-padding bg-white">
-        <div className="text-center max-w-3xl mx-auto mb-12 space-y-2">
-          <span className="text-purple-600 text-xs font-extrabold tracking-widest uppercase block">
-            SKILL DIRECTORY
-          </span>
-          <h2 className="text-2xl sm:text-3xl font-display font-extrabold text-slate-950">
-            Skills for Modern Technology Careers
-          </h2>
-          <p className="text-slate-500 text-xs sm:text-sm">
-            Explore industry competencies in demand across modern engineering organizations.
-          </p>
-        </div>
-
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 max-w-5xl mx-auto">
-          {[
-            { name: 'Cybersecurity & Defense Operations', icon: ShieldCheck, link: '/courses/cybersecurity', count: '45 Lessons' },
-            { name: 'Data Science & Predictive Analytics', icon: BarChart3, link: '/courses/data-science', count: '40 Lessons' },
-            { name: 'Artificial Intelligence & Generative AI', icon: BrainCircuit, link: '/courses', count: '50 Lessons' },
-            { name: 'Full Stack Software Engineering', icon: Code2, link: '/courses', count: '65 Lessons' },
-            { name: 'Cloud Solutions Architecture (AWS/Azure)', icon: Cloud, link: '/courses', count: '38 Lessons' },
-            { name: 'DevOps & Site Reliability (SRE)', icon: GitBranch, link: '/courses', count: '40 Lessons' },
-            { name: 'UI/UX Product Design & Figma', icon: Palette, link: '/courses', count: '32 Lessons' },
-            { name: 'Growth Marketing & Analytics', icon: TrendingUp, link: '/courses', count: '25 Lessons' },
-            { name: 'Mobile App Engineering (React Native)', icon: Smartphone, link: '/courses', count: '30 Lessons' }
-          ].map((item, idx) => {
-            const ItemIcon = item.icon;
-            return (
-              <Link
-                key={idx}
-                to={item.link}
-                className="flex items-center justify-between p-4 bg-slate-50 border border-slate-200 rounded-xl hover:bg-purple-50 hover:border-purple-300 transition-all group text-left"
-              >
-                <div className="flex items-center gap-3">
-                  <div className="w-9 h-9 rounded-lg bg-white border border-slate-200 text-purple-600 flex items-center justify-center flex-shrink-0 group-hover:bg-purple-600 group-hover:text-white transition-colors">
-                    <ItemIcon className="w-4.5 h-4.5" />
-                  </div>
-                  <div>
-                    <h4 className="text-xs font-bold text-slate-900 group-hover:text-purple-700 transition-colors">
-                      {item.name}
-                    </h4>
-                    <span className="text-[10px] text-slate-500 font-medium">{item.count}</span>
-                  </div>
-                </div>
-                <ArrowRight className="w-4 h-4 text-slate-400 group-hover:text-purple-600 group-hover:translate-x-1 transition-all" />
-              </Link>
-            );
-          })}
-        </div>
-      </section> */}
-
-      {/* ========================================================================= */}
-      {/* 7. TESTIMONIAL SLIDER SECTION */}
-      {/* ========================================================================= */}
-      {/* <section className="bg-gradient-to-b from-slate-50 to-white text-slate-900 py-16 sm:py-20 border-y border-slate-200">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          
-          
-          <div className="text-center max-w-3xl mx-auto mb-12 space-y-2">
-            <span className="text-purple-600 text-xs font-extrabold tracking-widest uppercase block">
-              ALUMNI OUTCOMES
-            </span>
-            <h2 className="text-2xl sm:text-3xl lg:text-4xl font-display font-extrabold text-slate-950">
-              What Our Learners Say
-            </h2>
-            <p className="text-slate-500 text-xs sm:text-sm">
-              Real accounts from professionals who pivoted into security and analytics roles.
-            </p>
-          </div>
-
-          <div className="max-w-4xl mx-auto bg-white border border-slate-200 rounded-3xl p-6 sm:p-10 shadow-xl relative overflow-hidden">
-            <div className="grid grid-cols-1 md:grid-cols-12 gap-8 items-center">
-              
-              <div className="md:col-span-8 space-y-4 text-left">
-                <div className="flex text-amber-500 gap-1">
-                  {[...Array(testimonials[activeTestimonial].rating)].map((_, i) => (
-                    <Star key={i} className="w-4 h-4 fill-current" />
-                  ))}
-                </div>
-
-                <p className="text-sm sm:text-base text-slate-700 italic leading-relaxed font-medium">
-                  "{testimonials[activeTestimonial].content}"
-                </p>
-
-                <div className="pt-3 border-t border-slate-100">
-                  <h4 className="font-display font-bold text-base text-slate-950">
-                    {testimonials[activeTestimonial].name}
-                  </h4>
-                  <p className="text-xs text-purple-600 font-semibold">
-                    {testimonials[activeTestimonial].role}
-                  </p>
-                  <span className="inline-block mt-2 px-2.5 py-1 bg-purple-50 border border-purple-200 text-purple-700 text-[10px] font-bold rounded uppercase">
-                    {testimonials[activeTestimonial].courseName}
-                  </span>
-                </div>
-              </div>
-
-              <div className="md:col-span-4 flex justify-center">
-                <div className="relative w-36 h-36 sm:w-44 sm:h-44 rounded-2xl overflow-hidden border-2 border-purple-400/40 shadow-lg">
-                  <img
-                    src={testimonials[activeTestimonial].avatar}
-                    alt={testimonials[activeTestimonial].name}
-                    className="w-full h-full object-cover"
-                  />
-                </div>
-              </div>
-            </div>
-
-            <div className="mt-8 pt-4 border-t border-slate-100 flex items-center justify-between">
-              <div className="flex gap-2">
-                {testimonials.map((_, idx) => (
-                  <button
-                    key={idx}
-                    onClick={() => setActiveTestimonial(idx)}
-                    className={`h-2 rounded-full transition-all duration-300 ${
-                      activeTestimonial === idx ? 'w-6 bg-purple-600' : 'w-2 bg-slate-200 hover:bg-slate-300'
-                    }`}
-                    aria-label={`Testimonial ${idx + 1}`}
-                  />
-                ))}
-              </div>
-
-              <div className="flex gap-2">
-                <button
-                  onClick={() =>
-                    setActiveTestimonial((prev) => (prev - 1 + testimonials.length) % testimonials.length)
-                  }
-                  className="p-2 rounded-lg bg-slate-100 text-slate-600 hover:text-purple-600 hover:bg-purple-50 border border-slate-200 transition-colors"
-                  aria-label="Previous Testimonial"
-                >
-                  <ChevronLeft className="w-4 h-4" />
-                </button>
-                <button
-                  onClick={() =>
-                    setActiveTestimonial((prev) => (prev + 1) % testimonials.length)
-                  }
-                  className="p-2 rounded-lg bg-slate-100 text-slate-600 hover:text-purple-600 hover:bg-purple-50 border border-slate-200 transition-colors"
-                  aria-label="Next Testimonial"
-                >
-                  <ChevronRight className="w-4 h-4" />
-                </button>
-              </div>
-            </div>
-          </div>
-
-        </div>
-      </section> */}
-
-      {/* ========================================================================= */}
-      {/* 8. PROMOTIONAL FREE COURSE / LEAD BANNER */}
+      {/* 7. PROMOTIONAL LEAD BANNER */}
       {/* ========================================================================= */}
       <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
         <div className="bg-gradient-to-r from-purple-800 via-purple-700 to-purple-900 text-white rounded-3xl p-8 sm:p-12 shadow-xl relative overflow-hidden grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
@@ -910,7 +876,7 @@ export const Home: React.FC = () => {
       </section>
 
       {/* ========================================================================= */}
-      {/* 9. LATEST MEDIA & INSIGHTS SPOTLIGHT */}
+      {/* 8. LATEST MEDIA & INSIGHTS SPOTLIGHT */}
       {/* ========================================================================= */}
       <section className="bg-slate-50 border-t border-slate-200 py-16">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -966,7 +932,7 @@ export const Home: React.FC = () => {
       </section>
 
       {/* ========================================================================= */}
-      {/* 10. FINAL CALL TO ACTION */}
+      {/* 9. FINAL CALL TO ACTION */}
       {/* ========================================================================= */}
       <section className="bg-gradient-to-b from-white via-purple-50/40 to-slate-50 text-slate-950 py-16 text-center border-t border-slate-200 relative">
         <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 space-y-5">
@@ -974,7 +940,7 @@ export const Home: React.FC = () => {
             Ready to Build Your Next Career Milestone?
           </h2>
           <p className="text-slate-600 text-xs sm:text-sm leading-relaxed max-w-xl mx-auto font-normal">
-            Join ambitious learners building verified technological competencies. Explore our available tracks or speak with an advisor today.
+            Join ambitious learners building verified technological competencies across Master Programs and Executive Tools tracks. Speak with an advisor today.
           </p>
           <div className="flex justify-center gap-3.5 pt-2">
             <Link

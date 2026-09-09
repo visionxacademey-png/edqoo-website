@@ -47,7 +47,7 @@ export const About: React.FC = () => {
           </div>
           <h2 className="text-xl font-display font-bold text-slate-950">Our Vision</h2>
           <p className="text-xs sm:text-sm text-slate-600 leading-relaxed">
-            To establish Edqoo as the most reliable, hands-on technology learning environment, helping learners globally transition directly into cybersecurity operations, data science roles, and system administration functions.
+            To establish Edqoo as the most reliable, hands-on technology learning environment, helping learners globally transition directly into Data Science, Artificial Intelligence, Python engineering, and modern analytics roles with NIT faculty mentorship.
           </p>
         </div>
       </section>
@@ -116,10 +116,10 @@ export const About: React.FC = () => {
             Join the Edqoo Learning Platform
           </h2>
           <p className="text-purple-100 text-xs sm:text-sm max-w-md mx-auto">
-            Choose between Cybersecurity or Data Science core programs and start building your future today.
+            Choose between Master Programs or Executive Tools and Upskills tracks and start building your future today.
           </p>
           <Link to="/courses" className="btn-primary bg-white text-purple-800 border-white hover:bg-purple-50 hover:text-purple-900 px-8 py-3 text-xs font-bold rounded-xl shadow-md inline-block">
-            View Core Programs
+            View All Programs
           </Link>
         </div>
       </section>

@@ -8,14 +8,14 @@ import {
   CheckCircle2,
   ChevronRight,
   ShieldCheck,
-  Award,
-  FileCheck,
   Sparkles,
   PhoneCall,
   MessageCircle,
   HelpCircle,
   Briefcase,
-  Loader2
+  Loader2,
+  GraduationCap,
+  BadgeCheck
 } from 'lucide-react';
 import { courses as defaultCourses } from '../../data/courses';
 import { courseService } from '../../services/courseService';
@@ -65,19 +65,21 @@ export const CourseDetails: React.FC = () => {
     );
   }
 
-  // Instructor profile
+  const isToolsAndUpskills = course.category === 'Tools And Upskills';
+
+  // Faculty profile
   const instructor = {
-    name: 'Dr. Evelyn Reed',
-    role: 'Lead Security Systems Architect & Faculty',
-    bio: 'Former Fortune 500 Infrastructure Lead with 14+ years of practical enterprise deployment and cybersecurity defense experience.',
-    image: 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?q=80&w=300&auto=format&fit=crop',
-    expertise: ['Threat Modeling', 'Zero-Trust Architecture', 'Cloud Governance', 'SOC Operations']
+    name: 'NIT Faculty & Industry Practitioners',
+    role: 'Senior Technology Mentors & Domain Leads',
+    bio: 'Distinguished faculty from National Institutes of Technology (NIT) paired with seasoned industry practitioners bringing 12+ years of production system engineering and AI architecture experience.',
+    image: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?q=80&w=300&auto=format&fit=crop',
+    expertise: ['Production Architecture', 'AI & Machine Learning', 'Data Engineering', 'Enterprise Analytics']
   };
 
   // Curriculum accordion data
   const curriculumItems = (course.modules || []).map((module) => ({
     id: `mod-${module.id}`,
-    title: `${module.title} (${module.lessons.length} Modules / Labs)`,
+    title: `${module.title} (${module.lessons.length} Sessions / Labs)`,
     content: (
       <div className="space-y-2 pt-1 pb-2">
         {module.lessons.map((lesson) => (
@@ -101,22 +103,22 @@ export const CourseDetails: React.FC = () => {
     {
       id: 'faq-1',
       title: 'How does the enquiry and admission process work?',
-      content: 'Once you submit an enquiry through our website, an EDQOO senior academic advisor contacts you to understand your career objectives, explain batch schedules and fee structures, and provide sample syllabus materials.'
+      content: 'Once you submit an enquiry through our website, an EDQOO senior academic advisor contacts you to discuss your career objectives, explain batch schedules and fee structures, and provide sample syllabus materials.'
     },
     {
       id: 'faq-2',
       title: 'Is this program suitable for complete beginners or career switchers?',
-      content: 'Yes. Both Cybersecurity and Data Science certificate programs begin with foundational fundamentals including command lines, scripting, and practical setups before advancing to complex labs.'
+      content: 'Yes. Our Master Programs and Executive Tools tracks begin with clear conceptual and practical foundations before progressing to advanced enterprise labs and capstone projects.'
     },
     {
       id: 'faq-3',
-      title: 'What mode of training is available?',
-      content: 'We offer live interactive online batches as well as self-paced schedules with 1-on-1 mentor guidance and live doubt clearing sessions.'
+      title: 'What certification and placement assistance are provided?',
+      content: 'Learners receive the prestigious theccpeeps Certification upon successful completion, and qualify for 3 Guaranteed Job Interviews upon movement to the Placement Pool.'
     },
     {
       id: 'faq-4',
-      title: 'Are corporate or group training discounts available?',
-      content: 'Yes. Custom batch timings and group training packages are available for engineering teams and university groups. Please mention your group size in the enquiry form.'
+      title: 'What is the schedule and learning mode?',
+      content: 'We offer live interactive online sessions, self-paced learning via our AI-powered LMS, and 24×7 dedicated mentor support.'
     }
   ].map((faq) => ({
     id: faq.id,
@@ -127,7 +129,7 @@ export const CourseDetails: React.FC = () => {
   return (
     <div className="bg-slate-50/70 min-h-screen text-left">
       <SEO 
-        title={`${course.title} - Course Details & Enquiry`}
+        title={`${course.title} - Program Details & Enquiry`}
         description={course.description}
         canonical={`/courses/${course.slug}`}
         ogImage={course.image}
@@ -144,6 +146,25 @@ export const CourseDetails: React.FC = () => {
             <span className="text-purple-700 font-bold">{course.category}</span>
           </div>
 
+          <div className="flex flex-wrap items-center gap-2 pt-1">
+            <span className={`px-2.5 py-1 text-xs font-bold rounded-lg border ${
+              isToolsAndUpskills
+                ? 'bg-emerald-50 text-emerald-800 border-emerald-300'
+                : 'bg-purple-50 text-purple-800 border-purple-300'
+            }`}>
+              {course.category}
+            </span>
+            {isToolsAndUpskills && (
+              <span className="px-2.5 py-1 text-xs font-extrabold rounded-lg bg-slate-900 text-white shadow-xs">
+                Duration: 24–36 Hours
+              </span>
+            )}
+            <span className="px-2.5 py-1 text-xs font-bold rounded-lg bg-white border border-slate-200 text-slate-700 flex items-center gap-1 shadow-2xs">
+              <BadgeCheck className="w-3.5 h-3.5 text-purple-600" />
+              theccpeeps Certified
+            </span>
+          </div>
+
           <h1 className="text-2xl sm:text-3xl lg:text-4xl font-display font-black text-slate-950 leading-tight max-w-3xl">
             {course.title}
           </h1>
@@ -156,9 +177,9 @@ export const CourseDetails: React.FC = () => {
           <div className="flex flex-wrap gap-x-6 gap-y-2 pt-2 text-xs font-semibold text-slate-600">
             <span className="flex items-center gap-1.5">
               <Star className="w-4 h-4 text-amber-500 fill-current" />
-              <span className="text-slate-950 font-bold">{course.rating}</span> ({course.students} Learners Enquired)
+              <span className="text-slate-950 font-bold">{course.rating}</span> ({course.students} Learners Enrolled)
             </span>
-            <span className="flex items-center gap-1.5">
+            <span className="flex items-center gap-1.5 font-bold text-slate-800">
               <Clock className="w-4 h-4 text-purple-600" />
               {course.duration}
             </span>
@@ -351,7 +372,7 @@ export const CourseDetails: React.FC = () => {
               </span>
             </div>
 
-            {/* Primary & Secondary Enquiry CTAs */}
+            {/* Primary CTA */}
             <div className="space-y-2.5">
               <button
                 onClick={() => openEnquiryModal(course.title)}
@@ -360,35 +381,28 @@ export const CourseDetails: React.FC = () => {
                 <PhoneCall className="w-4 h-4" />
                 <span>Enquire Now</span>
               </button>
-
-              {/* <button
-                onClick={() => openEnquiryModal(course.title)}
-                className="btn-secondary w-full py-2.5 text-xs font-bold rounded-xl flex items-center justify-center gap-2"
-              >
-                <span>Request Course Details</span>
-              </button> */}
             </div>
 
-            {/* What's Included Checklist */}
+            {/* Key Program Highlights Checklist */}
             <div className="pt-4 border-t border-slate-100 space-y-2.5 text-xs text-slate-600">
               <span className="font-bold text-slate-900 block text-[11px] uppercase tracking-wider">
-                Program Highlights:
+                Key Program Highlights:
               </span>
               <div className="flex items-center gap-2">
-                <BookOpen className="w-4 h-4 text-purple-600 flex-shrink-0" />
-                <span>{course.lessons} Comprehensive Hands-on Sessions</span>
+                <GraduationCap className="w-4 h-4 text-purple-600 flex-shrink-0" />
+                <span>Learn from NIT Faculty & Industry Practitioners</span>
               </div>
               <div className="flex items-center gap-2">
-                <FileCheck className="w-4 h-4 text-purple-600 flex-shrink-0" />
-                <span>Curated Lab Notebooks & Cheat Sheets</span>
+                <Sparkles className="w-4 h-4 text-purple-600 flex-shrink-0" />
+                <span>AI Powered LMS & 24×7 Support</span>
               </div>
               <div className="flex items-center gap-2">
-                <Award className="w-4 h-4 text-purple-600 flex-shrink-0" />
-                <span>Industry-Recognized Certification Guidance</span>
+                <BadgeCheck className="w-4 h-4 text-purple-600 flex-shrink-0" />
+                <span>theccpeeps Certification</span>
               </div>
               <div className="flex items-center gap-2">
                 <Briefcase className="w-4 h-4 text-purple-600 flex-shrink-0" />
-                <span>1:1 Career Counseling & Resume Review</span>
+                <span>3 Guaranteed Job Interviews upon Placement Pool</span>
               </div>
             </div>
 

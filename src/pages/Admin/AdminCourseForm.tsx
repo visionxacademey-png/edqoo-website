@@ -41,35 +41,35 @@ export const AdminCourseForm: React.FC = () => {
   const [title, setTitle] = useState('');
   const [slug, setSlug] = useState('');
   const [slugModifiedManually, setSlugModifiedManually] = useState(false);
-  const [category, setCategory] = useState('Cybersecurity');
+  const [category, setCategory] = useState('Master Programs');
   const [level, setLevel] = useState('Beginner to Advanced');
-  const [duration, setDuration] = useState('12 Weeks');
-  const [price, setPrice] = useState<number>(19999);
-  const [originalPrice, setOriginalPrice] = useState<number>(39999);
+  const [duration, setDuration] = useState('12 Months');
+  const [price, setPrice] = useState<number>(34999);
+  const [originalPrice, setOriginalPrice] = useState<number>(69999);
   const [status, setStatus] = useState<'available' | 'coming-soon'>('available');
   const [featured, setFeatured] = useState(false);
-  const [image, setImage] = useState('https://images.unsplash.com/photo-1550751827-4bd374c3f58b?q=80&w=800&auto=format&fit=crop');
+  const [image, setImage] = useState('https://images.unsplash.com/photo-1551288049-bebda4e38f71?q=80&w=800&auto=format&fit=crop');
   const [description, setDescription] = useState('');
   const [rating, setRating] = useState<number>(4.9);
   const [students, setStudents] = useState<number>(350);
 
   // Dynamic Lists
   const [skills, setSkills] = useState<string[]>([
-    'Network Security',
-    'Vulnerability Assessment',
-    'Penetration Testing'
+    'Python Programming',
+    'Machine Learning',
+    'Generative AI'
   ]);
   const [skillInput, setSkillInput] = useState('');
 
   const [whoIsItFor, setWhoIsItFor] = useState<string[]>([
-    'Students & fresh graduates aspiring for cybersecurity careers',
-    'IT support engineers transitioning to security engineering'
+    'Students & working professionals aspiring for Data Science & AI careers',
+    'Software engineers transitioning into AI and machine learning architecture'
   ]);
   const [whoInput, setWhoInput] = useState('');
 
   const [requirements, setRequirements] = useState<string[]>([
-    'Basic computer literacy and fundamentals of operating systems',
-    'A computer with at least 8GB RAM for lab virtualization'
+    'Basic mathematical familiarity and problem-solving ability',
+    'A computer with internet access capable of running modern development tools'
   ]);
   const [reqInput, setReqInput] = useState('');
 
@@ -385,7 +385,7 @@ export const AdminCourseForm: React.FC = () => {
               <input
                 type="text"
                 required
-                placeholder="e.g. Advanced Cybersecurity & Cloud SOC Engineering"
+                placeholder="e.g. Master Program in Data Science and AI"
                 value={title}
                 onChange={(e) => handleTitleChange(e.target.value)}
                 className="w-full px-3.5 py-2.5 bg-slate-950 border border-slate-800 rounded-xl text-xs text-white placeholder-slate-500 focus:outline-none focus:border-purple-500"
@@ -395,12 +395,12 @@ export const AdminCourseForm: React.FC = () => {
             {/* Slug */}
             <div>
               <label className="text-xs font-bold text-slate-300 block mb-1">
-                URL Slug <span className="text-slate-500 font-normal">(e.g. /courses/cybersecurity)</span>
+                URL Slug <span className="text-slate-500 font-normal">(e.g. /courses/master-program-data-science-ai)</span>
               </label>
               <input
                 type="text"
                 required
-                placeholder="cybersecurity-engineering"
+                placeholder="master-program-data-science-ai"
                 value={slug}
                 onChange={(e) => {
                   setSlug(e.target.value);
@@ -418,7 +418,7 @@ export const AdminCourseForm: React.FC = () => {
               <input
                 type="text"
                 required
-                placeholder="e.g. Cybersecurity, Full Stack, AI & Data"
+                placeholder="e.g. Master Programs, Tools And Upskills"
                 value={category}
                 onChange={(e) => setCategory(e.target.value)}
                 className="w-full px-3.5 py-2.5 bg-slate-950 border border-slate-800 rounded-xl text-xs text-white placeholder-slate-500 focus:outline-none focus:border-purple-500"
