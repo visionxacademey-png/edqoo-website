@@ -1,9 +1,17 @@
 import { Router } from 'express';
-import { query, isNeonConnected, mockStore } from '../db';
+import bcrypt from 'bcryptjs';
+import { query, isNeonConnected, mockStore, MockUser, MockSession } from '../db';
 import { authenticateToken, requireAdmin, AuthRequest } from '../middleware/auth';
 import type { Enquiry } from '../../src/types';
 
 const router = Router();
+
+// Helper to get client IP and device info
+function getClientMeta(req: any) {
+  const ip = (req.headers['x-forwarded-for'] || req.socket?.remoteAddress || req.ip || '127.0.0.1').toString();
+  const userAgent = (req.headers['user-agent'] || 'Unknown Browser / Device').toString();
+  return { ip, userAgent };
+}
 
 // POST /api/enquiries - Public / Authenticated submit enquiry
 router.post('/', async (req, res) => {
@@ -26,12 +34,17 @@ router.post('/', async (req, res) => {
       return res.status(400).json({ error: 'Name, email, phone, and program are required.' });
     }
 
+    const normalizedEmail = email.trim().toLowerCase();
     const id = `enq-${Date.now().toString(36)}-${Math.random().toString(36).substring(2, 6)}`;
+    const { ip, userAgent } = getClientMeta(req);
+    const sessionId = `sess-${Date.now().toString(36)}-${Math.random().toString(36).substring(2, 6)}`;
+    let assignedUserId = userId || `usr-${Date.now().toString(36)}-${Math.random().toString(36).substring(2, 6)}`;
+
     const newEnquiry: Enquiry = {
       id,
-      userId: userId || undefined,
+      userId: assignedUserId,
       name: name.trim(),
-      email: email.trim().toLowerCase(),
+      email: normalizedEmail,
       phone: phone.trim(),
       program,
       experienceLevel: experienceLevel || 'Beginner',
@@ -46,6 +59,32 @@ router.post('/', async (req, res) => {
     };
 
     if (isNeonConnected) {
+      // 1. Check if user already exists
+      const userRes = await query('SELECT id FROM users WHERE LOWER(email) = LOWER($1)', [normalizedEmail]);
+      if (userRes.rows.length === 0) {
+        // Insert candidate as user in users table
+        const defaultHash = await bcrypt.hash('Student@123456', 10);
+        const avatar = 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?q=80&w=150&auto=format&fit=crop';
+        await query(
+          `INSERT INTO users (id, name, email, password_hash, phone, avatar, role, is_active, created_at, last_login_at)
+           VALUES ($1, $2, $3, $4, $5, $6, $7, $8, NOW(), NOW())
+           ON CONFLICT (email) DO UPDATE SET phone = EXCLUDED.phone, last_login_at = NOW()`,
+          [assignedUserId, name.trim(), normalizedEmail, defaultHash, phone.trim(), avatar, 'user', true]
+        );
+      } else {
+        assignedUserId = userRes.rows[0].id;
+        newEnquiry.userId = assignedUserId;
+        await query('UPDATE users SET last_login_at = NOW(), phone = COALESCE(phone, $1) WHERE id = $2', [phone.trim(), assignedUserId]);
+      }
+
+      // 2. Insert Session in user_sessions
+      await query(
+        `INSERT INTO user_sessions (id, user_id, email, token_hash, ip_address, user_agent, is_active, created_at, last_active_at, expires_at)
+         VALUES ($1, $2, $3, $4, $5, $6, $7, NOW(), NOW(), NOW() + INTERVAL '7 days')`,
+        [sessionId, assignedUserId, normalizedEmail, sessionId, ip, userAgent, true]
+      );
+
+      // 3. Insert Enquiry
       await query(
         `INSERT INTO enquiries (
           id, user_id, name, email, phone, program, experience_level,
@@ -70,6 +109,43 @@ router.post('/', async (req, res) => {
         ]
       );
     } else {
+      // Mock Store
+      const existingUser = mockStore.users.find(u => u.email.toLowerCase() === normalizedEmail);
+      if (!existingUser) {
+        const defaultHash = await bcrypt.hash('Student@123456', 10);
+        const newUser: MockUser = {
+          id: assignedUserId,
+          name: name.trim(),
+          email: normalizedEmail,
+          password_hash: defaultHash,
+          phone: phone.trim(),
+          avatar: 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?q=80&w=150&auto=format&fit=crop',
+          role: 'user',
+          is_active: true,
+          created_at: new Date().toISOString(),
+          last_login_at: new Date().toISOString()
+        };
+        mockStore.users.push(newUser);
+      } else {
+        existingUser.last_login_at = new Date().toISOString();
+        if (phone) existingUser.phone = phone.trim();
+        assignedUserId = existingUser.id;
+        newEnquiry.userId = assignedUserId;
+      }
+
+      mockStore.sessions.unshift({
+        id: sessionId,
+        user_id: assignedUserId,
+        email: normalizedEmail,
+        token_hash: sessionId,
+        ip_address: ip,
+        user_agent: userAgent,
+        is_active: true,
+        created_at: new Date().toISOString(),
+        last_active_at: new Date().toISOString(),
+        expires_at: new Date(Date.now() + 86400000 * 7).toISOString()
+      });
+
       mockStore.enquiries.unshift(newEnquiry);
     }
 

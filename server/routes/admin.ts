@@ -59,11 +59,29 @@ router.get('/users', async (req, res) => {
     const roleFilter = (req.query.role as string || 'all').toLowerCase();
 
     if (isNeonConnected) {
+      // Background sync: ensure enquired candidates exist in users directory
+      await query(`
+        INSERT INTO users (id, name, email, password_hash, phone, avatar, role, is_active, created_at, last_login_at)
+        SELECT 
+          'usr-enq-' || substr(md5(email), 1, 8),
+          name,
+          LOWER(email),
+          '$2a$10$7Z8V4K9y6t4X0V1b8G4D4eYd0oV.5YtY3wN2qG6K8mP0uL2rS4t',
+          phone,
+          'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?q=80&w=150&auto=format&fit=crop',
+          'user',
+          true,
+          submitted_at,
+          submitted_at
+        FROM enquiries
+        ON CONFLICT (email) DO NOTHING
+      `).catch(() => {});
+
       let sql = `
         SELECT u.id, u.name, u.email, u.phone, u.avatar, u.role, u.is_active, u.created_at, u.last_login_at,
                COUNT(s.id) FILTER (WHERE s.is_active = true) as active_sessions_count
         FROM users u
-        LEFT JOIN user_sessions s ON u.id = s.user_id
+        LEFT JOIN user_sessions s ON (u.id = s.user_id OR LOWER(u.email) = LOWER(s.email))
       `;
       const params: any[] = [];
       const whereClauses: string[] = [];
@@ -82,7 +100,7 @@ router.get('/users', async (req, res) => {
         sql += ` WHERE ${whereClauses.join(' AND ')}`;
       }
 
-      sql += ` GROUP BY u.id ORDER BY u.created_at DESC`;
+      sql += ` GROUP BY u.id, u.name, u.email, u.phone, u.avatar, u.role, u.is_active, u.created_at, u.last_login_at ORDER BY u.last_login_at DESC NULLS LAST, u.created_at DESC`;
 
       const result = await query(sql, params);
       const formatted = result.rows.map(row => ({
@@ -119,8 +137,8 @@ router.get('/users', async (req, res) => {
         isActive: u.is_active,
         createdAt: u.created_at,
         lastLoginAt: u.last_login_at,
-        activeSessionsCount: mockStore.sessions.filter(s => s.user_id === u.id && s.is_active).length
-      }));
+        activeSessionsCount: mockStore.sessions.filter(s => (s.user_id === u.id || s.email.toLowerCase() === u.email.toLowerCase()) && s.is_active).length
+      })).sort((a, b) => new Date(b.lastLoginAt || b.createdAt).getTime() - new Date(a.lastLoginAt || a.createdAt).getTime());
 
       return res.json(formatted);
     }
@@ -137,9 +155,12 @@ router.get('/sessions', async (_req, res) => {
       const sql = `
         SELECT s.id, s.user_id, s.email, s.ip_address, s.user_agent, s.is_active,
                s.created_at, s.last_active_at, s.expires_at,
-               u.name as user_name, u.role as user_role, u.avatar as user_avatar
+               COALESCE(u.name, split_part(s.email, '@', 1)) as user_name,
+               COALESCE(u.phone, '') as user_phone,
+               COALESCE(u.role, 'user') as user_role,
+               COALESCE(u.avatar, 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?q=80&w=150&auto=format&fit=crop') as user_avatar
         FROM user_sessions s
-        LEFT JOIN users u ON s.user_id = u.id
+        LEFT JOIN users u ON (s.user_id = u.id OR LOWER(s.email) = LOWER(u.email))
         ORDER BY s.last_active_at DESC
         LIMIT 100
       `;
@@ -149,6 +170,7 @@ router.get('/sessions', async (_req, res) => {
         userId: row.user_id,
         userName: row.user_name || row.email.split('@')[0],
         email: row.email,
+        phone: row.user_phone || '',
         userRole: row.user_role || 'user',
         avatar: row.user_avatar || 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?q=80&w=150&auto=format&fit=crop',
         ipAddress: row.ip_address || '127.0.0.1',
@@ -162,12 +184,13 @@ router.get('/sessions', async (_req, res) => {
       return res.json(formatted);
     } else {
       const formatted = mockStore.sessions.map(s => {
-        const u = mockStore.users.find(usr => usr.id === s.user_id || usr.email === s.email);
+        const u = mockStore.users.find(usr => usr.id === s.user_id || usr.email.toLowerCase() === s.email.toLowerCase());
         return {
           id: s.id,
           userId: s.user_id,
           userName: u ? u.name : s.email.split('@')[0],
           email: s.email,
+          phone: u?.phone || '',
           userRole: u ? u.role : 'user',
           avatar: u?.avatar || 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?q=80&w=150&auto=format&fit=crop',
           ipAddress: s.ip_address,

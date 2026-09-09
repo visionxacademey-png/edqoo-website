@@ -11,7 +11,9 @@ import {
   ArrowRight,
   RefreshCw,
   CheckCircle2,
-  AlertTriangle
+  AlertTriangle,
+  Phone,
+  MessageCircle
 } from 'lucide-react';
 import { adminService } from '../../services/adminService';
 import { courseService } from '../../services/courseService';
@@ -276,38 +278,73 @@ export const AdminOverview: React.FC = () => {
               <p className="text-xs text-slate-500 py-6 text-center">No active sessions recorded yet.</p>
             ) : (
               <div className="space-y-2.5">
-                {recentSessions.map((session) => (
-                  <div
-                    key={session.id}
-                    className="p-3 rounded-xl bg-slate-950/60 border border-slate-800/70 flex items-center justify-between gap-3"
-                  >
-                    <div className="flex items-center gap-3 overflow-hidden">
-                      <img
-                        src={session.avatar || 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?q=80&w=80&auto=format&fit=crop'}
-                        alt={session.userName}
-                        className="w-8 h-8 rounded-full object-cover border border-slate-700"
-                      />
-                      <div className="overflow-hidden">
-                        <div className="flex items-center gap-1.5">
-                          <span className="text-xs font-bold text-white truncate">{session.userName}</span>
-                          <span className={`text-[9px] px-1.5 py-0.2 rounded font-extrabold uppercase ${session.userRole === 'admin' ? 'bg-purple-900/70 text-purple-300' : 'bg-slate-800 text-slate-400'}`}>
-                            {session.userRole}
+                {recentSessions.map((session) => {
+                  const cleanPhone = (session.phone || '').replace(/[^0-9]/g, '');
+                  return (
+                    <div
+                      key={session.id}
+                      className="p-3 rounded-xl bg-slate-950/60 hover:bg-slate-950 border border-slate-800/70 hover:border-purple-600/50 flex items-center justify-between gap-3 transition-all group"
+                    >
+                      <Link to="/admin/users" className="flex items-center gap-3 overflow-hidden flex-1">
+                        <img
+                          src={session.avatar || 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?q=80&w=80&auto=format&fit=crop'}
+                          alt={session.userName}
+                          className="w-8 h-8 rounded-full object-cover border border-slate-700 group-hover:border-purple-500 transition-colors"
+                        />
+                        <div className="overflow-hidden">
+                          <div className="flex items-center gap-1.5">
+                            <span className="text-xs font-bold text-white group-hover:text-purple-300 transition-colors truncate">{session.userName}</span>
+                            <span className={`text-[9px] px-1.5 py-0.2 rounded font-extrabold uppercase ${session.userRole === 'admin' ? 'bg-purple-900/70 text-purple-300' : 'bg-emerald-950 text-emerald-300 border border-emerald-800/50'}`}>
+                              {session.userRole}
+                            </span>
+                          </div>
+                          <div className="flex items-center gap-2 mt-0.5">
+                            <span className="text-[10px] text-slate-400 font-mono truncate">{session.email}</span>
+                            {session.phone && (
+                              <span className="text-[10px] text-purple-300 font-mono font-bold hidden sm:inline-block">
+                                • {session.phone}
+                              </span>
+                            )}
+                          </div>
+                        </div>
+                      </Link>
+
+                      <div className="flex items-center gap-2 flex-shrink-0">
+                        {session.phone && (
+                          <div className="flex items-center gap-1">
+                            <a
+                              href={`tel:${session.phone}`}
+                              className="p-1 rounded-md bg-emerald-950 hover:bg-emerald-900 text-emerald-400 border border-emerald-800/60 transition-colors"
+                              title={`Call ${session.userName}`}
+                            >
+                              <Phone className="w-3 h-3" />
+                            </a>
+                            {cleanPhone && (
+                              <a
+                                href={`https://wa.me/${cleanPhone}`}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="p-1 rounded-md bg-emerald-950 hover:bg-emerald-900 text-emerald-400 border border-emerald-800/60 transition-colors"
+                                title={`WhatsApp ${session.userName}`}
+                              >
+                                <MessageCircle className="w-3 h-3" />
+                              </a>
+                            )}
+                          </div>
+                        )}
+
+                        <div className="text-right">
+                          <span className={`inline-block px-1.5 py-0.5 text-[9px] font-bold rounded ${session.isActive ? 'bg-emerald-950 text-emerald-400 border border-emerald-800/60' : 'bg-slate-800 text-slate-500'}`}>
+                            {session.isActive ? 'Active' : 'Closed'}
+                          </span>
+                          <span className="text-[9px] text-slate-500 block mt-0.5">
+                            {new Date(session.lastActiveAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                           </span>
                         </div>
-                        <span className="text-[10px] text-slate-400 truncate block">{session.email}</span>
                       </div>
                     </div>
-
-                    <div className="text-right flex-shrink-0">
-                      <span className={`inline-block px-1.5 py-0.5 text-[9px] font-bold rounded ${session.isActive ? 'bg-emerald-950 text-emerald-400 border border-emerald-800/60' : 'bg-slate-800 text-slate-500'}`}>
-                        {session.isActive ? 'Active' : 'Closed'}
-                      </span>
-                      <span className="text-[9px] text-slate-500 block mt-0.5">
-                        {new Date(session.lastActiveAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
-                      </span>
-                    </div>
-                  </div>
-                ))}
+                  );
+                })}
               </div>
             )}
           </div>

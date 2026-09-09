@@ -35,6 +35,7 @@ const FALLBACK_SESSIONS: UserSession[] = [
     userId: 'usr-admin-01',
     userName: 'System Administrator',
     email: 'admin@edqoo.com',
+    phone: '+91 90744 50935',
     userRole: 'admin',
     avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?q=80&w=150&auto=format&fit=crop',
     ipAddress: '127.0.0.1 (Web Browser)',
@@ -81,34 +82,85 @@ export const adminService = {
 
   // Get all registered users directory
   getUsers: async (search?: string, role?: string): Promise<AdminUser[]> => {
+    let resultUsers: AdminUser[] = [];
     try {
       const params = new URLSearchParams();
       if (search) params.append('search', search);
       if (role && role !== 'all') params.append('role', role);
       
       const res = await api.get(`/admin/users?${params.toString()}`);
-      return res.data;
+      if (Array.isArray(res.data) && res.data.length > 0) {
+        resultUsers = res.data;
+      }
     } catch {
-      let filtered = [...FALLBACK_USERS];
-      if (role && role !== 'all') {
-        filtered = filtered.filter(u => u.role === role);
-      }
-      if (search) {
-        const term = search.toLowerCase();
-        filtered = filtered.filter(u => u.name.toLowerCase().includes(term) || u.email.toLowerCase().includes(term));
-      }
-      return filtered;
+      // Ignore backend error, will fallback
     }
+
+    // Merge with client registered users in localStorage
+    try {
+      const stored = localStorage.getItem('edqoo_registered_users');
+      const localUsers: AdminUser[] = stored ? JSON.parse(stored) : FALLBACK_USERS;
+      const map = new Map<string, AdminUser>();
+      [...FALLBACK_USERS, ...localUsers, ...resultUsers].forEach(u => {
+        if (u?.email) {
+          map.set(u.email.toLowerCase(), { ...map.get(u.email.toLowerCase()), ...u });
+        }
+      });
+      resultUsers = Array.from(map.values());
+    } catch {
+      if (resultUsers.length === 0) resultUsers = FALLBACK_USERS;
+    }
+
+    if (role && role !== 'all') {
+      resultUsers = resultUsers.filter(u => u.role === role);
+    }
+    if (search) {
+      const term = search.toLowerCase();
+      resultUsers = resultUsers.filter(u => 
+        (u.name && u.name.toLowerCase().includes(term)) || 
+        (u.email && u.email.toLowerCase().includes(term)) ||
+        (u.phone && u.phone.includes(term))
+      );
+    }
+    return resultUsers;
   },
 
   // Get all active / logged in user sessions
   getActiveSessions: async (): Promise<UserSession[]> => {
+    let resultSessions: UserSession[] = [];
     try {
       const res = await api.get('/admin/sessions');
-      return res.data;
+      if (Array.isArray(res.data) && res.data.length > 0) {
+        resultSessions = res.data;
+      }
     } catch {
-      return FALLBACK_SESSIONS;
+      // Ignore backend error, fallback
     }
+
+    try {
+      const stored = localStorage.getItem('edqoo_active_sessions');
+      const localSessions: UserSession[] = stored ? JSON.parse(stored) : FALLBACK_SESSIONS;
+      const storedUsersRaw = localStorage.getItem('edqoo_registered_users');
+      const storedUsers: AdminUser[] = storedUsersRaw ? JSON.parse(storedUsersRaw) : FALLBACK_USERS;
+      const userPhoneMap = new Map<string, string>();
+      [...FALLBACK_USERS, ...storedUsers].forEach(u => {
+        if (u?.email && u?.phone) userPhoneMap.set(u.email.toLowerCase(), u.phone);
+      });
+
+      const map = new Map<string, UserSession>();
+      [...FALLBACK_SESSIONS, ...localSessions, ...resultSessions].forEach(s => {
+        if (s?.id || s?.email) {
+          const key = s.id || s.email;
+          const userPhone = s.phone || userPhoneMap.get(s.email?.toLowerCase()) || '';
+          map.set(key, { ...map.get(key), ...s, phone: s.phone || userPhone || map.get(key)?.phone });
+        }
+      });
+      resultSessions = Array.from(map.values());
+    } catch {
+      if (resultSessions.length === 0) resultSessions = FALLBACK_SESSIONS;
+    }
+
+    return resultSessions;
   },
 
   // Update a user's role (admin vs user)

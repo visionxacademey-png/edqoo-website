@@ -21,11 +21,60 @@ const DEFAULT_STUDENT: User = {
   createdAt: new Date().toISOString()
 };
 
+// Helper to record user logins and registrations in client storage
+function recordUserActivity(user: User) {
+  try {
+    // 1. Update registered users directory
+    const storedUsers = localStorage.getItem('edqoo_registered_users');
+    let usersList: any[] = storedUsers ? JSON.parse(storedUsers) : [DEFAULT_ADMIN, DEFAULT_STUDENT];
+    const existingIndex = usersList.findIndex((u: any) => u.email.toLowerCase() === user.email.toLowerCase());
+    const userRecord = {
+      ...user,
+      lastLoginAt: new Date().toISOString(),
+      isActive: true,
+      activeSessionsCount: 1
+    };
+    if (existingIndex >= 0) {
+      usersList[existingIndex] = { ...usersList[existingIndex], ...userRecord };
+    } else {
+      usersList.unshift(userRecord);
+    }
+    localStorage.setItem('edqoo_registered_users', JSON.stringify(usersList));
+
+    // 2. Record active session
+    const storedSessions = localStorage.getItem('edqoo_active_sessions');
+    let sessionsList: any[] = storedSessions ? JSON.parse(storedSessions) : [];
+    const newSession = {
+      id: `sess-${Date.now().toString(36)}-${Math.random().toString(36).substring(2, 6)}`,
+      userId: user.id,
+      userName: user.name,
+      email: user.email,
+      phone: user.phone || '',
+      userRole: user.role,
+      avatar: user.avatar || 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?q=80&w=150&auto=format&fit=crop',
+      ipAddress: '127.0.0.1 (Web Client)',
+      userAgent: navigator.userAgent || 'Modern Web Browser',
+      isActive: true,
+      createdAt: new Date().toISOString(),
+      lastActiveAt: new Date().toISOString(),
+      expiresAt: new Date(Date.now() + 86400000 * 7).toISOString()
+    };
+    // Keep most recent active sessions at top
+    sessionsList = [newSession, ...sessionsList.filter((s: any) => s.email !== user.email)].slice(0, 50);
+    localStorage.setItem('edqoo_active_sessions', JSON.stringify(sessionsList));
+  } catch (err) {
+    console.warn('Failed to record local user activity:', err);
+  }
+}
+
 export const authService = {
   login: async (email: string, password: string): Promise<{ success: boolean; token: string; user: User }> => {
     const normalizedEmail = email.toLowerCase().trim();
     try {
       const response = await api.post('/auth/login', { email: normalizedEmail, password });
+      if (response.data?.user) {
+        recordUserActivity(response.data.user);
+      }
       return response.data;
     } catch (error: any) {
       console.warn('Backend login endpoint response/error:', error?.message);
@@ -33,6 +82,7 @@ export const authService = {
       // Resilient fallback for default admin and student accounts if serverless API is cold-booting or offline
       if (normalizedEmail === 'admin@edqoo.com' && password === 'Admin@123456') {
         const clientToken = 'edqoo_jwt_admin_session_' + Date.now().toString(36);
+        recordUserActivity(DEFAULT_ADMIN);
         return {
           success: true,
           token: clientToken,
@@ -42,11 +92,28 @@ export const authService = {
       
       if (normalizedEmail === 'alex.student@edqoo.com' && password === 'Student@123456') {
         const clientToken = 'edqoo_jwt_student_session_' + Date.now().toString(36);
+        recordUserActivity(DEFAULT_STUDENT);
         return {
           success: true,
           token: clientToken,
           user: DEFAULT_STUDENT
         };
+      }
+
+      // Check if user previously registered locally
+      const storedUsers = localStorage.getItem('edqoo_registered_users');
+      if (storedUsers) {
+        const usersList: any[] = JSON.parse(storedUsers);
+        const match = usersList.find((u: any) => u.email.toLowerCase() === normalizedEmail);
+        if (match) {
+          const clientToken = 'edqoo_jwt_session_' + Date.now().toString(36);
+          recordUserActivity(match);
+          return {
+            success: true,
+            token: clientToken,
+            user: match
+          };
+        }
       }
 
       // Re-throw server error message if present
@@ -59,6 +126,9 @@ export const authService = {
     const normalizedEmail = email.toLowerCase().trim();
     try {
       const response = await api.post('/auth/register', { name, email: normalizedEmail, phone, password });
+      if (response.data?.user) {
+        recordUserActivity(response.data.user);
+      }
       return response.data;
     } catch (error: any) {
       console.warn('Backend register endpoint error:', error?.message);
@@ -72,6 +142,7 @@ export const authService = {
         role: isRegisteredAdmin ? 'admin' : 'user',
         createdAt: new Date().toISOString()
       };
+      recordUserActivity(newUser);
       const clientToken = 'edqoo_jwt_session_' + Date.now().toString(36);
       return {
         success: true,

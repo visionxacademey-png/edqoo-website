@@ -211,7 +211,7 @@ export async function initDb() {
 
     console.log('✅ [DB] NeonDB tables verified / created successfully.');
 
-    // Check if admin user exists in NeonDB, if not seed it
+    // Check and seed default accounts in NeonDB
     const adminCheck = await pool.query('SELECT id FROM users WHERE email = $1', ['admin@edqoo.com']);
     if (adminCheck.rows.length === 0) {
       await pool.query(
@@ -230,6 +230,82 @@ export async function initDb() {
       );
       console.log('👑 [DB] Seeded default administrator account: admin@edqoo.com / Admin@123456');
     }
+
+    // Seed student users in NeonDB
+    const studentCheck = await pool.query('SELECT id FROM users WHERE email = $1', ['alex.student@edqoo.com']);
+    if (studentCheck.rows.length === 0) {
+      await pool.query(
+        `INSERT INTO users (id, name, email, password_hash, phone, avatar, role, is_active, created_at, last_login_at)
+         VALUES 
+          ($1, $2, $3, $4, $5, $6, $7, $8, NOW() - INTERVAL '3 days', NOW() - INTERVAL '20 minutes'),
+          ($9, $10, $11, $12, $13, $14, $15, $16, NOW() - INTERVAL '5 days', NOW() - INTERVAL '2 hours')`,
+        [
+          'usr-student-01',
+          'Alex Morgan',
+          'alex.student@edqoo.com',
+          studentPasswordHash,
+          '+91 98765 43210',
+          'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?q=80&w=150&auto=format&fit=crop',
+          'user',
+          true,
+          'usr-student-02',
+          'Sarah Jenkins',
+          'sarah.j@example.com',
+          studentPasswordHash,
+          '+91 90744 50935',
+          'https://images.unsplash.com/photo-1494790108377-be9c29b29330?q=80&w=150&auto=format&fit=crop',
+          'user',
+          true
+        ]
+      );
+      console.log('🎓 [DB] Seeded demo student accounts into NeonDB');
+    }
+
+    // Seed initial active sessions in user_sessions if empty
+    const sessionCount = await pool.query('SELECT COUNT(*) FROM user_sessions WHERE is_active = true');
+    if (parseInt(sessionCount.rows[0].count, 10) === 0) {
+      await pool.query(
+        `INSERT INTO user_sessions (id, user_id, email, token_hash, ip_address, user_agent, is_active, created_at, last_active_at, expires_at)
+         VALUES 
+          ($1, $2, $3, $4, $5, $6, $7, NOW() - INTERVAL '1 hour', NOW() - INTERVAL '5 minutes', NOW() + INTERVAL '7 days'),
+          ($8, $9, $10, $11, $12, $13, $14, NOW() - INTERVAL '3 hours', NOW() - INTERVAL '20 minutes', NOW() + INTERVAL '7 days')`,
+        [
+          'sess-admin-live-01',
+          'usr-admin-01',
+          'admin@edqoo.com',
+          'sess-admin-token-hash',
+          '127.0.0.1 (Admin Console)',
+          'Mozilla/5.0 (Windows NT 10.0; Win64; x64) Chrome/122.0.0.0 Safari/537.36',
+          true,
+          'sess-student-live-02',
+          'usr-student-01',
+          'alex.student@edqoo.com',
+          'sess-student-token-hash',
+          '103.212.144.52 (Web Client)',
+          'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) Safari/605.1.15',
+          true
+        ]
+      );
+      console.log('⚡ [DB] Seeded initial active telemetry sessions into NeonDB');
+    }
+
+    // Sync any enquired candidates into users table
+    await pool.query(`
+      INSERT INTO users (id, name, email, password_hash, phone, avatar, role, is_active, created_at, last_login_at)
+      SELECT 
+        'usr-enq-' || substr(md5(email), 1, 8),
+        name,
+        LOWER(email),
+        $1,
+        phone,
+        'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?q=80&w=150&auto=format&fit=crop',
+        'user',
+        true,
+        submitted_at,
+        submitted_at
+      FROM enquiries
+      ON CONFLICT (email) DO NOTHING;
+    `, [studentPasswordHash]).catch((e) => console.warn('Enquiry user sync note:', e.message));
 
     // Check if courses exist in NeonDB, if not seed initial courses
     const courseCount = await pool.query('SELECT COUNT(*) FROM courses');

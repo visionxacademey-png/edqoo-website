@@ -9,7 +9,14 @@ import {
   Globe,
   AlertCircle,
   Filter,
-  LogOut
+  LogOut,
+  Shield,
+  Eye,
+  UserCheck,
+  Radio,
+  Phone,
+  MessageCircle,
+  Mail
 } from 'lucide-react';
 import { adminService } from '../../services/adminService';
 import type { AdminUser, UserSession } from '../../types';
@@ -21,6 +28,9 @@ export const AdminUsers: React.FC = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [roleFilter, setRoleFilter] = useState('all');
   const [loading, setLoading] = useState(true);
+  const [autoRefresh, setAutoRefresh] = useState(true);
+  const [inspectingSession, setInspectingSession] = useState<UserSession | null>(null);
+  const [inspectingUser, setInspectingUser] = useState<AdminUser | null>(null);
   const [actionMessage, setActionMessage] = useState<{ text: string; type: 'success' | 'error' } | null>(null);
 
   const showToast = (text: string, type: 'success' | 'error' = 'success') => {
@@ -28,8 +38,8 @@ export const AdminUsers: React.FC = () => {
     setTimeout(() => setActionMessage(null), 3500);
   };
 
-  const loadData = async () => {
-    setLoading(true);
+  const loadData = async (silent = false) => {
+    if (!silent) setLoading(true);
     try {
       const [sessionsData, usersData] = await Promise.all([
         adminService.getActiveSessions(),
@@ -39,15 +49,26 @@ export const AdminUsers: React.FC = () => {
       setUsers(usersData);
     } catch (err: any) {
       console.error('Error fetching admin users data:', err);
-      showToast(err.message || 'Failed to fetch user directory.', 'error');
+      if (!silent) {
+        showToast(err.message || 'Failed to fetch user directory.', 'error');
+      }
     } finally {
-      setLoading(false);
+      if (!silent) setLoading(false);
     }
   };
 
   useEffect(() => {
     loadData();
   }, [roleFilter]);
+
+  // Auto-refresh every 15 seconds when autoRefresh is enabled
+  useEffect(() => {
+    if (!autoRefresh) return;
+    const interval = setInterval(() => {
+      loadData(true);
+    }, 15000);
+    return () => clearInterval(interval);
+  }, [autoRefresh, roleFilter, searchTerm]);
 
   const handleSearchSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -62,6 +83,9 @@ export const AdminUsers: React.FC = () => {
       if (res.success) {
         showToast(`Session for ${userEmail} revoked successfully.`);
         setSessions((prev) => prev.filter((s) => s.id !== sessionId));
+        if (inspectingSession?.id === sessionId) {
+          setInspectingSession(null);
+        }
       }
     } catch (err: any) {
       showToast(err.message || 'Failed to revoke session.', 'error');
@@ -79,6 +103,9 @@ export const AdminUsers: React.FC = () => {
         setUsers((prev) =>
           prev.map((u) => (u.id === userId ? { ...u, role: newRole } : u))
         );
+        if (inspectingUser?.id === userId) {
+          setInspectingUser((prev) => prev ? { ...prev, role: newRole } : null);
+        }
       }
     } catch (err: any) {
       showToast(err.message || 'Failed to update role.', 'error');
@@ -97,7 +124,9 @@ export const AdminUsers: React.FC = () => {
         setUsers((prev) =>
           prev.map((u) => (u.id === userId ? { ...u, isActive: newStatus } : u))
         );
-        // If suspended, reload sessions to reflect revocations
+        if (inspectingUser?.id === userId) {
+          setInspectingUser((prev) => prev ? { ...prev, isActive: newStatus } : null);
+        }
         if (!newStatus) {
           adminService.getActiveSessions().then(setSessions);
         }
@@ -113,6 +142,7 @@ export const AdminUsers: React.FC = () => {
     return (
       s.userName.toLowerCase().includes(term) ||
       s.email.toLowerCase().includes(term) ||
+      (s.phone && s.phone.includes(term)) ||
       s.ipAddress.includes(term)
     );
   });
@@ -127,6 +157,10 @@ export const AdminUsers: React.FC = () => {
     const matchesRole = roleFilter === 'all' || u.role === roleFilter;
     return matchesSearch && matchesRole;
   });
+
+  const activeSessionsCount = sessions.filter((s) => s.isActive).length;
+  const adminSessionsCount = sessions.filter((s) => s.isActive && s.userRole === 'admin').length;
+  const studentSessionsCount = sessions.filter((s) => s.isActive && s.userRole !== 'admin').length;
 
   return (
     <div className="space-y-6 max-w-7xl mx-auto text-left">
@@ -156,27 +190,130 @@ export const AdminUsers: React.FC = () => {
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-2 border-b border-slate-800">
         <div>
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-2.5">
             <h2 className="text-2xl font-black text-white font-display tracking-tight">
-              User & Session Intelligence
+              Logged-in Users & Session Telemetry
             </h2>
-            <span className="px-2 py-0.5 text-[10px] font-extrabold uppercase tracking-wider rounded-md bg-purple-900/60 text-purple-300 border border-purple-700/50">
-              {sessions.filter((s) => s.isActive).length} Online
+            <span className="px-2.5 py-0.5 text-[10px] font-extrabold uppercase tracking-wider rounded-md bg-emerald-950 text-emerald-400 border border-emerald-800 flex items-center gap-1.5">
+              <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
+              {activeSessionsCount} Live Now
             </span>
           </div>
           <p className="text-xs text-slate-400 mt-1">
-            Monitor real-time logged-in student and staff sessions, inspect client IPs, and manage roles.
+            Real-time tracking of authenticated students, staff, active sessions, client IP addresses, and device signatures.
           </p>
         </div>
 
-        <button
-          onClick={loadData}
-          disabled={loading}
-          className="px-3.5 py-2 rounded-xl bg-slate-900 hover:bg-slate-800 border border-slate-700 text-xs font-bold text-slate-300 flex items-center gap-2 transition-colors disabled:opacity-50 self-start sm:self-auto"
-        >
-          <RefreshCw className={`w-3.5 h-3.5 ${loading ? 'animate-spin' : ''}`} />
-          <span>Sync Sessions</span>
-        </button>
+        <div className="flex items-center gap-2.5 self-start sm:self-auto">
+          {/* Auto Refresh Toggle */}
+          <button
+            type="button"
+            onClick={() => setAutoRefresh(!autoRefresh)}
+            className={`px-3 py-1.5 rounded-xl border text-xs font-bold flex items-center gap-1.5 transition-all ${
+              autoRefresh
+                ? 'bg-purple-950/70 text-purple-300 border-purple-700/80 shadow-xs'
+                : 'bg-slate-900 text-slate-500 border-slate-800'
+            }`}
+            title="Toggle 15s auto-polling"
+          >
+            <Radio className={`w-3.5 h-3.5 ${autoRefresh ? 'text-purple-400 animate-pulse' : 'text-slate-600'}`} />
+            <span>{autoRefresh ? 'Live Polling: ON' : 'Live Polling: OFF'}</span>
+          </button>
+
+          {/* Manual Sync Button */}
+          <button
+            onClick={() => loadData(false)}
+            disabled={loading}
+            className="px-3.5 py-1.5 rounded-xl bg-slate-900 hover:bg-slate-800 border border-slate-700 text-xs font-bold text-slate-300 flex items-center gap-2 transition-colors disabled:opacity-50"
+          >
+            <RefreshCw className={`w-3.5 h-3.5 ${loading ? 'animate-spin' : ''}`} />
+            <span>Sync</span>
+          </button>
+        </div>
+      </div>
+
+      {/* Top Telemetry Metric Cards */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        {/* Total Active Sessions */}
+        <div className="p-4 rounded-2xl bg-gradient-to-br from-purple-950/40 via-slate-900 to-slate-900 border border-purple-800/40">
+          <div className="flex items-center justify-between">
+            <span className="text-xs font-bold uppercase tracking-wider text-purple-300">
+              Active Sessions
+            </span>
+            <div className="w-7 h-7 rounded-lg bg-purple-600/30 flex items-center justify-center text-purple-400 border border-purple-500/30">
+              <Activity className="w-3.5 h-3.5 animate-pulse" />
+            </div>
+          </div>
+          <div className="mt-2 flex items-baseline gap-2">
+            <span className="text-2xl font-black text-white font-display">
+              {activeSessionsCount}
+            </span>
+            <span className="text-[11px] text-emerald-400 font-bold flex items-center gap-1">
+              <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-ping" />
+              Connected
+            </span>
+          </div>
+        </div>
+
+        {/* Total Registered Accounts */}
+        <div className="p-4 rounded-2xl bg-slate-900/90 border border-slate-800">
+          <div className="flex items-center justify-between">
+            <span className="text-xs font-bold uppercase tracking-wider text-slate-400">
+              Registered Accounts
+            </span>
+            <div className="w-7 h-7 rounded-lg bg-slate-800 flex items-center justify-center text-slate-300">
+              <Users className="w-3.5 h-3.5" />
+            </div>
+          </div>
+          <div className="mt-2 flex items-baseline gap-2">
+            <span className="text-2xl font-black text-white font-display">
+              {users.length}
+            </span>
+            <span className="text-[11px] text-slate-400">
+              Directory Total
+            </span>
+          </div>
+        </div>
+
+        {/* Online Administrators */}
+        <div className="p-4 rounded-2xl bg-slate-900/90 border border-slate-800">
+          <div className="flex items-center justify-between">
+            <span className="text-xs font-bold uppercase tracking-wider text-slate-400">
+              Admins Logged In
+            </span>
+            <div className="w-7 h-7 rounded-lg bg-purple-900/40 flex items-center justify-center text-purple-300">
+              <Shield className="w-3.5 h-3.5" />
+            </div>
+          </div>
+          <div className="mt-2 flex items-baseline gap-2">
+            <span className="text-2xl font-black text-white font-display">
+              {adminSessionsCount}
+            </span>
+            <span className="text-[11px] text-purple-300">
+              Staff Sessions
+            </span>
+          </div>
+        </div>
+
+        {/* Online Students */}
+        <div className="p-4 rounded-2xl bg-slate-900/90 border border-slate-800">
+          <div className="flex items-center justify-between">
+            <span className="text-xs font-bold uppercase tracking-wider text-slate-400">
+              Students Logged In
+            </span>
+            <div className="w-7 h-7 rounded-lg bg-emerald-900/40 flex items-center justify-center text-emerald-300">
+              <UserCheck className="w-3.5 h-3.5" />
+            </div>
+          </div>
+          <div className="mt-2 flex items-baseline gap-2">
+            <span className="text-2xl font-black text-white font-display">
+              {studentSessionsCount}
+            </span>
+            <span className="text-[11px] text-emerald-400">
+              Student Sessions
+            </span>
+          </div>
+        </div>
       </div>
 
       {/* Tabs Switcher */}
@@ -262,15 +399,16 @@ export const AdminUsers: React.FC = () => {
             <div className="p-12 text-center space-y-3">
               <Users className="w-10 h-10 text-slate-700 mx-auto" />
               <p className="text-sm font-bold text-slate-400">No active sessions found matching criteria.</p>
-              <p className="text-xs text-slate-500">When users log in, their live sessions will appear here.</p>
+              <p className="text-xs text-slate-500">When users log in, their live sessions and phone numbers will appear here.</p>
             </div>
           ) : (
             <div className="overflow-x-auto">
               <table className="w-full text-left border-collapse text-xs">
                 <thead>
                   <tr className="border-b border-slate-800 text-slate-400 font-bold uppercase tracking-wider text-[10px] bg-slate-950/40">
-                    <th className="py-3 px-4">User</th>
+                    <th className="py-3 px-4">Logged-In User</th>
                     <th className="py-3 px-4">Role</th>
+                    <th className="py-3 px-4">Contact Phone</th>
                     <th className="py-3 px-4">Client IP Address</th>
                     <th className="py-3 px-4">Device & Browser</th>
                     <th className="py-3 px-4">Last Activity</th>
@@ -279,95 +417,138 @@ export const AdminUsers: React.FC = () => {
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-slate-800/60">
-                  {filteredSessions.map((session) => (
-                    <tr key={session.id} className="hover:bg-slate-800/40 transition-colors">
-                      {/* User Info */}
-                      <td className="py-3.5 px-4">
-                        <div className="flex items-center gap-3">
-                          <img
-                            src={session.avatar || 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?q=80&w=80&auto=format&fit=crop'}
-                            alt={session.userName}
-                            className="w-8 h-8 rounded-full object-cover border border-slate-700"
-                          />
-                          <div>
-                            <span className="font-bold text-white block">{session.userName}</span>
-                            <span className="text-[11px] text-slate-400">{session.email}</span>
+                  {filteredSessions.map((session) => {
+                    const cleanPhone = (session.phone || '').replace(/[^0-9]/g, '');
+                    return (
+                      <tr key={session.id} className="hover:bg-slate-800/40 transition-colors">
+                        {/* User Info */}
+                        <td className="py-3.5 px-4">
+                          <div className="flex items-center gap-3">
+                            <img
+                              src={session.avatar || 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?q=80&w=80&auto=format&fit=crop'}
+                              alt={session.userName}
+                              className="w-8 h-8 rounded-full object-cover border border-slate-700"
+                            />
+                            <div>
+                              <span className="font-bold text-white block">{session.userName}</span>
+                              <span className="text-[11px] text-slate-400 font-mono">{session.email}</span>
+                            </div>
                           </div>
-                        </div>
-                      </td>
+                        </td>
 
-                      {/* Role */}
-                      <td className="py-3.5 px-4">
-                        <span
-                          className={`px-2 py-0.5 rounded text-[10px] font-extrabold uppercase border ${
-                            session.userRole === 'admin'
-                              ? 'bg-purple-900/60 text-purple-300 border-purple-700/50'
-                              : 'bg-slate-800 text-slate-400 border-slate-700'
-                          }`}
-                        >
-                          {session.userRole}
-                        </span>
-                      </td>
-
-                      {/* IP Address */}
-                      <td className="py-3.5 px-4">
-                        <div className="flex items-center gap-1.5 text-slate-300 font-mono text-[11px]">
-                          <Globe className="w-3.5 h-3.5 text-slate-500" />
-                          <span>{session.ipAddress}</span>
-                        </div>
-                      </td>
-
-                      {/* User Agent / Device */}
-                      <td className="py-3.5 px-4 max-w-xs">
-                        <div className="flex items-center gap-1.5 text-slate-300">
-                          <Laptop className="w-3.5 h-3.5 text-purple-400 flex-shrink-0" />
-                          <span className="truncate text-[11px]" title={session.userAgent}>
-                            {session.userAgent}
-                          </span>
-                        </div>
-                      </td>
-
-                      {/* Last Active */}
-                      <td className="py-3.5 px-4">
-                        <div className="text-slate-300">
-                          <span className="block font-semibold">
-                            {new Date(session.lastActiveAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' })}
-                          </span>
-                          <span className="text-[10px] text-slate-500">
-                            {new Date(session.lastActiveAt).toLocaleDateString()}
-                          </span>
-                        </div>
-                      </td>
-
-                      {/* Status */}
-                      <td className="py-3.5 px-4">
-                        <span
-                          className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold ${
-                            session.isActive
-                              ? 'bg-emerald-950 text-emerald-400 border border-emerald-800/80'
-                              : 'bg-slate-800 text-slate-500'
-                          }`}
-                        >
-                          <span className={`w-1.5 h-1.5 rounded-full ${session.isActive ? 'bg-emerald-400 animate-pulse' : 'bg-slate-500'}`} />
-                          {session.isActive ? 'Online' : 'Terminated'}
-                        </span>
-                      </td>
-
-                      {/* Actions */}
-                      <td className="py-3.5 px-4 text-right">
-                        {session.isActive && (
-                          <button
-                            onClick={() => handleRevokeSession(session.id, session.email)}
-                            className="px-2.5 py-1 text-[11px] font-bold rounded-lg bg-red-950/40 text-red-400 hover:bg-red-900/60 hover:text-red-200 border border-red-900/50 transition-colors inline-flex items-center gap-1"
-                            title="Force terminate this session"
+                        {/* Role */}
+                        <td className="py-3.5 px-4">
+                          <span
+                            className={`px-2 py-0.5 rounded text-[10px] font-extrabold uppercase border ${
+                              session.userRole === 'admin'
+                                ? 'bg-purple-900/60 text-purple-300 border-purple-700/50'
+                                : 'bg-emerald-950/60 text-emerald-300 border-emerald-800/50'
+                            }`}
                           >
-                            <LogOut className="w-3 h-3" />
-                            <span>Revoke</span>
-                          </button>
-                        )}
-                      </td>
-                    </tr>
-                  ))}
+                            {session.userRole === 'admin' ? 'Admin' : 'Student'}
+                          </span>
+                        </td>
+
+                        {/* Contact Phone & Quick Actions */}
+                        <td className="py-3.5 px-4">
+                          {session.phone ? (
+                            <div className="flex items-center gap-2">
+                              <span className="font-mono text-slate-200 font-bold text-[11px]">{session.phone}</span>
+                              <div className="flex items-center gap-1">
+                                <a
+                                  href={`tel:${session.phone}`}
+                                  className="p-1 rounded-md bg-emerald-950 hover:bg-emerald-900 text-emerald-400 border border-emerald-800/60 transition-colors"
+                                  title="Call user directly"
+                                >
+                                  <Phone className="w-3 h-3" />
+                                </a>
+                                {cleanPhone && (
+                                  <a
+                                    href={`https://wa.me/${cleanPhone}`}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    className="p-1 rounded-md bg-emerald-950 hover:bg-emerald-900 text-emerald-400 border border-emerald-800/60 transition-colors"
+                                    title="Open WhatsApp chat"
+                                  >
+                                    <MessageCircle className="w-3 h-3" />
+                                  </a>
+                                )}
+                              </div>
+                            </div>
+                          ) : (
+                            <span className="text-slate-500 font-mono text-[11px]">Not Provided</span>
+                          )}
+                        </td>
+
+                        {/* IP Address */}
+                        <td className="py-3.5 px-4">
+                          <div className="flex items-center gap-1.5 text-slate-300 font-mono text-[11px]">
+                            <Globe className="w-3.5 h-3.5 text-slate-500" />
+                            <span>{session.ipAddress}</span>
+                          </div>
+                        </td>
+
+                        {/* User Agent / Device */}
+                        <td className="py-3.5 px-4 max-w-xs">
+                          <div className="flex items-center gap-1.5 text-slate-300">
+                            <Laptop className="w-3.5 h-3.5 text-purple-400 flex-shrink-0" />
+                            <span className="truncate text-[11px]" title={session.userAgent}>
+                              {session.userAgent}
+                            </span>
+                          </div>
+                        </td>
+
+                        {/* Last Active */}
+                        <td className="py-3.5 px-4">
+                          <div className="text-slate-300">
+                            <span className="block font-semibold">
+                              {new Date(session.lastActiveAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' })}
+                            </span>
+                            <span className="text-[10px] text-slate-500">
+                              {new Date(session.lastActiveAt).toLocaleDateString()}
+                            </span>
+                          </div>
+                        </td>
+
+                        {/* Status */}
+                        <td className="py-3.5 px-4">
+                          <span
+                            className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold ${
+                              session.isActive
+                                ? 'bg-emerald-950 text-emerald-400 border border-emerald-800/80'
+                                : 'bg-slate-800 text-slate-500'
+                            }`}
+                          >
+                            <span className={`w-1.5 h-1.5 rounded-full ${session.isActive ? 'bg-emerald-400 animate-pulse' : 'bg-slate-500'}`} />
+                            {session.isActive ? 'Online' : 'Terminated'}
+                          </span>
+                        </td>
+
+                        {/* Actions */}
+                        <td className="py-3.5 px-4 text-right">
+                          <div className="flex items-center justify-end gap-1.5">
+                            <button
+                              onClick={() => setInspectingSession(session)}
+                              className="p-1.5 rounded-lg bg-slate-800 text-slate-300 hover:text-white hover:bg-slate-700 transition-colors"
+                              title="Inspect full session telemetry and contact user"
+                            >
+                              <Eye className="w-3.5 h-3.5" />
+                            </button>
+                            {session.isActive && (
+                              <button
+                                onClick={() => handleRevokeSession(session.id, session.email)}
+                                className="px-2.5 py-1 text-[11px] font-bold rounded-lg bg-red-950/40 text-red-400 hover:bg-red-900/60 hover:text-red-200 border border-red-900/50 transition-colors inline-flex items-center gap-1"
+                                title="Force terminate this session"
+                              >
+                                <LogOut className="w-3 h-3" />
+                                <span>Revoke</span>
+                              </button>
+                            )}
+                          </div>
+                        </td>
+                      </tr>
+                    );
+                  })}
                 </tbody>
               </table>
             </div>
@@ -379,129 +560,436 @@ export const AdminUsers: React.FC = () => {
       {activeTab === 'users' && (
         <div className="rounded-2xl bg-slate-900/90 border border-slate-800 overflow-hidden shadow-sm">
           <div className="p-4 border-b border-slate-800/80 bg-slate-900/60 flex items-center justify-between">
-            <span className="text-xs font-bold text-white uppercase tracking-wider">
-              Account Roster ({filteredUsers.length})
+            <div className="flex items-center gap-2">
+              <Users className="w-4 h-4 text-purple-400" />
+              <span className="text-xs font-bold text-white uppercase tracking-wider">
+                All Registered Users & Candidate Directory ({filteredUsers.length})
+              </span>
+            </div>
+            <span className="text-xs text-slate-400">
+              {filteredUsers.filter(u => u.role === 'admin').length} Admins • {filteredUsers.filter(u => u.role !== 'admin').length} Students
             </span>
           </div>
 
           {filteredUsers.length === 0 ? (
             <div className="p-12 text-center space-y-3">
               <Users className="w-10 h-10 text-slate-700 mx-auto" />
-              <p className="text-sm font-bold text-slate-400">No users found.</p>
+              <p className="text-sm font-bold text-slate-400">No users found matching criteria.</p>
+              <p className="text-xs text-slate-500">Registered users, student logins, and enquired leads will automatically populate here.</p>
             </div>
           ) : (
             <div className="overflow-x-auto">
               <table className="w-full text-left border-collapse text-xs">
                 <thead>
                   <tr className="border-b border-slate-800 text-slate-400 font-bold uppercase tracking-wider text-[10px] bg-slate-950/40">
-                    <th className="py-3 px-4">User</th>
-                    <th className="py-3 px-4">Contact</th>
+                    <th className="py-3 px-4">User Profile</th>
+                    <th className="py-3 px-4">Contact Phone</th>
                     <th className="py-3 px-4">Role</th>
                     <th className="py-3 px-4">Active Sessions</th>
-                    <th className="py-3 px-4">Created</th>
+                    <th className="py-3 px-4">Last Login / Activity</th>
                     <th className="py-3 px-4">Status</th>
                     <th className="py-3 px-4 text-right">Manage</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-slate-800/60">
-                  {filteredUsers.map((usr) => (
-                    <tr key={usr.id} className="hover:bg-slate-800/40 transition-colors">
-                      {/* Name & Email */}
-                      <td className="py-3.5 px-4">
-                        <div className="flex items-center gap-3">
-                          <img
-                            src={usr.avatar || 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?q=80&w=80&auto=format&fit=crop'}
-                            alt={usr.name}
-                            className="w-8 h-8 rounded-full object-cover border border-slate-700"
-                          />
-                          <div>
-                            <span className="font-bold text-white block">{usr.name}</span>
-                            <span className="text-[11px] text-slate-400">{usr.email}</span>
+                  {filteredUsers.map((usr) => {
+                    const cleanPhone = (usr.phone || '').replace(/[^0-9]/g, '');
+                    return (
+                      <tr key={usr.id} className="hover:bg-slate-800/40 transition-colors">
+                        {/* Name & Email */}
+                        <td className="py-3.5 px-4">
+                          <div className="flex items-center gap-3">
+                            <img
+                              src={usr.avatar || 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?q=80&w=80&auto=format&fit=crop'}
+                              alt={usr.name}
+                              className="w-8 h-8 rounded-full object-cover border border-slate-700"
+                            />
+                            <div>
+                              <span className="font-bold text-white block">{usr.name}</span>
+                              <span className="text-[11px] text-slate-400 font-mono">{usr.email}</span>
+                            </div>
                           </div>
-                        </div>
-                      </td>
+                        </td>
 
-                      {/* Phone */}
-                      <td className="py-3.5 px-4 text-slate-300 font-mono text-[11px]">
-                        {usr.phone || '—'}
-                      </td>
+                        {/* Phone & Direct Quick Outreach */}
+                        <td className="py-3.5 px-4">
+                          {usr.phone ? (
+                            <div className="flex items-center gap-2">
+                              <span className="font-mono text-slate-200 font-bold text-[11px]">{usr.phone}</span>
+                              <div className="flex items-center gap-1">
+                                <a
+                                  href={`tel:${usr.phone}`}
+                                  className="p-1 rounded-md bg-emerald-950 hover:bg-emerald-900 text-emerald-400 border border-emerald-800/60 transition-colors"
+                                  title="Call user"
+                                >
+                                  <Phone className="w-3 h-3" />
+                                </a>
+                                {cleanPhone && (
+                                  <a
+                                    href={`https://wa.me/${cleanPhone}`}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    className="p-1 rounded-md bg-emerald-950 hover:bg-emerald-900 text-emerald-400 border border-emerald-800/60 transition-colors"
+                                    title="WhatsApp user"
+                                  >
+                                    <MessageCircle className="w-3 h-3" />
+                                  </a>
+                                )}
+                              </div>
+                            </div>
+                          ) : (
+                            <span className="text-slate-500 font-mono text-[11px]">Not Provided</span>
+                          )}
+                        </td>
 
-                      {/* Role */}
-                      <td className="py-3.5 px-4">
-                        <span
-                          className={`px-2 py-0.5 rounded text-[10px] font-extrabold uppercase border ${
-                            usr.role === 'admin'
-                              ? 'bg-purple-900/60 text-purple-300 border-purple-700/50'
-                              : 'bg-slate-800 text-slate-400 border-slate-700'
-                          }`}
-                        >
-                          {usr.role}
-                        </span>
-                      </td>
-
-                      {/* Active Sessions */}
-                      <td className="py-3.5 px-4">
-                        <span className={`inline-flex items-center gap-1 text-xs font-bold ${(usr.activeSessionsCount || 0) > 0 ? 'text-emerald-400' : 'text-slate-500'}`}>
-                          <Activity className="w-3 h-3" />
-                          <span>{usr.activeSessionsCount || 0} active</span>
-                        </span>
-                      </td>
-
-                      {/* Joined Date */}
-                      <td className="py-3.5 px-4 text-slate-400 text-[11px]">
-                        {usr.createdAt ? new Date(usr.createdAt).toLocaleDateString() : '—'}
-                      </td>
-
-                      {/* Account Status */}
-                      <td className="py-3.5 px-4">
-                        <span
-                          className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold ${
-                            usr.isActive !== false
-                              ? 'bg-emerald-950 text-emerald-400 border border-emerald-800/80'
-                              : 'bg-red-950 text-red-400 border border-red-800/80'
-                          }`}
-                        >
-                          {usr.isActive !== false ? 'Active' : 'Suspended'}
-                        </span>
-                      </td>
-
-                      {/* Actions */}
-                      <td className="py-3.5 px-4 text-right">
-                        <div className="flex items-center justify-end gap-1.5">
-                          {/* Role Toggle */}
-                          <button
-                            onClick={() => handleToggleRole(usr.id, usr.role === 'admin' ? 'admin' : 'user', usr.name)}
-                            className={`px-2 py-1 text-[10px] font-bold rounded-lg border transition-colors ${
+                        {/* Role */}
+                        <td className="py-3.5 px-4">
+                          <span
+                            className={`px-2 py-0.5 rounded text-[10px] font-extrabold uppercase border ${
                               usr.role === 'admin'
-                                ? 'bg-slate-800 hover:bg-slate-700 text-slate-300 border-slate-700'
-                                : 'bg-purple-900/40 hover:bg-purple-900/60 text-purple-300 border-purple-700/50'
+                                ? 'bg-purple-900/60 text-purple-300 border-purple-700/50'
+                                : 'bg-emerald-950/60 text-emerald-300 border-emerald-800/50'
                             }`}
-                            title={usr.role === 'admin' ? 'Demote to student' : 'Promote to admin'}
                           >
-                            {usr.role === 'admin' ? 'Demote' : 'Make Admin'}
-                          </button>
+                            {usr.role === 'admin' ? 'Administrator' : 'Student'}
+                          </span>
+                        </td>
 
-                          {/* Suspend / Activate Toggle */}
-                          <button
-                            onClick={() => handleToggleStatus(usr.id, usr.isActive !== false, usr.name)}
-                            className={`px-2 py-1 text-[10px] font-bold rounded-lg border transition-colors ${
+                        {/* Active Sessions */}
+                        <td className="py-3.5 px-4">
+                          <span className={`inline-flex items-center gap-1.5 text-xs font-bold ${(usr.activeSessionsCount || 0) > 0 ? 'text-emerald-400' : 'text-slate-500'}`}>
+                            <Activity className={`w-3.5 h-3.5 ${(usr.activeSessionsCount || 0) > 0 ? 'animate-pulse text-emerald-400' : 'text-slate-600'}`} />
+                            <span>{usr.activeSessionsCount || 0} active</span>
+                          </span>
+                        </td>
+
+                        {/* Last Login / Activity */}
+                        <td className="py-3.5 px-4 text-[11px]">
+                          {usr.lastLoginAt ? (
+                            <div>
+                              <span className="text-slate-200 font-semibold block">
+                                {new Date(usr.lastLoginAt).toLocaleDateString()}
+                              </span>
+                              <span className="text-[10px] text-slate-500">
+                                {new Date(usr.lastLoginAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                              </span>
+                            </div>
+                          ) : usr.createdAt ? (
+                            <span className="text-slate-400">{new Date(usr.createdAt).toLocaleDateString()}</span>
+                          ) : (
+                            <span className="text-slate-500">—</span>
+                          )}
+                        </td>
+
+                        {/* Account Status */}
+                        <td className="py-3.5 px-4">
+                          <span
+                            className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold ${
                               usr.isActive !== false
-                                ? 'bg-amber-950/40 hover:bg-amber-900/60 text-amber-300 border-amber-800/60'
-                                : 'bg-emerald-950/40 hover:bg-emerald-900/60 text-emerald-300 border-emerald-800/60'
+                                ? 'bg-emerald-950 text-emerald-400 border border-emerald-800/80'
+                                : 'bg-red-950 text-red-400 border border-red-800/80'
                             }`}
                           >
-                            {usr.isActive !== false ? 'Suspend' : 'Activate'}
-                          </button>
-                        </div>
-                      </td>
-                    </tr>
-                  ))}
+                            <span className={`w-1.5 h-1.5 rounded-full ${usr.isActive !== false ? 'bg-emerald-400' : 'bg-red-500'}`} />
+                            {usr.isActive !== false ? 'Active' : 'Suspended'}
+                          </span>
+                        </td>
+
+                        {/* Actions */}
+                        <td className="py-3.5 px-4 text-right">
+                          <div className="flex items-center justify-end gap-1.5">
+                            <button
+                              onClick={() => setInspectingUser(usr)}
+                              className="p-1.5 rounded-lg bg-slate-800 text-slate-300 hover:text-white hover:bg-slate-700 transition-colors"
+                              title="Inspect user details and contact"
+                            >
+                              <Eye className="w-3.5 h-3.5" />
+                            </button>
+
+                            {/* Role Toggle */}
+                            <button
+                              onClick={() => handleToggleRole(usr.id, usr.role === 'admin' ? 'admin' : 'user', usr.name)}
+                              className={`px-2 py-1 text-[10px] font-bold rounded-lg border transition-colors ${
+                                usr.role === 'admin'
+                                  ? 'bg-slate-800 hover:bg-slate-700 text-slate-300 border-slate-700'
+                                  : 'bg-purple-900/40 hover:bg-purple-900/60 text-purple-300 border-purple-700/50'
+                              }`}
+                              title={usr.role === 'admin' ? 'Demote to student' : 'Promote to admin'}
+                            >
+                              {usr.role === 'admin' ? 'Demote' : 'Make Admin'}
+                            </button>
+
+                            {/* Suspend / Activate Toggle */}
+                            <button
+                              onClick={() => handleToggleStatus(usr.id, usr.isActive !== false, usr.name)}
+                              className={`px-2 py-1 text-[10px] font-bold rounded-lg border transition-colors ${
+                                usr.isActive !== false
+                                  ? 'bg-amber-950/40 hover:bg-amber-900/60 text-amber-300 border-amber-800/60'
+                                  : 'bg-emerald-950/40 hover:bg-emerald-900/60 text-emerald-300 border-emerald-800/60'
+                              }`}
+                            >
+                              {usr.isActive !== false ? 'Suspend' : 'Activate'}
+                            </button>
+                          </div>
+                        </td>
+                      </tr>
+                    );
+                  })}
                 </tbody>
               </table>
             </div>
           )}
         </div>
       )}
+
+      {/* INSPECT SESSION MODAL */}
+      {inspectingSession && (
+        <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-xs flex items-center justify-center p-4">
+          <div className="bg-slate-900 border border-slate-800 rounded-2xl max-w-lg w-full p-6 space-y-4 shadow-2xl text-left">
+            <div className="flex items-center justify-between pb-3 border-b border-slate-800">
+              <div className="flex items-center gap-2">
+                <Activity className="w-4 h-4 text-purple-400" />
+                <h3 className="text-base font-bold text-white">
+                  Active Session & Contact Telemetry
+                </h3>
+              </div>
+              <button
+                onClick={() => setInspectingSession(null)}
+                className="text-slate-400 hover:text-white"
+              >
+                ✕
+              </button>
+            </div>
+
+            <div className="flex items-center gap-3 p-3 rounded-xl bg-slate-950 border border-slate-800">
+              <img
+                src={inspectingSession.avatar || 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?q=80&w=80&auto=format&fit=crop'}
+                alt={inspectingSession.userName}
+                className="w-12 h-12 rounded-full object-cover border border-purple-500/40"
+              />
+              <div className="overflow-hidden">
+                <div className="flex items-center gap-2">
+                  <span className="font-bold text-white text-sm">{inspectingSession.userName}</span>
+                  <span className={`px-2 py-0.2 rounded text-[10px] font-extrabold uppercase ${inspectingSession.userRole === 'admin' ? 'bg-purple-900/70 text-purple-300' : 'bg-slate-800 text-slate-300'}`}>
+                    {inspectingSession.userRole}
+                  </span>
+                </div>
+                <span className="text-xs text-purple-400 font-mono block mt-0.5">{inspectingSession.email}</span>
+              </div>
+            </div>
+
+            {/* Direct Outreach Action Box */}
+            <div className="p-3.5 rounded-xl bg-gradient-to-r from-purple-950/50 via-slate-950 to-emerald-950/40 border border-purple-800/40 space-y-2.5">
+              <div className="flex items-center justify-between">
+                <span className="text-[10px] font-extrabold uppercase tracking-wider text-purple-300 flex items-center gap-1.5">
+                  <Phone className="w-3.5 h-3.5 text-emerald-400" />
+                  Candidate Contact Number
+                </span>
+                <span className="text-xs font-mono font-bold text-white">
+                  {inspectingSession.phone || 'No phone recorded'}
+                </span>
+              </div>
+
+              <div className="flex items-center gap-2 pt-1">
+                {inspectingSession.phone ? (
+                  <>
+                    <a
+                      href={`tel:${inspectingSession.phone}`}
+                      className="flex-1 py-2 px-3 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs flex items-center justify-center gap-1.5 transition-all shadow-md shadow-emerald-900/40"
+                    >
+                      <Phone className="w-3.5 h-3.5" />
+                      <span>Call Now</span>
+                    </a>
+                    <a
+                      href={`https://wa.me/${(inspectingSession.phone || '').replace(/[^0-9]/g, '')}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="flex-1 py-2 px-3 rounded-xl bg-emerald-950 hover:bg-emerald-900 border border-emerald-700 text-emerald-300 font-bold text-xs flex items-center justify-center gap-1.5 transition-all"
+                    >
+                      <MessageCircle className="w-3.5 h-3.5 text-emerald-400" />
+                      <span>WhatsApp</span>
+                    </a>
+                  </>
+                ) : (
+                  <p className="text-[11px] text-slate-400 italic">No phone number submitted for this account.</p>
+                )}
+                <a
+                  href={`mailto:${inspectingSession.email}`}
+                  className="py-2 px-3 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 font-bold text-xs flex items-center justify-center gap-1.5 transition-colors border border-slate-700"
+                  title="Send Email"
+                >
+                  <Mail className="w-3.5 h-3.5" />
+                </a>
+              </div>
+            </div>
+
+            <div className="grid grid-cols-2 gap-3 text-xs">
+              <div className="p-3 rounded-xl bg-slate-950 border border-slate-800">
+                <span className="text-[10px] text-slate-500 font-bold uppercase block">Session ID</span>
+                <span className="font-mono text-slate-300 text-[11px] truncate block mt-0.5">{inspectingSession.id}</span>
+              </div>
+              <div className="p-3 rounded-xl bg-slate-950 border border-slate-800">
+                <span className="text-[10px] text-slate-500 font-bold uppercase block">Client IP</span>
+                <span className="font-mono text-slate-200 font-bold block mt-0.5">{inspectingSession.ipAddress}</span>
+              </div>
+              <div className="p-3 rounded-xl bg-slate-950 border border-slate-800">
+                <span className="text-[10px] text-slate-500 font-bold uppercase block">Session Started</span>
+                <span className="text-slate-300 block mt-0.5">{new Date(inspectingSession.createdAt).toLocaleString()}</span>
+              </div>
+              <div className="p-3 rounded-xl bg-slate-950 border border-slate-800">
+                <span className="text-[10px] text-slate-500 font-bold uppercase block">Last Active</span>
+                <span className="text-emerald-400 font-bold block mt-0.5">{new Date(inspectingSession.lastActiveAt).toLocaleString()}</span>
+              </div>
+            </div>
+
+            <div className="p-3 rounded-xl bg-slate-950 border border-slate-800">
+              <span className="text-[10px] text-slate-500 font-bold uppercase block mb-1">Device Signature & Browser</span>
+              <p className="text-slate-300 font-mono text-[11px] leading-relaxed">{inspectingSession.userAgent}</p>
+            </div>
+
+            <div className="flex items-center justify-between pt-2 border-t border-slate-800">
+              <span className={`inline-flex items-center gap-1.5 text-xs font-bold ${inspectingSession.isActive ? 'text-emerald-400' : 'text-slate-500'}`}>
+                <span className={`w-2 h-2 rounded-full ${inspectingSession.isActive ? 'bg-emerald-400 animate-pulse' : 'bg-slate-500'}`} />
+                {inspectingSession.isActive ? 'Session Active & Online' : 'Session Terminated'}
+              </span>
+
+              <div className="flex items-center gap-2">
+                <button
+                  type="button"
+                  onClick={() => setInspectingSession(null)}
+                  className="px-4 py-2 rounded-xl bg-slate-800 text-slate-300 text-xs font-bold hover:bg-slate-700"
+                >
+                  Close
+                </button>
+                {inspectingSession.isActive && (
+                  <button
+                    type="button"
+                    onClick={() => handleRevokeSession(inspectingSession.id, inspectingSession.email)}
+                    className="px-4 py-2 rounded-xl bg-red-900/60 hover:bg-red-800 text-red-200 text-xs font-bold flex items-center gap-1.5"
+                  >
+                    <LogOut className="w-3.5 h-3.5" />
+                    <span>Terminate Session</span>
+                  </button>
+                )}
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* INSPECT USER MODAL */}
+      {inspectingUser && (
+        <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-xs flex items-center justify-center p-4">
+          <div className="bg-slate-900 border border-slate-800 rounded-2xl max-w-lg w-full p-6 space-y-4 shadow-2xl text-left">
+            <div className="flex items-center justify-between pb-3 border-b border-slate-800">
+              <div className="flex items-center gap-2">
+                <Users className="w-4 h-4 text-purple-400" />
+                <h3 className="text-base font-bold text-white">
+                  User Profile & Contact Details
+                </h3>
+              </div>
+              <button
+                onClick={() => setInspectingUser(null)}
+                className="text-slate-400 hover:text-white"
+              >
+                ✕
+              </button>
+            </div>
+
+            <div className="flex items-center gap-3 p-3 rounded-xl bg-slate-950 border border-slate-800">
+              <img
+                src={inspectingUser.avatar || 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?q=80&w=80&auto=format&fit=crop'}
+                alt={inspectingUser.name}
+                className="w-12 h-12 rounded-full object-cover border border-purple-500/40"
+              />
+              <div className="overflow-hidden">
+                <div className="flex items-center gap-2">
+                  <span className="font-bold text-white text-sm">{inspectingUser.name}</span>
+                  <span className={`px-2 py-0.2 rounded text-[10px] font-extrabold uppercase ${inspectingUser.role === 'admin' ? 'bg-purple-900/70 text-purple-300' : 'bg-slate-800 text-slate-300'}`}>
+                    {inspectingUser.role}
+                  </span>
+                </div>
+                <span className="text-xs text-purple-400 font-mono block mt-0.5">{inspectingUser.email}</span>
+              </div>
+            </div>
+
+            {/* Direct Outreach Action Box */}
+            <div className="p-3.5 rounded-xl bg-gradient-to-r from-purple-950/50 via-slate-950 to-emerald-950/40 border border-purple-800/40 space-y-2.5">
+              <div className="flex items-center justify-between">
+                <span className="text-[10px] font-extrabold uppercase tracking-wider text-purple-300 flex items-center gap-1.5">
+                  <Phone className="w-3.5 h-3.5 text-emerald-400" />
+                  Candidate Contact Number
+                </span>
+                <span className="text-xs font-mono font-bold text-white">
+                  {inspectingUser.phone || 'No phone recorded'}
+                </span>
+              </div>
+
+              <div className="flex items-center gap-2 pt-1">
+                {inspectingUser.phone ? (
+                  <>
+                    <a
+                      href={`tel:${inspectingUser.phone}`}
+                      className="flex-1 py-2 px-3 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs flex items-center justify-center gap-1.5 transition-all shadow-md shadow-emerald-900/40"
+                    >
+                      <Phone className="w-3.5 h-3.5" />
+                      <span>Call Now</span>
+                    </a>
+                    <a
+                      href={`https://wa.me/${(inspectingUser.phone || '').replace(/[^0-9]/g, '')}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="flex-1 py-2 px-3 rounded-xl bg-emerald-950 hover:bg-emerald-900 border border-emerald-700 text-emerald-300 font-bold text-xs flex items-center justify-center gap-1.5 transition-all"
+                    >
+                      <MessageCircle className="w-3.5 h-3.5 text-emerald-400" />
+                      <span>WhatsApp</span>
+                    </a>
+                  </>
+                ) : (
+                  <p className="text-[11px] text-slate-400 italic">No phone number submitted for this account.</p>
+                )}
+                <a
+                  href={`mailto:${inspectingUser.email}`}
+                  className="py-2 px-3 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 font-bold text-xs flex items-center justify-center gap-1.5 transition-colors border border-slate-700"
+                  title="Send Email"
+                >
+                  <Mail className="w-3.5 h-3.5" />
+                </a>
+              </div>
+            </div>
+
+            <div className="grid grid-cols-2 gap-3 text-xs">
+              <div className="p-3 rounded-xl bg-slate-950 border border-slate-800">
+                <span className="text-[10px] text-slate-500 font-bold uppercase block">User ID</span>
+                <span className="font-mono text-slate-300 text-[11px] truncate block mt-0.5">{inspectingUser.id}</span>
+              </div>
+              <div className="p-3 rounded-xl bg-slate-950 border border-slate-800">
+                <span className="text-[10px] text-slate-500 font-bold uppercase block">Account Created</span>
+                <span className="text-slate-300 block mt-0.5">{inspectingUser.createdAt ? new Date(inspectingUser.createdAt).toLocaleDateString() : '—'}</span>
+              </div>
+              <div className="p-3 rounded-xl bg-slate-950 border border-slate-800">
+                <span className="text-[10px] text-slate-500 font-bold uppercase block">Last Login</span>
+                <span className="text-emerald-400 font-bold block mt-0.5">{inspectingUser.lastLoginAt ? new Date(inspectingUser.lastLoginAt).toLocaleString() : '—'}</span>
+              </div>
+              <div className="p-3 rounded-xl bg-slate-950 border border-slate-800">
+                <span className="text-[10px] text-slate-500 font-bold uppercase block">Active Sessions</span>
+                <span className="text-emerald-400 font-bold block mt-0.5">{inspectingUser.activeSessionsCount || 0} active device(s)</span>
+              </div>
+            </div>
+
+            <div className="flex items-center justify-end gap-2 pt-2 border-t border-slate-800">
+              <button
+                type="button"
+                onClick={() => setInspectingUser(null)}
+                className="px-4 py-2 rounded-xl bg-slate-800 text-slate-300 text-xs font-bold hover:bg-slate-700"
+              >
+                Close
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
+

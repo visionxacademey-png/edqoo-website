@@ -87,6 +87,54 @@ const saveStoredEnquiries = (enquiries: Enquiry[]) => {
   }
 };
 
+function recordLocalCandidateActivity(name: string, email: string, phone: string) {
+  try {
+    const normalizedEmail = email.toLowerCase().trim();
+    const storedUsers = localStorage.getItem('edqoo_registered_users');
+    let usersList: any[] = storedUsers ? JSON.parse(storedUsers) : [];
+    const existingIndex = usersList.findIndex((u: any) => u.email.toLowerCase() === normalizedEmail);
+    const userRecord = {
+      id: `usr-enq-${Date.now().toString(36)}`,
+      name: name.trim(),
+      email: normalizedEmail,
+      phone: phone.trim(),
+      role: 'user',
+      avatar: 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?q=80&w=150&auto=format&fit=crop',
+      lastLoginAt: new Date().toISOString(),
+      createdAt: new Date().toISOString(),
+      isActive: true,
+      activeSessionsCount: 1
+    };
+    if (existingIndex >= 0) {
+      usersList[existingIndex] = { ...usersList[existingIndex], ...userRecord };
+    } else {
+      usersList.unshift(userRecord);
+    }
+    localStorage.setItem('edqoo_registered_users', JSON.stringify(usersList));
+
+    const storedSessions = localStorage.getItem('edqoo_active_sessions');
+    let sessionsList: any[] = storedSessions ? JSON.parse(storedSessions) : [];
+    const newSession = {
+      id: `sess-${Date.now().toString(36)}-${Math.random().toString(36).substring(2, 6)}`,
+      userId: userRecord.id,
+      userName: userRecord.name,
+      email: normalizedEmail,
+      userRole: 'user',
+      avatar: userRecord.avatar,
+      ipAddress: '127.0.0.1 (Enquiry Form)',
+      userAgent: navigator.userAgent || 'Modern Web Browser',
+      isActive: true,
+      createdAt: new Date().toISOString(),
+      lastActiveAt: new Date().toISOString(),
+      expiresAt: new Date(Date.now() + 86400000 * 7).toISOString()
+    };
+    sessionsList = [newSession, ...sessionsList.filter((s: any) => s.email !== normalizedEmail)].slice(0, 50);
+    localStorage.setItem('edqoo_active_sessions', JSON.stringify(sessionsList));
+  } catch (err) {
+    console.warn('Failed to record candidate activity:', err);
+  }
+}
+
 export const enquiryService = {
   submitEnquiry: async (payload: EnquiryPayload): Promise<{ success: boolean; message: string; enquiry?: Enquiry }> => {
     const newEnquiry: Enquiry = {
@@ -95,6 +143,8 @@ export const enquiryService = {
       status: 'Submitted',
       submittedAt: new Date().toISOString()
     };
+
+    recordLocalCandidateActivity(payload.name, payload.email, payload.phone);
 
     try {
       const response = await api.post('/enquiries', newEnquiry);

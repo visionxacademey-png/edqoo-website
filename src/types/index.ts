@@ -132,6 +132,7 @@ export interface UserSession {
   userId: string;
   userName: string;
   email: string;
+  phone?: string;
   userRole: 'user' | 'admin';
   avatar?: string;
   ipAddress: string;

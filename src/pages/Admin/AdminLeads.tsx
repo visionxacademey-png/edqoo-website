@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { Link } from 'react-router-dom';
 import {
   MessageSquareCheck,
   Search,
@@ -116,14 +117,22 @@ export const AdminLeads: React.FC = () => {
           </p>
         </div>
 
-        <button
-          onClick={fetchLeads}
-          disabled={loading}
-          className="px-3.5 py-2 rounded-xl bg-slate-900 hover:bg-slate-800 border border-slate-700 text-xs font-bold text-slate-300 flex items-center gap-2 transition-colors disabled:opacity-50 self-start sm:self-auto"
-        >
-          <RefreshCw className={`w-3.5 h-3.5 ${loading ? 'animate-spin' : ''}`} />
-          <span>Refresh Leads</span>
-        </button>
+        <div className="flex items-center gap-2.5 self-start sm:self-auto">
+          <Link
+            to="/admin/users"
+            className="px-3.5 py-2 rounded-xl bg-purple-950/60 hover:bg-purple-900 text-purple-300 border border-purple-800 text-xs font-bold flex items-center gap-1.5 transition-colors"
+          >
+            <span>Logged-In Users Telemetry →</span>
+          </Link>
+          <button
+            onClick={fetchLeads}
+            disabled={loading}
+            className="px-3.5 py-2 rounded-xl bg-slate-900 hover:bg-slate-800 border border-slate-700 text-xs font-bold text-slate-300 flex items-center gap-2 transition-colors disabled:opacity-50"
+          >
+            <RefreshCw className={`w-3.5 h-3.5 ${loading ? 'animate-spin' : ''}`} />
+            <span>Refresh Leads</span>
+          </button>
+        </div>
       </div>
 
       {/* Search & Filters */}
