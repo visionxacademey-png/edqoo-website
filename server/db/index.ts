@@ -57,13 +57,21 @@ export const getDbStatus = () => ({
 });
 
 let initPromise: Promise<void> | null = null;
+let dbReady = false;
 
 export function ensureDbInitialized() {
+  if (dbReady && isNeonConnected) {
+    return Promise.resolve();
+  }
   if (!initPromise) {
-    initPromise = initDb().catch((err) => {
-      console.error('Database initialization error:', err);
-      initPromise = null;
-    });
+    initPromise = initDb()
+      .then(() => {
+        dbReady = true;
+      })
+      .catch((err) => {
+        console.error('Database initialization error:', err);
+        initPromise = null;
+      });
   }
   return initPromise;
 }
@@ -72,9 +80,11 @@ export function ensureDbInitialized() {
  * Initializes the Neon PostgreSQL pool and creates required tables
  */
 export async function initDb() {
+  if (dbReady && isNeonConnected) return;
+
   // Pre-seed mock store with default administrator
-  const adminPasswordHash = await bcrypt.hash('Admin@123456', 10);
-  const studentPasswordHash = await bcrypt.hash('Student@123456', 10);
+  const adminPasswordHash = '$2a$10$tZ8V4K9y6t4X0V1b8G4D4eYd0oV.5YtY3wN2qG6K8mP0uL2rS4t';
+  const studentPasswordHash = '$2a$10$tZ8V4K9y6t4X0V1b8G4D4eYd0oV.5YtY3wN2qG6K8mP0uL2rS4t';
 
   if (mockStore.users.length === 0) {
     mockStore.users.push(
@@ -123,17 +133,26 @@ export async function initDb() {
     console.log('⚡ [DB] DATABASE_URL not configured. Running in local memory fallback mode.');
     isNeonConnected = false;
     connectionError = 'DATABASE_URL environment variable is not configured.';
+    dbReady = true;
     return;
   }
 
   try {
-    console.log('⚡ [DB] Connecting to NeonDB PostgreSQL...');
-    pool = new Pool({ connectionString: DATABASE_URL, connectionTimeoutMillis: 5000 });
+    if (!pool) {
+      console.log('⚡ [DB] Connecting to NeonDB PostgreSQL...');
+      pool = new Pool({
+        connectionString: DATABASE_URL,
+        max: 20,
+        idleTimeoutMillis: 30000,
+        connectionTimeoutMillis: 10000
+      });
+    }
 
     // Test connection
     const testResult = await pool.query('SELECT NOW()');
     isNeonConnected = true;
     connectionError = null;
+    dbReady = true;
     console.log(`✅ [DB] Successfully connected to NeonDB at ${testResult.rows[0].now}`);
 
     // Create Tables

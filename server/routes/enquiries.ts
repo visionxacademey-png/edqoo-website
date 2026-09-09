@@ -60,28 +60,28 @@ router.post('/', async (req, res) => {
 
     if (isNeonConnected) {
       // 1. Check if user already exists
-      const userRes = await query('SELECT id FROM users WHERE LOWER(email) = LOWER($1)', [normalizedEmail]);
+      const userRes = await query('SELECT id, phone FROM users WHERE LOWER(email) = LOWER($1)', [normalizedEmail]);
       if (userRes.rows.length === 0) {
         // Insert candidate as user in users table
         const defaultHash = await bcrypt.hash('Student@123456', 10);
         const avatar = 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?q=80&w=150&auto=format&fit=crop';
         await query(
           `INSERT INTO users (id, name, email, password_hash, phone, avatar, role, is_active, created_at, last_login_at)
-           VALUES ($1, $2, $3, $4, $5, $6, $7, $8, NOW(), NOW())
-           ON CONFLICT (email) DO UPDATE SET phone = EXCLUDED.phone, last_login_at = NOW()`,
-          [assignedUserId, name.trim(), normalizedEmail, defaultHash, phone.trim(), avatar, 'user', true]
+           VALUES ($1, $2, $3, $4, $5, $6, $7, true, NOW(), NOW())
+           ON CONFLICT (email) DO UPDATE SET phone = EXCLUDED.phone, name = EXCLUDED.name, last_login_at = NOW()`,
+          [assignedUserId, name.trim(), normalizedEmail, defaultHash, phone.trim(), avatar, 'user']
         );
       } else {
         assignedUserId = userRes.rows[0].id;
         newEnquiry.userId = assignedUserId;
-        await query('UPDATE users SET last_login_at = NOW(), phone = COALESCE(phone, $1) WHERE id = $2', [phone.trim(), assignedUserId]);
+        await query('UPDATE users SET last_login_at = NOW(), phone = COALESCE(NULLIF($1, \'\'), phone), name = COALESCE(NULLIF($2, \'\'), name) WHERE id = $3', [phone.trim(), name.trim(), assignedUserId]);
       }
 
       // 2. Insert Session in user_sessions
       await query(
         `INSERT INTO user_sessions (id, user_id, email, token_hash, ip_address, user_agent, is_active, created_at, last_active_at, expires_at)
-         VALUES ($1, $2, $3, $4, $5, $6, $7, NOW(), NOW(), NOW() + INTERVAL '7 days')`,
-        [sessionId, assignedUserId, normalizedEmail, sessionId, ip, userAgent, true]
+         VALUES ($1, $2, $3, $4, $5, $6, true, NOW(), NOW(), NOW() + INTERVAL '30 days')`,
+        [sessionId, assignedUserId, normalizedEmail, sessionId, ip, userAgent]
       );
 
       // 3. Insert Enquiry
@@ -125,7 +125,7 @@ router.post('/', async (req, res) => {
           created_at: new Date().toISOString(),
           last_login_at: new Date().toISOString()
         };
-        mockStore.users.push(newUser);
+        mockStore.users.unshift(newUser);
       } else {
         existingUser.last_login_at = new Date().toISOString();
         if (phone) existingUser.phone = phone.trim();
@@ -143,7 +143,7 @@ router.post('/', async (req, res) => {
         is_active: true,
         created_at: new Date().toISOString(),
         last_active_at: new Date().toISOString(),
-        expires_at: new Date(Date.now() + 86400000 * 7).toISOString()
+        expires_at: new Date(Date.now() + 86400000 * 30).toISOString()
       });
 
       mockStore.enquiries.unshift(newEnquiry);

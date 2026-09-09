@@ -8,13 +8,13 @@ const api = axios.create({
   headers: {
     'Content-Type': 'application/json',
   },
-  timeout: 10000, // 10 seconds timeout
+  timeout: 15000, // 15 seconds timeout
 });
 
 // Request interceptor to attach JWT auth tokens to every call
 api.interceptors.request.use(
   (config) => {
-    const token = localStorage.getItem('Edqoo_token');
+    const token = localStorage.getItem('Edqoo_token') || localStorage.getItem('edqoo_token');
     if (token && config.headers) {
       config.headers.Authorization = `Bearer ${token}`;
     }
@@ -30,9 +30,8 @@ api.interceptors.response.use(
   (response) => response,
   (error) => {
     if (error.response) {
-      // If unauthorized (401), we could trigger a logout hook or redirect
       if (error.response.status === 401) {
-        console.warn('Unauthorized request - session expired.');
+        console.warn('Unauthorized request to endpoint:', error.config?.url);
       }
     }
     return Promise.reject(error);
@@ -40,3 +39,4 @@ api.interceptors.response.use(
 );
 
 export default api;
+

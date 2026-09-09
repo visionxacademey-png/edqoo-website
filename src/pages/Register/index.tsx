@@ -9,16 +9,16 @@ import { SEO } from '../../components/common/SEO';
 
 const registerSchema = zod
   .object({
-    name: zod.string().min(2, { message: 'Name must be at least 2 characters.' }),
+    name: zod.string().min(2, { message: 'Full name must be at least 2 characters.' }),
     email: zod.string().email({ message: 'Please enter a valid email address.' }),
     phone: zod
       .string()
-      .min(7, { message: 'Please enter a valid phone number.' })
-      .regex(/^[0-9+\s\-()]+$/, { message: 'Phone number format is invalid.' }),
+      .min(6, { message: 'Please enter a valid phone number (min 6 digits).' })
+      .regex(/^[0-9+\s\-().]+$/, { message: 'Phone number format is invalid.' }),
     password: zod.string().min(6, { message: 'Password must be at least 6 characters.' }),
     confirmPassword: zod.string().min(6, { message: 'Confirm password is required.' }),
     agreeTerms: zod.boolean().refine((val) => val === true, {
-      message: 'You must agree to the Terms and Conditions.'
+      message: 'You must agree to the Terms of Service to continue.'
     })
   })
   .refine((data) => data.password === data.confirmPassword, {
@@ -40,7 +40,10 @@ export const Register: React.FC = () => {
     handleSubmit,
     formState: { errors, isSubmitting }
   } = useForm<RegisterFormData>({
-    resolver: zodResolver(registerSchema)
+    resolver: zodResolver(registerSchema),
+    defaultValues: {
+      agreeTerms: true
+    }
   });
 
   const onSubmit = async (data: RegisterFormData) => {
@@ -54,10 +57,10 @@ export const Register: React.FC = () => {
           navigate('/dashboard');
         }
       } else {
-        setErrorMsg(res.error || 'An account with this email address already exists.');
+        setErrorMsg(res.error || 'Registration failed. Please check your credentials.');
       }
-    } catch {
-      setErrorMsg('Network error while registering account.');
+    } catch (err: any) {
+      setErrorMsg(err.message || 'Network error while registering account.');
     }
   };
 

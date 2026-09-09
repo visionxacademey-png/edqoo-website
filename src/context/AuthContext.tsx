@@ -67,7 +67,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       const res = await authService.login(email, password);
       if (res.success && res.token) {
         localStorage.setItem(TOKEN_KEY, res.token);
+        localStorage.setItem('edqoo_token', res.token);
         localStorage.setItem(USER_KEY, JSON.stringify(res.user));
+        localStorage.setItem('edqoo_user', JSON.stringify(res.user));
         setUser(res.user);
         setIsLoading(false);
         return { success: true };
@@ -87,7 +89,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       const res = await authService.register(name, email, phone, password);
       if (res.success && res.token) {
         localStorage.setItem(TOKEN_KEY, res.token);
+        localStorage.setItem('edqoo_token', res.token);
         localStorage.setItem(USER_KEY, JSON.stringify(res.user));
+        localStorage.setItem('edqoo_user', JSON.stringify(res.user));
         setUser(res.user);
         setIsLoading(false);
         return { success: true };
@@ -108,7 +112,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       // Ignore network errors on logout
     }
     localStorage.removeItem(USER_KEY);
+    localStorage.removeItem('edqoo_user');
     localStorage.removeItem(TOKEN_KEY);
+    localStorage.removeItem('edqoo_token');
     setUser(null);
   };
 

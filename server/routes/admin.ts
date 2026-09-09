@@ -59,23 +59,6 @@ router.get('/users', async (req, res) => {
     const roleFilter = (req.query.role as string || 'all').toLowerCase();
 
     if (isNeonConnected) {
-      // Background sync: ensure enquired candidates exist in users directory
-      await query(`
-        INSERT INTO users (id, name, email, password_hash, phone, avatar, role, is_active, created_at, last_login_at)
-        SELECT 
-          'usr-enq-' || substr(md5(email), 1, 8),
-          name,
-          LOWER(email),
-          '$2a$10$7Z8V4K9y6t4X0V1b8G4D4eYd0oV.5YtY3wN2qG6K8mP0uL2rS4t',
-          phone,
-          'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?q=80&w=150&auto=format&fit=crop',
-          'user',
-          true,
-          submitted_at,
-          submitted_at
-        FROM enquiries
-        ON CONFLICT (email) DO NOTHING
-      `).catch(() => {});
 
       let sql = `
         SELECT u.id, u.name, u.email, u.phone, u.avatar, u.role, u.is_active, u.created_at, u.last_login_at,

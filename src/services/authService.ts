@@ -27,7 +27,7 @@ function recordUserActivity(user: User) {
     // 1. Update registered users directory
     const storedUsers = localStorage.getItem('edqoo_registered_users');
     let usersList: any[] = storedUsers ? JSON.parse(storedUsers) : [DEFAULT_ADMIN, DEFAULT_STUDENT];
-    const existingIndex = usersList.findIndex((u: any) => u.email.toLowerCase() === user.email.toLowerCase());
+    const existingIndex = usersList.findIndex((u: any) => u.email?.toLowerCase() === user.email?.toLowerCase());
     const userRecord = {
       ...user,
       lastLoginAt: new Date().toISOString(),
@@ -57,10 +57,10 @@ function recordUserActivity(user: User) {
       isActive: true,
       createdAt: new Date().toISOString(),
       lastActiveAt: new Date().toISOString(),
-      expiresAt: new Date(Date.now() + 86400000 * 7).toISOString()
+      expiresAt: new Date(Date.now() + 86400000 * 30).toISOString()
     };
     // Keep most recent active sessions at top
-    sessionsList = [newSession, ...sessionsList.filter((s: any) => s.email !== user.email)].slice(0, 50);
+    sessionsList = [newSession, ...sessionsList.filter((s: any) => s.email?.toLowerCase() !== user.email?.toLowerCase())].slice(0, 50);
     localStorage.setItem('edqoo_active_sessions', JSON.stringify(sessionsList));
   } catch (err) {
     console.warn('Failed to record local user activity:', err);
@@ -79,7 +79,7 @@ export const authService = {
     } catch (error: any) {
       console.warn('Backend login endpoint response/error:', error?.message);
       
-      // Resilient fallback for default admin and student accounts if serverless API is cold-booting or offline
+      // Fallback for default admin and student accounts if server is unreachable
       if (normalizedEmail === 'admin@edqoo.com' && password === 'Admin@123456') {
         const clientToken = 'edqoo_jwt_admin_session_' + Date.now().toString(36);
         recordUserActivity(DEFAULT_ADMIN);
@@ -100,24 +100,8 @@ export const authService = {
         };
       }
 
-      // Check if user previously registered locally
-      const storedUsers = localStorage.getItem('edqoo_registered_users');
-      if (storedUsers) {
-        const usersList: any[] = JSON.parse(storedUsers);
-        const match = usersList.find((u: any) => u.email.toLowerCase() === normalizedEmail);
-        if (match) {
-          const clientToken = 'edqoo_jwt_session_' + Date.now().toString(36);
-          recordUserActivity(match);
-          return {
-            success: true,
-            token: clientToken,
-            user: match
-          };
-        }
-      }
-
-      // Re-throw server error message if present
-      const errorMsg = error.response?.data?.error || 'Invalid email or password.';
+      // Re-throw server error message
+      const errorMsg = error.response?.data?.error || error.message || 'Invalid email or password.';
       throw new Error(errorMsg);
     }
   },
@@ -132,23 +116,8 @@ export const authService = {
       return response.data;
     } catch (error: any) {
       console.warn('Backend register endpoint error:', error?.message);
-      const isRegisteredAdmin = normalizedEmail.includes('admin');
-      const newUser: User = {
-        id: `usr-${Math.random().toString(36).substring(2, 9)}`,
-        name: name.trim(),
-        email: normalizedEmail,
-        phone: phone || '',
-        avatar: 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?q=80&w=150&auto=format&fit=crop',
-        role: isRegisteredAdmin ? 'admin' : 'user',
-        createdAt: new Date().toISOString()
-      };
-      recordUserActivity(newUser);
-      const clientToken = 'edqoo_jwt_session_' + Date.now().toString(36);
-      return {
-        success: true,
-        token: clientToken,
-        user: newUser
-      };
+      const errorMsg = error.response?.data?.error || error.message || 'Unable to register account.';
+      throw new Error(errorMsg);
     }
   },
 
@@ -166,11 +135,19 @@ export const authService = {
       const response = await api.get('/auth/me');
       return response.data;
     } catch (error) {
-      const stored = localStorage.getItem('Edqoo_user');
+      const stored = localStorage.getItem('Edqoo_user') || localStorage.getItem('edqoo_user');
       if (stored) {
         return JSON.parse(stored);
       }
       throw error;
+    }
+  },
+
+  pingSession: async (): Promise<void> => {
+    try {
+      await api.post('/auth/ping-session');
+    } catch {
+      // Ignore ping errors
     }
   },
 
@@ -186,4 +163,5 @@ export const authService = {
     }
   }
 };
+
 

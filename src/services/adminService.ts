@@ -82,7 +82,6 @@ export const adminService = {
 
   // Get all registered users directory
   getUsers: async (search?: string, role?: string): Promise<AdminUser[]> => {
-    let resultUsers: AdminUser[] = [];
     try {
       const params = new URLSearchParams();
       if (search) params.append('search', search);
@@ -90,25 +89,26 @@ export const adminService = {
       
       const res = await api.get(`/admin/users?${params.toString()}`);
       if (Array.isArray(res.data) && res.data.length > 0) {
-        resultUsers = res.data;
+        return res.data;
       }
-    } catch {
-      // Ignore backend error, will fallback
+    } catch (err: any) {
+      console.warn('Backend getUsers failed, using local cache:', err?.message);
     }
 
-    // Merge with client registered users in localStorage
+    // Merge with client registered users in localStorage if backend was offline
+    let resultUsers: AdminUser[] = [];
     try {
       const stored = localStorage.getItem('edqoo_registered_users');
       const localUsers: AdminUser[] = stored ? JSON.parse(stored) : FALLBACK_USERS;
       const map = new Map<string, AdminUser>();
-      [...FALLBACK_USERS, ...localUsers, ...resultUsers].forEach(u => {
+      [...FALLBACK_USERS, ...localUsers].forEach(u => {
         if (u?.email) {
           map.set(u.email.toLowerCase(), { ...map.get(u.email.toLowerCase()), ...u });
         }
       });
       resultUsers = Array.from(map.values());
     } catch {
-      if (resultUsers.length === 0) resultUsers = FALLBACK_USERS;
+      resultUsers = FALLBACK_USERS;
     }
 
     if (role && role !== 'all') {
@@ -127,16 +127,16 @@ export const adminService = {
 
   // Get all active / logged in user sessions
   getActiveSessions: async (): Promise<UserSession[]> => {
-    let resultSessions: UserSession[] = [];
     try {
       const res = await api.get('/admin/sessions');
       if (Array.isArray(res.data) && res.data.length > 0) {
-        resultSessions = res.data;
+        return res.data;
       }
-    } catch {
-      // Ignore backend error, fallback
+    } catch (err: any) {
+      console.warn('Backend getActiveSessions failed, using local cache:', err?.message);
     }
 
+    let resultSessions: UserSession[] = [];
     try {
       const stored = localStorage.getItem('edqoo_active_sessions');
       const localSessions: UserSession[] = stored ? JSON.parse(stored) : FALLBACK_SESSIONS;
@@ -148,7 +148,7 @@ export const adminService = {
       });
 
       const map = new Map<string, UserSession>();
-      [...FALLBACK_SESSIONS, ...localSessions, ...resultSessions].forEach(s => {
+      [...FALLBACK_SESSIONS, ...localSessions].forEach(s => {
         if (s?.id || s?.email) {
           const key = s.id || s.email;
           const userPhone = s.phone || userPhoneMap.get(s.email?.toLowerCase()) || '';
@@ -157,7 +157,7 @@ export const adminService = {
       });
       resultSessions = Array.from(map.values());
     } catch {
-      if (resultSessions.length === 0) resultSessions = FALLBACK_SESSIONS;
+      resultSessions = FALLBACK_SESSIONS;
     }
 
     return resultSessions;

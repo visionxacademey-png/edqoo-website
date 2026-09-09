@@ -27,6 +27,7 @@ export const AdminUsers: React.FC = () => {
   const [users, setUsers] = useState<AdminUser[]>([]);
   const [searchTerm, setSearchTerm] = useState('');
   const [roleFilter, setRoleFilter] = useState('all');
+  const [sessionStatusFilter, setSessionStatusFilter] = useState<'all' | 'online' | 'closed'>('all');
   const [loading, setLoading] = useState(true);
   const [autoRefresh, setAutoRefresh] = useState(true);
   const [inspectingSession, setInspectingSession] = useState<UserSession | null>(null);
@@ -82,9 +83,9 @@ export const AdminUsers: React.FC = () => {
       const res = await adminService.revokeSession(sessionId);
       if (res.success) {
         showToast(`Session for ${userEmail} revoked successfully.`);
-        setSessions((prev) => prev.filter((s) => s.id !== sessionId));
+        setSessions((prev) => prev.map((s) => s.id === sessionId ? { ...s, isActive: false } : s));
         if (inspectingSession?.id === sessionId) {
-          setInspectingSession(null);
+          setInspectingSession((prev) => prev ? { ...prev, isActive: false } : null);
         }
       }
     } catch (err: any) {
@@ -139,20 +140,24 @@ export const AdminUsers: React.FC = () => {
   // Filtered Sessions
   const filteredSessions = sessions.filter((s) => {
     const term = searchTerm.toLowerCase();
-    return (
-      s.userName.toLowerCase().includes(term) ||
-      s.email.toLowerCase().includes(term) ||
+    const matchesSearch =
+      (s.userName && s.userName.toLowerCase().includes(term)) ||
+      (s.email && s.email.toLowerCase().includes(term)) ||
       (s.phone && s.phone.includes(term)) ||
-      s.ipAddress.includes(term)
-    );
+      (s.ipAddress && s.ipAddress.includes(term));
+    const matchesStatus =
+      sessionStatusFilter === 'all' ||
+      (sessionStatusFilter === 'online' && s.isActive) ||
+      (sessionStatusFilter === 'closed' && !s.isActive);
+    return matchesSearch && matchesStatus;
   });
 
   // Filtered Users
   const filteredUsers = users.filter((u) => {
     const term = searchTerm.toLowerCase();
     const matchesSearch =
-      u.name.toLowerCase().includes(term) ||
-      u.email.toLowerCase().includes(term) ||
+      (u.name && u.name.toLowerCase().includes(term)) ||
+      (u.email && u.email.toLowerCase().includes(term)) ||
       (u.phone && u.phone.includes(term));
     const matchesRole = roleFilter === 'all' || u.role === roleFilter;
     return matchesSearch && matchesRole;
@@ -363,6 +368,45 @@ export const AdminUsers: React.FC = () => {
           />
           <Search className="w-4 h-4 text-slate-500 absolute left-3 top-1/2 -translate-y-1/2" />
         </form>
+
+        {activeTab === 'sessions' && (
+          <div className="flex items-center gap-1.5 w-full sm:w-auto overflow-x-auto pb-1 sm:pb-0">
+            <button
+              type="button"
+              onClick={() => setSessionStatusFilter('all')}
+              className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all ${
+                sessionStatusFilter === 'all'
+                  ? 'bg-purple-600 text-white shadow-xs'
+                  : 'bg-slate-950 text-slate-400 hover:text-white border border-slate-800'
+              }`}
+            >
+              All Sessions ({sessions.length})
+            </button>
+            <button
+              type="button"
+              onClick={() => setSessionStatusFilter('online')}
+              className={`px-3 py-1.5 rounded-xl text-xs font-bold flex items-center gap-1.5 transition-all ${
+                sessionStatusFilter === 'online'
+                  ? 'bg-emerald-600 text-white shadow-xs'
+                  : 'bg-slate-950 text-slate-400 hover:text-white border border-slate-800'
+              }`}
+            >
+              <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
+              Online ({activeSessionsCount})
+            </button>
+            <button
+              type="button"
+              onClick={() => setSessionStatusFilter('closed')}
+              className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all ${
+                sessionStatusFilter === 'closed'
+                  ? 'bg-slate-800 text-white border border-slate-700'
+                  : 'bg-slate-950 text-slate-400 hover:text-white border border-slate-800'
+              }`}
+            >
+              Closed ({sessions.length - activeSessionsCount})
+            </button>
+          </div>
+        )}
 
         {activeTab === 'users' && (
           <div className="flex items-center gap-2 w-full sm:w-auto">
