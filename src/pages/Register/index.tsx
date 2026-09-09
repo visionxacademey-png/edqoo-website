@@ -46,11 +46,15 @@ export const Register: React.FC = () => {
   const onSubmit = async (data: RegisterFormData) => {
     setErrorMsg(null);
     try {
-      const success = await authRegister(data.name, data.email, data.phone, data.password);
-      if (success) {
-        navigate('/dashboard');
+      const res = await authRegister(data.name, data.email, data.phone, data.password);
+      if (res.success) {
+        if (data.email.toLowerCase().includes('admin')) {
+          navigate('/admin');
+        } else {
+          navigate('/dashboard');
+        }
       } else {
-        setErrorMsg('An account with this email address already exists.');
+        setErrorMsg(res.error || 'An account with this email address already exists.');
       }
     } catch {
       setErrorMsg('Network error while registering account.');

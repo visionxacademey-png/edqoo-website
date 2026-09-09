@@ -1,6 +1,5 @@
 import { Router, Response } from 'express';
 import bcrypt from 'bcryptjs';
-import { v4 as uuidv4 } from 'crypto';
 import { query, isNeonConnected, mockStore, MockUser, MockSession } from '../db';
 import { generateToken, authenticateToken, AuthRequest } from '../middleware/auth';
 
@@ -41,7 +40,7 @@ router.post('/register', async (req, res) => {
 
     if (isNeonConnected) {
       // Check existing email
-      const existing = await query('SELECT id FROM users WHERE email = $1', [normalizedEmail]);
+      const existing = await query('SELECT id FROM users WHERE LOWER(email) = LOWER($1)', [normalizedEmail]);
       if (existing.rows.length > 0) {
         return res.status(409).json({ error: 'An account with this email already exists.' });
       }
@@ -129,7 +128,7 @@ router.post('/login', async (req, res) => {
     let userRecord: any = null;
 
     if (isNeonConnected) {
-      const result = await query('SELECT * FROM users WHERE email = $1', [normalizedEmail]);
+      const result = await query('SELECT * FROM users WHERE LOWER(email) = LOWER($1)', [normalizedEmail]);
       if (result.rows.length === 0) {
         return res.status(401).json({ error: 'Invalid email or password.' });
       }

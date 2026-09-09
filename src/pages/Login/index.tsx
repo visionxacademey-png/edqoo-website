@@ -22,7 +22,7 @@ export const Login: React.FC = () => {
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
   const [showPassword, setShowPassword] = useState(false);
 
-  const redirectPath = searchParams.get('redirect') || '/dashboard';
+  const explicitRedirect = searchParams.get('redirect');
 
   const {
     register,
@@ -35,11 +35,17 @@ export const Login: React.FC = () => {
   const onSubmit = async (data: LoginFormData) => {
     setErrorMsg(null);
     try {
-      const success = await login(data.email, data.password);
-      if (success) {
-        navigate(redirectPath);
+      const res = await login(data.email, data.password);
+      if (res.success) {
+        if (explicitRedirect) {
+          navigate(explicitRedirect);
+        } else if (data.email.toLowerCase().includes('admin')) {
+          navigate('/admin');
+        } else {
+          navigate('/dashboard');
+        }
       } else {
-        setErrorMsg('Invalid login credentials. Please verify your email and password.');
+        setErrorMsg(res.error || 'Invalid login credentials. Please verify your email and password.');
       }
     } catch {
       setErrorMsg('Login failed. Please verify your connection.');

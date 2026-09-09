@@ -39,11 +39,11 @@ app.get('/api/health', (_req, res) => {
   });
 });
 
-// Mount Routes
-app.use('/api/auth', authRoutes);
-app.use('/api/admin', adminRoutes);
-app.use('/api/courses', coursesRoutes);
-app.use('/api/enquiries', enquiriesRoutes);
+// Mount Routes (support both /api/... and /... for Vercel Serverless Function invocations)
+app.use(['/api/auth', '/auth'], authRoutes);
+app.use(['/api/admin', '/admin'], adminRoutes);
+app.use(['/api/courses', '/courses'], coursesRoutes);
+app.use(['/api/enquiries', '/enquiries'], enquiriesRoutes);
 
 // Global Error Handler
 app.use((err: any, _req: express.Request, res: express.Response, _next: express.NextFunction) => {
