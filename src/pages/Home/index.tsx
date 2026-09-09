@@ -26,7 +26,6 @@ import {
   Cpu
 } from 'lucide-react';
 import { courses } from '../../data/courses';
-import { blogPosts } from '../../data/blog';
 import { SEO } from '../../components/common/SEO';
 import { useEnquiry } from '../../context/EnquiryContext';
 
@@ -875,61 +874,7 @@ export const Home: React.FC = () => {
         </div>
       </section>
 
-      {/* ========================================================================= */}
-      {/* 8. LATEST MEDIA & INSIGHTS SPOTLIGHT */}
-      {/* ========================================================================= */}
-      <section className="bg-slate-50 border-t border-slate-200 py-16">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex flex-col sm:flex-row items-start sm:items-end justify-between mb-10 gap-4">
-            <div className="text-left space-y-1">
-              <span className="text-purple-600 text-xs font-extrabold tracking-widest uppercase block">
-                MEDIA & INSIGHTS
-              </span>
-              <h2 className="text-2xl sm:text-3xl font-display font-extrabold text-slate-950">
-                Latest Insights & Industry Spotlights
-              </h2>
-            </div>
-            <Link to="/resources" className="btn-secondary text-xs px-4 py-2 font-bold rounded-lg whitespace-nowrap">
-              View All Articles
-            </Link>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            {blogPosts.slice(0, 3).map((post) => (
-              <div
-                key={post.id}
-                className="bg-white border border-slate-200 rounded-2xl overflow-hidden flex flex-col justify-between shadow-2xs hover:border-purple-300 hover:shadow-md transition-all group text-left"
-              >
-                <div className="aspect-[16/10] overflow-hidden bg-slate-100">
-                  <img
-                    src={post.image}
-                    alt={post.title}
-                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-                    loading="lazy"
-                  />
-                </div>
-                <div className="p-5 flex-1 flex flex-col justify-between space-y-3">
-                  <div className="space-y-1.5 text-left">
-                    <span className="text-[10px] font-bold text-purple-600 uppercase">
-                      {post.category}
-                    </span>
-                    <h3 className="font-display font-bold text-sm text-slate-950 group-hover:text-purple-600 transition-colors line-clamp-2">
-                      <Link to={`/resources/${post.slug}`}>{post.title}</Link>
-                    </h3>
-                    <p className="text-slate-500 text-xs leading-relaxed line-clamp-2">
-                      {post.excerpt}
-                    </p>
-                  </div>
-                  <div className="flex items-center justify-between text-[11px] text-slate-400 font-semibold pt-3 border-t border-slate-100">
-                    <span>{post.date}</span>
-                    <span>{post.readTime}</span>
-                  </div>
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
+    
 
       {/* ========================================================================= */}
       {/* 9. FINAL CALL TO ACTION */}

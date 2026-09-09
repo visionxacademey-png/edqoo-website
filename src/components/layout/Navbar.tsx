@@ -61,7 +61,6 @@ export const Navbar: React.FC = () => {
     { to: '/', label: 'Home' },
     { to: '/courses', label: 'Explore Programs' },
     { to: '/about', label: 'About Us' },
-    { to: '/resources', label: 'Resources' },
     { to: '/contact', label: 'Contact' }
   ];
 

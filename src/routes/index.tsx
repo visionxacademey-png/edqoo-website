@@ -22,10 +22,6 @@ const Login = React.lazy(() => import('../pages/Login').then(module => ({ defaul
 const Register = React.lazy(() => import('../pages/Register').then(module => ({ default: module.Register })));
 const ForgotPassword = React.lazy(() => import('../pages/ForgotPassword').then(module => ({ default: module.ForgotPassword })));
 
-// Resource/Blogs Pages
-const Resources = React.lazy(() => import('../pages/Blog').then(module => ({ default: module.Resources })));
-const ResourceDetails = React.lazy(() => import('../pages/Blog').then(module => ({ default: module.ResourceDetails })));
-
 // Dashboard Subviews
 const Dashboard = React.lazy(() => import('../pages/Dashboard').then(module => ({ default: module.Dashboard })));
 const MyEnquiries = React.lazy(() => import('../pages/Dashboard/DashboardViews').then(module => ({ default: module.MyEnquiries })));
@@ -58,8 +54,12 @@ export const AppRoutes: React.FC = () => {
           <Route path="/courses/:slug" element={<CourseDetails />} />
           <Route path="/about" element={<About />} />
           <Route path="/contact" element={<Contact />} />
-          <Route path="/resources" element={<Resources />} />
-          <Route path="/resources/:slug" element={<ResourceDetails />} />
+          
+          {/* Resources / Blog fallbacks redirected to Courses */}
+          <Route path="/resources" element={<Navigate to="/courses" replace />} />
+          <Route path="/resources/*" element={<Navigate to="/courses" replace />} />
+          <Route path="/blog" element={<Navigate to="/courses" replace />} />
+          <Route path="/blog/*" element={<Navigate to="/courses" replace />} />
           
           {/* Categories index page defaults back to Courses listings */}
           <Route path="/categories" element={<Navigate to="/courses" replace />} />
