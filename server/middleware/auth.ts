@@ -1,6 +1,6 @@
-import { Request, Response, NextFunction } from 'express';
+import type { Request, Response, NextFunction } from 'express';
 import jwt from 'jsonwebtoken';
-import { isDbConnected, query, mockStore } from '../db';
+import { isDbConnected, query, mockStore } from '../db/index.js';
 
 const JWT_SECRET = process.env.JWT_SECRET || 'edqoo_super_secure_jwt_secret_key_2026';
 

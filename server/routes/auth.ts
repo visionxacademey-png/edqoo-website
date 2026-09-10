@@ -1,7 +1,7 @@
-import { Router, Response } from 'express';
+import { Router, type Response } from 'express';
 import bcrypt from 'bcryptjs';
-import { query, isDbConnected, ensureDbInitialized, mockStore, MockUser, MockSession } from '../db';
-import { generateToken, authenticateToken, AuthRequest } from '../middleware/auth';
+import { query, isDbConnected, ensureDbInitialized, mockStore, type MockUser, type MockSession } from '../db/index.js';
+import { generateToken, authenticateToken, type AuthRequest } from '../middleware/auth.js';
 
 const router = Router();
 

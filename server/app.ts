@@ -1,11 +1,11 @@
 import express from 'express';
 import cors from 'cors';
 import dotenv from 'dotenv';
-import { ensureDbInitialized, getDbStatus } from './db';
-import authRoutes from './routes/auth';
-import adminRoutes from './routes/admin';
-import coursesRoutes from './routes/courses';
-import enquiriesRoutes from './routes/enquiries';
+import { ensureDbInitialized, getDbStatus } from './db/index.js';
+import authRoutes from './routes/auth.js';
+import adminRoutes from './routes/admin.js';
+import coursesRoutes from './routes/courses.js';
+import enquiriesRoutes from './routes/enquiries.js';
 
 dotenv.config();
 

@@ -1,8 +1,7 @@
 import { Pool, neonConfig } from '@neondatabase/serverless';
 import ws from 'ws';
 import dotenv from 'dotenv';
-import bcrypt from 'bcryptjs';
-import { courses as initialCourses } from '../../src/data/courses';
+import { courses as initialCourses } from '../../src/data/courses.js';
 
 dotenv.config();
 

@@ -1,6 +1,6 @@
-import { Router, Response } from 'express';
-import { query, isNeonConnected, mockStore, getDbStatus } from '../db';
-import { authenticateToken, requireAdmin, AuthRequest } from '../middleware/auth';
+import { Router, type Response } from 'express';
+import { query, isNeonConnected, mockStore, getDbStatus } from '../db/index.js';
+import { authenticateToken, requireAdmin, type AuthRequest } from '../middleware/auth.js';
 
 const router = Router();
 

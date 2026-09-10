@@ -1,7 +1,7 @@
-import { Router, Response } from 'express';
-import { query, isNeonConnected, mockStore } from '../db';
-import { authenticateToken, requireAdmin, AuthRequest } from '../middleware/auth';
-import type { Course } from '../../src/types';
+import { Router, type Response } from 'express';
+import { query, isNeonConnected, mockStore } from '../db/index.js';
+import { authenticateToken, requireAdmin, type AuthRequest } from '../middleware/auth.js';
+import type { Course } from '../../src/types/index.js';
 
 const router = Router();
 
@@ -365,28 +365,30 @@ router.put('/:id', authenticateToken, requireAdmin, async (req: AuthRequest, res
 
       const row = existing.rows[0];
       const updatedSlug = slug ? slugify(slug) : row.slug;
-      const assignedCategories = Array.isArray(categories) && categories.length > 0
+      const categoryStr = typeof category === 'string' ? category : undefined;
+      const assignedCategories: string[] = Array.isArray(categories) && categories.length > 0
         ? categories
-        : (category ? [category] : safeJsonParse(row.categories, [row.category]));
+        : (categoryStr ? [categoryStr] : safeJsonParse<string[]>(row.categories, [row.category]));
 
+      const courseId = String(id);
       const updatedCourse: Course = {
-        id,
+        id: courseId,
         slug: updatedSlug,
-        title: title || row.title,
-        category: category || assignedCategories[0] || row.category,
+        title: typeof title === 'string' ? title : row.title,
+        category: categoryStr || assignedCategories[0] || row.category,
         categories: assignedCategories,
         shortDescription: shortDescription !== undefined ? shortDescription : row.short_description,
-        description: description || row.description,
-        image: image || row.image,
+        description: typeof description === 'string' ? description : (row.description || ''),
+        image: typeof image === 'string' ? image : row.image,
         price: price !== undefined ? Number(price) : Number(row.price),
         originalPrice: originalPrice !== undefined ? Number(originalPrice) : Number(row.original_price),
-        duration: duration || row.duration,
+        duration: typeof duration === 'string' ? duration : row.duration,
         liveHours: liveHours !== undefined ? liveHours : row.live_hours,
         lessons: lessons !== undefined ? Number(lessons) : Number(row.lessons),
-        level: level || row.level,
+        level: typeof level === 'string' ? level : row.level,
         rating: rating !== undefined ? Number(rating) : Number(row.rating),
         students: students !== undefined ? Number(students) : Number(row.students),
-        status: status || row.status,
+        status: status === 'coming-soon' ? 'coming-soon' : (row.status === 'coming-soon' ? 'coming-soon' : 'available'),
         featured: featured !== undefined ? Boolean(featured) : Boolean(row.featured),
         skills: skills !== undefined ? skills : safeJsonParse(row.skills, []),
         curriculum: curriculum !== undefined ? curriculum : safeJsonParse(row.curriculum, []),
@@ -448,29 +450,30 @@ router.put('/:id', authenticateToken, requireAdmin, async (req: AuthRequest, res
       }
 
       const existing = mockStore.courses[idx];
-      const assignedCategories = Array.isArray(categories) && categories.length > 0
+      const categoryStr = typeof category === 'string' ? category : undefined;
+      const assignedCategories: string[] = Array.isArray(categories) && categories.length > 0
         ? categories
-        : (category ? [category] : existing.categories || [existing.category]);
+        : (categoryStr ? [categoryStr] : existing.categories || [existing.category]);
 
       const updated: Course = {
         ...existing,
-        title: title || existing.title,
+        title: typeof title === 'string' ? title : existing.title,
         slug: slug ? slugify(slug) : existing.slug,
-        category: category || assignedCategories[0] || existing.category,
+        category: categoryStr || assignedCategories[0] || existing.category,
         categories: assignedCategories,
         shortDescription: shortDescription !== undefined ? shortDescription : existing.shortDescription,
-        description: description || existing.description,
-        image: image || existing.image,
+        description: typeof description === 'string' ? description : existing.description,
+        image: typeof image === 'string' ? image : existing.image,
         price: price !== undefined ? Number(price) : existing.price,
         originalPrice: originalPrice !== undefined ? Number(originalPrice) : existing.originalPrice,
-        duration: duration || existing.duration,
+        duration: typeof duration === 'string' ? duration : existing.duration,
         liveHours: liveHours !== undefined ? liveHours : existing.liveHours,
         lessons: lessons !== undefined ? Number(lessons) : existing.lessons,
-        level: level || existing.level,
+        level: typeof level === 'string' ? level : existing.level,
         rating: rating !== undefined ? Number(rating) : existing.rating,
         students: students !== undefined ? Number(students) : existing.students,
-        status: status || existing.status,
-        featured: featured !== undefined ? Boolean(featured) : existing.featured,
+        status: status === 'coming-soon' ? 'coming-soon' : (existing.status === 'coming-soon' ? 'coming-soon' : 'available'),
+        featured: featured !== undefined ? Boolean(featured) : Boolean(existing.featured),
         skills: skills !== undefined ? skills : existing.skills,
         curriculum: curriculum !== undefined ? curriculum : existing.curriculum,
         modules: modules !== undefined ? modules : existing.modules,

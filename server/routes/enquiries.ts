@@ -1,8 +1,8 @@
 import { Router } from 'express';
 import bcrypt from 'bcryptjs';
-import { query, isNeonConnected, mockStore, MockUser, MockSession } from '../db';
-import { authenticateToken, requireAdmin, AuthRequest } from '../middleware/auth';
-import type { Enquiry } from '../../src/types';
+import { query, isNeonConnected, mockStore, type MockUser } from '../db/index.js';
+import { authenticateToken, requireAdmin } from '../middleware/auth.js';
+import type { Enquiry } from '../../src/types/index.js';
 
 const router = Router();
 

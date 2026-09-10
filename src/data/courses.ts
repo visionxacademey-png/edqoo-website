@@ -1,4 +1,4 @@
-import type { Course, CurriculumSection, Module } from '../types';
+import type { Course, CurriculumSection, Module } from '../types/index.js';
 
 // =============================================================================
 // GLOBAL REUSABLE FEATURE LIST (Mandatory 15 Common Features for all Courses)
