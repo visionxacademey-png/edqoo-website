@@ -57,11 +57,13 @@ router.get('/users', async (req, res) => {
   try {
     const searchTerm = (req.query.search as string || '').toLowerCase().trim();
     const roleFilter = (req.query.role as string || 'all').toLowerCase();
+    const osFilter = (req.query.os as string || 'all').toLowerCase();
+    const deviceTypeFilter = (req.query.deviceType as string || 'all').toLowerCase();
 
     if (isNeonConnected) {
-
       let sql = `
         SELECT u.id, u.name, u.email, u.phone, u.avatar, u.role, u.is_active, u.created_at, u.last_login_at,
+               u.device_info, u.last_ip, u.last_device_id, u.last_device_type, u.last_os, u.last_browser, u.last_timezone,
                COUNT(s.id) FILTER (WHERE s.is_active = true) as active_sessions_count
         FROM users u
         LEFT JOIN user_sessions s ON (u.id = s.user_id OR LOWER(u.email) = LOWER(s.email))
@@ -74,40 +76,81 @@ router.get('/users', async (req, res) => {
         whereClauses.push(`u.role = $${params.length}`);
       }
 
+      if (osFilter !== 'all') {
+        params.push(`%${osFilter}%`);
+        whereClauses.push(`LOWER(COALESCE(u.last_os, '')) LIKE $${params.length}`);
+      }
+
+      if (deviceTypeFilter !== 'all') {
+        params.push(deviceTypeFilter);
+        whereClauses.push(`LOWER(COALESCE(u.last_device_type, '')) = $${params.length}`);
+      }
+
       if (searchTerm) {
         params.push(`%${searchTerm}%`);
-        whereClauses.push(`(LOWER(u.name) LIKE $${params.length} OR LOWER(u.email) LIKE $${params.length} OR u.phone LIKE $${params.length})`);
+        whereClauses.push(`(
+          LOWER(u.name) LIKE $${params.length} OR
+          LOWER(u.email) LIKE $${params.length} OR
+          u.phone LIKE $${params.length} OR
+          LOWER(COALESCE(u.last_os, '')) LIKE $${params.length} OR
+          LOWER(COALESCE(u.last_device_type, '')) LIKE $${params.length} OR
+          LOWER(COALESCE(u.last_browser, '')) LIKE $${params.length} OR
+          LOWER(COALESCE(u.last_device_id, '')) LIKE $${params.length}
+        )`);
       }
 
       if (whereClauses.length > 0) {
         sql += ` WHERE ${whereClauses.join(' AND ')}`;
       }
 
-      sql += ` GROUP BY u.id, u.name, u.email, u.phone, u.avatar, u.role, u.is_active, u.created_at, u.last_login_at ORDER BY u.last_login_at DESC NULLS LAST, u.created_at DESC`;
+      sql += ` GROUP BY u.id, u.name, u.email, u.phone, u.avatar, u.role, u.is_active, u.created_at, u.last_login_at,
+                        u.device_info, u.last_ip, u.last_device_id, u.last_device_type, u.last_os, u.last_browser, u.last_timezone
+               ORDER BY u.last_login_at DESC NULLS LAST, u.created_at DESC`;
 
       const result = await query(sql, params);
-      const formatted = result.rows.map(row => ({
-        id: row.id,
-        name: row.name,
-        email: row.email,
-        phone: row.phone,
-        avatar: row.avatar,
-        role: row.role,
-        isActive: row.is_active,
-        createdAt: row.created_at,
-        lastLoginAt: row.last_login_at,
-        activeSessionsCount: parseInt(row.active_sessions_count || '0', 10)
-      }));
+      const formatted = result.rows.map(row => {
+        let parsedDeviceInfo = undefined;
+        if (typeof row.device_info === 'string' && row.device_info.startsWith('{')) {
+          try { parsedDeviceInfo = JSON.parse(row.device_info); } catch {}
+        } else if (typeof row.device_info === 'object' && row.device_info !== null) {
+          parsedDeviceInfo = row.device_info;
+        }
+
+        return {
+          id: row.id,
+          name: row.name,
+          email: row.email,
+          phone: row.phone,
+          avatar: row.avatar,
+          role: row.role,
+          isActive: row.is_active,
+          createdAt: row.created_at,
+          lastLoginAt: row.last_login_at,
+          deviceInfo: parsedDeviceInfo,
+          lastIp: row.last_ip,
+          lastDeviceId: row.last_device_id,
+          lastDeviceType: row.last_device_type,
+          lastOs: row.last_os,
+          lastBrowser: row.last_browser,
+          lastTimezone: row.last_timezone,
+          activeSessionsCount: parseInt(row.active_sessions_count || '0', 10)
+        };
+      });
 
       return res.json(formatted);
     } else {
       let filtered = mockStore.users.filter(u => {
         const matchesRole = roleFilter === 'all' || u.role === roleFilter;
+        const matchesOs = osFilter === 'all' || (u.last_os && u.last_os.toLowerCase().includes(osFilter));
+        const matchesDeviceType = deviceTypeFilter === 'all' || (u.last_device_type && u.last_device_type.toLowerCase() === deviceTypeFilter);
         const matchesSearch = !searchTerm ||
           u.name.toLowerCase().includes(searchTerm) ||
           u.email.toLowerCase().includes(searchTerm) ||
-          (u.phone && u.phone.includes(searchTerm));
-        return matchesRole && matchesSearch;
+          (u.phone && u.phone.includes(searchTerm)) ||
+          (u.last_os && u.last_os.toLowerCase().includes(searchTerm)) ||
+          (u.last_device_type && u.last_device_type.toLowerCase().includes(searchTerm)) ||
+          (u.last_device_id && u.last_device_id.toLowerCase().includes(searchTerm));
+        return matchesRole && matchesOs && matchesDeviceType && matchesSearch;
       });
 
       const formatted = filtered.map(u => ({
@@ -120,6 +163,13 @@ router.get('/users', async (req, res) => {
         isActive: u.is_active,
         createdAt: u.created_at,
         lastLoginAt: u.last_login_at,
+        deviceInfo: u.device_info,
+        lastIp: u.last_ip,
+        lastDeviceId: u.last_device_id,
+        lastDeviceType: u.last_device_type,
+        lastOs: u.last_os,
+        lastBrowser: u.last_browser,
+        lastTimezone: u.last_timezone,
         activeSessionsCount: mockStore.sessions.filter(s => (s.user_id === u.id || s.email.toLowerCase() === u.email.toLowerCase()) && s.is_active).length
       })).sort((a, b) => new Date(b.lastLoginAt || b.createdAt).getTime() - new Date(a.lastLoginAt || a.createdAt).getTime());
 
@@ -136,8 +186,10 @@ router.get('/sessions', async (_req, res) => {
   try {
     if (isNeonConnected) {
       const sql = `
-        SELECT s.id, s.user_id, s.email, s.ip_address, s.user_agent, s.is_active,
-               s.created_at, s.last_active_at, s.expires_at,
+        SELECT s.id, s.user_id, s.email, s.ip_address, s.user_agent,
+               s.device_id, s.device_type, s.os, s.os_version, s.browser, s.browser_version,
+               s.device_model, s.screen_resolution, s.language, s.timezone, s.fingerprint, s.device_info,
+               s.is_active, s.created_at, s.last_active_at, s.expires_at,
                COALESCE(u.name, split_part(s.email, '@', 1)) as user_name,
                COALESCE(u.phone, '') as user_phone,
                COALESCE(u.role, 'user') as user_role,
@@ -148,21 +200,42 @@ router.get('/sessions', async (_req, res) => {
         LIMIT 100
       `;
       const result = await query(sql);
-      const formatted = result.rows.map(row => ({
-        id: row.id,
-        userId: row.user_id,
-        userName: row.user_name || row.email.split('@')[0],
-        email: row.email,
-        phone: row.user_phone || '',
-        userRole: row.user_role || 'user',
-        avatar: row.user_avatar || 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?q=80&w=150&auto=format&fit=crop',
-        ipAddress: row.ip_address || '127.0.0.1',
-        userAgent: row.user_agent || 'Unknown Client',
-        isActive: row.is_active,
-        createdAt: row.created_at,
-        lastActiveAt: row.last_active_at,
-        expiresAt: row.expires_at
-      }));
+      const formatted = result.rows.map(row => {
+        let parsedDeviceInfo = undefined;
+        if (typeof row.device_info === 'string' && row.device_info.startsWith('{')) {
+          try { parsedDeviceInfo = JSON.parse(row.device_info); } catch {}
+        } else if (typeof row.device_info === 'object' && row.device_info !== null) {
+          parsedDeviceInfo = row.device_info;
+        }
+
+        return {
+          id: row.id,
+          userId: row.user_id,
+          userName: row.user_name || row.email.split('@')[0],
+          email: row.email,
+          phone: row.user_phone || '',
+          userRole: row.user_role || 'user',
+          avatar: row.user_avatar || 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?q=80&w=150&auto=format&fit=crop',
+          ipAddress: row.ip_address || '127.0.0.1',
+          userAgent: row.user_agent || 'Unknown Client',
+          deviceId: row.device_id || parsedDeviceInfo?.deviceId,
+          deviceType: row.device_type || parsedDeviceInfo?.deviceType,
+          os: row.os || parsedDeviceInfo?.os,
+          osVersion: row.os_version || parsedDeviceInfo?.osVersion,
+          browser: row.browser || parsedDeviceInfo?.browser,
+          browserVersion: row.browser_version || parsedDeviceInfo?.browserVersion,
+          deviceModel: row.device_model || parsedDeviceInfo?.deviceModel,
+          screenResolution: row.screen_resolution || parsedDeviceInfo?.screenResolution,
+          language: row.language || parsedDeviceInfo?.language,
+          timezone: row.timezone || parsedDeviceInfo?.timezone,
+          fingerprint: row.fingerprint || parsedDeviceInfo?.fingerprint,
+          deviceInfo: parsedDeviceInfo,
+          isActive: row.is_active,
+          createdAt: row.created_at,
+          lastActiveAt: row.last_active_at,
+          expiresAt: row.expires_at
+        };
+      });
 
       return res.json(formatted);
     } else {
@@ -178,6 +251,18 @@ router.get('/sessions', async (_req, res) => {
           avatar: u?.avatar || 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?q=80&w=150&auto=format&fit=crop',
           ipAddress: s.ip_address,
           userAgent: s.user_agent,
+          deviceId: s.device_id,
+          deviceType: s.device_type,
+          os: s.os,
+          osVersion: s.os_version,
+          browser: s.browser,
+          browserVersion: s.browser_version,
+          deviceModel: s.device_model,
+          screenResolution: s.screen_resolution,
+          language: s.language,
+          timezone: s.timezone,
+          fingerprint: s.fingerprint,
+          deviceInfo: s.device_info,
           isActive: s.is_active,
           createdAt: s.created_at,
           lastActiveAt: s.last_active_at,

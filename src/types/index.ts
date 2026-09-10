@@ -132,6 +132,21 @@ export interface Enquiry {
   updatedAt?: string;
 }
 
+export interface DeviceInfo {
+  deviceId?: string;
+  deviceType?: 'Desktop' | 'Laptop' | 'Tablet' | 'Mobile';
+  os?: string;
+  osVersion?: string;
+  browser?: string;
+  browserVersion?: string;
+  deviceModel?: string;
+  screenResolution?: string;
+  language?: string;
+  timezone?: string;
+  fingerprint?: string;
+  platform?: string;
+}
+
 export interface User {
   id: string;
   name: string;
@@ -142,6 +157,13 @@ export interface User {
   isActive?: boolean;
   createdAt?: string;
   lastLoginAt?: string;
+  deviceInfo?: DeviceInfo;
+  lastIp?: string;
+  lastDeviceId?: string;
+  lastDeviceType?: string;
+  lastOs?: string;
+  lastBrowser?: string;
+  lastTimezone?: string;
 }
 
 export interface AdminUser extends User {
@@ -158,6 +180,18 @@ export interface UserSession {
   avatar?: string;
   ipAddress: string;
   userAgent: string;
+  deviceId?: string;
+  deviceType?: 'Desktop' | 'Laptop' | 'Tablet' | 'Mobile';
+  os?: string;
+  osVersion?: string;
+  browser?: string;
+  browserVersion?: string;
+  deviceModel?: string;
+  screenResolution?: string;
+  language?: string;
+  timezone?: string;
+  fingerprint?: string;
+  deviceInfo?: DeviceInfo;
   isActive: boolean;
   createdAt: string;
   lastActiveAt: string;

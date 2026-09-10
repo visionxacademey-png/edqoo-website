@@ -1,5 +1,6 @@
 import api from './api';
-import type { User } from '../types';
+import type { User } from '../types/index.js';
+import { getDeviceInfo } from '../utils/deviceInfo.js';
 
 const DEFAULT_ADMIN: User = {
   id: 'usr-admin-01',
@@ -8,7 +9,26 @@ const DEFAULT_ADMIN: User = {
   phone: '+91 90744 50935',
   avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?q=80&w=150&auto=format&fit=crop',
   role: 'admin',
-  createdAt: new Date().toISOString()
+  createdAt: new Date().toISOString(),
+  lastIp: '127.0.0.1',
+  lastDeviceId: 'dev-adm-win11-8f2e',
+  lastDeviceType: 'Desktop',
+  lastOs: 'Windows',
+  lastBrowser: 'Google Chrome',
+  lastTimezone: 'Asia/Kolkata (UTC+05:30)',
+  deviceInfo: {
+    deviceId: 'dev-adm-win11-8f2e',
+    deviceType: 'Desktop',
+    os: 'Windows',
+    osVersion: '11 Pro',
+    browser: 'Google Chrome',
+    browserVersion: '122.0.6261.129',
+    deviceModel: 'Windows Workstation PC',
+    screenResolution: '1920 × 1080 (1.25x DPR, 24-bit)',
+    language: 'en-IN',
+    timezone: 'Asia/Kolkata (UTC+05:30)',
+    fingerprint: 'fp-8f2e91ca-1b4d'
+  }
 };
 
 const DEFAULT_STUDENT: User = {
@@ -18,12 +38,33 @@ const DEFAULT_STUDENT: User = {
   phone: '+91 98765 43210',
   avatar: 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?q=80&w=150&auto=format&fit=crop',
   role: 'user',
-  createdAt: new Date().toISOString()
+  createdAt: new Date().toISOString(),
+  lastIp: '103.212.144.52',
+  lastDeviceId: 'dev-stu-macbook-3c9a',
+  lastDeviceType: 'Laptop',
+  lastOs: 'macOS',
+  lastBrowser: 'Apple Safari',
+  lastTimezone: 'Asia/Kolkata (UTC+05:30)',
+  deviceInfo: {
+    deviceId: 'dev-stu-macbook-3c9a',
+    deviceType: 'Laptop',
+    os: 'macOS',
+    osVersion: '14.4 (Sonoma)',
+    browser: 'Apple Safari',
+    browserVersion: '17.4',
+    deviceModel: 'MacBook Pro 16"',
+    screenResolution: '2560 × 1440 (2x Retina, 30-bit)',
+    language: 'en-US',
+    timezone: 'Asia/Kolkata (UTC+05:30)',
+    fingerprint: 'fp-3c9a72df-8e10'
+  }
 };
 
 // Helper to record user logins and registrations in client storage
 function recordUserActivity(user: User) {
   try {
+    const currentDevice = getDeviceInfo();
+
     // 1. Update registered users directory
     const storedUsers = localStorage.getItem('edqoo_registered_users');
     let usersList: any[] = storedUsers ? JSON.parse(storedUsers) : [DEFAULT_ADMIN, DEFAULT_STUDENT];
@@ -32,7 +73,14 @@ function recordUserActivity(user: User) {
       ...user,
       lastLoginAt: new Date().toISOString(),
       isActive: true,
-      activeSessionsCount: 1
+      activeSessionsCount: 1,
+      deviceInfo: user.deviceInfo || currentDevice,
+      lastIp: user.lastIp || '127.0.0.1 (Local Client)',
+      lastDeviceId: currentDevice.deviceId,
+      lastDeviceType: currentDevice.deviceType,
+      lastOs: currentDevice.os,
+      lastBrowser: currentDevice.browser,
+      lastTimezone: currentDevice.timezone
     };
     if (existingIndex >= 0) {
       usersList[existingIndex] = { ...usersList[existingIndex], ...userRecord };
@@ -54,6 +102,18 @@ function recordUserActivity(user: User) {
       avatar: user.avatar || 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?q=80&w=150&auto=format&fit=crop',
       ipAddress: '127.0.0.1 (Web Client)',
       userAgent: navigator.userAgent || 'Modern Web Browser',
+      deviceId: currentDevice.deviceId,
+      deviceType: currentDevice.deviceType,
+      os: currentDevice.os,
+      osVersion: currentDevice.osVersion,
+      browser: currentDevice.browser,
+      browserVersion: currentDevice.browserVersion,
+      deviceModel: currentDevice.deviceModel,
+      screenResolution: currentDevice.screenResolution,
+      language: currentDevice.language,
+      timezone: currentDevice.timezone,
+      fingerprint: currentDevice.fingerprint,
+      deviceInfo: currentDevice,
       isActive: true,
       createdAt: new Date().toISOString(),
       lastActiveAt: new Date().toISOString(),
@@ -70,8 +130,9 @@ function recordUserActivity(user: User) {
 export const authService = {
   login: async (email: string, password: string): Promise<{ success: boolean; token: string; user: User }> => {
     const normalizedEmail = email.toLowerCase().trim();
+    const deviceInfo = getDeviceInfo();
     try {
-      const response = await api.post('/auth/login', { email: normalizedEmail, password });
+      const response = await api.post('/auth/login', { email: normalizedEmail, password, deviceInfo });
       if (response.data?.user) {
         recordUserActivity(response.data.user);
       }
@@ -110,13 +171,15 @@ export const authService = {
     const normalizedEmail = email.toLowerCase().trim();
     const cleanPhone = (phone || '').toString().trim();
     const role: 'admin' | 'user' = normalizedEmail.includes('admin') ? 'admin' : 'user';
+    const deviceInfo = getDeviceInfo();
 
     try {
       const response = await api.post('/auth/register', {
         name: name.trim(),
         email: normalizedEmail,
         phone: cleanPhone,
-        password
+        password,
+        deviceInfo
       });
 
       if (response.data?.user) {
@@ -139,7 +202,6 @@ export const authService = {
       }
 
       // Offline / Network / Local Client Fallback:
-      // If server is unreachable or offline, create user in local client storage and return authenticated session
       const clientUserId = `usr-${Date.now().toString(36)}-${Math.random().toString(36).substring(2, 6)}`;
       const clientToken = `edqoo_jwt_client_reg_${Date.now().toString(36)}_${Math.random().toString(36).substring(2, 6)}`;
       const avatar = 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?q=80&w=150&auto=format&fit=crop';
@@ -151,6 +213,13 @@ export const authService = {
         phone: cleanPhone,
         avatar,
         role,
+        deviceInfo,
+        lastIp: '127.0.0.1',
+        lastDeviceId: deviceInfo.deviceId,
+        lastDeviceType: deviceInfo.deviceType,
+        lastOs: deviceInfo.os,
+        lastBrowser: deviceInfo.browser,
+        lastTimezone: deviceInfo.timezone,
         createdAt: new Date().toISOString()
       };
 
@@ -188,7 +257,8 @@ export const authService = {
 
   pingSession: async (): Promise<void> => {
     try {
-      await api.post('/auth/ping-session');
+      const deviceInfo = getDeviceInfo();
+      await api.post('/auth/ping-session', { deviceInfo });
     } catch {
       // Ignore ping errors
     }

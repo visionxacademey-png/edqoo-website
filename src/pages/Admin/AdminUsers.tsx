@@ -6,6 +6,9 @@ import {
   RefreshCw,
   CheckCircle2,
   Laptop,
+  Smartphone,
+  Tablet,
+  Monitor,
   Globe,
   AlertCircle,
   Filter,
@@ -16,10 +19,16 @@ import {
   Radio,
   Phone,
   MessageCircle,
-  Mail
+  Mail,
+  Fingerprint,
+  Cpu,
+  Clock,
+  Copy,
+  Check,
+  HardDrive
 } from 'lucide-react';
-import { adminService } from '../../services/adminService';
-import type { AdminUser, UserSession } from '../../types';
+import { adminService } from '../../services/adminService.js';
+import type { AdminUser, UserSession, DeviceInfo } from '../../types/index.js';
 
 export const AdminUsers: React.FC = () => {
   const [activeTab, setActiveTab] = useState<'sessions' | 'users'>('sessions');
@@ -27,16 +36,27 @@ export const AdminUsers: React.FC = () => {
   const [users, setUsers] = useState<AdminUser[]>([]);
   const [searchTerm, setSearchTerm] = useState('');
   const [roleFilter, setRoleFilter] = useState('all');
+  const [osFilter, setOsFilter] = useState('all');
+  const [deviceTypeFilter, setDeviceTypeFilter] = useState('all');
   const [sessionStatusFilter, setSessionStatusFilter] = useState<'all' | 'online' | 'closed'>('all');
   const [loading, setLoading] = useState(true);
   const [autoRefresh, setAutoRefresh] = useState(true);
   const [inspectingSession, setInspectingSession] = useState<UserSession | null>(null);
   const [inspectingUser, setInspectingUser] = useState<AdminUser | null>(null);
   const [actionMessage, setActionMessage] = useState<{ text: string; type: 'success' | 'error' } | null>(null);
+  const [copiedId, setCopiedId] = useState<string | null>(null);
 
   const showToast = (text: string, type: 'success' | 'error' = 'success') => {
     setActionMessage({ text, type });
     setTimeout(() => setActionMessage(null), 3500);
+  };
+
+  const copyToClipboard = (text: string, label: string) => {
+    if (!text) return;
+    navigator.clipboard.writeText(text);
+    setCopiedId(label);
+    showToast(`Copied ${label} to clipboard!`);
+    setTimeout(() => setCopiedId(null), 2000);
   };
 
   const loadData = async (silent = false) => {
@@ -44,7 +64,7 @@ export const AdminUsers: React.FC = () => {
     try {
       const [sessionsData, usersData] = await Promise.all([
         adminService.getActiveSessions(),
-        adminService.getUsers(searchTerm, roleFilter)
+        adminService.getUsers(searchTerm, roleFilter, osFilter, deviceTypeFilter)
       ]);
       setSessions(sessionsData);
       setUsers(usersData);
@@ -60,7 +80,7 @@ export const AdminUsers: React.FC = () => {
 
   useEffect(() => {
     loadData();
-  }, [roleFilter]);
+  }, [roleFilter, osFilter, deviceTypeFilter]);
 
   // Auto-refresh every 15 seconds when autoRefresh is enabled
   useEffect(() => {
@@ -69,7 +89,7 @@ export const AdminUsers: React.FC = () => {
       loadData(true);
     }, 15000);
     return () => clearInterval(interval);
-  }, [autoRefresh, roleFilter, searchTerm]);
+  }, [autoRefresh, roleFilter, osFilter, deviceTypeFilter, searchTerm]);
 
   const handleSearchSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -137,30 +157,86 @@ export const AdminUsers: React.FC = () => {
     }
   };
 
+  // Helper: Device icon
+  const renderDeviceIcon = (deviceType?: string) => {
+    const type = (deviceType || '').toLowerCase();
+    if (type.includes('mobile') || type.includes('phone')) return <Smartphone className="w-3.5 h-3.5 text-emerald-400" />;
+    if (type.includes('tablet') || type.includes('ipad')) return <Tablet className="w-3.5 h-3.5 text-cyan-400" />;
+    if (type.includes('laptop') || type.includes('macbook')) return <Laptop className="w-3.5 h-3.5 text-purple-400" />;
+    return <Monitor className="w-3.5 h-3.5 text-blue-400" />;
+  };
+
+  // Helper: OS badge
+  const renderOsBadge = (os?: string, version?: string) => {
+    const osName = os || 'Unknown';
+    const osLower = osName.toLowerCase();
+
+    let colorClasses = 'bg-slate-800 text-slate-300 border-slate-700';
+    if (osLower.includes('win')) {
+      colorClasses = 'bg-sky-950/80 text-sky-300 border-sky-700/60';
+    } else if (osLower.includes('mac') || osLower.includes('ios') || osLower.includes('apple')) {
+      colorClasses = 'bg-slate-800 text-slate-200 border-slate-600';
+    } else if (osLower.includes('android')) {
+      colorClasses = 'bg-emerald-950/80 text-emerald-300 border-emerald-700/60';
+    } else if (osLower.includes('linux') || osLower.includes('ubuntu')) {
+      colorClasses = 'bg-amber-950/80 text-amber-300 border-amber-700/60';
+    } else if (osLower.includes('chrome')) {
+      colorClasses = 'bg-purple-950/80 text-purple-300 border-purple-700/60';
+    }
+
+    return (
+      <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded text-[10px] font-extrabold uppercase border ${colorClasses}`}>
+        <span>{osName}</span>
+        {version && <span className="font-normal opacity-80">{version}</span>}
+      </span>
+    );
+  };
+
   // Filtered Sessions
   const filteredSessions = sessions.filter((s) => {
     const term = searchTerm.toLowerCase();
+    const dev = s.deviceInfo || {};
     const matchesSearch =
       (s.userName && s.userName.toLowerCase().includes(term)) ||
       (s.email && s.email.toLowerCase().includes(term)) ||
       (s.phone && s.phone.includes(term)) ||
-      (s.ipAddress && s.ipAddress.includes(term));
+      (s.ipAddress && s.ipAddress.includes(term)) ||
+      (s.os && s.os.toLowerCase().includes(term)) ||
+      (s.browser && s.browser.toLowerCase().includes(term)) ||
+      (s.deviceId && s.deviceId.toLowerCase().includes(term)) ||
+      (s.fingerprint && s.fingerprint.toLowerCase().includes(term)) ||
+      (dev.deviceModel && dev.deviceModel.toLowerCase().includes(term));
+
     const matchesStatus =
       sessionStatusFilter === 'all' ||
       (sessionStatusFilter === 'online' && s.isActive) ||
       (sessionStatusFilter === 'closed' && !s.isActive);
-    return matchesSearch && matchesStatus;
+
+    const matchesOs = osFilter === 'all' || (s.os && s.os.toLowerCase().includes(osFilter.toLowerCase()));
+    const matchesDeviceType = deviceTypeFilter === 'all' || (s.deviceType && s.deviceType.toLowerCase() === deviceTypeFilter.toLowerCase());
+
+    return matchesSearch && matchesStatus && matchesOs && matchesDeviceType;
   });
 
   // Filtered Users
   const filteredUsers = users.filter((u) => {
     const term = searchTerm.toLowerCase();
+    const dev = u.deviceInfo || {};
     const matchesSearch =
       (u.name && u.name.toLowerCase().includes(term)) ||
       (u.email && u.email.toLowerCase().includes(term)) ||
-      (u.phone && u.phone.includes(term));
+      (u.phone && u.phone.includes(term)) ||
+      (u.lastOs && u.lastOs.toLowerCase().includes(term)) ||
+      (u.lastBrowser && u.lastBrowser.toLowerCase().includes(term)) ||
+      (u.lastDeviceId && u.lastDeviceId.toLowerCase().includes(term)) ||
+      (u.lastDeviceType && u.lastDeviceType.toLowerCase().includes(term)) ||
+      (dev.deviceModel && dev.deviceModel.toLowerCase().includes(term));
+
     const matchesRole = roleFilter === 'all' || u.role === roleFilter;
-    return matchesSearch && matchesRole;
+    const matchesOs = osFilter === 'all' || (u.lastOs && u.lastOs.toLowerCase().includes(osFilter.toLowerCase()));
+    const matchesDeviceType = deviceTypeFilter === 'all' || (u.lastDeviceType && u.lastDeviceType.toLowerCase() === deviceTypeFilter.toLowerCase());
+
+    return matchesSearch && matchesRole && matchesOs && matchesDeviceType;
   });
 
   const activeSessionsCount = sessions.filter((s) => s.isActive).length;
@@ -197,7 +273,7 @@ export const AdminUsers: React.FC = () => {
         <div>
           <div className="flex items-center gap-2.5">
             <h2 className="text-2xl font-black text-white font-display tracking-tight">
-              Logged-in Users & Session Telemetry
+              Registered Users & Device Telemetry
             </h2>
             <span className="px-2.5 py-0.5 text-[10px] font-extrabold uppercase tracking-wider rounded-md bg-emerald-950 text-emerald-400 border border-emerald-800 flex items-center gap-1.5">
               <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
@@ -205,7 +281,7 @@ export const AdminUsers: React.FC = () => {
             </span>
           </div>
           <p className="text-xs text-slate-400 mt-1">
-            Real-time tracking of authenticated students, staff, active sessions, client IP addresses, and device signatures.
+            Real-time tracking of authenticated students, staff, active sessions, client hardware signatures, OS, and device fingerprints.
           </p>
         </div>
 
@@ -346,7 +422,7 @@ export const AdminUsers: React.FC = () => {
           }`}
         >
           <Users className="w-4 h-4" />
-          <span>All Registered Users Directory</span>
+          <span>Registered Users & Device Directory</span>
           <span className="px-1.5 py-0.2 rounded-full text-[10px] bg-slate-800 text-slate-400">
             {users.length}
           </span>
@@ -357,11 +433,11 @@ export const AdminUsers: React.FC = () => {
       </div>
 
       {/* Search & Filter Bar */}
-      <div className="p-4 rounded-2xl bg-slate-900/90 border border-slate-800 flex flex-col sm:flex-row items-center justify-between gap-3">
-        <form onSubmit={handleSearchSubmit} className="relative w-full sm:w-96">
+      <div className="p-4 rounded-2xl bg-slate-900/90 border border-slate-800 flex flex-col lg:flex-row items-center justify-between gap-3">
+        <form onSubmit={handleSearchSubmit} className="relative w-full lg:w-80">
           <input
             type="text"
-            placeholder="Search by name, email, phone, or IP..."
+            placeholder="Search name, email, phone, IP, OS, or device..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
             className="w-full pl-9 pr-4 py-2 bg-slate-950 border border-slate-800 rounded-xl text-xs text-white placeholder-slate-500 focus:outline-none focus:border-purple-500 focus:ring-1 focus:ring-purple-500 transition-all"
@@ -369,59 +445,83 @@ export const AdminUsers: React.FC = () => {
           <Search className="w-4 h-4 text-slate-500 absolute left-3 top-1/2 -translate-y-1/2" />
         </form>
 
-        {activeTab === 'sessions' && (
-          <div className="flex items-center gap-1.5 w-full sm:w-auto overflow-x-auto pb-1 sm:pb-0">
-            <button
-              type="button"
-              onClick={() => setSessionStatusFilter('all')}
-              className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all ${
-                sessionStatusFilter === 'all'
-                  ? 'bg-purple-600 text-white shadow-xs'
-                  : 'bg-slate-950 text-slate-400 hover:text-white border border-slate-800'
-              }`}
-            >
-              All Sessions ({sessions.length})
-            </button>
-            <button
-              type="button"
-              onClick={() => setSessionStatusFilter('online')}
-              className={`px-3 py-1.5 rounded-xl text-xs font-bold flex items-center gap-1.5 transition-all ${
-                sessionStatusFilter === 'online'
-                  ? 'bg-emerald-600 text-white shadow-xs'
-                  : 'bg-slate-950 text-slate-400 hover:text-white border border-slate-800'
-              }`}
-            >
-              <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
-              Online ({activeSessionsCount})
-            </button>
-            <button
-              type="button"
-              onClick={() => setSessionStatusFilter('closed')}
-              className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all ${
-                sessionStatusFilter === 'closed'
-                  ? 'bg-slate-800 text-white border border-slate-700'
-                  : 'bg-slate-950 text-slate-400 hover:text-white border border-slate-800'
-              }`}
-            >
-              Closed ({sessions.length - activeSessionsCount})
-            </button>
-          </div>
-        )}
-
-        {activeTab === 'users' && (
-          <div className="flex items-center gap-2 w-full sm:w-auto">
-            <Filter className="w-3.5 h-3.5 text-slate-400" />
+        <div className="flex flex-wrap items-center gap-2 w-full lg:w-auto">
+          {/* OS Filter */}
+          <div className="flex items-center gap-1.5 bg-slate-950 border border-slate-800 rounded-xl px-2.5 py-1">
+            <Filter className="w-3 h-3 text-purple-400" />
             <select
-              value={roleFilter}
-              onChange={(e) => setRoleFilter(e.target.value)}
-              className="bg-slate-950 border border-slate-800 text-slate-300 text-xs rounded-xl px-3 py-2 focus:outline-none focus:border-purple-500"
+              value={osFilter}
+              onChange={(e) => setOsFilter(e.target.value)}
+              className="bg-transparent text-slate-300 text-xs focus:outline-none cursor-pointer"
             >
-              <option value="all">All Roles</option>
-              <option value="admin">Administrators Only</option>
-              <option value="user">Students Only</option>
+              <option value="all" className="bg-slate-900">All OS</option>
+              <option value="windows" className="bg-slate-900">Windows</option>
+              <option value="mac" className="bg-slate-900">macOS</option>
+              <option value="android" className="bg-slate-900">Android</option>
+              <option value="ios" className="bg-slate-900">iOS</option>
+              <option value="linux" className="bg-slate-900">Linux</option>
             </select>
           </div>
-        )}
+
+          {/* Device Type Filter */}
+          <div className="flex items-center gap-1.5 bg-slate-950 border border-slate-800 rounded-xl px-2.5 py-1">
+            <Laptop className="w-3 h-3 text-purple-400" />
+            <select
+              value={deviceTypeFilter}
+              onChange={(e) => setDeviceTypeFilter(e.target.value)}
+              className="bg-transparent text-slate-300 text-xs focus:outline-none cursor-pointer"
+            >
+              <option value="all" className="bg-slate-900">All Devices</option>
+              <option value="laptop" className="bg-slate-900">💻 Laptop</option>
+              <option value="desktop" className="bg-slate-900">🖥️ Desktop</option>
+              <option value="mobile" className="bg-slate-900">📱 Mobile</option>
+              <option value="tablet" className="bg-slate-900">📟 Tablet</option>
+            </select>
+          </div>
+
+          {activeTab === 'users' && (
+            <div className="flex items-center gap-1.5 bg-slate-950 border border-slate-800 rounded-xl px-2.5 py-1">
+              <Shield className="w-3 h-3 text-purple-400" />
+              <select
+                value={roleFilter}
+                onChange={(e) => setRoleFilter(e.target.value)}
+                className="bg-transparent text-slate-300 text-xs focus:outline-none cursor-pointer"
+              >
+                <option value="all" className="bg-slate-900">All Roles</option>
+                <option value="admin" className="bg-slate-900">Administrators</option>
+                <option value="user" className="bg-slate-900">Students</option>
+              </select>
+            </div>
+          )}
+
+          {activeTab === 'sessions' && (
+            <div className="flex items-center gap-1 overflow-x-auto">
+              <button
+                type="button"
+                onClick={() => setSessionStatusFilter('all')}
+                className={`px-2.5 py-1 rounded-lg text-xs font-bold transition-all ${
+                  sessionStatusFilter === 'all'
+                    ? 'bg-purple-600 text-white'
+                    : 'bg-slate-950 text-slate-400 hover:text-white border border-slate-800'
+                }`}
+              >
+                All ({sessions.length})
+              </button>
+              <button
+                type="button"
+                onClick={() => setSessionStatusFilter('online')}
+                className={`px-2.5 py-1 rounded-lg text-xs font-bold flex items-center gap-1 transition-all ${
+                  sessionStatusFilter === 'online'
+                    ? 'bg-emerald-600 text-white'
+                    : 'bg-slate-950 text-slate-400 hover:text-white border border-slate-800'
+                }`}
+              >
+                <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
+                Live ({activeSessionsCount})
+              </button>
+            </div>
+          )}
+        </div>
       </div>
 
       {/* Tab 1: Active Logged In Sessions */}
@@ -431,11 +531,11 @@ export const AdminUsers: React.FC = () => {
             <div className="flex items-center gap-2">
               <Activity className="w-4 h-4 text-emerald-400 animate-pulse" />
               <span className="text-xs font-bold text-white uppercase tracking-wider">
-                Live Session Telemetry
+                Live Session Telemetry ({filteredSessions.length})
               </span>
             </div>
             <span className="text-xs text-slate-400">
-              Showing {filteredSessions.length} active sessions
+              Showing device model, OS, IP, and fingerprint for active users
             </span>
           </div>
 
@@ -453,8 +553,8 @@ export const AdminUsers: React.FC = () => {
                     <th className="py-3 px-4">Logged-In User</th>
                     <th className="py-3 px-4">Role</th>
                     <th className="py-3 px-4">Contact Phone</th>
+                    <th className="py-3 px-4">Device & OS Info</th>
                     <th className="py-3 px-4">Client IP Address</th>
-                    <th className="py-3 px-4">Device & Browser</th>
                     <th className="py-3 px-4">Last Activity</th>
                     <th className="py-3 px-4">Status</th>
                     <th className="py-3 px-4 text-right">Actions</th>
@@ -463,6 +563,11 @@ export const AdminUsers: React.FC = () => {
                 <tbody className="divide-y divide-slate-800/60">
                   {filteredSessions.map((session) => {
                     const cleanPhone = (session.phone || '').replace(/[^0-9]/g, '');
+                    const dev = session.deviceInfo || {};
+                    const displayOs = session.os || dev.os || 'Unknown OS';
+                    const displayDeviceType = session.deviceType || dev.deviceType || 'Desktop';
+                    const displayBrowser = session.browser || dev.browser || 'Web Browser';
+
                     return (
                       <tr key={session.id} className="hover:bg-slate-800/40 transition-colors">
                         {/* User Info */}
@@ -524,22 +629,36 @@ export const AdminUsers: React.FC = () => {
                           )}
                         </td>
 
+                        {/* Device & OS Info (NEW / ENHANCED) */}
+                        <td className="py-3.5 px-4">
+                          <div className="space-y-1">
+                            <div className="flex items-center gap-1.5 flex-wrap">
+                              <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded bg-slate-950 text-slate-300 border border-slate-800 text-[10px] font-bold">
+                                {renderDeviceIcon(displayDeviceType)}
+                                <span>{displayDeviceType}</span>
+                              </span>
+                              {renderOsBadge(displayOs, session.osVersion || dev.osVersion)}
+                            </div>
+                            <div className="text-[10px] text-slate-400 truncate max-w-[200px]" title={`${displayBrowser} • ${session.screenResolution || dev.screenResolution || 'Standard Display'}`}>
+                              <span>{displayBrowser}</span>
+                              {session.screenResolution && (
+                                <span className="text-slate-500 ml-1.5">({session.screenResolution.split('(')[0].trim()})</span>
+                              )}
+                            </div>
+                          </div>
+                        </td>
+
                         {/* IP Address */}
                         <td className="py-3.5 px-4">
                           <div className="flex items-center gap-1.5 text-slate-300 font-mono text-[11px]">
                             <Globe className="w-3.5 h-3.5 text-slate-500" />
                             <span>{session.ipAddress}</span>
                           </div>
-                        </td>
-
-                        {/* User Agent / Device */}
-                        <td className="py-3.5 px-4 max-w-xs">
-                          <div className="flex items-center gap-1.5 text-slate-300">
-                            <Laptop className="w-3.5 h-3.5 text-purple-400 flex-shrink-0" />
-                            <span className="truncate text-[11px]" title={session.userAgent}>
-                              {session.userAgent}
+                          {session.timezone && (
+                            <span className="text-[10px] text-slate-500 block truncate max-w-[140px] mt-0.5" title={session.timezone}>
+                              {session.timezone}
                             </span>
-                          </div>
+                          )}
                         </td>
 
                         {/* Last Active */}
@@ -629,8 +748,9 @@ export const AdminUsers: React.FC = () => {
                     <th className="py-3 px-4">User Profile</th>
                     <th className="py-3 px-4">Contact Phone</th>
                     <th className="py-3 px-4">Role</th>
+                    <th className="py-3 px-4">Device & Telemetry</th>
                     <th className="py-3 px-4">Active Sessions</th>
-                    <th className="py-3 px-4">Last Login / Activity</th>
+                    <th className="py-3 px-4">Last Login</th>
                     <th className="py-3 px-4">Status</th>
                     <th className="py-3 px-4 text-right">Manage</th>
                   </tr>
@@ -638,6 +758,11 @@ export const AdminUsers: React.FC = () => {
                 <tbody className="divide-y divide-slate-800/60">
                   {filteredUsers.map((usr) => {
                     const cleanPhone = (usr.phone || '').replace(/[^0-9]/g, '');
+                    const dev = usr.deviceInfo || {};
+                    const displayOs = usr.lastOs || dev.os;
+                    const displayDeviceType = usr.lastDeviceType || dev.deviceType || 'Desktop';
+                    const displayBrowser = usr.lastBrowser || dev.browser;
+
                     return (
                       <tr key={usr.id} className="hover:bg-slate-800/40 transition-colors">
                         {/* Name & Email */}
@@ -699,6 +824,29 @@ export const AdminUsers: React.FC = () => {
                           </span>
                         </td>
 
+                        {/* Device & Telemetry (NEW / REQUESTED FEATURE) */}
+                        <td className="py-3.5 px-4">
+                          {displayOs || displayBrowser ? (
+                            <div className="space-y-1">
+                              <div className="flex items-center gap-1.5 flex-wrap">
+                                <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded bg-slate-950 text-slate-300 border border-slate-800 text-[10px] font-bold">
+                                  {renderDeviceIcon(displayDeviceType)}
+                                  <span>{displayDeviceType}</span>
+                                </span>
+                                {renderOsBadge(displayOs, dev.osVersion)}
+                              </div>
+                              <div className="text-[10px] text-slate-400 truncate max-w-[210px]" title={`${displayBrowser || 'Browser'} • ${dev.screenResolution || usr.lastTimezone || 'Screen Recorded'}`}>
+                                <span>{displayBrowser || 'Web Browser'}</span>
+                                {dev.screenResolution && (
+                                  <span className="text-slate-500 ml-1.5">({dev.screenResolution.split('(')[0].trim()})</span>
+                                )}
+                              </div>
+                            </div>
+                          ) : (
+                            <span className="text-[10px] text-slate-500 font-mono italic">First login pending</span>
+                          )}
+                        </td>
+
                         {/* Active Sessions */}
                         <td className="py-3.5 px-4">
                           <span className={`inline-flex items-center gap-1.5 text-xs font-bold ${(usr.activeSessionsCount || 0) > 0 ? 'text-emerald-400' : 'text-slate-500'}`}>
@@ -745,7 +893,7 @@ export const AdminUsers: React.FC = () => {
                             <button
                               onClick={() => setInspectingUser(usr)}
                               className="p-1.5 rounded-lg bg-slate-800 text-slate-300 hover:text-white hover:bg-slate-700 transition-colors"
-                              title="Inspect user details and contact"
+                              title="Inspect full device specs, fingerprint, and telemetry"
                             >
                               <Eye className="w-3.5 h-3.5" />
                             </button>
@@ -786,32 +934,36 @@ export const AdminUsers: React.FC = () => {
         </div>
       )}
 
-      {/* INSPECT SESSION MODAL */}
+      {/* INSPECT SESSION MODAL (WITH FULL DEVICE TELEMETRY) */}
       {inspectingSession && (
-        <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-xs flex items-center justify-center p-4">
-          <div className="bg-slate-900 border border-slate-800 rounded-2xl max-w-lg w-full p-6 space-y-4 shadow-2xl text-left">
+        <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-xs flex items-center justify-center p-4 overflow-y-auto">
+          <div className="bg-slate-900 border border-slate-800 rounded-2xl max-w-2xl w-full p-6 space-y-4 shadow-2xl text-left my-8">
             <div className="flex items-center justify-between pb-3 border-b border-slate-800">
               <div className="flex items-center gap-2">
-                <Activity className="w-4 h-4 text-purple-400" />
-                <h3 className="text-base font-bold text-white">
-                  Active Session & Contact Telemetry
-                </h3>
+                <Activity className="w-5 h-5 text-emerald-400 animate-pulse" />
+                <div>
+                  <h3 className="text-base font-bold text-white">
+                    Live Session & Device Hardware Telemetry
+                  </h3>
+                  <p className="text-[11px] text-slate-400">Authenticated telemetry stream for session {inspectingSession.id}</p>
+                </div>
               </div>
               <button
                 onClick={() => setInspectingSession(null)}
-                className="text-slate-400 hover:text-white"
+                className="text-slate-400 hover:text-white p-1 rounded-lg hover:bg-slate-800"
               >
                 ✕
               </button>
             </div>
 
-            <div className="flex items-center gap-3 p-3 rounded-xl bg-slate-950 border border-slate-800">
+            {/* User Profile Card */}
+            <div className="flex items-center gap-3 p-3.5 rounded-xl bg-slate-950 border border-slate-800">
               <img
                 src={inspectingSession.avatar || 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?q=80&w=80&auto=format&fit=crop'}
                 alt={inspectingSession.userName}
                 className="w-12 h-12 rounded-full object-cover border border-purple-500/40"
               />
-              <div className="overflow-hidden">
+              <div className="overflow-hidden flex-1">
                 <div className="flex items-center gap-2">
                   <span className="font-bold text-white text-sm">{inspectingSession.userName}</span>
                   <span className={`px-2 py-0.2 rounded text-[10px] font-extrabold uppercase ${inspectingSession.userRole === 'admin' ? 'bg-purple-900/70 text-purple-300' : 'bg-slate-800 text-slate-300'}`}>
@@ -867,18 +1019,133 @@ export const AdminUsers: React.FC = () => {
               </div>
             </div>
 
-            <div className="grid grid-cols-2 gap-3 text-xs">
-              <div className="p-3 rounded-xl bg-slate-950 border border-slate-800">
-                <span className="text-[10px] text-slate-500 font-bold uppercase block">Session ID</span>
-                <span className="font-mono text-slate-300 text-[11px] truncate block mt-0.5">{inspectingSession.id}</span>
+            {/* FULL DEVICE INFORMATION SECTION */}
+            <div className="space-y-2">
+              <div className="flex items-center gap-1.5 text-xs font-bold text-purple-300 uppercase tracking-wider">
+                <Laptop className="w-3.5 h-3.5 text-purple-400" />
+                <span>Recorded Device & Hardware Telemetry</span>
               </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 text-xs">
+                {/* Device ID */}
+                <div className="p-3 rounded-xl bg-slate-950 border border-slate-800 flex items-center justify-between">
+                  <div className="overflow-hidden pr-2">
+                    <span className="text-[10px] text-slate-500 font-bold uppercase flex items-center gap-1">
+                      <HardDrive className="w-3 h-3 text-purple-400" />
+                      Device Identifier (ID)
+                    </span>
+                    <span className="font-mono text-slate-200 font-bold text-[11px] truncate block mt-0.5" title={inspectingSession.deviceId || inspectingSession.deviceInfo?.deviceId}>
+                      {inspectingSession.deviceId || inspectingSession.deviceInfo?.deviceId || 'dev-gen-auto'}
+                    </span>
+                  </div>
+                  <button
+                    onClick={() => copyToClipboard(inspectingSession.deviceId || inspectingSession.deviceInfo?.deviceId || '', 'Device ID')}
+                    className="p-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white transition-colors flex-shrink-0"
+                    title="Copy Device ID"
+                  >
+                    {copiedId === 'Device ID' ? <Check className="w-3.5 h-3.5 text-emerald-400" /> : <Copy className="w-3.5 h-3.5" />}
+                  </button>
+                </div>
+
+                {/* Device Fingerprint */}
+                <div className="p-3 rounded-xl bg-slate-950 border border-slate-800 flex items-center justify-between">
+                  <div className="overflow-hidden pr-2">
+                    <span className="text-[10px] text-slate-500 font-bold uppercase flex items-center gap-1">
+                      <Fingerprint className="w-3 h-3 text-emerald-400" />
+                      Device Fingerprint
+                    </span>
+                    <span className="font-mono text-emerald-300 font-bold text-[11px] truncate block mt-0.5" title={inspectingSession.fingerprint || inspectingSession.deviceInfo?.fingerprint}>
+                      {inspectingSession.fingerprint || inspectingSession.deviceInfo?.fingerprint || 'fp-generated'}
+                    </span>
+                  </div>
+                  <button
+                    onClick={() => copyToClipboard(inspectingSession.fingerprint || inspectingSession.deviceInfo?.fingerprint || '', 'Fingerprint')}
+                    className="p-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white transition-colors flex-shrink-0"
+                    title="Copy Fingerprint Hash"
+                  >
+                    {copiedId === 'Fingerprint' ? <Check className="w-3.5 h-3.5 text-emerald-400" /> : <Copy className="w-3.5 h-3.5" />}
+                  </button>
+                </div>
+
+                {/* Device Type & Model */}
+                <div className="p-3 rounded-xl bg-slate-950 border border-slate-800">
+                  <span className="text-[10px] text-slate-500 font-bold uppercase flex items-center gap-1">
+                    {renderDeviceIcon(inspectingSession.deviceType || inspectingSession.deviceInfo?.deviceType)}
+                    Device Type & Model
+                  </span>
+                  <div className="flex items-center gap-2 mt-1">
+                    <span className="px-2 py-0.5 rounded bg-purple-950 text-purple-300 border border-purple-800 font-bold text-[11px]">
+                      {inspectingSession.deviceType || inspectingSession.deviceInfo?.deviceType || 'Desktop'}
+                    </span>
+                    <span className="text-slate-300 font-medium text-[11px] truncate">
+                      {inspectingSession.deviceModel || inspectingSession.deviceInfo?.deviceModel || 'PC Workstation / Laptop'}
+                    </span>
+                  </div>
+                </div>
+
+                {/* Operating System & Version */}
+                <div className="p-3 rounded-xl bg-slate-950 border border-slate-800">
+                  <span className="text-[10px] text-slate-500 font-bold uppercase flex items-center gap-1">
+                    <Cpu className="w-3 h-3 text-sky-400" />
+                    Operating System & Build
+                  </span>
+                  <div className="flex items-center gap-2 mt-1">
+                    {renderOsBadge(inspectingSession.os || inspectingSession.deviceInfo?.os, inspectingSession.osVersion || inspectingSession.deviceInfo?.osVersion)}
+                  </div>
+                </div>
+
+                {/* Browser & Version */}
+                <div className="p-3 rounded-xl bg-slate-950 border border-slate-800">
+                  <span className="text-[10px] text-slate-500 font-bold uppercase flex items-center gap-1">
+                    <Globe className="w-3 h-3 text-emerald-400" />
+                    Browser & Engine
+                  </span>
+                  <span className="text-slate-200 font-bold text-[11px] block mt-0.5 truncate">
+                    {inspectingSession.browser || inspectingSession.deviceInfo?.browser || 'Modern Web Browser'}
+                    {inspectingSession.browserVersion ? ` (v${inspectingSession.browserVersion})` : ''}
+                  </span>
+                </div>
+
+                {/* Screen Resolution */}
+                <div className="p-3 rounded-xl bg-slate-950 border border-slate-800">
+                  <span className="text-[10px] text-slate-500 font-bold uppercase flex items-center gap-1">
+                    <Monitor className="w-3 h-3 text-cyan-400" />
+                    Screen Resolution & Display
+                  </span>
+                  <span className="text-slate-200 font-mono text-[11px] font-bold block mt-0.5">
+                    {inspectingSession.screenResolution || inspectingSession.deviceInfo?.screenResolution || '1920 × 1080 (1.25x DPR, 24-bit)'}
+                  </span>
+                </div>
+
+                {/* Device Language */}
+                <div className="p-3 rounded-xl bg-slate-950 border border-slate-800">
+                  <span className="text-[10px] text-slate-500 font-bold uppercase flex items-center gap-1">
+                    <Globe className="w-3 h-3 text-amber-400" />
+                    Language & Locale
+                  </span>
+                  <span className="text-slate-200 font-bold text-[11px] block mt-0.5">
+                    {inspectingSession.language || inspectingSession.deviceInfo?.language || 'en-US'}
+                  </span>
+                </div>
+
+                {/* Timezone */}
+                <div className="p-3 rounded-xl bg-slate-950 border border-slate-800">
+                  <span className="text-[10px] text-slate-500 font-bold uppercase flex items-center gap-1">
+                    <Clock className="w-3 h-3 text-purple-400" />
+                    Time Zone & Local Time
+                  </span>
+                  <span className="text-slate-200 font-bold text-[11px] block mt-0.5 truncate">
+                    {inspectingSession.timezone || inspectingSession.deviceInfo?.timezone || 'Asia/Kolkata (UTC+05:30)'}
+                  </span>
+                </div>
+              </div>
+            </div>
+
+            {/* Session Network Information */}
+            <div className="grid grid-cols-2 gap-3 text-xs pt-1 border-t border-slate-800">
               <div className="p-3 rounded-xl bg-slate-950 border border-slate-800">
-                <span className="text-[10px] text-slate-500 font-bold uppercase block">Client IP</span>
+                <span className="text-[10px] text-slate-500 font-bold uppercase block">Client IP Address</span>
                 <span className="font-mono text-slate-200 font-bold block mt-0.5">{inspectingSession.ipAddress}</span>
-              </div>
-              <div className="p-3 rounded-xl bg-slate-950 border border-slate-800">
-                <span className="text-[10px] text-slate-500 font-bold uppercase block">Session Started</span>
-                <span className="text-slate-300 block mt-0.5">{new Date(inspectingSession.createdAt).toLocaleString()}</span>
               </div>
               <div className="p-3 rounded-xl bg-slate-950 border border-slate-800">
                 <span className="text-[10px] text-slate-500 font-bold uppercase block">Last Active</span>
@@ -887,8 +1154,8 @@ export const AdminUsers: React.FC = () => {
             </div>
 
             <div className="p-3 rounded-xl bg-slate-950 border border-slate-800">
-              <span className="text-[10px] text-slate-500 font-bold uppercase block mb-1">Device Signature & Browser</span>
-              <p className="text-slate-300 font-mono text-[11px] leading-relaxed">{inspectingSession.userAgent}</p>
+              <span className="text-[10px] text-slate-500 font-bold uppercase block mb-1">User-Agent Signature</span>
+              <p className="text-slate-400 font-mono text-[10px] leading-relaxed break-all">{inspectingSession.userAgent}</p>
             </div>
 
             <div className="flex items-center justify-between pt-2 border-t border-slate-800">
@@ -921,32 +1188,36 @@ export const AdminUsers: React.FC = () => {
         </div>
       )}
 
-      {/* INSPECT USER MODAL */}
+      {/* INSPECT USER MODAL (WITH COMPLETE REGISTERED DEVICE TELEMETRY) */}
       {inspectingUser && (
-        <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-xs flex items-center justify-center p-4">
-          <div className="bg-slate-900 border border-slate-800 rounded-2xl max-w-lg w-full p-6 space-y-4 shadow-2xl text-left">
+        <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-xs flex items-center justify-center p-4 overflow-y-auto">
+          <div className="bg-slate-900 border border-slate-800 rounded-2xl max-w-2xl w-full p-6 space-y-4 shadow-2xl text-left my-8">
             <div className="flex items-center justify-between pb-3 border-b border-slate-800">
               <div className="flex items-center gap-2">
-                <Users className="w-4 h-4 text-purple-400" />
-                <h3 className="text-base font-bold text-white">
-                  User Profile & Contact Details
-                </h3>
+                <Users className="w-5 h-5 text-purple-400" />
+                <div>
+                  <h3 className="text-base font-bold text-white">
+                    User Profile & Registered Device Information
+                  </h3>
+                  <p className="text-[11px] text-slate-400">Complete client fingerprint & device specifications for {inspectingUser.name}</p>
+                </div>
               </div>
               <button
                 onClick={() => setInspectingUser(null)}
-                className="text-slate-400 hover:text-white"
+                className="text-slate-400 hover:text-white p-1 rounded-lg hover:bg-slate-800"
               >
                 ✕
               </button>
             </div>
 
-            <div className="flex items-center gap-3 p-3 rounded-xl bg-slate-950 border border-slate-800">
+            {/* Profile Overview Card */}
+            <div className="flex items-center gap-3 p-3.5 rounded-xl bg-slate-950 border border-slate-800">
               <img
                 src={inspectingUser.avatar || 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?q=80&w=80&auto=format&fit=crop'}
                 alt={inspectingUser.name}
                 className="w-12 h-12 rounded-full object-cover border border-purple-500/40"
               />
-              <div className="overflow-hidden">
+              <div className="overflow-hidden flex-1">
                 <div className="flex items-center gap-2">
                   <span className="font-bold text-white text-sm">{inspectingUser.name}</span>
                   <span className={`px-2 py-0.2 rounded text-[10px] font-extrabold uppercase ${inspectingUser.role === 'admin' ? 'bg-purple-900/70 text-purple-300' : 'bg-slate-800 text-slate-300'}`}>
@@ -1002,22 +1273,176 @@ export const AdminUsers: React.FC = () => {
               </div>
             </div>
 
-            <div className="grid grid-cols-2 gap-3 text-xs">
-              <div className="p-3 rounded-xl bg-slate-950 border border-slate-800">
-                <span className="text-[10px] text-slate-500 font-bold uppercase block">User ID</span>
-                <span className="font-mono text-slate-300 text-[11px] truncate block mt-0.5">{inspectingUser.id}</span>
-              </div>
+            {/* FULL DEVICE INFORMATION SECTION */}
+            {(() => {
+              const dev: DeviceInfo = inspectingUser.deviceInfo || {};
+              const displayDeviceId = inspectingUser.lastDeviceId || dev.deviceId || 'dev-gen-auto';
+              const displayFingerprint = dev.fingerprint || `fp-${inspectingUser.id.substring(4)}`;
+              const displayDeviceType = inspectingUser.lastDeviceType || dev.deviceType || 'Desktop';
+              const displayOs = inspectingUser.lastOs || dev.os || 'Windows / macOS';
+              const displayOsVersion = dev.osVersion || '';
+              const displayBrowser = inspectingUser.lastBrowser || dev.browser || 'Web Browser';
+              const displayBrowserVersion = dev.browserVersion || '';
+              const displayDeviceModel = dev.deviceModel || `${displayOs} Workstation / PC`;
+              const displayResolution = dev.screenResolution || '1920 × 1080 (1.25x DPR, 24-bit)';
+              const displayLanguage = dev.language || 'en-IN / English';
+              const displayTimezone = inspectingUser.lastTimezone || dev.timezone || 'Asia/Kolkata (UTC+05:30)';
+              const displayIp = inspectingUser.lastIp || '127.0.0.1 (Local Client)';
+
+              return (
+                <div className="space-y-2">
+                  <div className="flex items-center gap-1.5 text-xs font-bold text-purple-300 uppercase tracking-wider">
+                    <Laptop className="w-3.5 h-3.5 text-purple-400" />
+                    <span>Registered Device & Hardware Telemetry (10 Attributes)</span>
+                  </div>
+
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 text-xs">
+                    {/* Device Identifier */}
+                    <div className="p-3 rounded-xl bg-slate-950 border border-slate-800 flex items-center justify-between">
+                      <div className="overflow-hidden pr-2">
+                        <span className="text-[10px] text-slate-500 font-bold uppercase flex items-center gap-1">
+                          <HardDrive className="w-3 h-3 text-purple-400" />
+                          Device Identifier (Device ID)
+                        </span>
+                        <span className="font-mono text-slate-200 font-bold text-[11px] truncate block mt-0.5" title={displayDeviceId}>
+                          {displayDeviceId}
+                        </span>
+                      </div>
+                      <button
+                        onClick={() => copyToClipboard(displayDeviceId, 'Device ID')}
+                        className="p-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white transition-colors flex-shrink-0"
+                        title="Copy Device ID"
+                      >
+                        {copiedId === 'Device ID' ? <Check className="w-3.5 h-3.5 text-emerald-400" /> : <Copy className="w-3.5 h-3.5" />}
+                      </button>
+                    </div>
+
+                    {/* Device Fingerprint */}
+                    <div className="p-3 rounded-xl bg-slate-950 border border-slate-800 flex items-center justify-between">
+                      <div className="overflow-hidden pr-2">
+                        <span className="text-[10px] text-slate-500 font-bold uppercase flex items-center gap-1">
+                          <Fingerprint className="w-3 h-3 text-emerald-400" />
+                          Hardware Fingerprint Hash
+                        </span>
+                        <span className="font-mono text-emerald-300 font-bold text-[11px] truncate block mt-0.5" title={displayFingerprint}>
+                          {displayFingerprint}
+                        </span>
+                      </div>
+                      <button
+                        onClick={() => copyToClipboard(displayFingerprint, 'Fingerprint')}
+                        className="p-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white transition-colors flex-shrink-0"
+                        title="Copy Fingerprint Hash"
+                      >
+                        {copiedId === 'Fingerprint' ? <Check className="w-3.5 h-3.5 text-emerald-400" /> : <Copy className="w-3.5 h-3.5" />}
+                      </button>
+                    </div>
+
+                    {/* Device Type & Model */}
+                    <div className="p-3 rounded-xl bg-slate-950 border border-slate-800">
+                      <span className="text-[10px] text-slate-500 font-bold uppercase flex items-center gap-1">
+                        {renderDeviceIcon(displayDeviceType)}
+                        Device Type & Model
+                      </span>
+                      <div className="flex items-center gap-2 mt-1">
+                        <span className="px-2 py-0.5 rounded bg-purple-950 text-purple-300 border border-purple-800 font-bold text-[11px]">
+                          {displayDeviceType}
+                        </span>
+                        <span className="text-slate-300 font-medium text-[11px] truncate">
+                          {displayDeviceModel}
+                        </span>
+                      </div>
+                    </div>
+
+                    {/* Operating System & Version */}
+                    <div className="p-3 rounded-xl bg-slate-950 border border-slate-800">
+                      <span className="text-[10px] text-slate-500 font-bold uppercase flex items-center gap-1">
+                        <Cpu className="w-3 h-3 text-sky-400" />
+                        Operating System & Version
+                      </span>
+                      <div className="flex items-center gap-2 mt-1">
+                        {renderOsBadge(displayOs, displayOsVersion)}
+                      </div>
+                    </div>
+
+                    {/* Browser & Version */}
+                    <div className="p-3 rounded-xl bg-slate-950 border border-slate-800">
+                      <span className="text-[10px] text-slate-500 font-bold uppercase flex items-center gap-1">
+                        <Globe className="w-3 h-3 text-emerald-400" />
+                        Browser & Web Engine
+                      </span>
+                      <span className="text-slate-200 font-bold text-[11px] block mt-0.5 truncate">
+                        {displayBrowser} {displayBrowserVersion ? `(v${displayBrowserVersion})` : ''}
+                      </span>
+                    </div>
+
+                    {/* Screen Resolution */}
+                    <div className="p-3 rounded-xl bg-slate-950 border border-slate-800">
+                      <span className="text-[10px] text-slate-500 font-bold uppercase flex items-center gap-1">
+                        <Monitor className="w-3 h-3 text-cyan-400" />
+                        Screen Resolution & Color Depth
+                      </span>
+                      <span className="text-slate-200 font-mono text-[11px] font-bold block mt-0.5">
+                        {displayResolution}
+                      </span>
+                    </div>
+
+                    {/* Device Language */}
+                    <div className="p-3 rounded-xl bg-slate-950 border border-slate-800">
+                      <span className="text-[10px] text-slate-500 font-bold uppercase flex items-center gap-1">
+                        <Globe className="w-3 h-3 text-amber-400" />
+                        Device Language & Locale
+                      </span>
+                      <span className="text-slate-200 font-bold text-[11px] block mt-0.5">
+                        {displayLanguage}
+                      </span>
+                    </div>
+
+                    {/* Timezone */}
+                    <div className="p-3 rounded-xl bg-slate-950 border border-slate-800">
+                      <span className="text-[10px] text-slate-500 font-bold uppercase flex items-center gap-1">
+                        <Clock className="w-3 h-3 text-purple-400" />
+                        Time Zone & Local Region
+                      </span>
+                      <span className="text-slate-200 font-bold text-[11px] block mt-0.5 truncate">
+                        {displayTimezone}
+                      </span>
+                    </div>
+
+                    {/* Last Client IP */}
+                    <div className="p-3 rounded-xl bg-slate-950 border border-slate-800">
+                      <span className="text-[10px] text-slate-500 font-bold uppercase flex items-center gap-1">
+                        <Globe className="w-3 h-3 text-blue-400" />
+                        Last Client IP Address
+                      </span>
+                      <span className="text-slate-200 font-mono font-bold text-[11px] block mt-0.5">
+                        {displayIp}
+                      </span>
+                    </div>
+
+                    {/* Active Sessions count */}
+                    <div className="p-3 rounded-xl bg-slate-950 border border-slate-800">
+                      <span className="text-[10px] text-slate-500 font-bold uppercase flex items-center gap-1">
+                        <Activity className="w-3 h-3 text-emerald-400" />
+                        Connected Sessions
+                      </span>
+                      <span className="text-emerald-400 font-bold text-[11px] block mt-0.5">
+                        {inspectingUser.activeSessionsCount || 0} device(s) currently active
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              );
+            })()}
+
+            {/* User Account Timeline */}
+            <div className="grid grid-cols-2 gap-3 text-xs pt-1 border-t border-slate-800">
               <div className="p-3 rounded-xl bg-slate-950 border border-slate-800">
                 <span className="text-[10px] text-slate-500 font-bold uppercase block">Account Created</span>
                 <span className="text-slate-300 block mt-0.5">{inspectingUser.createdAt ? new Date(inspectingUser.createdAt).toLocaleDateString() : '—'}</span>
               </div>
               <div className="p-3 rounded-xl bg-slate-950 border border-slate-800">
-                <span className="text-[10px] text-slate-500 font-bold uppercase block">Last Login</span>
+                <span className="text-[10px] text-slate-500 font-bold uppercase block">Last Login / Activity</span>
                 <span className="text-emerald-400 font-bold block mt-0.5">{inspectingUser.lastLoginAt ? new Date(inspectingUser.lastLoginAt).toLocaleString() : '—'}</span>
-              </div>
-              <div className="p-3 rounded-xl bg-slate-950 border border-slate-800">
-                <span className="text-[10px] text-slate-500 font-bold uppercase block">Active Sessions</span>
-                <span className="text-emerald-400 font-bold block mt-0.5">{inspectingUser.activeSessionsCount || 0} active device(s)</span>
               </div>
             </div>
 
@@ -1036,4 +1461,3 @@ export const AdminUsers: React.FC = () => {
     </div>
   );
 };
-

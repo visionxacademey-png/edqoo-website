@@ -1,6 +1,6 @@
 import api from './api';
-import { courses as defaultCourses } from '../data/courses';
-import type { AdminStats, DbStatus, AdminUser, UserSession } from '../types';
+import { courses as defaultCourses } from '../data/courses.js';
+import type { AdminStats, DbStatus, AdminUser, UserSession } from '../types/index.js';
 
 const FALLBACK_USERS: AdminUser[] = [
   {
@@ -13,7 +13,26 @@ const FALLBACK_USERS: AdminUser[] = [
     isActive: true,
     createdAt: new Date().toISOString(),
     lastLoginAt: new Date().toISOString(),
-    activeSessionsCount: 1
+    activeSessionsCount: 1,
+    lastIp: '127.0.0.1',
+    lastDeviceId: 'dev-adm-win11-8f2e',
+    lastDeviceType: 'Desktop',
+    lastOs: 'Windows',
+    lastBrowser: 'Google Chrome',
+    lastTimezone: 'Asia/Kolkata (UTC+05:30)',
+    deviceInfo: {
+      deviceId: 'dev-adm-win11-8f2e',
+      deviceType: 'Desktop',
+      os: 'Windows',
+      osVersion: '11 Pro',
+      browser: 'Google Chrome',
+      browserVersion: '122.0.6261.129',
+      deviceModel: 'Windows Workstation PC',
+      screenResolution: '1920 × 1080 (1.25x DPR, 24-bit)',
+      language: 'en-IN',
+      timezone: 'Asia/Kolkata (UTC+05:30)',
+      fingerprint: 'fp-8f2e91ca-1b4d'
+    }
   },
   {
     id: 'usr-student-01',
@@ -25,7 +44,26 @@ const FALLBACK_USERS: AdminUser[] = [
     isActive: true,
     createdAt: new Date(Date.now() - 86400000 * 5).toISOString(),
     lastLoginAt: new Date(Date.now() - 3600000 * 2).toISOString(),
-    activeSessionsCount: 1
+    activeSessionsCount: 1,
+    lastIp: '103.212.144.52',
+    lastDeviceId: 'dev-stu-macbook-3c9a',
+    lastDeviceType: 'Laptop',
+    lastOs: 'macOS',
+    lastBrowser: 'Apple Safari',
+    lastTimezone: 'Asia/Kolkata (UTC+05:30)',
+    deviceInfo: {
+      deviceId: 'dev-stu-macbook-3c9a',
+      deviceType: 'Laptop',
+      os: 'macOS',
+      osVersion: '14.4 (Sonoma)',
+      browser: 'Apple Safari',
+      browserVersion: '17.4',
+      deviceModel: 'MacBook Pro 16"',
+      screenResolution: '2560 × 1440 (2x Retina, 30-bit)',
+      language: 'en-US',
+      timezone: 'Asia/Kolkata (UTC+05:30)',
+      fingerprint: 'fp-3c9a72df-8e10'
+    }
   }
 ];
 
@@ -39,7 +77,31 @@ const FALLBACK_SESSIONS: UserSession[] = [
     userRole: 'admin',
     avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?q=80&w=150&auto=format&fit=crop',
     ipAddress: '127.0.0.1 (Web Browser)',
-    userAgent: 'Chrome 122.0.0 / Web Client',
+    userAgent: 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) Chrome/122.0.0.0 Safari/537.36',
+    deviceId: 'dev-adm-win11-8f2e',
+    deviceType: 'Desktop',
+    os: 'Windows',
+    osVersion: '11 Pro',
+    browser: 'Google Chrome',
+    browserVersion: '122.0.6261.129',
+    deviceModel: 'Windows Workstation PC',
+    screenResolution: '1920 × 1080 (1.25x DPR, 24-bit)',
+    language: 'en-IN',
+    timezone: 'Asia/Kolkata (UTC+05:30)',
+    fingerprint: 'fp-8f2e91ca-1b4d',
+    deviceInfo: {
+      deviceId: 'dev-adm-win11-8f2e',
+      deviceType: 'Desktop',
+      os: 'Windows',
+      osVersion: '11 Pro',
+      browser: 'Google Chrome',
+      browserVersion: '122.0.6261.129',
+      deviceModel: 'Windows Workstation PC',
+      screenResolution: '1920 × 1080 (1.25x DPR, 24-bit)',
+      language: 'en-IN',
+      timezone: 'Asia/Kolkata (UTC+05:30)',
+      fingerprint: 'fp-8f2e91ca-1b4d'
+    },
     isActive: true,
     createdAt: new Date().toISOString(),
     lastActiveAt: new Date().toISOString(),
@@ -81,11 +143,13 @@ export const adminService = {
   },
 
   // Get all registered users directory
-  getUsers: async (search?: string, role?: string): Promise<AdminUser[]> => {
+  getUsers: async (search?: string, role?: string, os?: string, deviceType?: string): Promise<AdminUser[]> => {
     try {
       const params = new URLSearchParams();
       if (search) params.append('search', search);
       if (role && role !== 'all') params.append('role', role);
+      if (os && os !== 'all') params.append('os', os);
+      if (deviceType && deviceType !== 'all') params.append('deviceType', deviceType);
       
       const res = await api.get(`/admin/users?${params.toString()}`);
       if (Array.isArray(res.data) && res.data.length > 0) {
@@ -114,12 +178,21 @@ export const adminService = {
     if (role && role !== 'all') {
       resultUsers = resultUsers.filter(u => u.role === role);
     }
+    if (os && os !== 'all') {
+      resultUsers = resultUsers.filter(u => u.lastOs && u.lastOs.toLowerCase().includes(os.toLowerCase()));
+    }
+    if (deviceType && deviceType !== 'all') {
+      resultUsers = resultUsers.filter(u => u.lastDeviceType && u.lastDeviceType.toLowerCase() === deviceType.toLowerCase());
+    }
     if (search) {
       const term = search.toLowerCase();
       resultUsers = resultUsers.filter(u => 
         (u.name && u.name.toLowerCase().includes(term)) || 
         (u.email && u.email.toLowerCase().includes(term)) ||
-        (u.phone && u.phone.includes(term))
+        (u.phone && u.phone.includes(term)) ||
+        (u.lastOs && u.lastOs.toLowerCase().includes(term)) ||
+        (u.lastDeviceType && u.lastDeviceType.toLowerCase().includes(term)) ||
+        (u.lastDeviceId && u.lastDeviceId.toLowerCase().includes(term))
       );
     }
     return resultUsers;

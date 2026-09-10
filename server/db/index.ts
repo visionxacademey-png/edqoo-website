@@ -27,6 +27,13 @@ export interface MockUser {
   is_active: boolean;
   created_at: string;
   last_login_at?: string;
+  device_info?: any;
+  last_ip?: string;
+  last_device_id?: string;
+  last_device_type?: string;
+  last_os?: string;
+  last_browser?: string;
+  last_timezone?: string;
 }
 
 export interface MockSession {
@@ -36,6 +43,18 @@ export interface MockSession {
   token_hash: string;
   ip_address: string;
   user_agent: string;
+  device_id?: string;
+  device_type?: string;
+  os?: string;
+  os_version?: string;
+  browser?: string;
+  browser_version?: string;
+  device_model?: string;
+  screen_resolution?: string;
+  language?: string;
+  timezone?: string;
+  fingerprint?: string;
+  device_info?: any;
   is_active: boolean;
   created_at: string;
   last_active_at: string;
@@ -107,7 +126,26 @@ export async function initDb() {
         role: 'admin',
         is_active: true,
         created_at: new Date().toISOString(),
-        last_login_at: new Date().toISOString()
+        last_login_at: new Date().toISOString(),
+        last_ip: '127.0.0.1',
+        last_device_id: 'dev-adm-win11-8f2e',
+        last_device_type: 'Desktop',
+        last_os: 'Windows',
+        last_browser: 'Google Chrome',
+        last_timezone: 'Asia/Kolkata (UTC+05:30)',
+        device_info: {
+          deviceId: 'dev-adm-win11-8f2e',
+          deviceType: 'Desktop',
+          os: 'Windows',
+          osVersion: '11 Pro',
+          browser: 'Google Chrome',
+          browserVersion: '122.0.6261.129',
+          deviceModel: 'Windows Workstation PC',
+          screenResolution: '1920 × 1080 (1.25x DPR, 24-bit)',
+          language: 'en-IN',
+          timezone: 'Asia/Kolkata (UTC+05:30)',
+          fingerprint: 'fp-8f2e91ca-1b4d'
+        }
       },
       {
         id: 'usr-student-01',
@@ -119,7 +157,26 @@ export async function initDb() {
         role: 'user',
         is_active: true,
         created_at: new Date(Date.now() - 86400000 * 5).toISOString(),
-        last_login_at: new Date(Date.now() - 3600000 * 2).toISOString()
+        last_login_at: new Date(Date.now() - 3600000 * 2).toISOString(),
+        last_ip: '103.212.144.52',
+        last_device_id: 'dev-stu-macbook-3c9a',
+        last_device_type: 'Laptop',
+        last_os: 'macOS',
+        last_browser: 'Apple Safari',
+        last_timezone: 'Asia/Kolkata (UTC+05:30)',
+        device_info: {
+          deviceId: 'dev-stu-macbook-3c9a',
+          deviceType: 'Laptop',
+          os: 'macOS',
+          osVersion: '14.4 (Sonoma)',
+          browser: 'Apple Safari',
+          browserVersion: '17.4',
+          deviceModel: 'MacBook Pro 16"',
+          screenResolution: '2560 × 1440 (2x Retina, 30-bit)',
+          language: 'en-US',
+          timezone: 'Asia/Kolkata (UTC+05:30)',
+          fingerprint: 'fp-3c9a72df-8e10'
+        }
       }
     );
 
@@ -130,7 +187,31 @@ export async function initDb() {
       email: 'admin@edqoo.com',
       token_hash: 'init_token_hash_admin',
       ip_address: '127.0.0.1 (Localhost)',
-      user_agent: 'Chrome 122.0.0 / Windows 11',
+      user_agent: 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36',
+      device_id: 'dev-adm-win11-8f2e',
+      device_type: 'Desktop',
+      os: 'Windows',
+      os_version: '11 Pro',
+      browser: 'Google Chrome',
+      browser_version: '122.0.6261.129',
+      device_model: 'Windows Workstation PC',
+      screen_resolution: '1920 × 1080 (1.25x DPR, 24-bit)',
+      language: 'en-IN',
+      timezone: 'Asia/Kolkata (UTC+05:30)',
+      fingerprint: 'fp-8f2e91ca-1b4d',
+      device_info: {
+        deviceId: 'dev-adm-win11-8f2e',
+        deviceType: 'Desktop',
+        os: 'Windows',
+        osVersion: '11 Pro',
+        browser: 'Google Chrome',
+        browserVersion: '122.0.6261.129',
+        deviceModel: 'Windows Workstation PC',
+        screenResolution: '1920 × 1080 (1.25x DPR, 24-bit)',
+        language: 'en-IN',
+        timezone: 'Asia/Kolkata (UTC+05:30)',
+        fingerprint: 'fp-8f2e91ca-1b4d'
+      },
       is_active: true,
       created_at: new Date().toISOString(),
       last_active_at: new Date().toISOString(),
@@ -175,6 +256,13 @@ export async function initDb() {
         avatar TEXT,
         role VARCHAR(50) DEFAULT 'user',
         is_active BOOLEAN DEFAULT true,
+        device_info JSONB DEFAULT '{}'::jsonb,
+        last_ip VARCHAR(100),
+        last_device_id VARCHAR(100),
+        last_device_type VARCHAR(50),
+        last_os VARCHAR(100),
+        last_browser VARCHAR(100),
+        last_timezone VARCHAR(100),
         created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
         last_login_at TIMESTAMP WITH TIME ZONE
       );
@@ -186,6 +274,18 @@ export async function initDb() {
         token_hash VARCHAR(255),
         ip_address VARCHAR(100),
         user_agent TEXT,
+        device_id VARCHAR(100),
+        device_type VARCHAR(50),
+        os VARCHAR(100),
+        os_version VARCHAR(100),
+        browser VARCHAR(100),
+        browser_version VARCHAR(100),
+        device_model VARCHAR(100),
+        screen_resolution VARCHAR(100),
+        language VARCHAR(50),
+        timezone VARCHAR(100),
+        fingerprint VARCHAR(100),
+        device_info JSONB DEFAULT '{}'::jsonb,
         is_active BOOLEAN DEFAULT true,
         created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
         last_active_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
@@ -226,6 +326,27 @@ export async function initDb() {
       );
 
       -- Safe column additions for existing tables
+      ALTER TABLE users ADD COLUMN IF NOT EXISTS device_info JSONB DEFAULT '{}'::jsonb;
+      ALTER TABLE users ADD COLUMN IF NOT EXISTS last_ip VARCHAR(100);
+      ALTER TABLE users ADD COLUMN IF NOT EXISTS last_device_id VARCHAR(100);
+      ALTER TABLE users ADD COLUMN IF NOT EXISTS last_device_type VARCHAR(50);
+      ALTER TABLE users ADD COLUMN IF NOT EXISTS last_os VARCHAR(100);
+      ALTER TABLE users ADD COLUMN IF NOT EXISTS last_browser VARCHAR(100);
+      ALTER TABLE users ADD COLUMN IF NOT EXISTS last_timezone VARCHAR(100);
+
+      ALTER TABLE user_sessions ADD COLUMN IF NOT EXISTS device_id VARCHAR(100);
+      ALTER TABLE user_sessions ADD COLUMN IF NOT EXISTS device_type VARCHAR(50);
+      ALTER TABLE user_sessions ADD COLUMN IF NOT EXISTS os VARCHAR(100);
+      ALTER TABLE user_sessions ADD COLUMN IF NOT EXISTS os_version VARCHAR(100);
+      ALTER TABLE user_sessions ADD COLUMN IF NOT EXISTS browser VARCHAR(100);
+      ALTER TABLE user_sessions ADD COLUMN IF NOT EXISTS browser_version VARCHAR(100);
+      ALTER TABLE user_sessions ADD COLUMN IF NOT EXISTS device_model VARCHAR(100);
+      ALTER TABLE user_sessions ADD COLUMN IF NOT EXISTS screen_resolution VARCHAR(100);
+      ALTER TABLE user_sessions ADD COLUMN IF NOT EXISTS language VARCHAR(50);
+      ALTER TABLE user_sessions ADD COLUMN IF NOT EXISTS timezone VARCHAR(100);
+      ALTER TABLE user_sessions ADD COLUMN IF NOT EXISTS fingerprint VARCHAR(100);
+      ALTER TABLE user_sessions ADD COLUMN IF NOT EXISTS device_info JSONB DEFAULT '{}'::jsonb;
+
       ALTER TABLE courses ADD COLUMN IF NOT EXISTS categories JSONB DEFAULT '[]'::jsonb;
       ALTER TABLE courses ADD COLUMN IF NOT EXISTS short_description TEXT;
       ALTER TABLE courses ADD COLUMN IF NOT EXISTS live_hours VARCHAR(100);
