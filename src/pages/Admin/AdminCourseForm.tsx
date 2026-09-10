@@ -13,6 +13,7 @@ import {
   Tag
 } from 'lucide-react';
 import { courseService } from '../../services/courseService';
+import { COMMON_PROGRAM_FEATURES, PROGRAM_CATEGORIES } from '../../data/courses';
 import type { Course, Module, Lesson } from '../../types';
 
 // Slugify helper
@@ -41,15 +42,18 @@ export const AdminCourseForm: React.FC = () => {
   const [title, setTitle] = useState('');
   const [slug, setSlug] = useState('');
   const [slugModifiedManually, setSlugModifiedManually] = useState(false);
-  const [category, setCategory] = useState('Master Programs');
+  const [categories, setCategories] = useState<string[]>(['Tools and Upskills']);
   const [level, setLevel] = useState('Beginner to Advanced');
   const [duration, setDuration] = useState('12 Months');
+  const [liveHours, setLiveHours] = useState('30+ Hours');
   const [price, setPrice] = useState<number>(34999);
   const [originalPrice, setOriginalPrice] = useState<number>(69999);
   const [status, setStatus] = useState<'available' | 'coming-soon'>('available');
   const [featured, setFeatured] = useState(false);
   const [image, setImage] = useState('https://images.unsplash.com/photo-1551288049-bebda4e38f71?q=80&w=800&auto=format&fit=crop');
   const [description, setDescription] = useState('');
+  const [outcome, setOutcome] = useState('');
+  const [features, setFeatures] = useState<string[]>(COMMON_PROGRAM_FEATURES);
   const [rating, setRating] = useState<number>(4.9);
   const [students, setStudents] = useState<number>(350);
 
@@ -102,15 +106,18 @@ export const AdminCourseForm: React.FC = () => {
             setTitle(course.title);
             setSlug(course.slug);
             setSlugModifiedManually(true);
-            setCategory(course.category);
+            setCategories(course.categories && course.categories.length > 0 ? course.categories : [course.category]);
             setLevel(course.level);
             setDuration(course.duration);
+            if (course.liveHours) setLiveHours(course.liveHours);
             setPrice(course.price);
             setOriginalPrice(course.originalPrice);
             setStatus(course.status);
             setFeatured(course.featured);
             setImage(course.image);
             setDescription(course.description);
+            if (course.outcome) setOutcome(course.outcome);
+            if (course.features && course.features.length > 0) setFeatures(course.features);
             setRating(course.rating);
             setStudents(course.students);
             if (course.skills) setSkills(course.skills);
@@ -136,6 +143,17 @@ export const AdminCourseForm: React.FC = () => {
     }
   };
 
+  // Toggle category
+  const handleToggleCategory = (cat: string) => {
+    if (categories.includes(cat)) {
+      if (categories.length > 1) {
+        setCategories(categories.filter((c) => c !== cat));
+      }
+    } else {
+      setCategories([...categories, cat]);
+    }
+  };
+
   // Skills handlers
   const handleAddSkill = (e: React.FormEvent) => {
     e.preventDefault();
@@ -150,7 +168,7 @@ export const AdminCourseForm: React.FC = () => {
     setSkills(skills.filter((s) => s !== skillToRemove));
   };
 
-  // Who is it for handlers
+  // Audience handlers
   const handleAddWho = (e: React.FormEvent) => {
     e.preventDefault();
     if (!whoInput.trim()) return;
@@ -158,8 +176,8 @@ export const AdminCourseForm: React.FC = () => {
     setWhoInput('');
   };
 
-  const handleRemoveWho = (index: number) => {
-    setWhoIsItFor(whoIsItFor.filter((_, idx) => idx !== index));
+  const handleRemoveWho = (idx: number) => {
+    setWhoIsItFor(whoIsItFor.filter((_, i) => i !== idx));
   };
 
   // Requirements handlers
@@ -170,72 +188,52 @@ export const AdminCourseForm: React.FC = () => {
     setReqInput('');
   };
 
-  const handleRemoveReq = (index: number) => {
-    setRequirements(requirements.filter((_, idx) => idx !== index));
+  const handleRemoveReq = (idx: number) => {
+    setRequirements(requirements.filter((_, i) => i !== idx));
   };
 
-  // Module Management
+  // Module handlers
   const handleAddModule = () => {
-    const newModuleId = `mod-${Date.now().toString(36)}`;
-    const newModule: Module = {
-      id: newModuleId,
-      title: `Module ${modules.length + 1}: New Topic`,
-      description: 'Module objectives and hands-on syllabus',
+    const newMod: Module = {
+      id: `mod-${Date.now()}`,
+      title: `Module ${modules.length + 1}: New Curriculum Topic`,
+      description: 'Module overview and topics.',
       lessons: [
-        {
-          id: `les-${Date.now().toString(36)}-1`,
-          title: 'Lesson 1: Introduction',
-          duration: '45 mins',
-          isPreview: false
-        }
+        { id: `les-${Date.now()}-1`, title: 'Lesson 1: Introduction', duration: '45 mins', isPreview: false }
       ]
     };
-    setModules([...modules, newModule]);
+    setModules([...modules, newMod]);
   };
 
   const handleRemoveModule = (moduleIndex: number) => {
-    if (modules.length <= 1) {
-      alert('Course should have at least one module.');
-      return;
-    }
-    setModules(modules.filter((_, idx) => idx !== moduleIndex));
+    setModules(modules.filter((_, i) => i !== moduleIndex));
   };
 
-  const handleUpdateModuleTitle = (index: number, newTitle: string) => {
+  const handleUpdateModule = (moduleIndex: number, fields: Partial<Module>) => {
     const updated = [...modules];
-    updated[index].title = newTitle;
+    updated[moduleIndex] = { ...updated[moduleIndex], ...fields };
     setModules(updated);
   };
 
-  // Lesson Management inside Module
   const handleAddLesson = (moduleIndex: number) => {
     const updated = [...modules];
-    const targetMod = updated[moduleIndex];
     const newLesson: Lesson = {
-      id: `les-${Date.now().toString(36)}-${targetMod.lessons.length + 1}`,
-      title: `Lesson ${targetMod.lessons.length + 1}: Topic`,
-      duration: '45 mins',
+      id: `les-${Date.now()}-${Math.random().toString(36).substring(2, 5)}`,
+      title: 'New Session / Lab',
+      duration: '60 mins',
       isPreview: false
     };
-    targetMod.lessons.push(newLesson);
+    updated[moduleIndex].lessons = [...updated[moduleIndex].lessons, newLesson];
     setModules(updated);
   };
 
   const handleRemoveLesson = (moduleIndex: number, lessonIndex: number) => {
     const updated = [...modules];
-    if (updated[moduleIndex].lessons.length <= 1) {
-      alert('Each module must have at least one lesson.');
-      return;
-    }
-    updated[moduleIndex].lessons.splice(lessonIndex, 1);
+    updated[moduleIndex].lessons = updated[moduleIndex].lessons.filter((_, i) => i !== lessonIndex);
     setModules(updated);
   };
 
-  const handleUpdateLesson = (
-    moduleIndex: number,
-    lessonIndex: number,
-    fields: Partial<Lesson>
-  ) => {
+  const handleUpdateLesson = (moduleIndex: number, lessonIndex: number, fields: Partial<Lesson>) => {
     const updated = [...modules];
     updated[moduleIndex].lessons[lessonIndex] = {
       ...updated[moduleIndex].lessons[lessonIndex],
@@ -253,8 +251,8 @@ export const AdminCourseForm: React.FC = () => {
   // Submit Handler
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!title.trim() || !category.trim() || !description.trim()) {
-      showToast('Please fill out the Title, Category, and Description.', 'error');
+    if (!title.trim() || categories.length === 0 || !description.trim()) {
+      showToast('Please fill out the Title, at least one Category, and Description.', 'error');
       return;
     }
 
@@ -263,15 +261,19 @@ export const AdminCourseForm: React.FC = () => {
     const payload: Partial<Course> = {
       title: title.trim(),
       slug: slugify(slug || title),
-      category: category.trim(),
+      category: categories[0],
+      categories,
       level,
       duration,
+      liveHours,
       price: Number(price),
       originalPrice: Number(originalPrice) || Number(price),
       status,
       featured,
       image,
       description: description.trim(),
+      outcome: outcome.trim() || undefined,
+      features: features.length > 0 ? features : COMMON_PROGRAM_FEATURES,
       rating: Number(rating) || 4.9,
       students: Number(students) || 0,
       lessons: totalCalculatedLessons || 10,
@@ -410,19 +412,30 @@ export const AdminCourseForm: React.FC = () => {
               />
             </div>
 
-            {/* Category */}
-            <div>
-              <label className="text-xs font-bold text-slate-300 block mb-1">
-                Category Track <span className="text-red-400">*</span>
+            {/* Multi-Category Selector */}
+            <div className="md:col-span-2">
+              <label className="text-xs font-bold text-slate-300 block mb-1.5">
+                Assigned Category Tracks <span className="text-red-400">*</span> <span className="text-slate-500 font-normal">(Select all that apply)</span>
               </label>
-              <input
-                type="text"
-                required
-                placeholder="e.g. Master Programs, Tools And Upskills"
-                value={category}
-                onChange={(e) => setCategory(e.target.value)}
-                className="w-full px-3.5 py-2.5 bg-slate-950 border border-slate-800 rounded-xl text-xs text-white placeholder-slate-500 focus:outline-none focus:border-purple-500"
-              />
+              <div className="flex flex-wrap gap-2">
+                {PROGRAM_CATEGORIES.map((cat) => {
+                  const isSelected = categories.includes(cat);
+                  return (
+                    <button
+                      key={cat}
+                      type="button"
+                      onClick={() => handleToggleCategory(cat)}
+                      className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all border cursor-pointer ${
+                        isSelected
+                          ? 'bg-purple-600 text-white border-purple-500 shadow-sm'
+                          : 'bg-slate-950 text-slate-400 border-slate-800 hover:border-slate-700'
+                      }`}
+                    >
+                      {cat} {isSelected && '✓'}
+                    </button>
+                  );
+                })}
+              </div>
             </div>
 
             {/* Level */}
@@ -449,9 +462,23 @@ export const AdminCourseForm: React.FC = () => {
               </label>
               <input
                 type="text"
-                placeholder="e.g. 12 Weeks, 24 Weeks, 6 Months"
+                placeholder="e.g. 11 Months, 6 Months, Flexible duration"
                 value={duration}
                 onChange={(e) => setDuration(e.target.value)}
+                className="w-full px-3.5 py-2.5 bg-slate-950 border border-slate-800 rounded-xl text-xs text-white placeholder-slate-500 focus:outline-none focus:border-purple-500"
+              />
+            </div>
+
+            {/* Live Learning Hours */}
+            <div>
+              <label className="text-xs font-bold text-slate-300 block mb-1">
+                Live Learning Hours
+              </label>
+              <input
+                type="text"
+                placeholder="e.g. 90+ Hours, 70+ Hours, 30+ Hours"
+                value={liveHours}
+                onChange={(e) => setLiveHours(e.target.value)}
                 className="w-full px-3.5 py-2.5 bg-slate-950 border border-slate-800 rounded-xl text-xs text-white placeholder-slate-500 focus:outline-none focus:border-purple-500"
               />
             </div>
@@ -472,7 +499,7 @@ export const AdminCourseForm: React.FC = () => {
             </div>
 
             {/* Featured Checkbox */}
-            <div className="flex items-center gap-3 pt-6">
+            <div className="flex items-center gap-3 pt-6 md:col-span-2">
               <label className="flex items-center gap-2 cursor-pointer">
                 <input
                   type="checkbox"
@@ -595,14 +622,28 @@ export const AdminCourseForm: React.FC = () => {
             {/* Description */}
             <div>
               <label className="text-xs font-bold text-slate-300 block mb-1">
-                Full Description & Career Outcomes <span className="text-red-400">*</span>
+                Full Description <span className="text-red-400">*</span>
               </label>
               <textarea
                 required
-                rows={4}
+                rows={3}
                 placeholder="Describe what learners will achieve in this program track..."
                 value={description}
                 onChange={(e) => setDescription(e.target.value)}
+                className="w-full px-3.5 py-2.5 bg-slate-950 border border-slate-800 rounded-xl text-xs text-white placeholder-slate-500 focus:outline-none focus:border-purple-500 leading-relaxed"
+              />
+            </div>
+
+            {/* Outcome */}
+            <div>
+              <label className="text-xs font-bold text-slate-300 block mb-1">
+                Program Learning Outcome
+              </label>
+              <textarea
+                rows={2}
+                placeholder="By the end of the program, learners will be equipped with..."
+                value={outcome}
+                onChange={(e) => setOutcome(e.target.value)}
                 className="w-full px-3.5 py-2.5 bg-slate-950 border border-slate-800 rounded-xl text-xs text-white placeholder-slate-500 focus:outline-none focus:border-purple-500 leading-relaxed"
               />
             </div>
@@ -806,7 +847,7 @@ export const AdminCourseForm: React.FC = () => {
                     <input
                       type="text"
                       value={module.title}
-                      onChange={(e) => handleUpdateModuleTitle(modIdx, e.target.value)}
+                      onChange={(e) => handleUpdateModule(modIdx, { title: e.target.value })}
                       className="w-full px-3 py-1.5 bg-slate-900 border border-slate-700 rounded-lg text-xs font-bold text-white focus:outline-none focus:border-purple-500"
                     />
                   </div>

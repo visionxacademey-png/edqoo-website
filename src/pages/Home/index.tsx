@@ -23,9 +23,11 @@ import {
   Video,
   FolderGit2,
   UserCheck,
+  Brain,
+  BarChart3,
   Cpu
 } from 'lucide-react';
-import { courses } from '../../data/courses';
+import { courses, filterCoursesByCategory } from '../../data/courses';
 import { SEO } from '../../components/common/SEO';
 import { useEnquiry } from '../../context/EnquiryContext';
 
@@ -46,12 +48,12 @@ const heroSlides = [
   },
   {
     id: 'slide-2',
-    launchBadge: 'Master Program in Data Science and AI',
+    launchBadge: 'Advanced Executive Program in Data Science & AI',
     accentLine: 'Engineer Real AI.',
     mainLine: 'Deploy Predictive Models & GenAI from Day 1',
     pills: ['Python & PyTorch', 'LLMs & RAG Architectures', '1:1 Mentor Reviews'],
     primaryCta: 'View Data Science & AI',
-    primaryLink: '/courses/master-program-data-science-ai',
+    primaryLink: '/courses/advanced-executive-program-data-science-ai',
     secondaryCta: 'Request Syllabus',
     image: 'https://images.unsplash.com/photo-1551288049-bebda4e38f71?q=80&w=1600&auto=format&fit=crop',
     statHighlight: '94% of alumni report direct career advancement in data & AI operations*',
@@ -59,12 +61,12 @@ const heroSlides = [
   },
   {
     id: 'slide-3',
-    launchBadge: 'Master Program in AI and Machine Learning',
+    launchBadge: 'Executive Professional Certificate in Data Science & AI',
     accentLine: 'Master Modern AI.',
     mainLine: 'Build Deep Neural Networks & Autonomous Agents',
-    pills: ['Computer Vision', 'Transformers & NLP', 'vLLM Model Serving'],
+    pills: ['Computer Vision', 'Transformers & NLP', 'MLOps Serving'],
     primaryCta: 'View AI & ML Track',
-    primaryLink: '/courses/master-program-ai-machine-learning',
+    primaryLink: '/courses/executive-professional-certificate-data-science-ai',
     secondaryCta: 'Book Advisory Call',
     image: 'https://images.unsplash.com/photo-1677442136019-21780efad99a?q=80&w=1600&auto=format&fit=crop',
     statHighlight: 'Over 2,500+ active practitioners enrolled across modern engineering tracks*',
@@ -72,10 +74,10 @@ const heroSlides = [
   },
   {
     id: 'slide-4',
-    launchBadge: 'Tools And Upskills — Executive Fast-Track (24–36 Hours)',
+    launchBadge: 'Tools and Upskills — Executive Fast-Tracks',
     accentLine: 'Executive Power Skills.',
     mainLine: 'Master Python, SQL, Power BI & Prompt Engineering',
-    pills: ['24–36 Hours Intensive', 'Executive Certificate', 'Instant Workplace Impact'],
+    pills: ['Flexible Duration', 'Executive Certificate', 'Instant Workplace Impact'],
     primaryCta: 'Explore Tools & Upskills',
     primaryLink: '/courses',
     secondaryCta: 'Enquire for Teams',
@@ -85,11 +87,13 @@ const heroSlides = [
   }
 ];
 
-// Clean category navigation
+// Clean category navigation with the 5 exact category tracks
 const categoryNav = [
-  { id: 'all', label: 'All Programs', count: courses.length, icon: Layers },
-  { id: 'Master Programs', label: 'Master Programs', count: courses.filter(c => c.category === 'Master Programs').length, icon: GraduationCap },
-  { id: 'Tools And Upskills', label: 'Tools And Upskills', count: courses.filter(c => c.category === 'Tools And Upskills').length, icon: Wrench }
+  { id: 'all', label: 'All Categories', count: courses.length, icon: Layers },
+  { id: 'DS & AI', label: 'DS & AI', count: filterCoursesByCategory(courses, 'DS & AI').length, icon: Brain },
+  { id: 'DA & AI', label: 'DA & AI', count: filterCoursesByCategory(courses, 'DA & AI').length, icon: BarChart3 },
+  { id: 'AI & ML', label: 'AI & ML', count: filterCoursesByCategory(courses, 'AI & ML').length, icon: Cpu },
+  { id: 'Tools and Upskills', label: 'Tools and Upskills', count: filterCoursesByCategory(courses, 'Tools and Upskills').length, icon: Wrench }
 ];
 
 // Key Highlights data structured into the recommended groups
@@ -218,10 +222,7 @@ export const Home: React.FC = () => {
   };
 
   // Filter courses based on active category
-  const displayedCourses = courses.filter((course) => {
-    if (selectedCategory === 'all') return true;
-    return course.category.toLowerCase() === selectedCategory.toLowerCase();
-  });
+  const displayedCourses = filterCoursesByCategory(courses, selectedCategory);
 
   const currentHero = heroSlides[activeSlide];
 
@@ -466,7 +467,7 @@ export const Home: React.FC = () => {
       </section>
 
       {/* ========================================================================= */}
-      {/* 4. COURSES / PROGRAMS SECTION (Master Programs & Tools And Upskills) */}
+      {/* 4. COURSES / PROGRAM TRACKS SECTION */}
       {/* ========================================================================= */}
       <section id="programs" className="section-padding bg-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-8">
@@ -477,10 +478,10 @@ export const Home: React.FC = () => {
               EXPLORE CURRICULUM
             </span>
             <h2 className="text-2xl sm:text-3xl lg:text-4xl font-display font-extrabold text-slate-950">
-              Featured Programs & Executive Tracks
+              Featured Program Tracks & Courses
             </h2>
             <p className="text-slate-500 text-xs sm:text-sm leading-relaxed">
-              Choose between comprehensive <strong>Master Programs</strong> for career transformations or intensive <strong>Tools And Upskills</strong> executive tracks (24–36 Hours).
+              Explore specialized program tracks in <strong>DS & AI</strong>, <strong>DA & AI</strong>, <strong>AI & ML</strong>, and intensive <strong>Tools and Upskills</strong>.
             </p>
           </div>
 
@@ -502,7 +503,7 @@ export const Home: React.FC = () => {
                     <button
                       key={cat.id}
                       onClick={() => setSelectedCategory(cat.id)}
-                      className={`w-full flex items-center justify-between px-3.5 py-3 text-xs font-bold rounded-xl transition-all text-left ${
+                      className={`w-full flex items-center justify-between px-3.5 py-3 text-xs font-bold rounded-xl transition-all text-left cursor-pointer ${
                         isActive
                           ? 'bg-purple-600 text-white shadow-sm'
                           : 'text-slate-700 hover:bg-white hover:text-purple-600'
@@ -543,7 +544,7 @@ export const Home: React.FC = () => {
                   <button
                     key={cat.id}
                     onClick={() => setSelectedCategory(cat.id)}
-                    className={`px-3.5 py-2 text-xs font-bold rounded-xl whitespace-nowrap border flex-shrink-0 flex items-center gap-2 transition-all ${
+                    className={`px-3.5 py-2 text-xs font-bold rounded-xl whitespace-nowrap border flex-shrink-0 flex items-center gap-2 transition-all cursor-pointer ${
                       isActive
                         ? 'bg-purple-600 text-white border-purple-600 shadow-sm'
                         : 'bg-white text-slate-800 border-slate-200 hover:bg-slate-50'
@@ -584,7 +585,7 @@ export const Home: React.FC = () => {
               {/* Grid */}
               <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-5">
                 {displayedCourses.map((course) => {
-                  const isToolsAndUpskills = course.category === 'Tools And Upskills';
+                  const isTools = (course.categories || [course.category]).includes('Tools and Upskills');
                   return (
                     <div
                       key={course.id}
@@ -599,21 +600,24 @@ export const Home: React.FC = () => {
                           className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                           loading="lazy"
                         />
-                        <span className={`absolute top-3 left-3 px-2 py-0.5 text-[10px] font-bold rounded-md uppercase tracking-wider backdrop-blur-xs border ${
-                          isToolsAndUpskills
-                            ? 'bg-emerald-50/90 border-emerald-300 text-emerald-800'
-                            : 'bg-purple-50/90 border-purple-300 text-purple-800'
-                        }`}>
-                          {course.category}
-                        </span>
+                        <div className="absolute top-3 left-3 flex flex-wrap gap-1 max-w-[70%]">
+                          {(course.categories || [course.category]).map((cat) => (
+                            <span
+                              key={cat}
+                              className={`px-2 py-0.5 text-[10px] font-bold rounded-md uppercase tracking-wider backdrop-blur-xs border ${
+                                cat === 'Tools and Upskills'
+                                  ? 'bg-emerald-50/90 border-emerald-300 text-emerald-800'
+                                  : 'bg-purple-50/90 border-purple-300 text-purple-800'
+                              }`}
+                            >
+                              {cat}
+                            </span>
+                          ))}
+                        </div>
 
-                        {isToolsAndUpskills ? (
+                        {course.liveHours && (
                           <span className="absolute top-3 right-3 px-2 py-0.5 bg-slate-900 text-white text-[10px] font-extrabold rounded-md shadow-sm">
-                            24–36 Hours
-                          </span>
-                        ) : (
-                          <span className="absolute top-3 right-3 px-2 py-0.5 bg-purple-600 text-white text-[10px] font-bold rounded-md shadow-sm">
-                            Master Track
+                            {course.liveHours} Live
                           </span>
                         )}
                       </div>
@@ -621,13 +625,13 @@ export const Home: React.FC = () => {
                       {/* Card Content Details */}
                       <div className="p-4 flex-1 flex flex-col justify-between space-y-3 text-left">
                         <div className="space-y-1.5">
-                          <h3 className="font-display font-bold text-sm text-slate-950 group-hover:text-purple-600 transition-colors line-clamp-1">
+                          <h3 className="font-display font-bold text-sm text-slate-950 group-hover:text-purple-600 transition-colors line-clamp-2">
                             <Link to={`/courses/${course.slug}`} onClick={(e) => e.stopPropagation()}>
                               {course.title}
                             </Link>
                           </h3>
                           <p className="text-slate-500 text-[11px] leading-relaxed line-clamp-2">
-                            {course.description}
+                            {course.shortDescription || course.description}
                           </p>
                         </div>
 
@@ -648,16 +652,23 @@ export const Home: React.FC = () => {
                           )}
                         </div>
 
-                        {/* Course Metadata (Duration, Mode, Rating) */}
+                        {/* Course Metadata (Duration, Live Hours, Rating) */}
                         <div className="flex items-center justify-between text-[11px] text-slate-500 font-semibold border-t border-slate-100 pt-2.5">
                           <span className="flex items-center gap-1 font-bold text-slate-700">
                             <Clock className="w-3.5 h-3.5 text-purple-600" />
                             {course.duration}
                           </span>
-                          <span className="flex items-center gap-1">
-                            <BookOpen className="w-3.5 h-3.5 text-slate-400" />
-                            {isToolsAndUpskills ? 'Executive' : 'Master Track'}
-                          </span>
+                          {course.liveHours ? (
+                            <span className="flex items-center gap-1 text-purple-700 font-bold">
+                              <BookOpen className="w-3.5 h-3.5 text-purple-500" />
+                              {course.liveHours}
+                            </span>
+                          ) : (
+                            <span className="flex items-center gap-1">
+                              <BookOpen className="w-3.5 h-3.5 text-slate-400" />
+                              {isTools ? 'Executive' : 'Master Track'}
+                            </span>
+                          )}
                           <span className="flex items-center gap-1 text-amber-500 font-bold">
                             <Star className="w-3.5 h-3.5 fill-current" />
                             {course.rating > 0 ? course.rating : '4.9'}
@@ -667,9 +678,11 @@ export const Home: React.FC = () => {
                         {/* Action & Pricing Footer */}
                         <div className="pt-3 border-t border-slate-100 flex items-center justify-between gap-2">
                           <div className="flex flex-col">
-                            <span className="text-[10px] text-slate-400 line-through leading-none">
-                              ₹{course.originalPrice}
-                            </span>
+                            {course.originalPrice > 0 && (
+                              <span className="text-[10px] text-slate-400 line-through leading-none">
+                                ₹{course.originalPrice}
+                              </span>
+                            )}
                             <span className="text-slate-950 font-extrabold text-sm leading-tight">
                               ₹{course.price}
                             </span>

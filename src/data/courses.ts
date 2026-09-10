@@ -1,576 +1,1077 @@
-import type { Course } from '../types';
+import type { Course, CurriculumSection, Module } from '../types';
+
+// =============================================================================
+// GLOBAL REUSABLE FEATURE LIST (Mandatory 15 Common Features for all Courses)
+// =============================================================================
+export const COMMON_PROGRAM_FEATURES: string[] = [
+  'Live Interactive Classes',
+  'On-Demand Recorded Sessions',
+  'Dedicated Learning Management System',
+  'Campus Immersion Program',
+  'Dedicated Mentor Support',
+  'Priority Doubt-Clearing Support',
+  'Professional Resume Building',
+  'LinkedIn Profile Optimization',
+  'Professional Communication Training',
+  'Complete Interview Preparation',
+  'Placement Assistance',
+  'Major Capstone Project',
+  'Real-World Projects',
+  'Startup Incubation Support',
+  'Top 2 Performers Rewarded'
+];
+
+// Display Categories for Program Tracks
+export const PROGRAM_CATEGORIES = [
+  'DS & AI',
+  'DA & AI',
+  'AI & ML',
+  'Tools and Upskills'
+] as const;
+
+export type ProgramCategory = typeof PROGRAM_CATEGORIES[number];
+
+// Helper to convert curriculum sections to backward-compatible module format
+function curriculumToModules(sections: CurriculumSection[]): Module[] {
+  return sections.map((sec, idx) => ({
+    id: `mod-${idx + 1}`,
+    title: sec.title,
+    description: sec.description || `Comprehensive training on ${sec.title}`,
+    lessons: sec.topics.map((topic, lIdx) => ({
+      id: `les-${idx + 1}-${lIdx + 1}`,
+      title: topic,
+      duration: '45–90 mins',
+      isPreview: idx === 0 && lIdx === 0
+    }))
+  }));
+}
+
+// =============================================================================
+// CENTRALIZED COURSE CATALOG (9 Unique Programs across all Category Tracks)
+// =============================================================================
+
+const advancedDataScienceAndAiCurriculum: CurriculumSection[] = [
+  {
+    title: 'DATA SCIENCE & PROGRAMMING',
+    topics: [
+      'Python Programming',
+      'Python for Data Science',
+      'Object-Oriented Programming',
+      'NumPy & Pandas',
+      'Data Manipulation & Analysis',
+      'Data Preprocessing',
+      'Exploratory Data Analysis',
+      'Data Visualization',
+      'Statistical Analysis',
+      'Probability & Inferential Statistics'
+    ]
+  },
+  {
+    title: 'DATABASE & DATA MANAGEMENT',
+    topics: [
+      'SQL Fundamentals',
+      'Advanced SQL',
+      'Database Concepts',
+      'Joins, Subqueries & CTEs',
+      'Functions & Stored Procedures',
+      'Window Functions',
+      'Query Optimization',
+      'SQL-Based Business Case Studies'
+    ]
+  },
+  {
+    title: 'MACHINE LEARNING',
+    topics: [
+      'Machine Learning Fundamentals',
+      'Supervised & Unsupervised Learning',
+      'Regression & Classification',
+      'Decision Trees & Random Forest',
+      'Clustering Techniques',
+      'Naive Bayes',
+      'Ensemble Learning',
+      'Feature Engineering & Selection',
+      'Model Evaluation & Optimization',
+      'Hyperparameter Tuning'
+    ]
+  },
+  {
+    title: 'ADVANCED AI & MACHINE LEARNING',
+    topics: [
+      'XGBoost, AdaBoost & Gradient Boosting',
+      'PCA & LDA',
+      'Gaussian Mixture Models',
+      'Recommendation Systems',
+      'Time Series Forecasting',
+      'Predictive Analytics',
+      'Advanced Machine Learning Case Studies'
+    ]
+  },
+  {
+    title: 'DEEP LEARNING & COMPUTER VISION',
+    topics: [
+      'Deep Learning Fundamentals',
+      'Neural Networks & Perceptrons',
+      'TensorFlow & Keras',
+      'Fully Connected Networks',
+      'Computer Vision',
+      'Convolutional Neural Networks',
+      'Transfer Learning & Fine-Tuning',
+      'RNN & LSTM',
+      'Model Training & Optimization'
+    ]
+  },
+  {
+    title: 'NLP & GENERATIVE AI',
+    topics: [
+      'Natural Language Processing',
+      'Text Processing & Feature Extraction',
+      'Sentiment Analysis',
+      'Topic Modelling',
+      'Text Summarization',
+      'Transformers',
+      'BERT & GPT',
+      'Large Language Models',
+      'Generative AI Applications',
+      'AI/NLP Projects'
+    ]
+  },
+  {
+    title: 'BUSINESS INTELLIGENCE',
+    topics: [
+      'Power BI',
+      'Data Visualization & Interactive Dashboards',
+      'Power Query & M Query',
+      'Data Modelling & DAX',
+      'Time Intelligence',
+      'Advanced DAX',
+      'Analytics, Filters & Drill-Downs',
+      'Power BI Service & Administration',
+      'Power BI API, Embedded & Mobile',
+      'Python, R & Azure SQL Integration'
+    ]
+  },
+  {
+    title: 'CLOUD, BIG DATA & DATA ENGINEERING',
+    topics: [
+      'Linux for Data Professionals',
+      'Azure Fundamentals',
+      'Azure Data Factory',
+      'Data Pipelines & Workflows',
+      'Cloud Data Integration',
+      'Apache Spark',
+      'Distributed Data Processing',
+      'Data Processing at Scale'
+    ]
+  },
+  {
+    title: 'MLOPS & INDUSTRY PRACTICES',
+    topics: [
+      'Git & Version Control',
+      'MLOps Fundamentals',
+      'Model Deployment',
+      'Model Lifecycle Management',
+      'ML Project Workflows',
+      'Industry Best Practices'
+    ]
+  },
+  {
+    title: 'HANDS-ON LEARNING & PROJECTS',
+    topics: [
+      'Real-World Data Science Case Studies',
+      'Machine Learning Projects',
+      'Deep Learning Projects',
+      'NLP & Generative AI Projects',
+      'Business Intelligence Dashboards',
+      'Predictive Analytics Projects',
+      'Recommendation Systems',
+      'Time Series Projects',
+      'End-to-End Capstone Projects'
+    ]
+  },
+  {
+    title: 'CAREER READINESS',
+    topics: [
+      'Industry-Oriented Assignments',
+      'Portfolio Development',
+      'Project Presentation',
+      'Interview Preparation',
+      'Data Science Career Guidance'
+    ]
+  }
+];
+
+const execProfCertCurriculum: CurriculumSection[] = [
+  {
+    title: 'PROGRAMMING & DATA FOUNDATIONS',
+    topics: [
+      'Python Programming',
+      'Object-Oriented Programming',
+      'NumPy & Pandas',
+      'Data Cleaning & Preprocessing',
+      'Exploratory Data Analysis',
+      'Data Visualization',
+      'Statistics & Probability',
+      'SQL & Database Management'
+    ]
+  },
+  {
+    title: 'AI & MACHINE LEARNING TOOLKIT',
+    topics: [
+      'Regression & Classification',
+      'Decision Trees & Ensemble Models',
+      'Clustering',
+      'Feature Engineering & Selection',
+      'Model Evaluation',
+      'Model Optimization',
+      'Dimensionality Reduction',
+      'Recommendation Systems',
+      'Predictive Analytics',
+      'Time Series Forecasting'
+    ]
+  },
+  {
+    title: 'DEEP LEARNING & INTELLIGENT SYSTEMS',
+    topics: [
+      'Neural Networks',
+      'TensorFlow & Keras',
+      'Computer Vision',
+      'Convolutional Neural Networks',
+      'Transfer Learning',
+      'RNN & LSTM',
+      'Deep Learning Applications'
+    ]
+  },
+  {
+    title: 'GENERATIVE AI & LANGUAGE TECHNOLOGIES',
+    topics: [
+      'Natural Language Processing',
+      'Text Analytics',
+      'Sentiment Analysis',
+      'Topic Modelling',
+      'Text Summarization',
+      'Transformers',
+      'BERT',
+      'GPT',
+      'Large Language Models',
+      'Generative AI Applications'
+    ]
+  },
+  {
+    title: 'BUSINESS INTELLIGENCE & ANALYTICS',
+    topics: [
+      'Power BI Dashboards',
+      'Data Modelling',
+      'DAX & Time Intelligence',
+      'Power Query & M Query',
+      'Data Transformation',
+      'Interactive Visualizations',
+      'Slicers, Filters & Drill-Downs',
+      'Power BI Service',
+      'Power BI API & Embedded',
+      'Advanced Power BI',
+      'Python & R Integration',
+      'Azure SQL Integration'
+    ]
+  },
+  {
+    title: 'CLOUD & DATA ENGINEERING',
+    topics: [
+      'Linux & Command Line',
+      'File Handling & Data Extraction',
+      'Azure Fundamentals',
+      'Azure Data Factory',
+      'Data Pipelines & Workflows',
+      'Cloud Data Integration',
+      'Apache Spark',
+      'Large-Scale Data Processing'
+    ]
+  },
+  {
+    title: 'PROFESSIONAL DEVELOPMENT',
+    topics: [
+      'Hands-on Assignments',
+      'Industry Case Studies',
+      'End-to-End Projects',
+      'Git & Version Control',
+      'MLOps Fundamentals',
+      'Model Deployment',
+      'Portfolio Development',
+      'Project Presentation',
+      'Interview Preparation',
+      'Career Guidance'
+    ]
+  },
+  {
+    title: 'CAPSTONE EXPERIENCE',
+    topics: [
+      'End-to-end industry-oriented capstone project involving data preparation, predictive modeling, visual dashboards, and cloud deployment'
+    ]
+  }
+];
+
+const dataScienceMasteryCurriculum: CurriculumSection[] = [
+  {
+    title: 'PYTHON & DATA HANDLING',
+    topics: [
+      'Python fundamentals',
+      'Object-Oriented Programming',
+      'NumPy',
+      'Pandas',
+      'Data preprocessing'
+    ]
+  },
+  {
+    title: 'DATA ANALYTICS & VISUALIZATION',
+    topics: [
+      'Exploratory Data Analysis',
+      'Statistics',
+      'Probability',
+      'Feature Engineering',
+      'Matplotlib',
+      'Seaborn'
+    ]
+  },
+  {
+    title: 'MACHINE LEARNING',
+    topics: [
+      'Regression',
+      'Classification',
+      'Decision Trees',
+      'Random Forest',
+      'K-Means',
+      'Naive Bayes',
+      'Model Evaluation'
+    ]
+  },
+  {
+    title: 'ADVANCED ML CONCEPTS',
+    topics: [
+      'Feature Selection',
+      'Model Optimization',
+      'Cross-Validation',
+      'Predictive Analytics'
+    ]
+  },
+  {
+    title: 'DEEP LEARNING',
+    topics: [
+      'Neural Networks',
+      'TensorFlow',
+      'Keras',
+      'CNN',
+      'Computer Vision',
+      'Transfer Learning',
+      'RNN & LSTM'
+    ]
+  },
+  {
+    title: 'PRACTICAL LEARNING',
+    topics: [
+      'Real-world datasets',
+      'Case studies',
+      'Assignments',
+      'Industry-oriented projects'
+    ]
+  },
+  {
+    title: 'CAREER READINESS',
+    topics: [
+      'Git',
+      'Project Documentation',
+      'Portfolio Building',
+      'Resume Optimization',
+      'LinkedIn Optimization',
+      'Interview Preparation',
+      'Career Guidance'
+    ]
+  }
+];
+
+const pythonExecCurriculum: CurriculumSection[] = [
+  {
+    title: 'Python Syntax, Data Structures & Idiomatic Coding',
+    topics: [
+      'Core Python data types, memory model, and scope resolution',
+      'List, dict, and set comprehensions for clean data transformation',
+      'Functions, closures, decorators, and functional programming tools',
+      'Robust error handling, custom exceptions, and logging best practices'
+    ]
+  },
+  {
+    title: 'Object-Oriented Programming & Modular Architecture',
+    topics: [
+      'Classes, encapsulation, inheritance, and polymorphism in modern Python',
+      'Dunder methods, dataclasses, and abstract base classes (ABCs)',
+      'SOLID principles and architectural design patterns',
+      'Modular code packaging and dependency management'
+    ]
+  },
+  {
+    title: 'Data Processing, Automation & File Operations',
+    topics: [
+      'NumPy & Pandas foundations for rapid tabular processing',
+      'Automated reading/writing of CSV, Excel, JSON, and XML files',
+      'Web data extraction and automated scraping techniques',
+      'Scheduled background task automation and process orchestration'
+    ]
+  },
+  {
+    title: 'REST APIs, Integration & Production Delivery',
+    topics: [
+      'Consuming external REST APIs and handling rate limits / authentication',
+      'Building lightweight, high-performance web backends with FastAPI',
+      'Automated testing with PyTest and environment configuration',
+      'Hands-on Capstone: End-to-end executive automation workflow'
+    ]
+  }
+];
+
+const sqlExecCurriculum: CurriculumSection[] = [
+  {
+    title: 'Relational Database Concepts & Advanced Multi-Table Joins',
+    topics: [
+      'Relational schema design, entity relationships, and constraints',
+      'Inner, outer, cross, and self joins for complex data combinations',
+      'Group By, Having, conditional aggregations, and CASE statements',
+      'Correlated and non-correlated subqueries'
+    ]
+  },
+  {
+    title: 'Common Table Expressions (CTEs) & Hierarchical Querying',
+    topics: [
+      'Building readable multi-step queries using Common Table Expressions',
+      'Recursive CTEs for hierarchical, organizational, and graph data',
+      'Temporary tables, table variables, and views for modular data logic',
+      'Data modification transactions (INSERT, UPDATE, DELETE with CTEs)'
+    ]
+  },
+  {
+    title: 'Analytical Window Functions & Ranking',
+    topics: [
+      'Partitioning and ordering dynamics in SQL window calculations',
+      'Ranking functions: ROW_NUMBER, RANK, DENSE_RANK, NTILE',
+      'Offset functions: LEAD, LAG, FIRST_VALUE, LAST_VALUE',
+      'Running totals, moving averages, and cumulative distribution metrics'
+    ]
+  },
+  {
+    title: 'Query Optimization, Indexing & Real-World Case Studies',
+    topics: [
+      'Understanding execution plans and EXPLAIN query analysis',
+      'B-Tree indexes, composite indexes, and index selectivity',
+      'Query refactoring techniques to eliminate full table scans',
+      'Hands-on Capstone: Enterprise data warehouse reporting queries'
+    ]
+  }
+];
+
+const excelExecCurriculum: CurriculumSection[] = [
+  {
+    title: 'Modern Formulas & Dynamic Arrays',
+    topics: [
+      'Next-generation lookup functions: XLOOKUP, XMATCH, and INDEX/MATCH',
+      'Dynamic array formulas: FILTER, SORT, SORTBY, UNIQUE, SEQUENCE',
+      'Advanced formula efficiency using LET for local variables',
+      'Custom reusable user-defined formulas using LAMBDA'
+    ]
+  },
+  {
+    title: 'Power Query & Automated ETL Transformations',
+    topics: [
+      'Connecting to diverse data sources (Excel, CSV, Web, Folders)',
+      'Automated data cleaning, column splitting, unpivoting, and merging',
+      'Building zero-code refreshable data transformation pipelines',
+      'Introduction to M Query for custom transformation steps'
+    ]
+  },
+  {
+    title: 'Advanced PivotTables, Slicers & Data Modeling',
+    topics: [
+      'Multi-table PivotTables using Excel Data Model (Power Pivot)',
+      'Interactive visual dashboarding with slicers, timelines, and drill-downs',
+      'Calculated items, custom fields, and conditional formatting rules',
+      'Dynamic chart creation for executive KPI summaries'
+    ]
+  },
+  {
+    title: 'Executive Financial & Business Decision Modeling',
+    topics: [
+      'Sensitivity analysis with Data Tables, Scenario Manager, and Goal Seek',
+      'Building dynamic budget forecast and financial models',
+      'Executive dashboard layout design and presentation standards',
+      'Hands-on Capstone: C-Suite interactive financial dashboard'
+    ]
+  }
+];
+
+const powerBiExecCurriculum: CurriculumSection[] = [
+  {
+    title: 'Data Ingestion & Power Query Transformation',
+    topics: [
+      'Connecting to SQL databases, Excel workbooks, Web endpoints, and cloud data',
+      'Data transformation, column shaping, type enforcement, and unpivoting',
+      'Custom M functions and parameter-driven ETL workflows',
+      'Scheduled data refresh configuration and optimization'
+    ]
+  },
+  {
+    title: 'Dimensional Data Modeling & Star Schema',
+    topics: [
+      'Fact tables vs Dimension tables architecture in Business Intelligence',
+      'Creating 1-to-Many relationships, active vs inactive relationship paths',
+      'Cross-filter direction mechanics and avoiding circular dependencies',
+      'Optimizing data models for sub-second query performance'
+    ]
+  },
+  {
+    title: 'DAX Calculations & Time Intelligence',
+    topics: [
+      'Calculated columns vs Measures: Evaluation context and memory dynamics',
+      'Mastering CALCULATE, FILTER, ALL, ALLEXCEPT, and context transitions',
+      'Time intelligence formulas: YTD, QTD, MTD, YoY growth, and rolling averages',
+      'Dynamic measure switching with calculation groups and disconnected tables'
+    ]
+  },
+  {
+    title: 'Interactive Dashboard Design & Power BI Service',
+    topics: [
+      'Visual hierarchy, bookmarks, tooltips, drill-throughs, and slicer sync',
+      'Publishing reports to Power BI Service and configuring workspaces',
+      'Row-Level Security (RLS) implementation and access management',
+      'Hands-on Capstone: Complete enterprise revenue and KPI BI dashboard'
+    ]
+  }
+];
+
+const msOfficeExecCurriculum: CurriculumSection[] = [
+  {
+    title: 'Executive Word & Professional Document Design',
+    topics: [
+      'Advanced document structure, section breaks, and multi-level numbering',
+      'Custom style sets, master templates, and automated table of contents',
+      'Cross-referencing, citations, indexing, and mail merge automation',
+      'Co-authoring, track changes, version history, and document protection'
+    ]
+  },
+  {
+    title: 'C-Suite PowerPoint & High-Impact Visual Presentations',
+    topics: [
+      'Slide Master customization, color palettes, and corporate template standards',
+      'Information hierarchy, visual storytelling, and data-driven charts',
+      'Morph transitions, subtle animations, and executive delivery modes',
+      'Exporting interactive presentations, handouts, and video summaries'
+    ]
+  },
+  {
+    title: 'Spreadsheet Fluency for Workplace Productivity',
+    topics: [
+      'Core formulas (XLOOKUP, SUMIFS, COUNTIFS, IF/IFS, TEXT)',
+      'PivotTable generation for instant weekly / monthly operational summaries',
+      'Conditional formatting rules and data validation controls',
+      'Creating clean, printable report views and automated trackers'
+    ]
+  },
+  {
+    title: 'Outlook, Microsoft Teams & M365 Cloud Collaboration',
+    topics: [
+      'Inbox zero strategies, advanced search folders, rules, and quick steps',
+      'Calendar management, meeting scheduling, and shared mailbox coordination',
+      'Microsoft Teams channels, integrations, and meeting workflows',
+      'OneDrive cloud syncing, file permissions, and real-time team collaboration'
+    ]
+  }
+];
+
+const promptEngineeringExecCurriculum: CurriculumSection[] = [
+  {
+    title: 'Generative AI Foundations & Mental Models',
+    topics: [
+      'How LLMs process context: Tokens, embeddings, attention, and probability landscapes',
+      'Understanding temperature, top-p, and frequency/presence penalties',
+      'System prompts, developer instructions, and role conditioning frameworks',
+      'Context window budgeting and managing token constraints'
+    ]
+  },
+  {
+    title: 'Advanced Prompting Frameworks & Reasoning Techniques',
+    topics: [
+      'Zero-Shot vs Few-Shot prompting with high-quality exemplars',
+      'Chain-of-Thought (CoT) and Step-by-Step reasoning decomposition',
+      'Directional Stimulus prompting and self-consistency sampling',
+      'Role, Task, Context, Constraint (RTCC) prompt architecture'
+    ]
+  },
+  {
+    title: 'Structured Outputs, Guardrails & Reliability',
+    topics: [
+      'Enforcing strict JSON, XML, YAML, and Markdown tabular outputs',
+      'Mitigating hallucinations through grounding and citations',
+      'Prompt evaluation metrics and benchmarking across LLM versions',
+      'Negative constraints, edge case handling, and defensive prompt framing'
+    ]
+  },
+  {
+    title: 'AI Tooling, Workflow Automation & Agentic Chains',
+    topics: [
+      'Function calling and structured tool integration with LLM APIs',
+      'Multi-step workflow orchestration and automated text processing',
+      'Practical workplace automation: Coding assistance, research, and analysis',
+      'Hands-on Capstone: Building an automated executive AI workflow system'
+    ]
+  }
+];
+
+// =============================================================================
+// COMPLETE COURSES ARRAY
+// =============================================================================
 
 export const courses: Course[] = [
-  // =========================================================================
-  // CATEGORY 1: MASTER PROGRAMS (4 Courses)
-  // =========================================================================
+  // ---------------------------------------------------------------------------
+  // 1. Advanced Executive Program in Data Science & Artificial Intelligence
+  // ---------------------------------------------------------------------------
   {
-    id: 'master-program-data-science-ai',
-    slug: 'master-program-data-science-ai',
-    title: 'Master Program in Data Science and AI',
-    category: 'Master Programs',
-    description: 'An exhaustive, industry-vetted master track covering Python foundations, mathematical statistics, machine learning, deep neural networks, computer vision, natural language processing, generative AI, LLM application architecture, and production MLOps.',
+    id: 'advanced-executive-program-data-science-ai',
+    slug: 'advanced-executive-program-data-science-ai',
+    title: 'Advanced Executive Program in Data Science & Artificial Intelligence',
+    category: 'DS & AI',
+    categories: ['DS & AI'],
+    shortDescription: 'Comprehensive 11-month industry track covering Data Science, AI, Machine Learning, Deep Learning, Generative AI, Power BI, Cloud & MLOps.',
+    description: 'A comprehensive industry-focused program covering Data Science, Artificial Intelligence, Machine Learning, Generative AI, Business Intelligence, Cloud Computing, Big Data and MLOps.',
     image: 'https://images.unsplash.com/photo-1551288049-bebda4e38f71?q=80&w=800&auto=format&fit=crop',
     price: 34999,
     originalPrice: 69999,
-    duration: '12 Months',
-    lessons: 120,
+    duration: '11 Months',
+    liveHours: '90+ Hours',
+    lessons: 88,
     level: 'Beginner to Advanced',
-    rating: 4.9,
-    students: 1420,
+    rating: 4.92,
+    students: 1480,
     status: 'available',
     featured: true,
     skills: [
-      'Python Programming',
-      'Mathematical Statistics',
-      'Supervised & Unsupervised ML',
-      'Deep Learning & PyTorch',
-      'Computer Vision & NLP',
-      'Generative AI & LLMs',
-      'RAG & Vector Databases',
-      'MLOps & Cloud Deployment'
+      'Python for Data Science',
+      'SQL & Database Management',
+      'Machine Learning & Predictive Analytics',
+      'Deep Learning & Computer Vision',
+      'NLP & Generative AI',
+      'Power BI & Advanced DAX',
+      'Azure Cloud & Apache Spark',
+      'MLOps & Model Deployment'
     ],
+    curriculum: advancedDataScienceAndAiCurriculum,
+    modules: curriculumToModules(advancedDataScienceAndAiCurriculum),
+    technologyStack: [
+      { category: 'Languages & Libraries', skills: ['Python', 'SQL', 'NumPy', 'Pandas', 'Matplotlib', 'Seaborn'] },
+      { category: 'AI & Machine Learning', skills: ['Scikit-learn', 'TensorFlow', 'Keras', 'PyTorch', 'XGBoost'] },
+      { category: 'Business Intelligence', skills: ['Power BI', 'Power Query', 'DAX', 'Time Intelligence'] },
+      { category: 'Cloud & Big Data', skills: ['Microsoft Azure', 'Azure Data Factory', 'Apache Spark', 'Linux'] },
+      { category: 'Deployment & MLOps', skills: ['Git', 'MLOps', 'Docker', 'CI/CD Pipelines', 'Model Deployment'] }
+    ],
+    projects: [
+      'Real-World Data Science Case Studies',
+      'Machine Learning Projects',
+      'Deep Learning Projects',
+      'NLP & Generative AI Projects',
+      'Business Intelligence Dashboards',
+      'Predictive Analytics Projects',
+      'Recommendation Systems',
+      'Time Series Projects',
+      'End-to-End Capstone Projects'
+    ],
+    careerReadiness: [
+      'Industry-Oriented Assignments',
+      'Portfolio Development',
+      'Project Presentation',
+      'Interview Preparation',
+      'Data Science Career Guidance'
+    ],
+    outcome: 'Master modern Data Science, AI, Deep Learning, Cloud Data Engineering, and MLOps to deliver enterprise-grade predictive and generative AI solutions.',
+    features: COMMON_PROGRAM_FEATURES,
     requirements: [
       'Basic mathematical familiarity with high school algebra and statistics.',
-      'No prior coding background is mandatory; fundamental Python scripting is covered comprehensively from scratch.',
-      'A laptop or desktop with internet access capable of running modern IDEs and Jupyter notebooks.'
+      'No prior programming background is mandatory; Python fundamentals are covered from scratch.',
+      'A computer with internet access capable of running development environments.'
     ],
     whoIsItFor: [
       'Aspiring Data Scientists, Machine Learning Engineers, and AI Specialists.',
       'Software engineers transitioning into AI development and predictive intelligence.',
-      'Data Analysts aiming to scale into deep learning and production generative AI workflows.',
+      'Data Analysts aiming to scale into deep learning and production MLOps workflows.',
       'Fresh graduates and STEM professionals seeking industry-ready AI portfolios.'
-    ],
-    modules: [
-      {
-        id: 'ds-ai-mod-1',
-        title: 'Module 1 — Python for Data Science & Numerical Computing',
-        description: 'Core Python syntax, functional programming, OOP, NumPy multidimensional arrays, and Pandas DataFrames.',
-        lessons: [
-          { id: 'ds-l-1', title: 'Python Fundamentals & Data Structures', duration: '90 mins', isPreview: true },
-          { id: 'ds-l-2', title: 'Vectorized Operations with NumPy', duration: '90 mins' },
-          { id: 'ds-l-3', title: 'Data Wrangling, Cleaning & Transformation with Pandas', duration: '120 mins' },
-          { id: 'ds-l-4', title: 'Exploratory Data Analysis (EDA) & Data Visualization with Matplotlib/Seaborn', duration: '120 mins' }
-        ]
-      },
-      {
-        id: 'ds-ai-mod-2',
-        title: 'Module 2 — Applied Statistics, Probability & Data Modeling',
-        description: 'Probability distributions, hypothesis testing, inferential statistics, regression analysis, and variance estimation.',
-        lessons: [
-          { id: 'ds-l-5', title: 'Descriptive Statistics & Probability Distributions', duration: '90 mins' },
-          { id: 'ds-l-6', title: 'Hypothesis Testing, Z-Tests, T-Tests & ANOVA', duration: '120 mins' },
-          { id: 'ds-l-7', title: 'Linear Algebra & Matrix Decompositions for ML', duration: '90 mins' }
-        ]
-      },
-      {
-        id: 'ds-ai-mod-3',
-        title: 'Module 3 — Classical Machine Learning & Feature Engineering',
-        description: 'Supervised and unsupervised algorithms, hyperparameter tuning, model evaluation, and ensemble methods.',
-        lessons: [
-          { id: 'ds-l-8', title: 'Linear & Logistic Regression with Regularization (Lasso/Ridge)', duration: '120 mins' },
-          { id: 'ds-l-9', title: 'Tree-Based Models: Decision Trees, Random Forests & XGBoost', duration: '120 mins' },
-          { id: 'ds-l-10', title: 'Unsupervised Learning: K-Means, Hierarchical Clustering & PCA', duration: '90 mins' },
-          { id: 'ds-l-11', title: 'Model Evaluation Metrics, Cross-Validation & Pipeline Construction', duration: '90 mins' }
-        ]
-      },
-      {
-        id: 'ds-ai-mod-4',
-        title: 'Module 4 — Deep Learning, Computer Vision & NLP',
-        description: 'Multi-layer perceptrons, convolutional neural networks (CNNs), sequence models, and Transformer architectures.',
-        lessons: [
-          { id: 'ds-l-12', title: 'Neural Networks Architecture & Backpropagation with PyTorch', duration: '120 mins' },
-          { id: 'ds-l-13', title: 'Convolutional Neural Networks (CNN) for Image Recognition', duration: '120 mins' },
-          { id: 'ds-l-14', title: 'Natural Language Processing: Embeddings, Transformers & BERT', duration: '120 mins' }
-        ]
-      },
-      {
-        id: 'ds-ai-mod-5',
-        title: 'Module 5 — Generative AI, Large Language Models & MLOps',
-        description: 'Prompt engineering, Retrieval-Augmented Generation (RAG), vector stores (Chroma/Pinecone), LangChain, and Dockerized deployment.',
-        lessons: [
-          { id: 'ds-l-15', title: 'Generative AI Concepts, LLM Architectures & API Integration', duration: '90 mins' },
-          { id: 'ds-l-16', title: 'Building Production RAG Systems with LangChain & Vector Databases', duration: '150 mins' },
-          { id: 'ds-l-17', title: 'Fine-Tuning Techniques (LoRA, QLoRA) & Open Source Models', duration: '120 mins' },
-          { id: 'ds-l-18', title: 'MLOps: Model Deployment with FastAPI, Docker & CI/CD Pipelines', duration: '120 mins' }
-        ]
-      }
-    ]
-  },
-  {
-    id: 'master-program-python',
-    slug: 'master-program-python',
-    title: 'Master Program in Python',
-    category: 'Master Programs',
-    description: 'Comprehensive software engineering master track focused on professional Python architecture, advanced object-oriented design, asynchronous IO, backend APIs (FastAPI/Django), database integration, and cloud automation.',
-    image: 'https://images.unsplash.com/photo-1526379095098-d400fd0bf935?q=80&w=800&auto=format&fit=crop',
-    price: 29999,
-    originalPrice: 59999,
-    duration: '10 Months',
-    lessons: 95,
-    level: 'Beginner to Advanced',
-    rating: 4.85,
-    students: 1180,
-    status: 'available',
-    featured: true,
-    skills: [
-      'Advanced Python 3.12+',
-      'Object-Oriented Architecture',
-      'AsyncIO & Concurrency',
-      'FastAPI & Django REST',
-      'PostgreSQL & SQLAlchemy ORM',
-      'Automated PyTest & TDD',
-      'Docker & Cloud Packaging',
-      'Microservices Design'
-    ],
-    requirements: [
-      'Willingness to learn systematic problem-solving and software development principles.',
-      'No prior programming experience required; syllabus starts with fundamentals and advances to system architecture.',
-      'Computer with Windows, macOS, or Linux suitable for standard coding environments.'
-    ],
-    whoIsItFor: [
-      'Software developers looking to master enterprise-grade backend engineering in Python.',
-      'Automation engineers and DevOps professionals building scalable infrastructure tools.',
-      'Graduates wanting a solid, career-defining software development foundation.'
-    ],
-    modules: [
-      {
-        id: 'py-mod-1',
-        title: 'Module 1 — Core Python, Data Structures & Algorithmic Thinking',
-        description: 'Variables, memory management, built-in collections, recursion, generators, decorators, and functional tools.',
-        lessons: [
-          { id: 'py-l-1', title: 'Python Execution Model & Deep Dive into Built-in Types', duration: '90 mins', isPreview: true },
-          { id: 'py-l-2', title: 'Functions, Closures, Decorators & Scope Resolution', duration: '120 mins' },
-          { id: 'py-l-3', title: 'Iterators, Generators & Context Managers', duration: '90 mins' },
-          { id: 'py-l-4', title: 'Algorithmic Complexity & Custom Data Structure Implementation', duration: '120 mins' }
-        ]
-      },
-      {
-        id: 'py-mod-2',
-        title: 'Module 2 — Advanced OOP, Design Patterns & Metaprogramming',
-        description: 'Polymorphism, dunder methods, metaclasses, descriptors, SOLID design principles, and creational/structural patterns.',
-        lessons: [
-          { id: 'py-l-5', title: 'Classes, Dunder Methods & Inheritance Models', duration: '90 mins' },
-          { id: 'py-l-6', title: 'Metaclasses, Abstract Base Classes (ABCs) & Descriptors', duration: '120 mins' },
-          { id: 'py-l-7', title: 'Enterprise Design Patterns in Modern Python', duration: '120 mins' }
-        ]
-      },
-      {
-        id: 'py-mod-3',
-        title: 'Module 3 — Asynchronous Programming & High-Performance Concurrency',
-        description: 'Threading, Multiprocessing, AsyncIO event loops, coroutines, tasks, and non-blocking I/O operations.',
-        lessons: [
-          { id: 'py-l-8', title: 'The Global Interpreter Lock (GIL), Threading vs Multiprocessing', duration: '90 mins' },
-          { id: 'py-l-9', title: 'AsyncIO Foundations, Coroutines, Tasks & Event Loops', duration: '120 mins' },
-          { id: 'py-l-10', title: 'Building High-Throughput Concurrent Scrapers and Data Workers', duration: '120 mins' }
-        ]
-      },
-      {
-        id: 'py-mod-4',
-        title: 'Module 4 — Enterprise Web Backends, Databases & Microservices',
-        description: 'FastAPI REST architectures, Pydantic validation, SQLAlchemy 2.0 ORM, PostgreSQL, PyTest, and Docker.',
-        lessons: [
-          { id: 'py-l-11', title: 'High-Performance REST APIs with FastAPI & Pydantic V2', duration: '120 mins' },
-          { id: 'py-l-12', title: 'Relational Database Integration with SQLAlchemy & Alembic Migrations', duration: '120 mins' },
-          { id: 'py-l-13', title: 'Testing with PyTest, Mocking & CI/CD GitHub Actions', duration: '90 mins' },
-          { id: 'py-l-14', title: 'Containerizing Python Applications with Multi-Stage Docker', duration: '90 mins' }
-        ]
-      }
-    ]
-  },
-  {
-    id: 'master-program-ai-machine-learning',
-    slug: 'master-program-ai-machine-learning',
-    title: 'Master Program in AI and Machine Learning',
-    category: 'Master Programs',
-    description: 'An advanced, research-and-engineering blended program focusing on artificial intelligence architectures, machine learning algorithms, deep neural network optimization, computer vision, natural language transformers, and intelligent agents.',
-    image: 'https://images.unsplash.com/photo-1677442136019-21780efad99a?q=80&w=800&auto=format&fit=crop',
-    price: 36999,
-    originalPrice: 74999,
-    duration: '12 Months',
-    lessons: 130,
-    level: 'Intermediate to Advanced',
-    rating: 4.92,
-    students: 1290,
-    status: 'available',
-    featured: true,
-    skills: [
-      'Machine Learning Theory & Code',
-      'Deep Learning & PyTorch',
-      'Computer Vision & Object Detection',
-      'NLP & Transformer Architectures',
-      'Reinforcement Learning Fundamentals',
-      'LLM Fine-Tuning & Quantization',
-      'Autonomous AI Agents & Tool Calling',
-      'Scalable AI Serving (vLLM, TensorRT)'
-    ],
-    requirements: [
-      'Familiarity with programming concepts and foundational algebra/calculus.',
-      'Enthusiasm for mathematics, statistical reasoning, and neural networks.',
-      'A personal workstation suitable for running local machine learning simulations or cloud notebooks (Google Colab / Kaggle).'
-    ],
-    whoIsItFor: [
-      'Software engineers and developers aiming to specialize purely in Artificial Intelligence and Machine Learning.',
-      'Research students and tech professionals wishing to build and deploy complex neural models.',
-      'Data practitioners upgrading their skills to the cutting-edge AI and LLM paradigm.'
-    ],
-    modules: [
-      {
-        id: 'aiml-mod-1',
-        title: 'Module 1 — Mathematical Foundations for Artificial Intelligence',
-        description: 'Vector calculus, linear transformations, eigen-decomposition, probability spaces, and loss optimization landscapes.',
-        lessons: [
-          { id: 'aiml-l-1', title: 'Linear Algebra for High-Dimensional AI Embeddings', duration: '90 mins', isPreview: true },
-          { id: 'aiml-l-2', title: 'Multivariate Calculus, Gradients & Computational Graphs', duration: '90 mins' },
-          { id: 'aiml-l-3', title: 'Bayesian Inference & Information Theory in AI', duration: '90 mins' }
-        ]
-      },
-      {
-        id: 'aiml-mod-2',
-        title: 'Module 2 — Advanced Machine Learning Algorithms & Optimization',
-        description: 'Convex optimization, gradient descent variants, kernel methods, ensemble frameworks, and dimensional reduction.',
-        lessons: [
-          { id: 'aiml-l-4', title: 'Support Vector Machines & Kernel Tricks', duration: '90 mins' },
-          { id: 'aiml-l-5', title: 'Ensemble Learning: Gradient Boosted Decision Trees (XGBoost/LightGBM/CatBoost)', duration: '120 mins' },
-          { id: 'aiml-l-6', title: 'Dimensionality Reduction (t-SNE, UMAP, Autoencoders)', duration: '90 mins' }
-        ]
-      },
-      {
-        id: 'aiml-mod-3',
-        title: 'Module 3 — Deep Neural Networks, CNNs & Computer Vision',
-        description: 'Custom PyTorch layers, ResNet, EfficientNet, YOLO object detection, segmentation, and vision transformers.',
-        lessons: [
-          { id: 'aiml-l-7', title: 'Deep Neural Architectures, Normalization & Optimization Dynamics', duration: '120 mins' },
-          { id: 'aiml-l-8', title: 'Modern Computer Vision: ResNet, Vision Transformers (ViT)', duration: '120 mins' },
-          { id: 'aiml-l-9', title: 'Object Detection & Segmentation with YOLO and Mask R-CNN', duration: '120 mins' }
-        ]
-      },
-      {
-        id: 'aiml-mod-4',
-        title: 'Module 4 — Transformers, Natural Language Processing & Autonomous AI Agents',
-        description: 'Multi-head self-attention, BERT/GPT architectures, instruction tuning, autonomous agent design, and enterprise LLM inference.',
-        lessons: [
-          { id: 'aiml-l-10', title: 'The Attention Mechanism & Transformer Deep Dive', duration: '150 mins' },
-          { id: 'aiml-l-11', title: 'LLM Fine-Tuning with PEFT, LoRA, and RLHF concepts', duration: '120 mins' },
-          { id: 'aiml-l-12', title: 'Autonomous Multi-Agent Systems & Tool Orchestration', duration: '120 mins' },
-          { id: 'aiml-l-13', title: 'High-Throughput Model Serving with vLLM, TensorRT & Triton', duration: '120 mins' }
-        ]
-      }
-    ]
-  },
-  {
-    id: 'master-program-data-analytics-ai',
-    slug: 'master-program-data-analytics-ai',
-    title: 'Master Program in Data Analytics and AI',
-    category: 'Master Programs',
-    description: 'Master business intelligence, relational database warehousing, predictive modeling, interactive dashboards, advanced analytical reporting, and AI-accelerated decision intelligence systems.',
-    image: 'https://images.unsplash.com/photo-1460925895917-afdab827c52f?q=80&w=800&auto=format&fit=crop',
-    price: 31999,
-    originalPrice: 63999,
-    duration: '11 Months',
-    lessons: 105,
-    level: 'Beginner to Advanced',
-    rating: 4.88,
-    students: 1340,
-    status: 'available',
-    featured: true,
-    skills: [
-      'Data Analytics & BI Strategy',
-      'Advanced SQL & Data Warehousing',
-      'Interactive Power BI & Tableau',
-      'Python for Analytics (Pandas/Seaborn)',
-      'Predictive Business Modeling',
-      'Statistical Hypothesis Testing',
-      'AI-Powered Analytics & Copilot',
-      'Executive Storytelling with Data'
-    ],
-    requirements: [
-      'Basic logical and numerical reasoning skills.',
-      'No prior programming background necessary.',
-      'A computer with spreadsheet software and internet connectivity for BI and data lab exercises.'
-    ],
-    whoIsItFor: [
-      'Business analysts, financial analysts, and marketing specialists scaling into AI-driven intelligence.',
-      'Aspiring data analysts seeking mastery across SQL, Power BI, Python, and predictive analytics.',
-      'Managers and executives looking to drive data-informed decision strategies.'
-    ],
-    modules: [
-      {
-        id: 'da-ai-mod-1',
-        title: 'Module 1 — Business Analytics Foundations & Advanced SQL',
-        description: 'Relational data modeling, complex joins, subqueries, Common Table Expressions (CTEs), window functions, and analytics queries.',
-        lessons: [
-          { id: 'da-l-1', title: 'Database Design & Relational Schema Fundamentals', duration: '90 mins', isPreview: true },
-          { id: 'da-l-2', title: 'Complex Aggregations, Grouping & Multi-Table Joins', duration: '90 mins' },
-          { id: 'da-l-3', title: 'Window Functions (RANK, DENSE_RANK, LEAD, LAG) & CTEs', duration: '120 mins' },
-          { id: 'da-l-4', title: 'Building Real-World Analytical Data Warehouses', duration: '120 mins' }
-        ]
-      },
-      {
-        id: 'da-ai-mod-2',
-        title: 'Module 2 — Modern BI Dashboards & Visual Storytelling (Power BI & Tableau)',
-        description: 'Power Query ETL transformations, DAX calculations, relationship modeling, visual storytelling, and executive dashboard delivery.',
-        lessons: [
-          { id: 'da-l-5', title: 'Data Ingestion & Transformation with Power Query', duration: '90 mins' },
-          { id: 'da-l-6', title: 'DAX Calculations, Time Intelligence & Measures', duration: '120 mins' },
-          { id: 'da-l-7', title: 'Designing High-Impact Executive Dashboards & KPI Trackers', duration: '120 mins' }
-        ]
-      },
-      {
-        id: 'da-ai-mod-3',
-        title: 'Module 3 — Python for Data Analysis & Statistical Modeling',
-        description: 'Automated data cleaning, time series analysis, cohort retention modeling, and inferential testing.',
-        lessons: [
-          { id: 'da-l-8', title: 'Automating Data Analysis Pipelines with Python & Pandas', duration: '120 mins' },
-          { id: 'da-l-9', title: 'Statistical Testing & A/B Experimentation in Business', duration: '90 mins' },
-          { id: 'da-l-10', title: 'Time Series Forecasting & Trend Analysis', duration: '120 mins' }
-        ]
-      },
-      {
-        id: 'da-ai-mod-4',
-        title: 'Module 4 — AI-Augmented Analytics & Predictive Insights',
-        description: 'Integrating LLMs into BI pipelines, automated anomaly detection, customer churn forecasting, and AI Copilot integration.',
-        lessons: [
-          { id: 'da-l-11', title: 'Predictive Modeling for Customer Lifetime Value & Churn', duration: '120 mins' },
-          { id: 'da-l-12', title: 'Leveraging Generative AI & Natural Language SQL Queries', duration: '90 mins' },
-          { id: 'da-l-13', title: 'Capstone: End-to-End Enterprise Business Intelligence Solution', duration: '150 mins' }
-        ]
-      }
     ]
   },
 
-  // =========================================================================
-  // CATEGORY 2: TOOLS AND UPSKILLS (6 Courses — 24–36 Hours Duration)
-  // =========================================================================
+  // ---------------------------------------------------------------------------
+  // 2. Executive Professional Certificate in Data Science & AI
+  // ---------------------------------------------------------------------------
+  {
+    id: 'executive-professional-certificate-data-science-ai',
+    slug: 'executive-professional-certificate-data-science-ai',
+    title: 'Executive Professional Certificate in Data Science & AI',
+    category: 'DS & AI',
+    categories: ['DS & AI'],
+    shortDescription: 'Build practical expertise across Data Science, AI, Machine Learning, BI, Cloud and MLOps through hands-on industry labs.',
+    description: 'Build practical expertise across Data Science, Artificial Intelligence, Machine Learning, Business Intelligence, Cloud Technologies and MLOps through a hands-on, industry-oriented learning experience.',
+    image: 'https://images.unsplash.com/photo-1526379095098-d400fd0bf935?q=80&w=800&auto=format&fit=crop',
+    price: 29999,
+    originalPrice: 59999,
+    duration: '6 Months',
+    liveHours: '70+ Hours',
+    lessons: 64,
+    level: 'Beginner to Advanced',
+    rating: 4.89,
+    students: 1240,
+    status: 'available',
+    featured: true,
+    skills: [
+      'Python Programming',
+      'AI & Machine Learning Toolkit',
+      'Deep Learning & Intelligent Systems',
+      'Generative AI & Language Tech',
+      'Business Intelligence & Analytics',
+      'Cloud & Data Engineering',
+      'MLOps Fundamentals'
+    ],
+    curriculum: execProfCertCurriculum,
+    modules: curriculumToModules(execProfCertCurriculum),
+    technologyStack: [
+      { category: 'Languages & Libraries', skills: ['Python', 'SQL', 'NumPy', 'Pandas', 'Matplotlib', 'Seaborn'] },
+      { category: 'AI & ML', skills: ['Scikit-learn', 'TensorFlow', 'Keras'] },
+      { category: 'Business Intelligence', skills: ['Power BI', 'Power Query', 'DAX'] },
+      { category: 'Cloud & Data', skills: ['Microsoft Azure', 'Azure Data Factory', 'Azure SQL', 'Apache Spark', 'Linux'] },
+      { category: 'Development & Deployment', skills: ['Git', 'MLOps', 'Model Deployment'] }
+    ],
+    projects: [
+      'Predictive Analytics',
+      'Business Analytics',
+      'Machine Learning',
+      'Deep Learning',
+      'Computer Vision',
+      'NLP',
+      'Generative AI',
+      'Recommendation Systems',
+      'Time Series Forecasting',
+      'Business Intelligence'
+    ],
+    careerReadiness: [
+      'Hands-on Assignments',
+      'Industry Case Studies',
+      'End-to-End Projects',
+      'Git & Version Control',
+      'MLOps Fundamentals',
+      'Model Deployment',
+      'Portfolio Development',
+      'Project Presentation',
+      'Interview Preparation',
+      'Career Guidance'
+    ],
+    outcome: 'By the end of the program, learners will be equipped with practical knowledge across the modern Data Science and AI ecosystem and will be able to work with data, build predictive models, develop AI applications, create business dashboards and understand cloud-based and production-oriented workflows.',
+    features: COMMON_PROGRAM_FEATURES,
+    requirements: [
+      'Willingness to learn data-driven problem-solving and software tools.',
+      'No prior programming background required; core programming covered from fundamentals.',
+      'Computer with internet access for practical coding exercises and BI labs.'
+    ],
+    whoIsItFor: [
+      'Working professionals seeking practical upskilling in Data Science and AI.',
+      'Analysts, IT professionals, and consultants transitioning into AI development.',
+      'Graduates looking for an industry-recognized certificate and real-world portfolio.'
+    ]
+  },
+
+  // ---------------------------------------------------------------------------
+  // 3. Data Science Mastery Program
+  // ---------------------------------------------------------------------------
+  {
+    id: 'data-science-mastery-program',
+    slug: 'data-science-mastery-program',
+    title: 'Data Science Mastery Program',
+    category: 'DS & AI',
+    categories: ['DS & AI'],
+    shortDescription: 'Build strong foundations in Python, Data Analytics, Machine Learning and Deep Learning with hands-on projects.',
+    description: 'A practical program designed to build strong foundations in Python, Data Analytics, Machine Learning and Deep Learning, with hands-on projects and career preparation.',
+    image: 'https://images.unsplash.com/photo-1460925895917-afdab827c52f?q=80&w=800&auto=format&fit=crop',
+    price: 24999,
+    originalPrice: 49999,
+    duration: '6 Months',
+    liveHours: '60+ Hours',
+    lessons: 56,
+    level: 'Beginner to Intermediate',
+    rating: 4.86,
+    students: 1050,
+    status: 'available',
+    featured: true,
+    skills: [
+      'Python & Data Handling',
+      'Data Analytics & Visualization',
+      'Machine Learning Algorithms',
+      'Advanced ML & Optimization',
+      'Deep Learning & CNNs',
+      'Portfolio & Career Readiness'
+    ],
+    curriculum: dataScienceMasteryCurriculum,
+    modules: curriculumToModules(dataScienceMasteryCurriculum),
+    projects: [
+      'Predictive Analytics',
+      'Machine Learning',
+      'Business Intelligence',
+      'Recommendation Systems',
+      'Time Series Forecasting'
+    ],
+    careerReadiness: [
+      'Git',
+      'Project Documentation',
+      'Portfolio Building',
+      'Resume Optimization',
+      'LinkedIn Optimization',
+      'Interview Preparation',
+      'Career Guidance'
+    ],
+    outcome: 'Build practical Data Science skills from Python and data analysis to Machine Learning and Deep Learning, while developing projects and a professional portfolio.',
+    features: COMMON_PROGRAM_FEATURES,
+    requirements: [
+      'Basic familiarity with computers and numerical reasoning.',
+      'No prior programming background required.',
+      'Personal workstation suitable for running standard Python scripts and notebooks.'
+    ],
+    whoIsItFor: [
+      'Beginners and graduates seeking structured entry into data science.',
+      'Professionals wanting to master Python analytics, machine learning, and deep learning.',
+      'Engineers seeking to build real-world project portfolios.'
+    ]
+  },
+
+  // ---------------------------------------------------------------------------
+  // 4. Advance Executive in Python (Shared across 4 categories)
+  // ---------------------------------------------------------------------------
   {
     id: 'advance-executive-python',
     slug: 'advance-executive-python',
     title: 'Advance Executive in Python',
-    category: 'Tools And Upskills',
-    description: 'An intensive executive masterclass in Python focused on rapid automation scripting, OOP design patterns, data extraction, API integrations, and code efficiency for busy professionals.',
+    category: 'Tools and Upskills',
+    categories: ['DS & AI', 'DA & AI', 'AI & ML', 'Tools and Upskills'],
+    shortDescription: 'Master modern Python scripting, OOP design, data manipulation with Pandas, automation, and API integration.',
+    description: 'An intensive executive masterclass in Python covering programming foundations, object-oriented design, data manipulation, automation scripting, and API development.',
     image: 'https://images.unsplash.com/photo-1515879218367-8466d910aaa4?q=80&w=800&auto=format&fit=crop',
     price: 8999,
     originalPrice: 17999,
-    duration: '24–36 Hours',
+    duration: 'Flexible duration',
+    liveHours: '30+ Hours',
     lessons: 28,
     level: 'Intermediate',
     rating: 4.88,
-    students: 860,
+    students: 960,
     status: 'available',
     featured: false,
     skills: [
       'Advanced Python Scripting',
-      'Automation & Workflow Optimization',
       'Object-Oriented Design',
+      'NumPy & Pandas',
       'REST API Integration',
-      'Error Handling & Logging',
-      'Pandas & CSV Processing'
+      'Workflow Automation',
+      'Error Handling & Logging'
     ],
+    curriculum: pythonExecCurriculum,
+    modules: curriculumToModules(pythonExecCurriculum),
+    projects: [
+      'Automated Data Pipeline Scripting',
+      'Custom REST API Service with FastAPI',
+      'Modular Business Analytics Tool'
+    ],
+    careerReadiness: [
+      'Code Quality & Best Practices',
+      'Git Version Control',
+      'Technical Interview Prep'
+    ],
+    outcome: 'Master professional Python scripting and modular design to automate repetitive workflows and develop robust data-driven applications.',
+    features: COMMON_PROGRAM_FEATURES,
     requirements: [
       'Basic familiarity with computer operating systems and spreadsheets.',
-      'Laptop or desktop computer with Python 3.10+ installed (setup guidance provided).'
+      'Computer with Python 3.10+ installed (installation guidance provided).'
     ],
     whoIsItFor: [
-      'Working professionals seeking to automate repetitive daily tasks with Python.',
+      'Working professionals seeking to automate daily tasks and data workflows.',
       'Analysts and developers looking to level up their scripting and modular architecture.',
       'Team leads and managers who want practical code fluency.'
-    ],
-    modules: [
-      {
-        id: 'exec-py-1',
-        title: 'Part 1 — Executive Python Foundations & Idiomatic Code',
-        description: 'Fast-paced review of core types, list comprehensions, functional lambda tools, and error resilience.',
-        lessons: [
-          { id: 'ep-l-1', title: 'Writing Pythonic Code & Data Structures', duration: '3 Hours', isPreview: true },
-          { id: 'ep-l-2', title: 'Advanced File Handling, JSON & CSV Automation', duration: '3 Hours' }
-        ]
-      },
-      {
-        id: 'exec-py-2',
-        title: 'Part 2 — Modular Design, OOP & Automation Libraries',
-        description: 'Building robust classes, connecting to third-party web APIs, and scheduling automated background scripts.',
-        lessons: [
-          { id: 'ep-l-3', title: 'Clean OOP Design Patterns in Python', duration: '4 Hours' },
-          { id: 'ep-l-4', title: 'REST API Integrations & Web Requests', duration: '4 Hours' },
-          { id: 'ep-l-5', title: 'Hands-on Executive Automation Project', duration: '4 Hours' }
-        ]
-      }
     ]
   },
+
+  // ---------------------------------------------------------------------------
+  // 5. Advance Executive in SQL (Shared across 4 categories)
+  // ---------------------------------------------------------------------------
   {
     id: 'advance-executive-sql',
     slug: 'advance-executive-sql',
     title: 'Advance Executive in SQL',
-    category: 'Tools And Upskills',
+    category: 'Tools and Upskills',
+    categories: ['DS & AI', 'DA & AI', 'AI & ML', 'Tools and Upskills'],
+    shortDescription: 'Master advanced database queries, analytical window functions, complex CTEs, database indexing, and query optimization.',
     description: 'Master advanced database queries, analytical window functions, complex CTEs, database indexing, query optimization, and enterprise relational data manipulation.',
     image: 'https://images.unsplash.com/photo-1544383835-bda2bc66a55d?q=80&w=800&auto=format&fit=crop',
     price: 7999,
     originalPrice: 15999,
-    duration: '24–36 Hours',
+    duration: 'Flexible duration',
+    liveHours: '25+ Hours',
     lessons: 24,
     level: 'Intermediate',
-    rating: 4.86,
-    students: 920,
+    rating: 4.87,
+    students: 990,
     status: 'available',
     featured: false,
     skills: [
-      'Advanced SQL Querying',
-      'Window Functions (RANK, NTILE, LAG)',
+      'Advanced SQL Queries',
+      'Window Functions (RANK, LEAD, LAG)',
       'Recursive CTEs & Subqueries',
-      'Query Plan Optimization & Indexing',
-      'Database Modeling & Normalization',
-      'PostgreSQL & MySQL Operations'
+      'Query Plan Optimization',
+      'Relational Database Modeling'
     ],
+    curriculum: sqlExecCurriculum,
+    modules: curriculumToModules(sqlExecCurriculum),
+    projects: [
+      'Analytical Data Warehouse Queries',
+      'Customer Cohort Analysis',
+      'Database Query Performance Tuning'
+    ],
+    careerReadiness: [
+      'SQL Business Case Studies',
+      'Query Optimization Best Practices',
+      'Technical Interview Prep'
+    ],
+    outcome: 'Gain complete authority over complex relational queries, analytical window functions, and database query optimization for high-scale analytics.',
+    features: COMMON_PROGRAM_FEATURES,
     requirements: [
       'Basic conceptual understanding of tables, rows, and columns.',
-      'A computer with ability to install PostgreSQL or access cloud SQL sandboxes.'
+      'Access to a modern web browser or SQL client interface.'
     ],
     whoIsItFor: [
-      'Data analysts, BI professionals, and engineers seeking query performance mastery.',
-      'Product managers and business specialists wanting direct database querying authority.'
-    ],
-    modules: [
-      {
-        id: 'exec-sql-1',
-        title: 'Part 1 — Complex Querying, Multi-Table Joins & CTEs',
-        description: 'Advanced relational joins, conditional aggregation, subquery mastery, and Common Table Expressions.',
-        lessons: [
-          { id: 'es-l-1', title: 'Advanced Joins & Hierarchical Data Querying', duration: '3 Hours', isPreview: true },
-          { id: 'es-l-2', title: 'Mastering CTEs and Recursive Data Queries', duration: '3 Hours' }
-        ]
-      },
-      {
-        id: 'exec-sql-2',
-        title: 'Part 2 — Analytical Window Functions & Query Optimization',
-        description: 'Ranking, running totals, lead/lag comparisons, index profiling, and execution plan tuning.',
-        lessons: [
-          { id: 'es-l-3', title: 'Window Functions: Partitioning, Ordering & Aggregation', duration: '4 Hours' },
-          { id: 'es-l-4', title: 'Query Optimization, Index Strategies & EXPLAIN Analysis', duration: '4 Hours' },
-          { id: 'es-l-5', title: 'Real-World Business Intelligence SQL Project', duration: '4 Hours' }
-        ]
-      }
+      'Data analysts, BI professionals, and software developers seeking query mastery.',
+      'Product managers and business specialists wanting direct database querying capability.'
     ]
   },
+
+  // ---------------------------------------------------------------------------
+  // 6. Advance Executive in Excel (Shared across 4 categories)
+  // ---------------------------------------------------------------------------
   {
     id: 'advance-executive-excel',
     slug: 'advance-executive-excel',
     title: 'Advance Executive in Excel',
-    category: 'Tools And Upskills',
+    category: 'Tools and Upskills',
+    categories: ['DS & AI', 'DA & AI', 'AI & ML', 'Tools and Upskills'],
+    shortDescription: 'Transform spreadsheet workflows with Dynamic Arrays (XLOOKUP, FILTER), Power Query automated ETL, and executive modeling.',
     description: 'Transform spreadsheet workflows with modern Dynamic Arrays (XLOOKUP, FILTER, UNIQUE), Power Query automated ETL transformations, PivotTables, and executive business modeling.',
     image: 'https://images.unsplash.com/photo-1551836022-d5d88e9218df?q=80&w=800&auto=format&fit=crop',
     price: 6999,
     originalPrice: 13999,
-    duration: '24–36 Hours',
+    duration: 'Flexible duration',
+    liveHours: '25+ Hours',
     lessons: 22,
     level: 'Beginner to Intermediate',
     rating: 4.87,
-    students: 1100,
+    students: 1180,
     status: 'available',
     featured: false,
     skills: [
       'Modern Excel Formulas (XLOOKUP, LET, LAMBDA)',
       'Dynamic Array Functions (FILTER, SORT, UNIQUE)',
-      'Power Query Automated Data Transformations',
+      'Power Query Automated ETL',
       'Advanced PivotTables & Slicers',
-      'Financial & Scenario Modeling',
-      'Executive Dashboards & Visual Design'
+      'Executive Business Modeling'
     ],
+    curriculum: excelExecCurriculum,
+    modules: curriculumToModules(excelExecCurriculum),
+    projects: [
+      'Automated Financial & Operational Model',
+      'Executive KPI Tracking Dashboard',
+      'Power Query Multi-Source Data Pipeline'
+    ],
+    careerReadiness: [
+      'Data Storytelling with Spreadsheets',
+      'Executive Dashboard Presentation',
+      'Business Decision Modeling'
+    ],
+    outcome: 'Develop high-speed data manipulation, dynamic array calculation, and automated reporting abilities to build C-Suite grade business dashboards.',
+    features: COMMON_PROGRAM_FEATURES,
     requirements: [
-      'Microsoft Excel (2019, 2021, or Microsoft 365 recommended) installed on desktop or laptop.'
+      'Microsoft Excel (2019, 2021, or Microsoft 365) installed on desktop or laptop.'
     ],
     whoIsItFor: [
       'Business analysts, finance professionals, accountants, and marketing specialists.',
       'Managers seeking to automate routine reporting and design dynamic executive dashboards.'
-    ],
-    modules: [
-      {
-        id: 'exec-xl-1',
-        title: 'Part 1 — Modern Formula Engine & Dynamic Arrays',
-        description: 'Mastering XLOOKUP, INDEX/MATCH, Dynamic Arrays (FILTER, UNIQUE, SORT), LET, and custom LAMBDA formulas.',
-        lessons: [
-          { id: 'exl-l-1', title: 'Modern Formulas: XLOOKUP, XMATCH & Advanced Logic', duration: '3 Hours', isPreview: true },
-          { id: 'exl-l-2', title: 'Dynamic Arrays & Calculated Spilled Ranges', duration: '3 Hours' }
-        ]
-      },
-      {
-        id: 'exec-xl-2',
-        title: 'Part 2 — Power Query & Interactive Executive Dashboards',
-        description: 'Connecting external data, automated unpivoting, building relational data models, and designing C-Suite dashboards.',
-        lessons: [
-          { id: 'exl-l-3', title: 'Power Query: Zero-Code Automated Data Cleaning & Merging', duration: '4 Hours' },
-          { id: 'exl-l-4', title: 'Advanced PivotTables, Custom Measures & Slicers', duration: '4 Hours' },
-          { id: 'exl-l-5', title: 'Executive Financial / Operational Dashboard Project', duration: '4 Hours' }
-        ]
-      }
     ]
   },
+
+  // ---------------------------------------------------------------------------
+  // 7. Advance Executive in Power BI (Shared across 4 categories)
+  // ---------------------------------------------------------------------------
   {
     id: 'advance-executive-power-bi',
     slug: 'advance-executive-power-bi',
     title: 'Advance Executive in Power BI',
-    category: 'Tools And Upskills',
+    category: 'Tools and Upskills',
+    categories: ['DS & AI', 'DA & AI', 'AI & ML', 'Tools and Upskills'],
+    shortDescription: 'Build enterprise-grade BI solutions, master DAX computations, design Star Schemas, and deploy interactive reports.',
     description: 'Build enterprise-grade business intelligence solutions, master DAX computations, design dimensional data models (Star Schema), and deploy executive interactive reporting.',
     image: 'https://images.unsplash.com/photo-1504868584819-f8e8b4b6d7e3?q=80&w=800&auto=format&fit=crop',
     price: 8499,
     originalPrice: 16999,
-    duration: '24–36 Hours',
+    duration: 'Flexible duration',
+    liveHours: '30+ Hours',
     lessons: 25,
     level: 'Intermediate',
     rating: 4.89,
-    students: 990,
+    students: 1050,
     status: 'available',
     featured: false,
     skills: [
       'Power BI Desktop & Service',
-      'Power Query ETL & Data Shaping',
-      'Star Schema & Dimensional Modeling',
-      'DAX Measures & Time Intelligence',
-      'Custom Visuals & Drill-Throughs',
-      'Executive KPI Dashboards'
+      'Power Query ETL & M Query',
+      'Dimensional Modeling & Star Schemas',
+      'DAX Calculations & Time Intelligence',
+      'Interactive KPI Dashboards'
     ],
+    curriculum: powerBiExecCurriculum,
+    modules: curriculumToModules(powerBiExecCurriculum),
+    projects: [
+      'Enterprise Sales & Revenue BI Dashboard',
+      'Customer Retention & Churn Analytics',
+      'Supply Chain Performance Tracker'
+    ],
+    careerReadiness: [
+      'BI Architecture Portfolio',
+      'Dashboard Usability Standards',
+      'BI Analyst Interview Prep'
+    ],
+    outcome: 'Master the end-to-end business intelligence lifecycle from raw data modeling and DAX computation to executive interactive dashboard deployment.',
+    features: COMMON_PROGRAM_FEATURES,
     requirements: [
       'A computer running Windows 10/11 capable of running Power BI Desktop (free download).'
     ],
     whoIsItFor: [
       'Professionals aiming to transition from spreadsheets to robust Business Intelligence reporting.',
       'Data analysts, team leads, and consultants building visual analytics solutions.'
-    ],
-    modules: [
-      {
-        id: 'exec-pbi-1',
-        title: 'Part 1 — Data Ingestion, Shaping & Dimensional Modeling',
-        description: 'Connecting diverse data sources, Power Query data transformation, and Star Schema relationship management.',
-        lessons: [
-          { id: 'pbi-l-1', title: 'Data Extraction & Transformation in Power Query', duration: '3 Hours', isPreview: true },
-          { id: 'pbi-l-2', title: 'Relational Data Modeling: 1-to-Many, Star Schemas & Filter Flow', duration: '3 Hours' }
-        ]
-      },
-      {
-        id: 'exec-pbi-2',
-        title: 'Part 2 — DAX Calculations & Interactive Dashboards',
-        description: 'Calculated columns vs measures, CALCULATE context transition, Time Intelligence functions, and publishing to Power BI Service.',
-        lessons: [
-          { id: 'pbi-l-3', title: 'DAX Essentials: CALCULATE, FILTER & Evaluation Context', duration: '4 Hours' },
-          { id: 'pbi-l-4', title: 'Time Intelligence: Year-over-Year, MTD, QTD & Rolling Averages', duration: '4 Hours' },
-          { id: 'pbi-l-5', title: 'Building & Publishing a Live Executive BI Dashboard', duration: '4 Hours' }
-        ]
-      }
     ]
   },
+
+  // ---------------------------------------------------------------------------
+  // 8. Advance Executive in MS Office (Tools and Upskills)
+  // ---------------------------------------------------------------------------
   {
     id: 'advance-executive-ms-office',
     slug: 'advance-executive-ms-office',
     title: 'Advance Executive in MS Office',
-    category: 'Tools And Upskills',
+    category: 'Tools and Upskills',
+    categories: ['Tools and Upskills'],
+    shortDescription: 'Comprehensive executive suite mastery across Microsoft Word, Excel, PowerPoint, Outlook, and M365 collaboration tools.',
     description: 'Comprehensive executive suite mastery across Microsoft Word, Excel, PowerPoint, Outlook, and collaborative Microsoft 365 cloud workflows to maximize workplace productivity.',
     image: 'https://images.unsplash.com/photo-1517245386807-bb43f82c33c4?q=80&w=800&auto=format&fit=crop',
     price: 6499,
     originalPrice: 12999,
-    duration: '24–36 Hours',
+    duration: 'Flexible duration',
+    liveHours: '20+ Hours',
     lessons: 20,
     level: 'Beginner to Intermediate',
     rating: 4.82,
-    students: 780,
+    students: 820,
     status: 'available',
     featured: false,
     skills: [
@@ -578,62 +1079,74 @@ export const courses: Course[] = [
       'Advanced Excel Data Analysis',
       'Executive Word Document Design',
       'High-Impact PowerPoint Presentations',
-      'Outlook Workflow & Calendar Automation',
-      'Teams & OneDrive Collaboration'
+      'Outlook & Teams Collaboration'
     ],
+    curriculum: msOfficeExecCurriculum,
+    modules: curriculumToModules(msOfficeExecCurriculum),
+    projects: [
+      'Executive Pitch Deck Design',
+      'Corporate Report Template System',
+      'Productivity Workflow Automation'
+    ],
+    careerReadiness: [
+      'Executive Communication',
+      'Workplace Productivity Best Practices',
+      'Document Management'
+    ],
+    outcome: 'Achieve complete fluency across Microsoft 365 applications to deliver boardroom-quality documents, presentations, spreadsheets, and collaborative team workflows.',
+    features: COMMON_PROGRAM_FEATURES,
     requirements: [
       'Access to Microsoft Office suite or Microsoft 365 subscription on a desktop or laptop.'
     ],
     whoIsItFor: [
       'Executive assistants, office managers, administrative leads, and corporate professionals.',
       'Anyone seeking end-to-end fluency and productivity across the entire Microsoft productivity suite.'
-    ],
-    modules: [
-      {
-        id: 'exec-mso-1',
-        title: 'Part 1 — Executive Word & High-Impact PowerPoint',
-        description: 'Advanced typography, styles, master slides, visual hierarchy, animations, and professional corporate presentations.',
-        lessons: [
-          { id: 'mso-l-1', title: 'Professional Word: Document Formatting, Styles & Templates', duration: '3 Hours', isPreview: true },
-          { id: 'mso-l-2', title: 'C-Suite PowerPoint: Slide Masters, Visual Storytelling & Clean Animations', duration: '3 Hours' }
-        ]
-      },
-      {
-        id: 'exec-mso-2',
-        title: 'Part 2 — Excel Essentials, Outlook Efficiency & M365 Collaboration',
-        description: 'Spreadsheet formulas, email management, calendar rules, OneDrive cloud syncing, and Microsoft Teams integration.',
-        lessons: [
-          { id: 'mso-l-3', title: 'Productivity Excel: Key Formulas, Formatting & Tables', duration: '3 Hours' },
-          { id: 'mso-l-4', title: 'Outlook & Teams: Inbox Zero, Calendar Scheduling & Collaboration', duration: '3 Hours' },
-          { id: 'mso-l-5', title: 'Integrated Corporate Productivity Suite Project', duration: '3 Hours' }
-        ]
-      }
     ]
   },
+
+  // ---------------------------------------------------------------------------
+  // 9. Advance Executive in Prompt Engineering (Tools and Upskills)
+  // ---------------------------------------------------------------------------
   {
     id: 'advance-executive-prompt-engineering',
     slug: 'advance-executive-prompt-engineering',
     title: 'Advance Executive in Prompt Engineering',
-    category: 'Tools And Upskills',
+    category: 'Tools and Upskills',
+    categories: ['Tools and Upskills'],
+    shortDescription: 'Master generative AI prompting, Chain-of-Thought, structured outputs, guardrails, and enterprise AI workflows.',
     description: 'Master practical generative AI prompting techniques, Chain-of-Thought, few-shot prompting, structured JSON/XML outputs, automated workflow integrations, and enterprise AI tooling.',
     image: 'https://images.unsplash.com/photo-1620712943543-bcc4688e7485?q=80&w=800&auto=format&fit=crop',
     price: 9499,
     originalPrice: 18999,
-    duration: '24–36 Hours',
+    duration: 'Flexible duration',
+    liveHours: '25+ Hours',
     lessons: 26,
     level: 'Beginner to Advanced',
     rating: 4.93,
-    students: 1250,
+    students: 1320,
     status: 'available',
     featured: true,
     skills: [
       'Prompt Engineering Frameworks',
-      'Few-Shot & Zero-Shot Prompting',
-      'Chain-of-Thought (CoT) & Tree-of-Thought',
-      'Structured Outputs (JSON, YAML, XML)',
-      'System Prompt Design & Guardrails',
-      'AI Workflow Automation & Tool Calling'
+      'Few-Shot & Chain-of-Thought',
+      'Structured Output Generation',
+      'Guardrails & Hallucination Prevention',
+      'AI Workflow Automation'
     ],
+    curriculum: promptEngineeringExecCurriculum,
+    modules: curriculumToModules(promptEngineeringExecCurriculum),
+    projects: [
+      'Automated Content & Code Generator',
+      'Enterprise Knowledge Extraction Assistant',
+      'Multi-Step LLM Workflow Pipeline'
+    ],
+    careerReadiness: [
+      'AI-Augmented Productivity Portfolio',
+      'Prompt Optimization Case Studies',
+      'Emerging AI Trends'
+    ],
+    outcome: 'Learn how to effectively instruct, constrain, and orchestrate large language models to automate complex knowledge tasks with reliable, structured outputs.',
+    features: COMMON_PROGRAM_FEATURES,
     requirements: [
       'A web browser with internet access to interact with modern AI models (ChatGPT, Claude, Gemini).',
       'No prior programming knowledge required.'
@@ -641,27 +1154,76 @@ export const courses: Course[] = [
     whoIsItFor: [
       'Executives, product managers, software engineers, content strategists, and consultants.',
       'Professionals eager to multiply their day-to-day productivity using cutting-edge Generative AI.'
-    ],
-    modules: [
-      {
-        id: 'exec-pe-1',
-        title: 'Part 1 — Prompt Engineering Foundations & Mental Models',
-        description: 'LLM token mechanics, temperature and top-p parameters, role prompting, context window management, and structured framing.',
-        lessons: [
-          { id: 'pe-l-1', title: 'How LLMs Process Context: Tokens, Attention & Temperature', duration: '3 Hours', isPreview: true },
-          { id: 'pe-l-2', title: 'Role, Task, Context & Constraint (RTCC) Prompt Frameworks', duration: '3 Hours' }
-        ]
-      },
-      {
-        id: 'exec-pe-2',
-        title: 'Part 2 — Advanced Reasoning, Structured Outputs & Workflow Automation',
-        description: 'Chain-of-Thought, Few-Shot exemplars, JSON schema generation, hallucination prevention, and automated multi-step workflows.',
-        lessons: [
-          { id: 'pe-l-3', title: 'Chain-of-Thought, ReAct & Decomposition Prompting', duration: '4 Hours' },
-          { id: 'pe-l-4', title: 'Enforcing Deterministic Structured Data (JSON/XML/Markdown)', duration: '4 Hours' },
-          { id: 'pe-l-5', title: 'Capstone: Building an Automated Executive AI Assistant System', duration: '4 Hours' }
-        ]
-      }
     ]
   }
 ];
+
+// =============================================================================
+// HELPER FUNCTIONS FOR FILTERING & DISCOVERY
+// =============================================================================
+
+/**
+ * Filter courses by category tab.
+ * 'all' or 'All Categories' returns unique courses.
+ * Specific category returns courses whose `categories` includes that category name.
+ */
+export function filterCoursesByCategory(courseList: Course[], category: string): Course[] {
+  if (!category || category === 'all' || category === 'All Categories') {
+    return courseList;
+  }
+  const target = category.toLowerCase().trim();
+  return courseList.filter((c) =>
+    (c.categories || [c.category]).some((cat) => cat.toLowerCase().trim() === target)
+  );
+}
+
+/**
+ * Full-text search across Title, Description, Categories, Skills, and Curriculum Topics.
+ */
+export function searchCourses(courseList: Course[], query: string): Course[] {
+  if (!query || !query.trim()) return courseList;
+  const term = query.toLowerCase().trim();
+
+  return courseList.filter((course) => {
+    // Check title & description
+    if (course.title.toLowerCase().includes(term)) return true;
+    if (course.description.toLowerCase().includes(term)) return true;
+    if (course.shortDescription?.toLowerCase().includes(term)) return true;
+
+    // Check categories
+    if ((course.categories || [course.category]).some((cat) => cat.toLowerCase().includes(term))) {
+      return true;
+    }
+
+    // Check skills
+    if (course.skills?.some((s) => s.toLowerCase().includes(term))) return true;
+
+    // Check curriculum sections and topics
+    if (
+      course.curriculum?.some(
+        (sec) =>
+          sec.title.toLowerCase().includes(term) ||
+          sec.topics.some((t) => t.toLowerCase().includes(term))
+      )
+    ) {
+      return true;
+    }
+
+    // Check legacy modules
+    if (
+      course.modules?.some(
+        (m) =>
+          m.title.toLowerCase().includes(term) ||
+          m.lessons?.some((l) => l.title.toLowerCase().includes(term))
+      )
+    ) {
+      return true;
+    }
+
+    // Check projects & outcome
+    if (course.projects?.some((p) => p.toLowerCase().includes(term))) return true;
+    if (course.outcome?.toLowerCase().includes(term)) return true;
+
+    return false;
+  });
+}

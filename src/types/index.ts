@@ -15,16 +15,31 @@ export interface Module {
   lessons: Lesson[];
 }
 
+export interface CurriculumSection {
+  id?: string;
+  title: string;
+  topics: string[];
+  description?: string;
+}
+
+export interface TechStackGroup {
+  category: string;
+  skills: string[];
+}
+
 export interface Course {
   id: string;
   slug: string;
   title: string;
   category: string;
+  categories: string[];
+  shortDescription?: string;
   description: string;
   image: string;
   price: number;
   originalPrice: number;
   duration: string;
+  liveHours?: string;
   lessons: number;
   level: string;
   rating: number;
@@ -32,7 +47,13 @@ export interface Course {
   status: 'available' | 'coming-soon';
   featured: boolean;
   skills: string[];
+  curriculum?: CurriculumSection[];
   modules?: Module[];
+  technologyStack?: TechStackGroup[] | Record<string, string[]> | string[];
+  projects?: string[];
+  careerReadiness?: string[];
+  outcome?: string;
+  features: string[];
   requirements?: string[];
   whoIsItFor?: string[];
 }

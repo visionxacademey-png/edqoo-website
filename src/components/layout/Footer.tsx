@@ -75,32 +75,27 @@ export const Footer: React.FC = () => {
           {/* Column 1: Master Programs (2 cols) */}
           <div className="lg:col-span-3 space-y-3">
             <h4 className="font-display font-bold text-slate-950 text-xs uppercase tracking-wider">
-              Master Programs
+              DS & AI Master Programs
             </h4>
             <ul className="space-y-2 text-xs">
               <li>
-                <Link to="/courses/master-program-data-science-ai" className="hover:text-purple-600 transition-colors">
-                  Data Science and AI
+                <Link to="/courses/advanced-executive-program-data-science-ai" className="hover:text-purple-600 transition-colors">
+                  Advance Executive in Data Science & AI
                 </Link>
               </li>
               <li>
-                <Link to="/courses/master-program-python" className="hover:text-purple-600 transition-colors">
-                  Python Master Program
+                <Link to="/courses/advanced-executive-program-data-science-ai-python" className="hover:text-purple-600 transition-colors">
+                  Advance Executive with Python
                 </Link>
               </li>
               <li>
-                <Link to="/courses/master-program-ai-machine-learning" className="hover:text-purple-600 transition-colors">
-                  AI and Machine Learning
-                </Link>
-              </li>
-              <li>
-                <Link to="/courses/master-program-data-analytics-ai" className="hover:text-purple-600 transition-colors">
-                  Data Analytics and AI
+                <Link to="/courses/advanced-executive-program-data-science-ai-machine-learning" className="hover:text-purple-600 transition-colors">
+                  Advance Executive in AI & ML
                 </Link>
               </li>
               <li>
                 <Link to="/courses" className="hover:text-purple-600 font-bold text-purple-700 transition-colors inline-flex items-center gap-1">
-                  <span>View Full Catalog</span>
+                  <span>View All 9 Programs</span>
                   <ArrowRight className="w-3 h-3" />
                 </Link>
               </li>

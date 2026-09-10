@@ -89,15 +89,17 @@ export const AdminCourses: React.FC = () => {
     }
   };
 
-  const categories = Array.from(new Set(courses.map((c) => c.category))).filter(Boolean);
+  const availableCategories = ['DS & AI', 'DA & AI', 'AI & ML', 'Tools and Upskills'];
 
   const filteredCourses = courses.filter((c) => {
     const term = searchTerm.toLowerCase();
     const matchesSearch =
       c.title.toLowerCase().includes(term) ||
-      c.category.toLowerCase().includes(term) ||
+      (c.categories || [c.category]).some((cat) => cat.toLowerCase().includes(term)) ||
       c.description.toLowerCase().includes(term);
-    const matchesCategory = selectedCategory === 'all' || c.category.toLowerCase() === selectedCategory.toLowerCase();
+    const matchesCategory =
+      selectedCategory === 'all' ||
+      (c.categories || [c.category]).some((cat) => cat.toLowerCase() === selectedCategory.toLowerCase());
     const matchesStatus = selectedStatus === 'all' || c.status === selectedStatus;
     return matchesSearch && matchesCategory && matchesStatus;
   });
@@ -183,7 +185,7 @@ export const AdminCourses: React.FC = () => {
             className="bg-slate-950 border border-slate-800 text-slate-300 text-xs rounded-xl px-3 py-2 focus:outline-none focus:border-purple-500"
           >
             <option value="all">All Categories</option>
-            {categories.map((cat) => (
+            {availableCategories.map((cat) => (
               <option key={cat} value={cat}>
                 {cat}
               </option>
@@ -223,9 +225,9 @@ export const AdminCourses: React.FC = () => {
               <thead>
                 <tr className="border-b border-slate-800 text-slate-400 font-bold uppercase tracking-wider text-[10px] bg-slate-950/40">
                   <th className="py-3 px-4">Program Track</th>
-                  <th className="py-3 px-4">Category</th>
+                  <th className="py-3 px-4">Categories</th>
                   <th className="py-3 px-4">Pricing</th>
-                  <th className="py-3 px-4">Duration & Lessons</th>
+                  <th className="py-3 px-4">Duration & Live Hours</th>
                   <th className="py-3 px-4">Featured</th>
                   <th className="py-3 px-4">Status</th>
                   <th className="py-3 px-4 text-right">Actions</th>
@@ -256,11 +258,15 @@ export const AdminCourses: React.FC = () => {
                       </div>
                     </td>
 
-                    {/* Category */}
+                    {/* Category Badges */}
                     <td className="py-3.5 px-4">
-                      <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-slate-800 text-slate-300 border border-slate-700">
-                        {course.category}
-                      </span>
+                      <div className="flex flex-wrap gap-1">
+                        {(course.categories || [course.category]).map((cat) => (
+                          <span key={cat} className="px-2 py-0.5 rounded text-[10px] font-bold bg-slate-800 text-purple-300 border border-purple-900/50">
+                            {cat}
+                          </span>
+                        ))}
+                      </div>
                     </td>
 
                     {/* Price */}
@@ -275,14 +281,14 @@ export const AdminCourses: React.FC = () => {
                       )}
                     </td>
 
-                    {/* Duration & Modules */}
+                    {/* Duration & Live Hours */}
                     <td className="py-3.5 px-4 text-slate-300">
                       <div className="flex items-center gap-1 font-semibold">
                         <Clock className="w-3 h-3 text-purple-400" />
                         <span>{course.duration}</span>
                       </div>
-                      <div className="text-[10px] text-slate-500 mt-0.5">
-                        {course.modules?.length || 0} Modules • {course.lessons} Lessons
+                      <div className="text-[10px] text-slate-400 mt-0.5">
+                        {course.liveHours ? `${course.liveHours} Live` : `${course.lessons} Practical Lessons`}
                       </div>
                     </td>
 

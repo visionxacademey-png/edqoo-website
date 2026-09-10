@@ -1,6 +1,18 @@
 import api from './api';
-import { courses as defaultCourses } from '../data/courses';
+import {
+  courses as defaultCourses,
+  filterCoursesByCategory,
+  searchCourses
+} from '../data/courses';
 import type { Course } from '../types';
+
+// Slug alias map for backwards compatibility
+const SLUG_ALIASES: Record<string, string> = {
+  'master-program-data-science-ai': 'advanced-executive-program-data-science-ai',
+  'master-program-python': 'advance-executive-python',
+  'master-program-ai-machine-learning': 'advanced-executive-program-data-science-ai',
+  'master-program-data-analytics-ai': 'executive-professional-certificate-data-science-ai'
+};
 
 export const courseService = {
   getCourses: async (params?: { category?: string; level?: string; status?: string; search?: string }): Promise<Course[]> => {
@@ -17,7 +29,22 @@ export const courseService = {
       return response.data;
     } catch (error) {
       console.warn('Backend unavailable, returning client fallback courses.', error);
-      return defaultCourses;
+      let result = [...defaultCourses];
+
+      if (params?.category && params.category !== 'all' && params.category !== 'All Categories') {
+        result = filterCoursesByCategory(result, params.category);
+      }
+      if (params?.level && params.level !== 'all') {
+        result = result.filter((c) => c.level.toLowerCase().includes((params.level as string).toLowerCase()));
+      }
+      if (params?.status && params.status !== 'all') {
+        result = result.filter((c) => c.status === params.status);
+      }
+      if (params?.search) {
+        result = searchCourses(result, params.search);
+      }
+
+      return result;
     }
   },
 
@@ -27,7 +54,10 @@ export const courseService = {
       return response.data;
     } catch (error) {
       console.warn(`Backend unavailable, searching client fallback courses for: ${slug}`, error);
-      const course = defaultCourses.find((c) => c.slug === slug || c.id === slug);
+      const normalizedSlug = SLUG_ALIASES[slug] || slug;
+      const course = defaultCourses.find(
+        (c) => c.slug === normalizedSlug || c.id === normalizedSlug || c.slug === slug || c.id === slug
+      );
       return course || null;
     }
   },

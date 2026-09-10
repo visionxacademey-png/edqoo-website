@@ -189,11 +189,14 @@ export async function initDb() {
         slug VARCHAR(255) UNIQUE NOT NULL,
         title VARCHAR(255) NOT NULL,
         category VARCHAR(100) NOT NULL,
+        categories JSONB DEFAULT '[]'::jsonb,
+        short_description TEXT,
         description TEXT,
         image TEXT,
         price NUMERIC DEFAULT 0,
         original_price NUMERIC DEFAULT 0,
         duration VARCHAR(100),
+        live_hours VARCHAR(100),
         lessons INTEGER DEFAULT 0,
         level VARCHAR(100),
         rating NUMERIC DEFAULT 4.8,
@@ -201,12 +204,29 @@ export async function initDb() {
         status VARCHAR(50) DEFAULT 'available',
         featured BOOLEAN DEFAULT false,
         skills JSONB DEFAULT '[]'::jsonb,
+        curriculum JSONB DEFAULT '[]'::jsonb,
         modules JSONB DEFAULT '[]'::jsonb,
+        technology_stack JSONB DEFAULT '[]'::jsonb,
+        projects JSONB DEFAULT '[]'::jsonb,
+        career_readiness JSONB DEFAULT '[]'::jsonb,
+        outcome TEXT,
+        features JSONB DEFAULT '[]'::jsonb,
         requirements JSONB DEFAULT '[]'::jsonb,
         who_is_it_for JSONB DEFAULT '[]'::jsonb,
         created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
         updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
       );
+
+      -- Safe column additions for existing tables
+      ALTER TABLE courses ADD COLUMN IF NOT EXISTS categories JSONB DEFAULT '[]'::jsonb;
+      ALTER TABLE courses ADD COLUMN IF NOT EXISTS short_description TEXT;
+      ALTER TABLE courses ADD COLUMN IF NOT EXISTS live_hours VARCHAR(100);
+      ALTER TABLE courses ADD COLUMN IF NOT EXISTS curriculum JSONB DEFAULT '[]'::jsonb;
+      ALTER TABLE courses ADD COLUMN IF NOT EXISTS technology_stack JSONB DEFAULT '[]'::jsonb;
+      ALTER TABLE courses ADD COLUMN IF NOT EXISTS projects JSONB DEFAULT '[]'::jsonb;
+      ALTER TABLE courses ADD COLUMN IF NOT EXISTS career_readiness JSONB DEFAULT '[]'::jsonb;
+      ALTER TABLE courses ADD COLUMN IF NOT EXISTS outcome TEXT;
+      ALTER TABLE courses ADD COLUMN IF NOT EXISTS features JSONB DEFAULT '[]'::jsonb;
 
       CREATE TABLE IF NOT EXISTS enquiries (
         id VARCHAR(100) PRIMARY KEY,
@@ -327,43 +347,77 @@ export async function initDb() {
       ON CONFLICT (email) DO NOTHING;
     `, [studentPasswordHash]).catch((e) => console.warn('Enquiry user sync note:', e.message));
 
-    // Check if courses exist in NeonDB, if not seed initial courses
-    const courseCount = await pool.query('SELECT COUNT(*) FROM courses');
-    if (parseInt(courseCount.rows[0].count, 10) === 0) {
-      console.log('📚 [DB] Seeding initial course catalog into NeonDB...');
-      for (const course of initialCourses) {
-        await pool.query(
-          `INSERT INTO courses (
-            id, slug, title, category, description, image, price, original_price,
-            duration, lessons, level, rating, students, status, featured,
-            skills, modules, requirements, who_is_it_for, created_at, updated_at
-          ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, NOW(), NOW())
-          ON CONFLICT (id) DO NOTHING`,
-          [
-            course.id,
-            course.slug,
-            course.title,
-            course.category,
-            course.description,
-            course.image,
-            course.price,
-            course.originalPrice,
-            course.duration,
-            course.lessons,
-            course.level,
-            course.rating,
-            course.students,
-            course.status,
-            course.featured,
-            JSON.stringify(course.skills || []),
-            JSON.stringify(course.modules || []),
-            JSON.stringify(course.requirements || []),
-            JSON.stringify(course.whoIsItFor || [])
-          ]
-        );
-      }
-      console.log(`✅ [DB] Seeded ${initialCourses.length} courses into NeonDB.`);
+    // Check if courses exist in NeonDB, seed or update courses catalog
+    console.log('📚 [DB] Synchronizing course catalog into NeonDB...');
+    for (const course of initialCourses) {
+      await pool.query(
+        `INSERT INTO courses (
+          id, slug, title, category, categories, short_description, description, image, price, original_price,
+          duration, live_hours, lessons, level, rating, students, status, featured,
+          skills, curriculum, modules, technology_stack, projects, career_readiness, outcome, features, requirements, who_is_it_for, created_at, updated_at
+        ) VALUES (
+          $1, $2, $3, $4, $5, $6, $7, $8, $9, $10,
+          $11, $12, $13, $14, $15, $16, $17, $18,
+          $19, $20, $21, $22, $23, $24, $25, $26, $27, $28, NOW(), NOW()
+        )
+        ON CONFLICT (id) DO UPDATE SET
+          slug = EXCLUDED.slug,
+          title = EXCLUDED.title,
+          category = EXCLUDED.category,
+          categories = EXCLUDED.categories,
+          short_description = EXCLUDED.short_description,
+          description = EXCLUDED.description,
+          image = EXCLUDED.image,
+          price = EXCLUDED.price,
+          original_price = EXCLUDED.original_price,
+          duration = EXCLUDED.duration,
+          live_hours = EXCLUDED.live_hours,
+          lessons = EXCLUDED.lessons,
+          level = EXCLUDED.level,
+          skills = EXCLUDED.skills,
+          curriculum = EXCLUDED.curriculum,
+          modules = EXCLUDED.modules,
+          technology_stack = EXCLUDED.technology_stack,
+          projects = EXCLUDED.projects,
+          career_readiness = EXCLUDED.career_readiness,
+          outcome = EXCLUDED.outcome,
+          features = EXCLUDED.features,
+          requirements = EXCLUDED.requirements,
+          who_is_it_for = EXCLUDED.who_is_it_for,
+          updated_at = NOW()`,
+        [
+          course.id,
+          course.slug,
+          course.title,
+          course.category,
+          JSON.stringify(course.categories || [course.category]),
+          course.shortDescription || null,
+          course.description,
+          course.image,
+          course.price,
+          course.originalPrice,
+          course.duration,
+          course.liveHours || null,
+          course.lessons,
+          course.level,
+          course.rating,
+          course.students,
+          course.status,
+          course.featured,
+          JSON.stringify(course.skills || []),
+          JSON.stringify(course.curriculum || []),
+          JSON.stringify(course.modules || []),
+          JSON.stringify(course.technologyStack || []),
+          JSON.stringify(course.projects || []),
+          JSON.stringify(course.careerReadiness || []),
+          course.outcome || null,
+          JSON.stringify(course.features || []),
+          JSON.stringify(course.requirements || []),
+          JSON.stringify(course.whoIsItFor || [])
+        ]
+      );
     }
+    console.log(`✅ [DB] Synced ${initialCourses.length} courses into NeonDB.`);
   } catch (err: any) {
     console.error('⚠️ [DB] NeonDB connection or migration error:', err.message);
     isNeonConnected = false;
