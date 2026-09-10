@@ -22,8 +22,8 @@ export const DashboardLayout: React.FC = () => {
   const { openEnquiryModal } = useEnquiry();
   const navigate = useNavigate();
 
-  const handleLogout = () => {
-    logout();
+  const handleLogout = async () => {
+    await logout();
     navigate('/');
   };
 

@@ -3,26 +3,38 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as zod from 'zod';
 import { Link, useNavigate } from 'react-router-dom';
-import { UserPlus, User, Mail, Key, ShieldAlert, Eye, EyeOff, Phone } from 'lucide-react';
+import { UserPlus, User, Mail, Key, ShieldAlert, Eye, EyeOff, Phone, CheckCircle2 } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import { SEO } from '../../components/common/SEO';
 
 const registerSchema = zod
   .object({
-    name: zod.string().min(2, { message: 'Full name must be at least 2 characters.' }),
-    email: zod.string().email({ message: 'Please enter a valid email address.' }),
+    name: zod
+      .string()
+      .trim()
+      .min(2, { message: 'Please enter your full name (at least 2 characters).' }),
+    email: zod
+      .string()
+      .trim()
+      .toLowerCase()
+      .email({ message: 'Please enter a valid email address.' }),
     phone: zod
       .string()
-      .min(6, { message: 'Please enter a valid phone number (min 6 digits).' })
-      .regex(/^[0-9+\s\-().]+$/, { message: 'Phone number format is invalid.' }),
-    password: zod.string().min(6, { message: 'Password must be at least 6 characters.' }),
-    confirmPassword: zod.string().min(6, { message: 'Confirm password is required.' }),
-    agreeTerms: zod.boolean().refine((val) => val === true, {
-      message: 'You must agree to the Terms of Service to continue.'
-    })
+      .optional()
+      .refine(
+        (val) => !val || val.trim().length === 0 || /^[0-9+\s\-().]{6,}$/.test(val.trim()),
+        { message: 'Please enter a valid phone number (at least 6 digits) or leave blank.' }
+      ),
+    password: zod
+      .string()
+      .min(6, { message: 'Password must be at least 6 characters long.' }),
+    confirmPassword: zod
+      .string()
+      .min(1, { message: 'Please confirm your chosen password.' }),
+    agreeTerms: zod.boolean().optional()
   })
   .refine((data) => data.password === data.confirmPassword, {
-    message: "Passwords don't match.",
+    message: "Passwords do not match.",
     path: ['confirmPassword']
   });
 
@@ -32,6 +44,7 @@ export const Register: React.FC = () => {
   const { register: authRegister } = useAuth();
   const navigate = useNavigate();
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
+  const [successMsg, setSuccessMsg] = useState<string | null>(null);
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
@@ -42,25 +55,35 @@ export const Register: React.FC = () => {
   } = useForm<RegisterFormData>({
     resolver: zodResolver(registerSchema),
     defaultValues: {
+      name: '',
+      email: '',
+      phone: '',
+      password: '',
+      confirmPassword: '',
       agreeTerms: true
     }
   });
 
   const onSubmit = async (data: RegisterFormData) => {
     setErrorMsg(null);
+    setSuccessMsg(null);
     try {
-      const res = await authRegister(data.name, data.email, data.phone, data.password);
+      const cleanPhone = (data.phone || '').trim();
+      const res = await authRegister(data.name.trim(), data.email.trim(), cleanPhone, data.password);
       if (res.success) {
-        if (data.email.toLowerCase().includes('admin')) {
-          navigate('/admin');
-        } else {
-          navigate('/dashboard');
-        }
+        setSuccessMsg('Account created successfully! Redirecting...');
+        setTimeout(() => {
+          if (data.email.toLowerCase().includes('admin')) {
+            navigate('/admin');
+          } else {
+            navigate('/dashboard');
+          }
+        }, 500);
       } else {
-        setErrorMsg(res.error || 'Registration failed. Please check your credentials.');
+        setErrorMsg(res.error || 'Registration could not be completed. Please check your details and try again.');
       }
     } catch (err: any) {
-      setErrorMsg(err.message || 'Network error while registering account.');
+      setErrorMsg(err.message || 'Network error occurred while registering account.');
     }
   };
 
@@ -86,6 +109,13 @@ export const Register: React.FC = () => {
           <p className="text-xs text-slate-500">Sign up to submit and track your program enquiries.</p>
         </div>
 
+        {successMsg && (
+          <div className="p-3 bg-emerald-50 border border-emerald-200 text-emerald-800 text-xs rounded-xl flex items-center gap-2 font-medium">
+            <CheckCircle2 className="w-4 h-4 text-emerald-600 flex-shrink-0" />
+            <span>{successMsg}</span>
+          </div>
+        )}
+
         {errorMsg && (
           <div className="p-3 bg-red-50 border border-red-200 text-red-700 text-xs rounded-xl flex items-center gap-2 font-medium">
             <ShieldAlert className="w-4 h-4 text-red-600 flex-shrink-0" />
@@ -97,7 +127,7 @@ export const Register: React.FC = () => {
           {/* Field: Name */}
           <div className="space-y-1">
             <label htmlFor="reg-name" className="text-[10px] font-bold text-slate-700 uppercase tracking-wider block">
-              Full Name
+              Full Name <span className="text-purple-600">*</span>
             </label>
             <div className="relative">
               <input
@@ -117,7 +147,7 @@ export const Register: React.FC = () => {
           {/* Field: Email */}
           <div className="space-y-1">
             <label htmlFor="reg-email" className="text-[10px] font-bold text-slate-700 uppercase tracking-wider block">
-              Email Address
+              Email Address <span className="text-purple-600">*</span>
             </label>
             <div className="relative">
               <input
@@ -137,7 +167,7 @@ export const Register: React.FC = () => {
           {/* Field: Phone */}
           <div className="space-y-1">
             <label htmlFor="reg-phone" className="text-[10px] font-bold text-slate-700 uppercase tracking-wider block">
-              Contact Phone Number
+              Contact Phone Number <span className="text-slate-400 font-normal lowercase">(optional)</span>
             </label>
             <div className="relative">
               <input
