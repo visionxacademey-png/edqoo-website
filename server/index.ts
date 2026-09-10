@@ -12,11 +12,14 @@ process.on('unhandledRejection', (reason, promise) => {
 });
 
 async function startServer() {
-  await initDb();
-
   const server = app.listen(PORT, () => {
     console.log(`🚀 [Server] Edqoo API Server is running on http://localhost:${PORT}`);
     console.log(`🔒 [Security] Protected Admin routes active at /api/admin/*`);
+  });
+
+  // Initialize DB connection in background without blocking port binding
+  initDb().catch((err) => {
+    console.error('⚠️ [DB] Background database init note:', err.message);
   });
 
   server.on('error', (err: any) => {
@@ -28,7 +31,5 @@ async function startServer() {
   });
 }
 
-startServer().catch(err => {
-  console.error('Fatal startup error:', err);
-});
+startServer();
 

@@ -19,8 +19,16 @@ app.use(cors({
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 
-// Middleware to ensure DB is initialized on incoming requests (essential for Vercel Serverless)
-app.use(async (_req, _res, next) => {
+// Middleware to normalize Vercel serverless request URLs and ensure DB readiness
+app.use(async (req, _res, next) => {
+  // Normalize URL when invoked through Vercel Serverless Function rewrites
+  const vercelMatched = (req.headers['x-vercel-matched-path'] || req.headers['x-matched-path'] || req.headers['x-forwarded-uri']) as string;
+  if (vercelMatched && vercelMatched.startsWith('/api')) {
+    req.url = vercelMatched;
+  } else if (req.query && typeof req.query['0'] === 'string' && !req.url.includes('/api/')) {
+    req.url = `/api/${req.query['0']}`;
+  }
+
   try {
     await ensureDbInitialized();
   } catch (err) {
@@ -30,7 +38,7 @@ app.use(async (_req, _res, next) => {
 });
 
 // Health Check
-app.get('/api/health', (_req, res) => {
+app.get(['/api/health', '/health'], (_req, res) => {
   res.json({
     status: 'ok',
     service: 'Edqoo API Server',
