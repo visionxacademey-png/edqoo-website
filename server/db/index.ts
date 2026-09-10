@@ -50,9 +50,13 @@ export const mockStore = {
   enquiries: [] as any[]
 };
 
+export function isDbConnected(): boolean {
+  return isNeonConnected && pool !== null;
+}
+
 export const getDbStatus = () => ({
-  connected: isNeonConnected,
-  type: isNeonConnected ? 'neondatabase_postgresql' : 'in_memory_fallback',
+  connected: isNeonConnected && pool !== null,
+  type: (isNeonConnected && pool !== null) ? 'neondatabase_postgresql' : 'in_memory_fallback',
   databaseUrlConfigured: !!DATABASE_URL && DATABASE_URL !== 'YOUR_NEON_DATABASE_URL_HERE',
   error: connectionError
 });
@@ -61,7 +65,7 @@ let initPromise: Promise<void> | null = null;
 let dbReady = false;
 
 export function ensureDbInitialized() {
-  if (dbReady && isNeonConnected) {
+  if (dbReady && isNeonConnected && pool) {
     return Promise.resolve();
   }
   if (!initPromise) {
@@ -75,6 +79,11 @@ export function ensureDbInitialized() {
       });
   }
   return initPromise;
+}
+
+// Eagerly trigger database initialization in background
+if (DATABASE_URL && DATABASE_URL !== 'YOUR_NEON_DATABASE_URL_HERE') {
+  ensureDbInitialized().catch(() => {});
 }
 
 /**
@@ -429,6 +438,9 @@ export async function initDb() {
  * Universal query runner: Uses Neon PostgreSQL when connected
  */
 export async function query(text: string, params: any[] = []) {
+  if (!dbReady || !isNeonConnected) {
+    await ensureDbInitialized();
+  }
   if (isNeonConnected && pool) {
     return pool.query(text, params);
   }

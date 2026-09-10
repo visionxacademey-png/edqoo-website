@@ -1,6 +1,6 @@
 import { Router, Response } from 'express';
 import bcrypt from 'bcryptjs';
-import { query, isNeonConnected, mockStore, MockUser, MockSession } from '../db';
+import { query, isDbConnected, ensureDbInitialized, mockStore, MockUser, MockSession } from '../db';
 import { generateToken, authenticateToken, AuthRequest } from '../middleware/auth';
 
 const router = Router();
@@ -20,6 +20,7 @@ function generateId(prefix: string = 'usr') {
 // POST /api/auth/register
 router.post('/register', async (req, res) => {
   try {
+    await ensureDbInitialized();
     const { name, email, phone, password } = req.body;
 
     if (!name || !email || !password) {
@@ -42,8 +43,8 @@ router.post('/register', async (req, res) => {
     let finalUserId = userId;
     let finalPhone = cleanPhone;
 
-    if (isNeonConnected) {
-      // Check existing user by email
+    if (isDbConnected()) {
+      // Check existing user by email in NeonDB
       const existing = await query('SELECT id, phone, role FROM users WHERE LOWER(email) = LOWER($1)', [normalizedEmail]);
       if (existing.rows.length > 0) {
         finalUserId = existing.rows[0].id;
@@ -61,7 +62,7 @@ router.post('/register', async (req, res) => {
           [name.trim(), passwordHash, cleanPhone, finalUserId]
         );
       } else {
-        // Insert new user
+        // Insert new user into NeonDB users table
         await query(
           `INSERT INTO users (id, name, email, password_hash, phone, avatar, role, is_active, created_at, last_login_at)
            VALUES ($1, $2, $3, $4, $5, $6, $7, true, NOW(), NOW())`,
@@ -72,9 +73,10 @@ router.post('/register', async (req, res) => {
       // Insert active session in user_sessions
       await query(
         `INSERT INTO user_sessions (id, user_id, email, token_hash, ip_address, user_agent, is_active, created_at, last_active_at, expires_at)
-         VALUES ($1, $2, $3, $4, $5, $6, true, NOW(), NOW(), NOW() + INTERVAL '30 days')`,
+         VALUES ($1, $2, $3, $4, $5, $6, true, NOW(), NOW(), NOW() + INTERVAL '30 days')
+         ON CONFLICT (id) DO UPDATE SET is_active = true, last_active_at = NOW()`,
         [sessionId, finalUserId, normalizedEmail, sessionId, ip, userAgent]
-      );
+      ).catch((e) => console.warn('Session insert note:', e.message));
     } else {
       // Mock store
       const existing = mockStore.users.find(u => u.email.toLowerCase() === normalizedEmail);
@@ -147,12 +149,13 @@ router.post('/login', async (req, res) => {
       return res.status(400).json({ error: 'Email and password are required.' });
     }
 
+    await ensureDbInitialized();
     const normalizedEmail = email.toLowerCase().trim();
     const { ip, userAgent } = getClientMeta(req);
     const sessionId = generateId('sess');
     let userRecord: any = null;
 
-    if (isNeonConnected) {
+    if (isDbConnected()) {
       const result = await query('SELECT * FROM users WHERE LOWER(email) = LOWER($1)', [normalizedEmail]);
       if (result.rows.length === 0) {
         // Auto-provision candidate/student account upon first login
@@ -199,9 +202,10 @@ router.post('/login', async (req, res) => {
       // Create new active session in user_sessions
       await query(
         `INSERT INTO user_sessions (id, user_id, email, token_hash, ip_address, user_agent, is_active, created_at, last_active_at, expires_at)
-         VALUES ($1, $2, $3, $4, $5, $6, true, NOW(), NOW(), NOW() + INTERVAL '30 days')`,
+         VALUES ($1, $2, $3, $4, $5, $6, true, NOW(), NOW(), NOW() + INTERVAL '30 days')
+         ON CONFLICT (id) DO UPDATE SET is_active = true, last_active_at = NOW()`,
         [sessionId, userRecord.id, normalizedEmail, sessionId, ip, userAgent]
-      );
+      ).catch((e) => console.warn('Session insert note:', e.message));
     } else {
       userRecord = mockStore.users.find(u => u.email.toLowerCase() === normalizedEmail);
       if (!userRecord) {
@@ -283,10 +287,11 @@ router.post('/login', async (req, res) => {
 // POST /api/auth/logout
 router.post('/logout', authenticateToken, async (req: AuthRequest, res: Response) => {
   try {
+    await ensureDbInitialized();
     const sessionId = req.sessionId;
     if (sessionId) {
-      if (isNeonConnected) {
-        await query('UPDATE user_sessions SET is_active = false, last_active_at = NOW() WHERE id = $1', [sessionId]);
+      if (isDbConnected()) {
+        await query('UPDATE user_sessions SET is_active = false, last_active_at = NOW() WHERE id = $1', [sessionId]).catch(() => {});
       } else {
         const session = mockStore.sessions.find(s => s.id === sessionId);
         if (session) session.is_active = false;
@@ -305,8 +310,9 @@ router.get('/me', authenticateToken, async (req: AuthRequest, res: Response) => 
       return res.status(401).json({ error: 'Not authenticated.' });
     }
 
+    await ensureDbInitialized();
     let user: any = null;
-    if (isNeonConnected) {
+    if (isDbConnected()) {
       const result = await query(
         'SELECT id, name, email, phone, avatar, role, is_active, created_at, last_login_at FROM users WHERE id = $1 OR LOWER(email) = LOWER($2)',
         [req.user.id, req.user.email]
@@ -343,11 +349,12 @@ router.post('/ping-session', authenticateToken, async (req: AuthRequest, res: Re
   try {
     const sessionId = req.sessionId;
     const { ip, userAgent } = getClientMeta(req);
-    if (sessionId && isNeonConnected) {
+    await ensureDbInitialized();
+    if (sessionId && isDbConnected()) {
       await query(
         `UPDATE user_sessions SET last_active_at = NOW(), is_active = true, ip_address = $1, user_agent = $2 WHERE id = $3`,
         [ip, userAgent, sessionId]
-      );
+      ).catch(() => {});
     }
     return res.json({ success: true });
   } catch {

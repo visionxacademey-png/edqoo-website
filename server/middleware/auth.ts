@@ -1,6 +1,6 @@
 import { Request, Response, NextFunction } from 'express';
 import jwt from 'jsonwebtoken';
-import { isNeonConnected, query, mockStore } from '../db';
+import { isDbConnected, query, mockStore } from '../db';
 
 const JWT_SECRET = process.env.JWT_SECRET || 'edqoo_super_secure_jwt_secret_key_2026';
 
@@ -84,7 +84,7 @@ export async function authenticateToken(req: AuthRequest, res: Response, next: N
     
     // Ensure session is tracked and active in database
     if (decoded.sessionId) {
-      if (isNeonConnected) {
+      if (isDbConnected()) {
         const sessionRes = await query('SELECT id, is_active FROM user_sessions WHERE id = $1', [decoded.sessionId]);
         if (sessionRes.rows.length === 0) {
           // Auto-register session in user_sessions if missing
