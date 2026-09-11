@@ -12,14 +12,10 @@ import {
   ChevronLeft,
   ChevronRight,
   Layers,
-  GraduationCap,
   Wrench,
   PhoneCall,
   CheckCircle,
   Briefcase,
-  BadgeCheck,
-  Building2,
-  Headphones,
   Video,
   FolderGit2,
   UserCheck,
@@ -228,11 +224,11 @@ export const Home: React.FC = () => {
 
   return (
     <div className="space-y-0 text-left bg-white">
-      {/* <SEO 
+      <SEO 
         title="Edqoo | Your Skill Partner - Master Programs & Tools And Upskills" 
-        description="Accelerate your career with industry-aligned Master Programs in Data Science, AI, Python, Data Analytics, and Executive Upskilling tracks with NIT faculty and theccpeeps certification."
+        description="Accelerate your career with industry-aligned Master Programs in Data Science, AI, Python, Data Analytics, and Executive Upskilling tracks."
         canonical="/"
-      /> */}
+      />
 
       {/* ========================================================================= */}
       {/* 1. HERO SLIDER SECTION (EDQOO BRAND THEME) */}

@@ -14,8 +14,6 @@ import {
   HelpCircle,
   Briefcase,
   Loader2,
-  GraduationCap,
-  BadgeCheck,
   Layers,
   Award,
   Laptop,
