@@ -36,9 +36,9 @@ export const Footer: React.FC = () => {
               />
             </Link>
             
-            <p className="text-xs sm:text-sm leading-relaxed text-slate-500 max-w-sm">
+            {/* <p className="text-xs sm:text-sm leading-relaxed text-slate-500 max-w-sm">
               Edqoo is your premier technology skill partner. Master Data Science, AI, Python, Analytics, and executive workplace tools through practical, industry-aligned curricula taught by NIT faculty.
-            </p>
+            </p> */}
 
             {/* Newsletter */}
             <div className="pt-2">

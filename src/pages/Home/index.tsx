@@ -109,17 +109,17 @@ const highlightGroups = [
       { text: '50+ Industry Projects & Case Studies', icon: FolderGit2 }
     ]
   },
-  {
-    id: 'faculty-support',
-    category: 'Faculty & Support',
-    badgeColor: 'bg-indigo-50 text-indigo-700 border-indigo-200',
-    icon: Users,
-    items: [
-      { text: 'Learn from NIT Faculty & Industry Practitioners', icon: GraduationCap },
-      { text: '24×7 Support', icon: Headphones },
-      { text: 'Dedicated Learning Management Team', icon: Users }
-    ]
-  },
+  // {
+  //   id: 'faculty-support',
+  //   category: 'Faculty & Support',
+  //   badgeColor: 'bg-indigo-50 text-indigo-700 border-indigo-200',
+  //   icon: Users,
+  //   items: [
+  //     { text: 'Learn from NIT Faculty & Industry Practitioners', icon: GraduationCap },
+  //     { text: '24×7 Support', icon: Headphones },
+  //     { text: 'Dedicated Learning Management Team', icon: Users }
+  //   ]
+  // },
   {
     id: 'technology',
     category: 'Technology',
@@ -129,16 +129,16 @@ const highlightGroups = [
       { text: 'AI Powered LMS', icon: Sparkles }
     ]
   },
-  {
-    id: 'campus-certification',
-    category: 'Campus & Certification',
-    badgeColor: 'bg-emerald-50 text-emerald-700 border-emerald-200',
-    icon: Award,
-    items: [
-      { text: '2 Days Campus Immersion at theccpeeps', icon: Building2 },
-      { text: 'theccpeeps Certification', icon: BadgeCheck }
-    ]
-  },
+  // {
+  //   id: 'campus-certification',
+  //   category: 'Campus & Certification',
+  //   badgeColor: 'bg-emerald-50 text-emerald-700 border-emerald-200',
+  //   icon: Award,
+  //   items: [
+  //     { text: '2 Days Campus Immersion at theccpeeps', icon: Building2 },
+  //     { text: 'theccpeeps Certification', icon: BadgeCheck }
+  //   ]
+  // },
   {
     id: 'career',
     category: 'Career',
@@ -228,11 +228,11 @@ export const Home: React.FC = () => {
 
   return (
     <div className="space-y-0 text-left bg-white">
-      <SEO 
+      {/* <SEO 
         title="Edqoo | Your Skill Partner - Master Programs & Tools And Upskills" 
         description="Accelerate your career with industry-aligned Master Programs in Data Science, AI, Python, Data Analytics, and Executive Upskilling tracks with NIT faculty and theccpeeps certification."
         canonical="/"
-      />
+      /> */}
 
       {/* ========================================================================= */}
       {/* 1. HERO SLIDER SECTION (EDQOO BRAND THEME) */}
@@ -379,14 +379,14 @@ export const Home: React.FC = () => {
                 <CheckCircle className="w-4 h-4 text-emerald-600" />
                 100% Practical Labs
               </span>
-              <span className="flex items-center gap-1.5 px-3 py-1.5 bg-white border border-slate-200 rounded-lg shadow-2xs">
+              {/* <span className="flex items-center gap-1.5 px-3 py-1.5 bg-white border border-slate-200 rounded-lg shadow-2xs">
                 <BadgeCheck className="w-4 h-4 text-purple-600" />
                 theccpeeps Certification
-              </span>
-              <span className="flex items-center gap-1.5 px-3 py-1.5 bg-white border border-slate-200 rounded-lg shadow-2xs">
+              </span> */}
+              {/* <span className="flex items-center gap-1.5 px-3 py-1.5 bg-white border border-slate-200 rounded-lg shadow-2xs">
                 <GraduationCap className="w-4 h-4 text-purple-600" />
                 NIT Faculty & Practitioners
-              </span>
+              </span> */}
               <span className="flex items-center gap-1.5 px-3 py-1.5 bg-white border border-slate-200 rounded-lg shadow-2xs">
                 <Briefcase className="w-4 h-4 text-purple-600" />
                 3 Guaranteed Job Interviews*
@@ -525,13 +525,13 @@ export const Home: React.FC = () => {
 
               {/* Sidebar Info Card */}
               <div className="mt-4 p-3 bg-purple-50/80 border border-purple-200/70 rounded-xl space-y-1.5 text-left">
-                <div className="flex items-center gap-1.5 text-purple-800 font-bold text-xs">
+                {/* <div className="flex items-center gap-1.5 text-purple-800 font-bold text-xs">
                   <BadgeCheck className="w-4 h-4 text-purple-600" />
                   <span>theccpeeps Certified</span>
-                </div>
-                <p className="text-[11px] text-slate-600 leading-relaxed">
+                </div> */}
+                {/* <p className="text-[11px] text-slate-600 leading-relaxed">
                   All courses include NIT faculty mentoring, AI-powered LMS access, and placement interview readiness.
-                </p>
+                </p> */}
               </div>
             </aside>
 
@@ -805,16 +805,16 @@ export const Home: React.FC = () => {
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {[
-              {
-                title: 'NIT Faculty & Industry Practitioners',
-                icon: GraduationCap,
-                desc: 'Learn directly from NIT faculty and seasoned technology leaders who architect enterprise systems.'
-              },
-              {
-                title: 'theccpeeps Certification & Campus Immersion',
-                icon: Award,
-                desc: 'Gain verified industry credentials and participate in an exclusive 2-day campus immersion experience.'
-              },
+              // {
+              //   title: 'NIT Faculty & Industry Practitioners',
+              //   icon: GraduationCap,
+              //   desc: 'Learn directly from NIT faculty and seasoned technology leaders who architect enterprise systems.'
+              // },
+              // {
+              //   title: 'theccpeeps Certification & Campus Immersion',
+              //   icon: Award,
+              //   desc: 'Gain verified industry credentials and participate in an exclusive 2-day campus immersion experience.'
+              // },
               {
                 title: 'Career Placement & 24×7 Support',
                 icon: Briefcase,

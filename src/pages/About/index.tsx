@@ -46,9 +46,9 @@ export const About: React.FC = () => {
             <Eye className="w-6 h-6" />
           </div>
           <h2 className="text-xl font-display font-bold text-slate-950">Our Vision</h2>
-          <p className="text-xs sm:text-sm text-slate-600 leading-relaxed">
+          {/* <p className="text-xs sm:text-sm text-slate-600 leading-relaxed">
             To establish Edqoo as the most reliable, hands-on technology learning environment, helping learners globally transition directly into Data Science, Artificial Intelligence, Python engineering, and modern analytics roles with NIT faculty mentorship.
-          </p>
+          </p> */}
         </div>
       </section>
 

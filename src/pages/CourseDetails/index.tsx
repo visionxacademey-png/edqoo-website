@@ -192,10 +192,10 @@ export const CourseDetails: React.FC = () => {
                 {course.liveHours} Live Learning
               </span>
             )}
-            <span className="px-2.5 py-1 text-xs font-bold rounded-lg bg-white border border-slate-200 text-slate-700 flex items-center gap-1 shadow-2xs">
+            {/* <span className="px-2.5 py-1 text-xs font-bold rounded-lg bg-white border border-slate-200 text-slate-700 flex items-center gap-1 shadow-2xs">
               <BadgeCheck className="w-3.5 h-3.5 text-purple-600" />
               theccpeeps Certified
-            </span>
+            </span> */}
           </div>
 
           <h1 className="text-2xl sm:text-3xl lg:text-4xl font-display font-black text-slate-950 leading-tight max-w-3xl">
@@ -522,18 +522,18 @@ export const CourseDetails: React.FC = () => {
               <span className="font-bold text-slate-900 block text-[11px] uppercase tracking-wider">
                 Key Program Highlights:
               </span>
-              <div className="flex items-center gap-2">
+              {/* <div className="flex items-center gap-2">
                 <GraduationCap className="w-4 h-4 text-purple-600 flex-shrink-0" />
                 <span>Learn from NIT Faculty & Industry Practitioners</span>
-              </div>
+              </div> */}
               <div className="flex items-center gap-2">
                 <Sparkles className="w-4 h-4 text-purple-600 flex-shrink-0" />
                 <span>AI Powered LMS & Dedicated Mentor Support</span>
               </div>
-              <div className="flex items-center gap-2">
+              {/* <div className="flex items-center gap-2">
                 <BadgeCheck className="w-4 h-4 text-purple-600 flex-shrink-0" />
                 <span>theccpeeps Certification</span>
-              </div>
+              </div> */}
               <div className="flex items-center gap-2">
                 <Award className="w-4 h-4 text-purple-600 flex-shrink-0" />
                 <span>Top 2 Performers Rewarded & Incubation</span>

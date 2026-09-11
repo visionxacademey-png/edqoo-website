@@ -19,15 +19,15 @@ export const testimonials: Testimonial[] = [
     rating: 5,
     courseName: 'Master Program in Data Science and AI'
   },
-  {
-    id: 't-3',
-    name: 'Aisha Rahman',
-    role: 'Senior Backend Developer',
-    avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?q=80&w=150&auto=format&fit=crop',
-    content: 'The Master Program in Python filled all gaps in my backend architecture workflow. AsyncIO, FastAPI, microservices, and design patterns made my code production-ready. The NIT faculty mentorship was second to none.',
-    rating: 5,
-    courseName: 'Master Program in Python'
-  },
+  // {
+  //   id: 't-3',
+  //   name: 'Aisha Rahman',
+  //   role: 'Senior Backend Developer',
+  //   avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?q=80&w=150&auto=format&fit=crop',
+  //   content: 'The Master Program in Python filled all gaps in my backend architecture workflow. AsyncIO, FastAPI, microservices, and design patterns made my code production-ready. The NIT faculty mentorship was second to none.',
+  //   rating: 5,
+  //   courseName: 'Master Program in Python'
+  // },
   {
     id: 't-4',
     name: 'David Kojo',
