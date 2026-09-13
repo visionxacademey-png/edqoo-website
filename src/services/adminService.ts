@@ -152,7 +152,7 @@ export const adminService = {
       if (deviceType && deviceType !== 'all') params.append('deviceType', deviceType);
       
       const res = await api.get(`/admin/users?${params.toString()}`);
-      if (Array.isArray(res.data) && res.data.length > 0) {
+      if (Array.isArray(res.data)) {
         return res.data;
       }
     } catch (err: any) {
@@ -202,7 +202,7 @@ export const adminService = {
   getActiveSessions: async (): Promise<UserSession[]> => {
     try {
       const res = await api.get('/admin/sessions');
-      if (Array.isArray(res.data) && res.data.length > 0) {
+      if (Array.isArray(res.data)) {
         return res.data;
       }
     } catch (err: any) {

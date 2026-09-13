@@ -1,6 +1,6 @@
 import { Router } from 'express';
 import bcrypt from 'bcryptjs';
-import { query, isNeonConnected, mockStore, type MockUser } from '../db/index.js';
+import { query, isDbConnected, ensureDbInitialized, mockStore, type MockUser } from '../db/index.js';
 import { authenticateToken, requireAdmin } from '../middleware/auth.js';
 import type { Enquiry } from '../../src/types/index.js';
 
@@ -16,6 +16,7 @@ function getClientMeta(req: any) {
 // POST /api/enquiries - Public / Authenticated submit enquiry (Step 1 or Full)
 router.post('/', async (req, res) => {
   try {
+    await ensureDbInitialized().catch(() => {});
     const {
       id: customId,
       userId,
@@ -116,7 +117,7 @@ router.post('/', async (req, res) => {
       submittedAt: new Date().toISOString()
     };
 
-    if (isNeonConnected) {
+    if (isDbConnected()) {
       // 1. Check if user already exists
       const userRes = await query('SELECT id, phone FROM users WHERE LOWER(email) = LOWER($1)', [normalizedEmail]);
       if (userRes.rows.length === 0) {
@@ -345,7 +346,8 @@ function formatEnquiryRow(row: any): Enquiry {
 // GET /api/enquiries - Admin: fetch all leads
 router.get('/', authenticateToken, requireAdmin, async (_req, res) => {
   try {
-    if (isNeonConnected) {
+    await ensureDbInitialized().catch(() => {});
+    if (isDbConnected()) {
       const result = await query('SELECT * FROM enquiries ORDER BY submitted_at DESC');
       const formatted = result.rows.map(formatEnquiryRow);
       return res.json(formatted);
@@ -360,10 +362,11 @@ router.get('/', authenticateToken, requireAdmin, async (_req, res) => {
 // Update handler for PUT and PATCH
 const updateEnquiryHandler = async (req: any, res: any) => {
   try {
+    await ensureDbInitialized().catch(() => {});
     const { id } = req.params;
     const updates = req.body;
 
-    if (isNeonConnected) {
+    if (isDbConnected()) {
       const result = await query(
         `UPDATE enquiries SET
           status = COALESCE($1, status),

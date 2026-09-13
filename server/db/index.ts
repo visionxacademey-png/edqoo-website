@@ -9,7 +9,8 @@ dotenv.config();
 neonConfig.webSocketConstructor = ws;
 
 const DEFAULT_NEON_URL = 'postgresql://neondb_owner:npg_5gFTKWixPID6@ep-calm-queen-aekocvb3-pooler.c-2.us-east-2.aws.neon.tech/neondb?sslmode=require&channel_binding=require';
-const DATABASE_URL = process.env.DATABASE_URL || DEFAULT_NEON_URL;
+const rawDbUrl = (process.env.DATABASE_URL || '').trim();
+const DATABASE_URL = (rawDbUrl && rawDbUrl !== 'YOUR_NEON_DATABASE_URL_HERE') ? rawDbUrl : DEFAULT_NEON_URL;
 
 let pool: Pool | null = null;
 let isNeonConnected = false;
@@ -533,9 +534,13 @@ export async function initDb() {
       ON CONFLICT (email) DO NOTHING;
     `, [studentPasswordHash]).catch((e) => console.warn('Enquiry user sync note:', e.message));
 
-    // Check if courses exist in NeonDB, seed or update courses catalog
-    console.log('📚 [DB] Synchronizing course catalog into NeonDB...');
-    for (const course of initialCourses) {
+    // Check if courses exist in NeonDB, seed or update courses catalog only if empty or missing
+    const courseCountRes = await pool.query('SELECT COUNT(*) FROM courses').catch(() => ({ rows: [{ count: '0' }] }));
+    const existingCount = parseInt(courseCountRes.rows[0]?.count || '0', 10);
+    
+    if (existingCount < initialCourses.length) {
+      console.log('📚 [DB] Synchronizing course catalog into NeonDB...');
+      for (const course of initialCourses) {
       await pool.query(
         `INSERT INTO courses (
           id, slug, title, category, categories, short_description, description, image, price, original_price,
@@ -604,6 +609,7 @@ export async function initDb() {
       );
     }
     console.log(`✅ [DB] Synced ${initialCourses.length} courses into NeonDB.`);
+    }
   } catch (err: any) {
     console.error('⚠️ [DB] NeonDB connection or migration error:', err.message);
     isNeonConnected = false;

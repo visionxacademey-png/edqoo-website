@@ -21,12 +21,22 @@ app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 
 // Middleware to normalize Vercel serverless request URLs and ensure DB readiness
 app.use(async (req, _res, next) => {
-  // Normalize URL when invoked through Vercel Serverless Function rewrites
-  const vercelMatched = (req.headers['x-vercel-matched-path'] || req.headers['x-matched-path'] || req.headers['x-forwarded-uri']) as string;
-  if (vercelMatched && vercelMatched.startsWith('/api')) {
-    req.url = vercelMatched;
-  } else if (req.query && typeof req.query['0'] === 'string' && !req.url.includes('/api/')) {
-    req.url = `/api/${req.query['0']}`;
+  // Extract original URL if invoked via Vercel Serverless Function rewrites
+  const forwardedUri = (req.headers['x-forwarded-uri'] || req.headers['x-invoke-path'] || req.headers['x-vercel-invoke-path']) as string;
+  
+  if (forwardedUri && forwardedUri !== '/api' && forwardedUri !== '/api/' && (forwardedUri.startsWith('/api/') || forwardedUri.startsWith('/'))) {
+    req.url = forwardedUri;
+  } else if (req.query && typeof req.query['0'] === 'string') {
+    // Wildcard rewrite from vercel.json: /api/(.*) -> destination /api passes subpath in req.query['0']
+    const subPath = req.query['0'];
+    const queryParams = new URLSearchParams();
+    for (const [key, value] of Object.entries(req.query)) {
+      if (key !== '0' && typeof value === 'string') {
+        queryParams.set(key, value);
+      }
+    }
+    const qs = queryParams.toString();
+    req.url = `/api/${subPath.replace(/^\/+/, '')}${qs ? `?${qs}` : ''}`;
   }
 
   try {
@@ -37,8 +47,8 @@ app.use(async (req, _res, next) => {
   next();
 });
 
-// Health Check
-app.get(['/api/health', '/health'], (_req, res) => {
+// Health & Root Status Checks
+app.get(['/api/health', '/health', '/api', '/'], (_req, res) => {
   res.json({
     status: 'ok',
     service: 'Edqoo API Server',

@@ -1,5 +1,5 @@
 import { Router, type Response } from 'express';
-import { query, isNeonConnected, mockStore } from '../db/index.js';
+import { query, isDbConnected, ensureDbInitialized, mockStore } from '../db/index.js';
 import { authenticateToken, requireAdmin, type AuthRequest } from '../middleware/auth.js';
 import type { Course } from '../../src/types/index.js';
 
@@ -76,9 +76,10 @@ function formatCourseRow(row: any): Course {
 // GET /api/courses - Public list
 router.get('/', async (req, res) => {
   try {
+    await ensureDbInitialized().catch(() => {});
     const { category, level, status, search, featured } = req.query;
 
-    if (isNeonConnected) {
+    if (isDbConnected()) {
       let sql = 'SELECT * FROM courses';
       const params: any[] = [];
       const whereClauses: string[] = [];
@@ -165,10 +166,11 @@ router.get('/', async (req, res) => {
 // GET /api/courses/:slug - Public single course
 router.get('/:slug', async (req, res) => {
   try {
+    await ensureDbInitialized().catch(() => {});
     const rawSlug = req.params.slug;
     const slug = SLUG_ALIASES[rawSlug] || rawSlug;
 
-    if (isNeonConnected) {
+    if (isDbConnected()) {
       const result = await query('SELECT * FROM courses WHERE slug = $1 OR id = $1 OR slug = $2', [slug, rawSlug]);
       if (result.rows.length === 0) {
         return res.status(404).json({ error: 'Course not found.' });
@@ -192,6 +194,7 @@ router.get('/:slug', async (req, res) => {
 // POST /api/courses - Admin: Create new course
 router.post('/', authenticateToken, requireAdmin, async (req: AuthRequest, res: Response) => {
   try {
+    await ensureDbInitialized().catch(() => {});
     const {
       title,
       slug: customSlug,
@@ -264,7 +267,7 @@ router.post('/', authenticateToken, requireAdmin, async (req: AuthRequest, res: 
       whoIsItFor: Array.isArray(whoIsItFor) ? whoIsItFor : []
     };
 
-    if (isNeonConnected) {
+    if (isDbConnected()) {
       // Check slug uniqueness
       const existingSlug = await query('SELECT id FROM courses WHERE slug = $1', [calculatedSlug]);
       if (existingSlug.rows.length > 0) {
@@ -326,6 +329,7 @@ router.post('/', authenticateToken, requireAdmin, async (req: AuthRequest, res: 
 // PUT /api/courses/:id - Admin: Update course
 router.put('/:id', authenticateToken, requireAdmin, async (req: AuthRequest, res: Response) => {
   try {
+    await ensureDbInitialized().catch(() => {});
     const { id } = req.params;
     const {
       title,
@@ -357,7 +361,7 @@ router.put('/:id', authenticateToken, requireAdmin, async (req: AuthRequest, res
       whoIsItFor
     } = req.body;
 
-    if (isNeonConnected) {
+    if (isDbConnected()) {
       const existing = await query('SELECT * FROM courses WHERE id = $1', [id]);
       if (existing.rows.length === 0) {
         return res.status(404).json({ error: 'Course not found.' });
@@ -498,9 +502,10 @@ router.put('/:id', authenticateToken, requireAdmin, async (req: AuthRequest, res
 // DELETE /api/courses/:id - Admin: Delete course
 router.delete('/:id', authenticateToken, requireAdmin, async (_req, res) => {
   try {
+    await ensureDbInitialized().catch(() => {});
     const { id } = _req.params;
 
-    if (isNeonConnected) {
+    if (isDbConnected()) {
       const result = await query('DELETE FROM courses WHERE id = $1 RETURNING id', [id]);
       if (result.rows.length === 0) {
         return res.status(404).json({ error: 'Course not found.' });

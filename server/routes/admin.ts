@@ -1,5 +1,5 @@
 import { Router, type Response } from 'express';
-import { query, isNeonConnected, mockStore, getDbStatus } from '../db/index.js';
+import { query, isDbConnected, ensureDbInitialized, mockStore, getDbStatus } from '../db/index.js';
 import { authenticateToken, requireAdmin, type AuthRequest } from '../middleware/auth.js';
 
 const router = Router();
@@ -10,13 +10,15 @@ router.use(requireAdmin);
 
 // GET /api/admin/db-status
 router.get('/db-status', async (_req, res) => {
+  await ensureDbInitialized().catch(() => {});
   return res.json(getDbStatus());
 });
 
 // GET /api/admin/stats
 router.get('/stats', async (_req, res) => {
   try {
-    if (isNeonConnected) {
+    await ensureDbInitialized().catch(() => {});
+    if (isDbConnected()) {
       const usersRes = await query('SELECT COUNT(*) FROM users');
       const activeSessionsRes = await query('SELECT COUNT(*) FROM user_sessions WHERE is_active = true');
       const coursesRes = await query('SELECT COUNT(*) FROM courses');
@@ -55,12 +57,13 @@ router.get('/stats', async (_req, res) => {
 // GET /api/admin/users
 router.get('/users', async (req, res) => {
   try {
+    await ensureDbInitialized().catch(() => {});
     const searchTerm = (req.query.search as string || '').toLowerCase().trim();
     const roleFilter = (req.query.role as string || 'all').toLowerCase();
     const osFilter = (req.query.os as string || 'all').toLowerCase();
     const deviceTypeFilter = (req.query.deviceType as string || 'all').toLowerCase();
 
-    if (isNeonConnected) {
+    if (isDbConnected()) {
       let sql = `
         SELECT u.id, u.name, u.email, u.phone, u.avatar, u.role, u.is_active, u.created_at, u.last_login_at,
                u.device_info, u.last_ip, u.last_device_id, u.last_device_type, u.last_os, u.last_browser, u.last_timezone,
@@ -184,7 +187,8 @@ router.get('/users', async (req, res) => {
 // GET /api/admin/sessions - See Logged In Users & Active Sessions
 router.get('/sessions', async (_req, res) => {
   try {
-    if (isNeonConnected) {
+    await ensureDbInitialized().catch(() => {});
+    if (isDbConnected()) {
       const sql = `
         SELECT s.id, s.user_id, s.email, s.ip_address, s.user_agent,
                s.device_id, s.device_type, s.os, s.os_version, s.browser, s.browser_version,
@@ -281,6 +285,7 @@ router.get('/sessions', async (_req, res) => {
 // PUT /api/admin/users/:id/role
 router.put('/users/:id/role', async (req: AuthRequest, res: Response) => {
   try {
+    await ensureDbInitialized().catch(() => {});
     const { id } = req.params;
     const { role } = req.body;
 
@@ -293,7 +298,7 @@ router.put('/users/:id/role', async (req: AuthRequest, res: Response) => {
       return res.status(400).json({ error: 'You cannot remove your own administrator privileges.' });
     }
 
-    if (isNeonConnected) {
+    if (isDbConnected()) {
       const result = await query(
         'UPDATE users SET role = $1 WHERE id = $2 RETURNING id, name, email, role',
         [role, id]
@@ -318,6 +323,7 @@ router.put('/users/:id/role', async (req: AuthRequest, res: Response) => {
 // PUT /api/admin/users/:id/status
 router.put('/users/:id/status', async (req: AuthRequest, res: Response) => {
   try {
+    await ensureDbInitialized().catch(() => {});
     const { id } = req.params;
     const { isActive } = req.body;
 
@@ -329,7 +335,7 @@ router.put('/users/:id/status', async (req: AuthRequest, res: Response) => {
       return res.status(400).json({ error: 'You cannot deactivate your own account.' });
     }
 
-    if (isNeonConnected) {
+    if (isDbConnected()) {
       const result = await query(
         'UPDATE users SET is_active = $1 WHERE id = $2 RETURNING id, name, email, is_active',
         [isActive, id]
@@ -365,9 +371,10 @@ router.put('/users/:id/status', async (req: AuthRequest, res: Response) => {
 // DELETE /api/admin/sessions/:id - Terminate / Revoke Active Session
 router.delete('/sessions/:id', async (req, res) => {
   try {
+    await ensureDbInitialized().catch(() => {});
     const { id } = req.params;
 
-    if (isNeonConnected) {
+    if (isDbConnected()) {
       const result = await query(
         'UPDATE user_sessions SET is_active = false WHERE id = $1 RETURNING id',
         [id]
