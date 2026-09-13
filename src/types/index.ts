@@ -153,6 +153,7 @@ export interface Enquiry {
   highestQualification?: string;
   yearOfGraduation?: string;
   apaarAbcStatus?: string;
+  apaarId?: string;
   ktuId?: string;
   swayamChapter?: string;
   collegeState?: string;

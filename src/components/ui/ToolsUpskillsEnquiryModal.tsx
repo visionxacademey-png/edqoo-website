@@ -47,6 +47,7 @@ const step2Schema = zod.object({
   highestQualification: zod.string().optional(),
   yearOfGraduation: zod.string().optional(),
   apaarAbcStatus: zod.string().optional(),
+  apaarId: zod.string().optional(),
   ktuId: zod.string().optional(),
   collegeState: zod.string().optional(),
   collegeName: zod.string().optional(),
@@ -83,6 +84,16 @@ const step2Schema = zod.object({
         code: zod.ZodIssueCode.custom,
         path: ['apaarAbcStatus'],
         message: 'Please select Academic Bank of Credits / KTU status.'
+      });
+    }
+    if (
+      (data.apaarAbcStatus === 'I have APAAR/ABC ID' || data.apaarAbcStatus === 'I have APAAR ID' || data.apaarAbcStatus === 'I have ABC ID') &&
+      (!data.apaarId || data.apaarId.trim().length === 0)
+    ) {
+      ctx.addIssue({
+        code: zod.ZodIssueCode.custom,
+        path: ['apaarId'],
+        message: 'Please enter your APAAR / ABC ID.'
       });
     }
     if (data.apaarAbcStatus === 'I have KTU ID' && (!data.ktuId || data.ktuId.trim().length === 0)) {
@@ -257,6 +268,7 @@ export const ToolsUpskillsEnquiryModal: React.FC<ToolsUpskillsEnquiryModalProps>
       highestQualification: 'Engineering B.Tech',
       yearOfGraduation: '2026',
       apaarAbcStatus: 'I have KTU ID',
+      apaarId: '',
       ktuId: '',
       collegeState: 'Kerala',
       collegeName: '',
@@ -847,8 +859,8 @@ export const ToolsUpskillsEnquiryModal: React.FC<ToolsUpskillsEnquiryModalProps>
                           </div>
                         </div>
 
-                        {/* APAAR/ABC/KTU Selection & Conditional KTU ID */}
-                        <div className={`grid grid-cols-1 ${selectedApaarStatus === 'I have KTU ID' ? 'sm:grid-cols-2' : ''} gap-3`}>
+                        {/* APAAR/ABC/KTU Selection & Conditional ID field */}
+                        <div className={`grid grid-cols-1 ${(selectedApaarStatus === 'I have KTU ID' || selectedApaarStatus === 'I have APAAR/ABC ID' || selectedApaarStatus === 'I have APAAR ID' || selectedApaarStatus === 'I have ABC ID') ? 'sm:grid-cols-2' : ''} gap-3`}>
                           {/* Academic Bank of Credits Dropdown */}
                           <div className="space-y-1">
                             <label className="text-[11px] font-bold text-slate-700 uppercase tracking-wider block">
@@ -860,7 +872,7 @@ export const ToolsUpskillsEnquiryModal: React.FC<ToolsUpskillsEnquiryModalProps>
                                 errorsStep2.apaarAbcStatus ? 'border-red-400 focus:border-red-500' : 'border-slate-200 focus:border-purple-600'
                               }`}
                             >
-                              <option value="Select">Select APAAR / Credit ID Status</option>
+                              
                               <option value="I have APAAR/ABC ID">I have APAAR/ABC ID</option>
                               <option value="I don't have APAAR/ABC ID">I don't have APAAR/ABC ID</option>
                               <option value="Do not need APAAR/ABC ID">Do not need APAAR/ABC ID</option>
@@ -870,6 +882,32 @@ export const ToolsUpskillsEnquiryModal: React.FC<ToolsUpskillsEnquiryModalProps>
                               <span className="text-[10px] text-red-500 font-medium">{errorsStep2.apaarAbcStatus.message}</span>
                             )}
                           </div>
+
+                          {/* Conditional APAAR / ABC ID field */}
+                          {(selectedApaarStatus === 'I have APAAR/ABC ID' || selectedApaarStatus === 'I have APAAR ID' || selectedApaarStatus === 'I have ABC ID') && (
+                            <motion.div
+                              initial={{ opacity: 0, y: -4 }}
+                              animate={{ opacity: 1, y: 0 }}
+                              exit={{ opacity: 0, y: -4 }}
+                              className="space-y-1"
+                            >
+                              <label className="text-[11px] font-bold text-purple-800 uppercase tracking-wider block flex items-center gap-1">
+                                <IdCard className="w-3.5 h-3.5 text-purple-700" />
+                                <span>APAAR / ABC ID <span className="text-red-500">*</span></span>
+                              </label>
+                              <input
+                                type="text"
+                                placeholder="e.g. 12-digit APAAR ID / ABC ID"
+                                {...registerStep2('apaarId')}
+                                className={`w-full px-3 py-2 bg-purple-50/50 border rounded-lg text-xs text-slate-900 font-medium focus:outline-none transition-all ${
+                                  errorsStep2.apaarId ? 'border-red-400 focus:border-red-500' : 'border-purple-300 focus:border-purple-600'
+                                }`}
+                              />
+                              {errorsStep2.apaarId && (
+                                <span className="text-[10px] text-red-500 font-medium">{errorsStep2.apaarId.message}</span>
+                              )}
+                            </motion.div>
+                          )}
 
                           {/* Conditional KTU ID field */}
                           {selectedApaarStatus === 'I have KTU ID' && (

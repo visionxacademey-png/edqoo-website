@@ -236,6 +236,11 @@ export const AdminLeads: React.FC = () => {
                               {lead.category || 'General Track'}
                             </span>
                           )}
+                          {lead.apaarId && (
+                            <span className="inline-block px-1.5 py-0.5 text-[9px] font-mono font-bold rounded bg-purple-950/60 text-purple-300 border border-purple-800/60">
+                              APAAR: {lead.apaarId}
+                            </span>
+                          )}
                           {lead.ktuId && (
                             <span className="inline-block px-1.5 py-0.5 text-[9px] font-mono font-bold rounded bg-amber-950/60 text-amber-300 border border-amber-800/60">
                               KTU: {lead.ktuId}
@@ -431,6 +436,14 @@ export const AdminLeads: React.FC = () => {
                       <span className="text-slate-500 block text-[10px] uppercase font-bold">APAAR / Credit Status</span>
                       <span className="text-white font-medium">{activeLead.apaarAbcStatus || '—'}</span>
                     </div>
+                    {activeLead.apaarId && (
+                      <div>
+                        <span className="text-purple-400 block text-[10px] uppercase font-bold">APAAR / ABC ID</span>
+                        <span className="font-mono text-purple-300 font-bold bg-purple-950/60 px-2 py-0.5 rounded border border-purple-800/60">
+                          {activeLead.apaarId}
+                        </span>
+                      </div>
+                    )}
                     {activeLead.ktuId && (
                       <div>
                         <span className="text-amber-400 block text-[10px] uppercase font-bold">KTU ID</span>

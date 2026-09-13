@@ -387,6 +387,7 @@ export async function initDb() {
         highest_qualification VARCHAR(100),
         year_of_graduation VARCHAR(50),
         apaar_abc_status VARCHAR(100),
+        apaar_id VARCHAR(100),
         ktu_id VARCHAR(100),
         swayam_chapter VARCHAR(50),
         college_state VARCHAR(100),
@@ -420,6 +421,7 @@ export async function initDb() {
       ALTER TABLE enquiries ADD COLUMN IF NOT EXISTS highest_qualification VARCHAR(100);
       ALTER TABLE enquiries ADD COLUMN IF NOT EXISTS year_of_graduation VARCHAR(50);
       ALTER TABLE enquiries ADD COLUMN IF NOT EXISTS apaar_abc_status VARCHAR(100);
+      ALTER TABLE enquiries ADD COLUMN IF NOT EXISTS apaar_id VARCHAR(100);
       ALTER TABLE enquiries ADD COLUMN IF NOT EXISTS ktu_id VARCHAR(100);
       ALTER TABLE enquiries ADD COLUMN IF NOT EXISTS swayam_chapter VARCHAR(50);
       ALTER TABLE enquiries ADD COLUMN IF NOT EXISTS college_state VARCHAR(100);
