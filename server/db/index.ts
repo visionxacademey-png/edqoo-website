@@ -364,6 +364,10 @@ export async function initDb() {
         email VARCHAR(255) NOT NULL,
         phone VARCHAR(100),
         program VARCHAR(255),
+        course_id VARCHAR(100),
+        category VARCHAR(100),
+        source VARCHAR(100),
+        lead_status VARCHAR(50) DEFAULT 'New',
         experience_level VARCHAR(100),
         learning_mode VARCHAR(100),
         location VARCHAR(100),
@@ -372,10 +376,63 @@ export async function initDb() {
         message TEXT,
         status VARCHAR(100) DEFAULT 'Submitted',
         notes TEXT,
+        gender VARCHAR(50),
+        date_of_birth VARCHAR(50),
+        country VARCHAR(100),
+        pincode VARCHAR(50),
+        state VARCHAR(100),
+        city VARCHAR(100),
+        profession VARCHAR(100),
+        highest_qualification VARCHAR(100),
+        year_of_graduation VARCHAR(50),
+        apaar_abc_status VARCHAR(100),
+        ktu_id VARCHAR(100),
+        swayam_chapter VARCHAR(50),
+        college_state VARCHAR(100),
+        college_name VARCHAR(255),
+        university_name VARCHAR(255),
+        roll_number VARCHAR(100),
+        highest_academic_level VARCHAR(100),
+        academic_area VARCHAR(100),
+        study_year VARCHAR(50),
+        organization VARCHAR(255),
+        designation VARCHAR(255),
+        years_of_experience VARCHAR(100),
+        department VARCHAR(255),
+        details JSONB DEFAULT '{}'::jsonb,
         last_contacted_date TIMESTAMP WITH TIME ZONE,
         submitted_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
         updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
       );
+
+      ALTER TABLE enquiries ADD COLUMN IF NOT EXISTS course_id VARCHAR(100);
+      ALTER TABLE enquiries ADD COLUMN IF NOT EXISTS category VARCHAR(100);
+      ALTER TABLE enquiries ADD COLUMN IF NOT EXISTS source VARCHAR(100);
+      ALTER TABLE enquiries ADD COLUMN IF NOT EXISTS lead_status VARCHAR(50) DEFAULT 'New';
+      ALTER TABLE enquiries ADD COLUMN IF NOT EXISTS gender VARCHAR(50);
+      ALTER TABLE enquiries ADD COLUMN IF NOT EXISTS date_of_birth VARCHAR(50);
+      ALTER TABLE enquiries ADD COLUMN IF NOT EXISTS country VARCHAR(100);
+      ALTER TABLE enquiries ADD COLUMN IF NOT EXISTS pincode VARCHAR(50);
+      ALTER TABLE enquiries ADD COLUMN IF NOT EXISTS state VARCHAR(100);
+      ALTER TABLE enquiries ADD COLUMN IF NOT EXISTS city VARCHAR(100);
+      ALTER TABLE enquiries ADD COLUMN IF NOT EXISTS profession VARCHAR(100);
+      ALTER TABLE enquiries ADD COLUMN IF NOT EXISTS highest_qualification VARCHAR(100);
+      ALTER TABLE enquiries ADD COLUMN IF NOT EXISTS year_of_graduation VARCHAR(50);
+      ALTER TABLE enquiries ADD COLUMN IF NOT EXISTS apaar_abc_status VARCHAR(100);
+      ALTER TABLE enquiries ADD COLUMN IF NOT EXISTS ktu_id VARCHAR(100);
+      ALTER TABLE enquiries ADD COLUMN IF NOT EXISTS swayam_chapter VARCHAR(50);
+      ALTER TABLE enquiries ADD COLUMN IF NOT EXISTS college_state VARCHAR(100);
+      ALTER TABLE enquiries ADD COLUMN IF NOT EXISTS college_name VARCHAR(255);
+      ALTER TABLE enquiries ADD COLUMN IF NOT EXISTS university_name VARCHAR(255);
+      ALTER TABLE enquiries ADD COLUMN IF NOT EXISTS roll_number VARCHAR(100);
+      ALTER TABLE enquiries ADD COLUMN IF NOT EXISTS highest_academic_level VARCHAR(100);
+      ALTER TABLE enquiries ADD COLUMN IF NOT EXISTS academic_area VARCHAR(100);
+      ALTER TABLE enquiries ADD COLUMN IF NOT EXISTS study_year VARCHAR(50);
+      ALTER TABLE enquiries ADD COLUMN IF NOT EXISTS organization VARCHAR(255);
+      ALTER TABLE enquiries ADD COLUMN IF NOT EXISTS designation VARCHAR(255);
+      ALTER TABLE enquiries ADD COLUMN IF NOT EXISTS years_of_experience VARCHAR(100);
+      ALTER TABLE enquiries ADD COLUMN IF NOT EXISTS department VARCHAR(255);
+      ALTER TABLE enquiries ADD COLUMN IF NOT EXISTS details JSONB DEFAULT '{}'::jsonb;
     `);
 
     console.log('✅ [DB] NeonDB tables verified / created successfully.');

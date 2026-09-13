@@ -110,7 +110,12 @@ export type EnquiryStatus =
   | 'Follow-up Required' 
   | 'Resolved' 
   | 'Converted' 
-  | 'Closed';
+  | 'Closed'
+  | 'Incomplete'
+  | 'Completed'
+  | 'New';
+
+export type LeadStatus = 'New' | 'Incomplete' | 'Completed';
 
 export interface Enquiry {
   id: string;
@@ -119,6 +124,9 @@ export interface Enquiry {
   email: string;
   phone: string;
   program: string;
+  courseId?: string;
+  category?: string;
+  source?: string;
   experienceLevel?: string;
   learningMode?: string;
   location?: string;
@@ -126,10 +134,42 @@ export interface Enquiry {
   preferredCallbackTime?: string;
   message?: string;
   status: EnquiryStatus;
+  leadStatus?: LeadStatus;
   notes?: string;
   lastContactedDate?: string;
   submittedAt: string;
   updatedAt?: string;
+
+  // Step 2 Detailed Fields (Personal)
+  gender?: string;
+  dateOfBirth?: string;
+  country?: string;
+  pincode?: string;
+  state?: string;
+  city?: string;
+
+  // Step 2 Detailed Fields (Education / Professional)
+  profession?: 'Student' | 'Faculty' | 'Working Professional' | 'Other' | string;
+  highestQualification?: string;
+  yearOfGraduation?: string;
+  apaarAbcStatus?: string;
+  ktuId?: string;
+  swayamChapter?: string;
+  collegeState?: string;
+  collegeName?: string;
+  universityName?: string;
+  rollNumber?: string;
+  highestAcademicLevel?: string;
+  academicArea?: string;
+  studyYear?: string;
+
+  // Working professional / faculty specific fields
+  organization?: string;
+  designation?: string;
+  yearsOfExperience?: string;
+  department?: string;
+  otherProfessionDetails?: string;
+  details?: Record<string, any>;
 }
 
 export interface DeviceInfo {

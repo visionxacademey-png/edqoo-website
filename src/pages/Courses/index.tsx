@@ -348,7 +348,11 @@ export const Courses: React.FC = () => {
                               type="button"
                               onClick={(e) => {
                                 e.stopPropagation();
-                                openEnquiryModal(course.title);
+                                openEnquiryModal(course.title, {
+                                  category: selectedCategory === 'Tools and Upskills' ? 'Tools and Upskills' : course.category,
+                                  courseId: course.id,
+                                  categories: course.categories
+                                });
                               }}
                               className="btn-primary px-3 py-1.5 text-[10px] font-bold rounded-lg inline-flex items-center gap-1 shadow-2xs"
                             >

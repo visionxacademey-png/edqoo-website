@@ -264,6 +264,43 @@ export const authService = {
     }
   },
 
+  updateProfile: async (data: {
+    name: string;
+    phone?: string;
+    avatar?: string;
+    currentPassword?: string;
+    newPassword?: string;
+  }): Promise<{ success: boolean; user: User }> => {
+    try {
+      const response = await api.put('/auth/profile', data);
+      if (response.data?.user) {
+        recordUserActivity(response.data.user);
+        localStorage.setItem('Edqoo_user', JSON.stringify(response.data.user));
+        localStorage.setItem('edqoo_user', JSON.stringify(response.data.user));
+      }
+      return response.data;
+    } catch (error: any) {
+      console.warn('Backend update profile fallback:', error?.message);
+      // Fallback update locally
+      const stored = localStorage.getItem('Edqoo_user') || localStorage.getItem('edqoo_user');
+      if (stored) {
+        const currentUser: User = JSON.parse(stored);
+        const updatedUser: User = {
+          ...currentUser,
+          name: data.name.trim(),
+          phone: (data.phone || '').trim(),
+          avatar: data.avatar || currentUser.avatar
+        };
+        recordUserActivity(updatedUser);
+        localStorage.setItem('Edqoo_user', JSON.stringify(updatedUser));
+        localStorage.setItem('edqoo_user', JSON.stringify(updatedUser));
+        return { success: true, user: updatedUser };
+      }
+      const errorMsg = error.response?.data?.error || error.message || 'Failed to update profile.';
+      throw new Error(errorMsg);
+    }
+  },
+
   forgotPassword: async (email: string): Promise<{ success: boolean; message: string }> => {
     try {
       const response = await api.post('/auth/forgot-password', { email });

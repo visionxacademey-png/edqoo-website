@@ -38,7 +38,7 @@ const heroSlides = [
     primaryCta: 'Explore All Programs',
     primaryLink: '/courses',
     secondaryCta: 'Talk to Advisor',
-    image: 'https://images.unsplash.com/photo-1531482615713-2afd69097998?q=80&w=1600&auto=format&fit=crop',
+    image: 'https://images.unsplash.com/photo-1522071820081-009f0129c71c?q=80&w=1600&auto=format&fit=crop',
     statHighlight: '53% of learners received 50% and above salary hike post completion of the program*',
     partnerLogo: 'Enterprise Benchmark'
   },
@@ -64,7 +64,7 @@ const heroSlides = [
     primaryCta: 'View AI & ML Track',
     primaryLink: '/courses/executive-professional-certificate-data-science-ai',
     secondaryCta: 'Book Advisory Call',
-    image: 'https://images.unsplash.com/photo-1677442136019-21780efad99a?q=80&w=1600&auto=format&fit=crop',
+    image: 'https://images.unsplash.com/photo-1531482615713-2afd69097998?q=80&w=1600&auto=format&fit=crop',
     statHighlight: 'Over 2,500+ active practitioners enrolled across modern engineering tracks*',
     partnerLogo: 'Global Standards'
   },
@@ -77,7 +77,7 @@ const heroSlides = [
     primaryCta: 'Explore Tools & Upskills',
     primaryLink: '/courses',
     secondaryCta: 'Enquire for Teams',
-    image: 'https://images.unsplash.com/photo-1522071820081-009f0129c71c?q=80&w=1600&auto=format&fit=crop',
+    image: 'https://images.unsplash.com/photo-1460925895917-afdab827c52f?q=80&w=1600&auto=format&fit=crop',
     statHighlight: '100% lab-driven curriculum audited and verified by enterprise architects*',
     partnerLogo: 'Industry Verified'
   }
@@ -105,17 +105,6 @@ const highlightGroups = [
       { text: '50+ Industry Projects & Case Studies', icon: FolderGit2 }
     ]
   },
-  // {
-  //   id: 'faculty-support',
-  //   category: 'Faculty & Support',
-  //   badgeColor: 'bg-indigo-50 text-indigo-700 border-indigo-200',
-  //   icon: Users,
-  //   items: [
-  //     { text: 'Learn from NIT Faculty & Industry Practitioners', icon: GraduationCap },
-  //     { text: '24×7 Support', icon: Headphones },
-  //     { text: 'Dedicated Learning Management Team', icon: Users }
-  //   ]
-  // },
   {
     id: 'technology',
     category: 'Technology',
@@ -125,16 +114,6 @@ const highlightGroups = [
       { text: 'AI Powered LMS', icon: Sparkles }
     ]
   },
-  // {
-  //   id: 'campus-certification',
-  //   category: 'Campus & Certification',
-  //   badgeColor: 'bg-emerald-50 text-emerald-700 border-emerald-200',
-  //   icon: Award,
-  //   items: [
-  //     { text: '2 Days Campus Immersion at theccpeeps', icon: Building2 },
-  //     { text: 'theccpeeps Certification', icon: BadgeCheck }
-  //   ]
-  // },
   {
     id: 'career',
     category: 'Career',
@@ -164,6 +143,14 @@ export const Home: React.FC = () => {
   const [statsAnimated, setStatsAnimated] = useState(false);
   const statsSectionRef = useRef<HTMLDivElement>(null);
   const touchStartX = useRef<number | null>(null);
+
+  // Preload all hero slide images for instant switching
+  useEffect(() => {
+    heroSlides.forEach((slide) => {
+      const img = new Image();
+      img.src = slide.image;
+    });
+  }, []);
 
   // Hero auto-slider timer (6 seconds)
   useEffect(() => {
@@ -242,85 +229,101 @@ export const Home: React.FC = () => {
       >
         {/* Right-aligned Photographic Banner with Left Seamless Fade Mask */}
         <div className="absolute top-0 right-0 bottom-0 w-full lg:w-[62%] h-full pointer-events-none z-0 overflow-hidden">
-          <AnimatePresence mode="wait">
+          <AnimatePresence>
             <motion.img
               key={currentHero.id}
               src={currentHero.image}
               alt={currentHero.mainLine}
-              initial={{ opacity: 0, scale: 1.04 }}
+              initial={{ opacity: 0, scale: 1.03 }}
               animate={{ opacity: 1, scale: 1 }}
               exit={{ opacity: 0 }}
-              transition={{ duration: 0.6, ease: 'easeOut' }}
-              className="w-full h-full object-cover object-center lg:object-right opacity-80 sm:opacity-90"
+              transition={{ duration: 0.5, ease: 'easeOut' }}
+              className="absolute inset-0 w-full h-full object-cover object-center lg:object-right opacity-85 sm:opacity-95"
             />
           </AnimatePresence>
           {/* Gradients */}
-          <div className="absolute inset-0 bg-gradient-to-t lg:bg-gradient-to-r from-white via-white/80 to-transparent z-10" />
+          <div className="absolute inset-0 bg-gradient-to-t lg:bg-gradient-to-r from-white via-white/80 lg:via-white/40 to-transparent z-10" />
         </div>
 
         {/* Content Container */}
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full relative z-20 py-6 sm:py-10">
-          <div className="max-w-2xl space-y-4 sm:space-y-6">
-            
-            {/* Launch Badge */}
-            <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-purple-50 border border-purple-200 text-purple-700 text-xs font-bold tracking-wide shadow-2xs">
-              <Sparkles className="w-3.5 h-3.5 text-purple-600" />
-              <span>{currentHero.launchBadge}</span>
-            </div>
+          <AnimatePresence mode="wait">
+            <motion.div
+              key={currentHero.id}
+              initial={{ opacity: 0, y: 8 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -8 }}
+              transition={{ duration: 0.3, ease: 'easeOut' }}
+              className="max-w-2xl space-y-4 sm:space-y-6"
+            >
+              {/* Launch Badge */}
+              <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-purple-50 border border-purple-200 text-purple-700 text-xs font-bold tracking-wide shadow-2xs">
+                <Sparkles className="w-3.5 h-3.5 text-purple-600" />
+                <span>{currentHero.launchBadge}</span>
+              </div>
 
-            {/* Main Headline */}
-            <div className="space-y-1">
-              <span className="block text-purple-600 font-display font-extrabold text-lg sm:text-2xl lg:text-3xl tracking-tight">
-                {currentHero.accentLine}
-              </span>
-              <h1 className="text-3xl sm:text-4xl lg:text-5xl font-display font-black text-slate-950 tracking-tight leading-[1.12]">
-                {currentHero.mainLine}
-              </h1>
-            </div>
-
-            {/* Feature Pills */}
-            <div className="flex flex-wrap gap-2 pt-1">
-              {currentHero.pills.map((pill, idx) => (
-                <span
-                  key={idx}
-                  className="px-3 py-1 bg-slate-100/90 border border-slate-200/80 rounded-lg text-xs font-bold text-slate-700 backdrop-blur-xs"
-                >
-                  {pill}
+              {/* Main Headline */}
+              <div className="space-y-1">
+                <span className="block text-purple-600 font-display font-extrabold text-lg sm:text-2xl lg:text-3xl tracking-tight">
+                  {currentHero.accentLine}
                 </span>
-              ))}
-            </div>
+                <h1 className="text-3xl sm:text-4xl lg:text-5xl font-display font-black text-slate-950 tracking-tight leading-[1.12]">
+                  {currentHero.mainLine}
+                </h1>
+              </div>
 
-            {/* Action Buttons */}
-            <div className="flex flex-wrap items-center gap-3 pt-2 sm:pt-4">
-              <Link
-                to={currentHero.primaryLink}
-                className="btn-primary px-6 py-3 text-xs sm:text-sm font-bold rounded-xl shadow-md inline-flex items-center gap-2"
-              >
-                <span>{currentHero.primaryCta}</span>
-                <ArrowRight className="w-4 h-4" />
-              </Link>
-              <button
-                type="button"
-                onClick={() => openEnquiryModal()}
-                className="btn-secondary px-6 py-3 text-xs sm:text-sm font-bold rounded-xl shadow-2xs"
-              >
-                {currentHero.secondaryCta}
-              </button>
-            </div>
+              {/* Feature Pills */}
+              <div className="flex flex-wrap gap-2 pt-1">
+                {currentHero.pills.map((pill, idx) => (
+                  <span
+                    key={idx}
+                    className="px-3 py-1 bg-slate-100/90 border border-slate-200/80 rounded-lg text-xs font-bold text-slate-700 backdrop-blur-xs"
+                  >
+                    {pill}
+                  </span>
+                ))}
+              </div>
 
-          </div>
+              {/* Action Buttons */}
+              <div className="flex flex-wrap items-center gap-3 pt-2 sm:pt-4">
+                <Link
+                  to={currentHero.primaryLink}
+                  className="btn-primary px-6 py-3 text-xs sm:text-sm font-bold rounded-xl shadow-md inline-flex items-center gap-2"
+                >
+                  <span>{currentHero.primaryCta}</span>
+                  <ArrowRight className="w-4 h-4" />
+                </Link>
+                <button
+                  type="button"
+                  onClick={() => openEnquiryModal()}
+                  className="btn-secondary px-6 py-3 text-xs sm:text-sm font-bold rounded-xl shadow-2xs"
+                >
+                  {currentHero.secondaryCta}
+                </button>
+              </div>
+            </motion.div>
+          </AnimatePresence>
         </div>
 
         {/* Bottom Process Advisors / Outcome Highlight Strip */}
         <div className="relative z-20 bg-white/95 backdrop-blur-md border-t border-slate-200 py-3 px-4 sm:px-6 lg:px-8">
           <div className="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-3 text-xs">
-            <div className="flex items-center gap-2 text-slate-600 font-medium">
-              <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
-              <span className="font-bold text-slate-900">{currentHero.partnerLogo}:</span>
-              <span className="truncate max-w-xs sm:max-w-md md:max-w-xl">
-                {currentHero.statHighlight}
-              </span>
-            </div>
+            <AnimatePresence mode="wait">
+              <motion.div
+                key={currentHero.id}
+                initial={{ opacity: 0, x: -6 }}
+                animate={{ opacity: 1, x: 0 }}
+                exit={{ opacity: 0, x: 6 }}
+                transition={{ duration: 0.25 }}
+                className="flex items-center gap-2 text-slate-600 font-medium"
+              >
+                <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+                <span className="font-bold text-slate-900">{currentHero.partnerLogo}:</span>
+                <span className="truncate max-w-xs sm:max-w-md md:max-w-xl">
+                  {currentHero.statHighlight}
+                </span>
+              </motion.div>
+            </AnimatePresence>
 
             {/* Slider Navigation Dots & Controls */}
             <div className="flex items-center gap-2 flex-shrink-0">
@@ -329,8 +332,8 @@ export const Home: React.FC = () => {
                   <button
                     key={idx}
                     onClick={() => setActiveSlide(idx)}
-                    className={`h-1.5 rounded-full transition-all duration-300 ${
-                      activeSlide === idx ? 'w-6 bg-purple-600' : 'w-2 bg-slate-200 hover:bg-slate-300'
+                    className={`h-2 rounded-full transition-all duration-300 ${
+                      activeSlide === idx ? 'w-7 bg-purple-600' : 'w-2.5 bg-slate-300 hover:bg-slate-400'
                     }`}
                     aria-label={`Go to slide ${idx + 1}`}
                   />
@@ -338,15 +341,15 @@ export const Home: React.FC = () => {
               </div>
               <button
                 onClick={prevSlide}
-                className="p-1.5 rounded-lg bg-white hover:bg-purple-50 text-slate-700 hover:text-purple-700 border border-purple-200 transition-colors shadow-2xs"
-                aria-label="Previous outcome"
+                className="p-1.5 rounded-lg bg-white hover:bg-purple-50 text-slate-700 hover:text-purple-700 border border-slate-200 hover:border-purple-300 transition-colors shadow-2xs"
+                aria-label="Previous slide"
               >
                 <ChevronLeft className="w-4 h-4" />
               </button>
               <button
                 onClick={nextSlide}
-                className="p-1.5 rounded-lg bg-white hover:bg-purple-50 text-slate-700 hover:text-purple-700 border border-purple-200 transition-colors shadow-2xs"
-                aria-label="Next outcome"
+                className="p-1.5 rounded-lg bg-white hover:bg-purple-50 text-slate-700 hover:text-purple-700 border border-slate-200 hover:border-purple-300 transition-colors shadow-2xs"
+                aria-label="Next slide"
               >
                 <ChevronRight className="w-4 h-4" />
               </button>
@@ -688,7 +691,11 @@ export const Home: React.FC = () => {
                               type="button"
                               onClick={(e) => {
                                 e.stopPropagation();
-                                openEnquiryModal(course.title);
+                                openEnquiryModal(course.title, {
+                                  category: selectedCategory === 'Tools and Upskills' ? 'Tools and Upskills' : course.category,
+                                  courseId: course.id,
+                                  categories: course.categories
+                                });
                               }}
                               className="btn-primary px-3 py-1.5 text-[10px] font-bold rounded-lg inline-flex items-center gap-1 shadow-2xs"
                             >

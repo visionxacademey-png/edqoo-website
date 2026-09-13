@@ -141,6 +141,7 @@ export const enquiryService = {
       ...payload,
       id: `enq-${Date.now()}`,
       status: 'Submitted',
+      leadStatus: 'Completed',
       submittedAt: new Date().toISOString()
     };
 
@@ -167,6 +168,125 @@ export const enquiryService = {
         message: 'Thank you for your enquiry. Our team will review your request and get in touch with you shortly.',
         enquiry: newEnquiry
       };
+    }
+  },
+
+  // Step 1: Save lead immediately when user clicks Next in Tools & Upskills form
+  submitStep1Lead: async (payload: {
+    name: string;
+    email: string;
+    phone: string;
+    program: string;
+    courseId?: string;
+    category?: string;
+    source?: string;
+    userId?: string;
+  }): Promise<{ success: boolean; message: string; enquiry: Enquiry }> => {
+    const leadId = `enq-${Date.now().toString(36)}-${Math.random().toString(36).substring(2, 6)}`;
+    const newLead: Enquiry = {
+      id: leadId,
+      userId: payload.userId,
+      name: payload.name.trim(),
+      email: payload.email.trim().toLowerCase(),
+      phone: payload.phone.trim(),
+      program: payload.program || 'Tools and Upskills Track',
+      courseId: payload.courseId || '',
+      category: payload.category || 'Tools & Upskills',
+      source: payload.source || 'Tools & Upskills Enquire Now',
+      status: 'Incomplete',
+      leadStatus: 'Incomplete',
+      submittedAt: new Date().toISOString()
+    };
+
+    recordLocalCandidateActivity(payload.name, payload.email, payload.phone);
+
+    try {
+      const response = await api.post('/enquiries', newLead);
+      const saved = response.data?.enquiry || newLead;
+      const current = getStoredEnquiries();
+      // Replace if existing or add to front
+      const filtered = current.filter(e => e.id !== saved.id);
+      saveStoredEnquiries([saved, ...filtered]);
+
+      return {
+        success: true,
+        message: 'Lead saved successfully',
+        enquiry: saved
+      };
+    } catch {
+      console.warn('Backend enquiry endpoint offline; saved Step 1 lead to local storage.');
+      const current = getStoredEnquiries();
+      const filtered = current.filter(e => e.id !== newLead.id);
+      saveStoredEnquiries([newLead, ...filtered]);
+
+      return {
+        success: true,
+        message: 'Lead saved to local storage',
+        enquiry: newLead
+      };
+    }
+  },
+
+  // Step 2: Complete the detailed enquiry and update the SAME lead record
+  completeStep2Lead: async (
+    leadId: string,
+    detailedData: Partial<Enquiry>
+  ): Promise<{ success: boolean; message: string; enquiry?: Enquiry }> => {
+    const updatePayload = {
+      ...detailedData,
+      status: 'Submitted' as EnquiryStatus,
+      leadStatus: 'Completed' as const,
+      updatedAt: new Date().toISOString()
+    };
+
+    try {
+      const response = await api.patch(`/enquiries/${leadId}`, updatePayload);
+      const updated = response.data?.enquiry;
+
+      // Update in local storage
+      const all = getStoredEnquiries();
+      const index = all.findIndex((e) => e.id === leadId);
+      if (index !== -1) {
+        all[index] = { ...all[index], ...updatePayload, ...(updated || {}) };
+        saveStoredEnquiries(all);
+      } else if (updated) {
+        saveStoredEnquiries([updated, ...all]);
+      }
+
+      return {
+        success: true,
+        message: 'Thank you for submitting your detailed enquiry! An advisor will connect with you shortly.',
+        enquiry: updated || (index !== -1 ? all[index] : undefined)
+      };
+    } catch {
+      console.warn('Backend update failed, updating local storage for lead:', leadId);
+      const all = getStoredEnquiries();
+      const index = all.findIndex((e) => e.id === leadId);
+      if (index !== -1) {
+        all[index] = { ...all[index], ...updatePayload };
+        saveStoredEnquiries(all);
+        return {
+          success: true,
+          message: 'Thank you for submitting your detailed enquiry! An advisor will connect with you shortly.',
+          enquiry: all[index]
+        };
+      } else {
+        const fallback: Enquiry = {
+          id: leadId,
+          name: detailedData.name || '',
+          email: detailedData.email || '',
+          phone: detailedData.phone || '',
+          program: detailedData.program || 'Tools and Upskills Track',
+          ...updatePayload,
+          submittedAt: new Date().toISOString()
+        } as Enquiry;
+        saveStoredEnquiries([fallback, ...all]);
+        return {
+          success: true,
+          message: 'Thank you for submitting your detailed enquiry! An advisor will connect with you shortly.',
+          enquiry: fallback
+        };
+      }
     }
   },
 

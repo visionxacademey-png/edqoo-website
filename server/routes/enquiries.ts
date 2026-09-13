@@ -13,29 +13,59 @@ function getClientMeta(req: any) {
   return { ip, userAgent };
 }
 
-// POST /api/enquiries - Public / Authenticated submit enquiry
+// POST /api/enquiries - Public / Authenticated submit enquiry (Step 1 or Full)
 router.post('/', async (req, res) => {
   try {
     const {
+      id: customId,
       userId,
       name,
       email,
       phone,
       program,
+      courseId,
+      category,
+      source,
+      leadStatus,
+      status,
       experienceLevel,
       learningMode,
       location,
       preferredContactMethod,
       preferredCallbackTime,
-      message
+      message,
+      gender,
+      dateOfBirth,
+      country,
+      pincode,
+      state,
+      city,
+      profession,
+      highestQualification,
+      yearOfGraduation,
+      apaarAbcStatus,
+      ktuId,
+      swayamChapter,
+      collegeState,
+      collegeName,
+      universityName,
+      rollNumber,
+      highestAcademicLevel,
+      academicArea,
+      studyYear,
+      organization,
+      designation,
+      yearsOfExperience,
+      department,
+      details
     } = req.body;
 
-    if (!name || !email || !phone || !program) {
-      return res.status(400).json({ error: 'Name, email, phone, and program are required.' });
+    if (!name || !email || !phone) {
+      return res.status(400).json({ error: 'Name, email, and phone are required.' });
     }
 
     const normalizedEmail = email.trim().toLowerCase();
-    const id = `enq-${Date.now().toString(36)}-${Math.random().toString(36).substring(2, 6)}`;
+    const id = customId || `enq-${Date.now().toString(36)}-${Math.random().toString(36).substring(2, 6)}`;
     const { ip, userAgent } = getClientMeta(req);
     const sessionId = `sess-${Date.now().toString(36)}-${Math.random().toString(36).substring(2, 6)}`;
     let assignedUserId = userId || `usr-${Date.now().toString(36)}-${Math.random().toString(36).substring(2, 6)}`;
@@ -46,15 +76,43 @@ router.post('/', async (req, res) => {
       name: name.trim(),
       email: normalizedEmail,
       phone: phone.trim(),
-      program,
+      program: program || 'Tools and Upskills Track',
+      courseId: courseId || '',
+      category: category || 'Tools & Upskills',
+      source: source || 'Tools & Upskills Enquire Now',
+      leadStatus: (leadStatus as any) || 'Incomplete',
       experienceLevel: experienceLevel || 'Beginner',
       learningMode: learningMode || 'Online Live',
       location: location || '',
       preferredContactMethod: preferredContactMethod || 'WhatsApp',
       preferredCallbackTime: preferredCallbackTime || 'Flexible',
       message: message || '',
-      status: 'Submitted',
+      status: (status as any) || (leadStatus === 'Completed' ? 'Submitted' : 'Incomplete'),
       notes: '',
+      gender: gender || '',
+      dateOfBirth: dateOfBirth || '',
+      country: country || '',
+      pincode: pincode || '',
+      state: state || '',
+      city: city || '',
+      profession: profession || '',
+      highestQualification: highestQualification || '',
+      yearOfGraduation: yearOfGraduation || '',
+      apaarAbcStatus: apaarAbcStatus || '',
+      ktuId: ktuId || '',
+      swayamChapter: swayamChapter || '',
+      collegeState: collegeState || '',
+      collegeName: collegeName || '',
+      universityName: universityName || '',
+      rollNumber: rollNumber || '',
+      highestAcademicLevel: highestAcademicLevel || '',
+      academicArea: academicArea || '',
+      studyYear: studyYear || '',
+      organization: organization || '',
+      designation: designation || '',
+      yearsOfExperience: yearsOfExperience || '',
+      department: department || '',
+      details: details || {},
       submittedAt: new Date().toISOString()
     };
 
@@ -62,7 +120,6 @@ router.post('/', async (req, res) => {
       // 1. Check if user already exists
       const userRes = await query('SELECT id, phone FROM users WHERE LOWER(email) = LOWER($1)', [normalizedEmail]);
       if (userRes.rows.length === 0) {
-        // Insert candidate as user in users table
         const defaultHash = await bcrypt.hash('Student@123456', 10);
         const avatar = 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?q=80&w=150&auto=format&fit=crop';
         await query(
@@ -84,13 +141,58 @@ router.post('/', async (req, res) => {
         [sessionId, assignedUserId, normalizedEmail, sessionId, ip, userAgent]
       );
 
-      // 3. Insert Enquiry
+      // 3. Upsert Enquiry
       await query(
         `INSERT INTO enquiries (
-          id, user_id, name, email, phone, program, experience_level,
-          learning_mode, location, preferred_contact_method, preferred_callback_time,
-          message, status, notes, submitted_at, updated_at
-        ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, NOW(), NOW())`,
+          id, user_id, name, email, phone, program, course_id, category, source, lead_status,
+          experience_level, learning_mode, location, preferred_contact_method, preferred_callback_time,
+          message, status, notes, gender, date_of_birth, country, pincode, state, city, profession,
+          highest_qualification, year_of_graduation, apaar_abc_status, ktu_id, swayam_chapter,
+          college_state, college_name, university_name, roll_number, highest_academic_level,
+          academic_area, study_year, organization, designation, years_of_experience, department,
+          details, submitted_at, updated_at
+        ) VALUES (
+          $1, $2, $3, $4, $5, $6, $7, $8, $9, $10,
+          $11, $12, $13, $14, $15, $16, $17, $18, $19, $20,
+          $21, $22, $23, $24, $25, $26, $27, $28, $29, $30,
+          $31, $32, $33, $34, $35, $36, $37, $38, $39, $40,
+          $41, $42, NOW(), NOW()
+        )
+        ON CONFLICT (id) DO UPDATE SET
+          name = EXCLUDED.name,
+          email = EXCLUDED.email,
+          phone = EXCLUDED.phone,
+          program = EXCLUDED.program,
+          course_id = EXCLUDED.course_id,
+          category = EXCLUDED.category,
+          source = EXCLUDED.source,
+          lead_status = EXCLUDED.lead_status,
+          status = EXCLUDED.status,
+          gender = EXCLUDED.gender,
+          date_of_birth = EXCLUDED.date_of_birth,
+          country = EXCLUDED.country,
+          pincode = EXCLUDED.pincode,
+          state = EXCLUDED.state,
+          city = EXCLUDED.city,
+          profession = EXCLUDED.profession,
+          highest_qualification = EXCLUDED.highest_qualification,
+          year_of_graduation = EXCLUDED.year_of_graduation,
+          apaar_abc_status = EXCLUDED.apaar_abc_status,
+          ktu_id = EXCLUDED.ktu_id,
+          swayam_chapter = EXCLUDED.swayam_chapter,
+          college_state = EXCLUDED.college_state,
+          college_name = EXCLUDED.college_name,
+          university_name = EXCLUDED.university_name,
+          roll_number = EXCLUDED.roll_number,
+          highest_academic_level = EXCLUDED.highest_academic_level,
+          academic_area = EXCLUDED.academic_area,
+          study_year = EXCLUDED.study_year,
+          organization = EXCLUDED.organization,
+          designation = EXCLUDED.designation,
+          years_of_experience = EXCLUDED.years_of_experience,
+          department = EXCLUDED.department,
+          details = EXCLUDED.details,
+          updated_at = NOW()`,
         [
           newEnquiry.id,
           newEnquiry.userId || null,
@@ -98,6 +200,10 @@ router.post('/', async (req, res) => {
           newEnquiry.email,
           newEnquiry.phone,
           newEnquiry.program,
+          newEnquiry.courseId,
+          newEnquiry.category,
+          newEnquiry.source,
+          newEnquiry.leadStatus,
           newEnquiry.experienceLevel,
           newEnquiry.learningMode,
           newEnquiry.location,
@@ -105,7 +211,31 @@ router.post('/', async (req, res) => {
           newEnquiry.preferredCallbackTime,
           newEnquiry.message,
           newEnquiry.status,
-          newEnquiry.notes
+          newEnquiry.notes,
+          newEnquiry.gender,
+          newEnquiry.dateOfBirth,
+          newEnquiry.country,
+          newEnquiry.pincode,
+          newEnquiry.state,
+          newEnquiry.city,
+          newEnquiry.profession,
+          newEnquiry.highestQualification,
+          newEnquiry.yearOfGraduation,
+          newEnquiry.apaarAbcStatus,
+          newEnquiry.ktuId,
+          newEnquiry.swayamChapter,
+          newEnquiry.collegeState,
+          newEnquiry.collegeName,
+          newEnquiry.universityName,
+          newEnquiry.rollNumber,
+          newEnquiry.highestAcademicLevel,
+          newEnquiry.academicArea,
+          newEnquiry.studyYear,
+          newEnquiry.organization,
+          newEnquiry.designation,
+          newEnquiry.yearsOfExperience,
+          newEnquiry.department,
+          JSON.stringify(newEnquiry.details || {})
         ]
       );
     } else {
@@ -146,7 +276,12 @@ router.post('/', async (req, res) => {
         expires_at: new Date(Date.now() + 86400000 * 30).toISOString()
       });
 
-      mockStore.enquiries.unshift(newEnquiry);
+      const existingIndex = mockStore.enquiries.findIndex(e => e.id === newEnquiry.id);
+      if (existingIndex >= 0) {
+        mockStore.enquiries[existingIndex] = { ...mockStore.enquiries[existingIndex], ...newEnquiry, updatedAt: new Date().toISOString() };
+      } else {
+        mockStore.enquiries.unshift(newEnquiry);
+      }
     }
 
     return res.status(201).json({ success: true, enquiry: newEnquiry });
@@ -156,30 +291,63 @@ router.post('/', async (req, res) => {
   }
 });
 
+// Helper function to map DB row to Enquiry object
+function formatEnquiryRow(row: any): Enquiry {
+  return {
+    id: row.id,
+    userId: row.user_id,
+    name: row.name,
+    email: row.email,
+    phone: row.phone,
+    program: row.program,
+    courseId: row.course_id,
+    category: row.category,
+    source: row.source,
+    leadStatus: row.lead_status || 'Incomplete',
+    experienceLevel: row.experience_level,
+    learningMode: row.learning_mode,
+    location: row.location,
+    preferredContactMethod: row.preferred_contact_method,
+    preferredCallbackTime: row.preferred_callback_time,
+    message: row.message,
+    status: row.status,
+    notes: row.notes,
+    gender: row.gender,
+    dateOfBirth: row.date_of_birth,
+    country: row.country,
+    pincode: row.pincode,
+    state: row.state,
+    city: row.city,
+    profession: row.profession,
+    highestQualification: row.highest_qualification,
+    yearOfGraduation: row.year_of_graduation,
+    apaarAbcStatus: row.apaar_abc_status,
+    ktuId: row.ktu_id,
+    swayamChapter: row.swayam_chapter,
+    collegeState: row.college_state,
+    collegeName: row.college_name,
+    universityName: row.university_name,
+    rollNumber: row.roll_number,
+    highestAcademicLevel: row.highest_academic_level,
+    academicArea: row.academic_area,
+    studyYear: row.study_year,
+    organization: row.organization,
+    designation: row.designation,
+    yearsOfExperience: row.years_of_experience,
+    department: row.department,
+    details: typeof row.details === 'string' ? JSON.parse(row.details || '{}') : (row.details || {}),
+    lastContactedDate: row.last_contacted_date,
+    submittedAt: row.submitted_at,
+    updatedAt: row.updated_at
+  };
+}
+
 // GET /api/enquiries - Admin: fetch all leads
 router.get('/', authenticateToken, requireAdmin, async (_req, res) => {
   try {
     if (isNeonConnected) {
       const result = await query('SELECT * FROM enquiries ORDER BY submitted_at DESC');
-      const formatted: Enquiry[] = result.rows.map(row => ({
-        id: row.id,
-        userId: row.user_id,
-        name: row.name,
-        email: row.email,
-        phone: row.phone,
-        program: row.program,
-        experienceLevel: row.experience_level,
-        learningMode: row.learning_mode,
-        location: row.location,
-        preferredContactMethod: row.preferred_contact_method,
-        preferredCallbackTime: row.preferred_callback_time,
-        message: row.message,
-        status: row.status,
-        notes: row.notes,
-        lastContactedDate: row.last_contacted_date,
-        submittedAt: row.submitted_at,
-        updatedAt: row.updated_at
-      }));
+      const formatted = result.rows.map(formatEnquiryRow);
       return res.json(formatted);
     } else {
       return res.json(mockStore.enquiries);
@@ -189,50 +357,85 @@ router.get('/', authenticateToken, requireAdmin, async (_req, res) => {
   }
 });
 
-// PUT /api/enquiries/:id - Admin: update enquiry status & notes
-router.put('/:id', authenticateToken, requireAdmin, async (req, res) => {
+// Update handler for PUT and PATCH
+const updateEnquiryHandler = async (req: any, res: any) => {
   try {
     const { id } = req.params;
-    const { status, notes, lastContactedDate } = req.body;
+    const updates = req.body;
 
     if (isNeonConnected) {
       const result = await query(
         `UPDATE enquiries SET
           status = COALESCE($1, status),
           notes = COALESCE($2, notes),
-          last_contacted_date = COALESCE($3, last_contacted_date),
+          lead_status = COALESCE($3, lead_status),
+          gender = COALESCE($4, gender),
+          date_of_birth = COALESCE($5, date_of_birth),
+          country = COALESCE($6, country),
+          pincode = COALESCE($7, pincode),
+          state = COALESCE($8, state),
+          city = COALESCE($9, city),
+          profession = COALESCE($10, profession),
+          highest_qualification = COALESCE($11, highest_qualification),
+          year_of_graduation = COALESCE($12, year_of_graduation),
+          apaar_abc_status = COALESCE($13, apaar_abc_status),
+          ktu_id = COALESCE($14, ktu_id),
+          swayam_chapter = COALESCE($15, swayam_chapter),
+          college_state = COALESCE($16, college_state),
+          college_name = COALESCE($17, college_name),
+          university_name = COALESCE($18, university_name),
+          roll_number = COALESCE($19, roll_number),
+          highest_academic_level = COALESCE($20, highest_academic_level),
+          academic_area = COALESCE($21, academic_area),
+          study_year = COALESCE($22, study_year),
+          organization = COALESCE($23, organization),
+          designation = COALESCE($24, designation),
+          years_of_experience = COALESCE($25, years_of_experience),
+          department = COALESCE($26, department),
+          details = COALESCE($27, details),
+          last_contacted_date = COALESCE($28, last_contacted_date),
           updated_at = NOW()
-        WHERE id = $4
+        WHERE id = $29
         RETURNING *`,
-        [status, notes, lastContactedDate, id]
+        [
+          updates.status,
+          updates.notes,
+          updates.leadStatus,
+          updates.gender,
+          updates.dateOfBirth,
+          updates.country,
+          updates.pincode,
+          updates.state,
+          updates.city,
+          updates.profession,
+          updates.highestQualification,
+          updates.yearOfGraduation,
+          updates.apaarAbcStatus,
+          updates.ktuId,
+          updates.swayamChapter,
+          updates.collegeState,
+          updates.collegeName,
+          updates.universityName,
+          updates.rollNumber,
+          updates.highestAcademicLevel,
+          updates.academicArea,
+          updates.studyYear,
+          updates.organization,
+          updates.designation,
+          updates.yearsOfExperience,
+          updates.department,
+          updates.details ? JSON.stringify(updates.details) : null,
+          updates.lastContactedDate,
+          id
+        ]
       );
 
       if (result.rows.length === 0) {
         return res.status(404).json({ error: 'Enquiry not found.' });
       }
 
-      const row = result.rows[0];
-      const updated: Enquiry = {
-        id: row.id,
-        userId: row.user_id,
-        name: row.name,
-        email: row.email,
-        phone: row.phone,
-        program: row.program,
-        experienceLevel: row.experience_level,
-        learningMode: row.learning_mode,
-        location: row.location,
-        preferredContactMethod: row.preferred_contact_method,
-        preferredCallbackTime: row.preferred_callback_time,
-        message: row.message,
-        status: row.status,
-        notes: row.notes,
-        lastContactedDate: row.last_contacted_date,
-        submittedAt: row.submitted_at,
-        updatedAt: row.updated_at
-      };
-
-      return res.json({ success: true, enquiry: updated });
+      const formatted = formatEnquiryRow(result.rows[0]);
+      return res.json({ success: true, enquiry: formatted });
     } else {
       const idx = mockStore.enquiries.findIndex(e => e.id === id);
       if (idx === -1) {
@@ -242,9 +445,11 @@ router.put('/:id', authenticateToken, requireAdmin, async (req, res) => {
       const existing = mockStore.enquiries[idx];
       const updated = {
         ...existing,
-        status: status || existing.status,
-        notes: notes !== undefined ? notes : existing.notes,
-        lastContactedDate: lastContactedDate || existing.lastContactedDate,
+        ...updates,
+        status: updates.status || existing.status,
+        leadStatus: updates.leadStatus || existing.leadStatus || 'Completed',
+        notes: updates.notes !== undefined ? updates.notes : existing.notes,
+        lastContactedDate: updates.lastContactedDate || existing.lastContactedDate,
         updatedAt: new Date().toISOString()
       };
       mockStore.enquiries[idx] = updated;
@@ -254,6 +459,9 @@ router.put('/:id', authenticateToken, requireAdmin, async (req, res) => {
   } catch (err: any) {
     return res.status(500).json({ error: err.message || 'Failed to update enquiry.' });
   }
-});
+};
+
+router.put('/:id', updateEnquiryHandler);
+router.patch('/:id', updateEnquiryHandler);
 
 export default router;

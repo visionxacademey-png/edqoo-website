@@ -507,7 +507,13 @@ export const CourseDetails: React.FC = () => {
             {/* Primary CTA */}
             <div className="space-y-2.5">
               <button
-                onClick={() => openEnquiryModal(course.title)}
+                onClick={() =>
+                  openEnquiryModal(course.title, {
+                    category: course.category,
+                    courseId: course.id,
+                    categories: course.categories
+                  })
+                }
                 className="btn-primary w-full py-3.5 text-xs font-bold rounded-xl shadow-md flex items-center justify-center gap-2 hover:shadow-lg transition-all cursor-pointer"
               >
                 <PhoneCall className="w-4 h-4" />

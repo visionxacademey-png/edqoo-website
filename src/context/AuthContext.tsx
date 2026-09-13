@@ -2,6 +2,14 @@ import React, { createContext, useContext, useState, useEffect } from 'react';
 import type { User } from '../types';
 import { authService } from '../services/authService';
 
+interface UpdateProfileData {
+  name: string;
+  phone?: string;
+  avatar?: string;
+  currentPassword?: string;
+  newPassword?: string;
+}
+
 interface AuthContextType {
   user: User | null;
   isAuthenticated: boolean;
@@ -10,7 +18,7 @@ interface AuthContextType {
   login: (email: string, password: string) => Promise<{ success: boolean; error?: string }>;
   register: (name: string, email: string, phone: string, password: string) => Promise<{ success: boolean; error?: string }>;
   logout: () => Promise<void>;
-  updateUserProfile: (name: string, phone: string) => void;
+  updateUserProfile: (dataOrName: string | UpdateProfileData, phone?: string) => Promise<{ success: boolean; error?: string }>;
   refreshUser: () => Promise<void>;
 }
 
@@ -25,8 +33,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [isLoading, setIsLoading] = useState(true);
 
   const initAuth = async () => {
-    const savedUser = localStorage.getItem(USER_KEY);
-    const token = localStorage.getItem(TOKEN_KEY);
+    const savedUser = localStorage.getItem(USER_KEY) || localStorage.getItem('edqoo_user');
+    const token = localStorage.getItem(TOKEN_KEY) || localStorage.getItem('edqoo_token');
 
     if (token) {
       try {
@@ -34,6 +42,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         const freshUser = await authService.getMe();
         setUser(freshUser);
         localStorage.setItem(USER_KEY, JSON.stringify(freshUser));
+        localStorage.setItem('edqoo_user', JSON.stringify(freshUser));
       } catch {
         // If backend token check failed, fall back to stored user or remove if expired
         if (savedUser) {
@@ -41,7 +50,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
             setUser(JSON.parse(savedUser));
           } catch {
             localStorage.removeItem(USER_KEY);
+            localStorage.removeItem('edqoo_user');
             localStorage.removeItem(TOKEN_KEY);
+            localStorage.removeItem('edqoo_token');
             setUser(null);
           }
         }
@@ -51,6 +62,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         setUser(JSON.parse(savedUser));
       } catch {
         localStorage.removeItem(USER_KEY);
+        localStorage.removeItem('edqoo_user');
         setUser(null);
       }
     }
@@ -118,11 +130,32 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     setUser(null);
   };
 
-  const updateUserProfile = (name: string, phone: string) => {
-    if (!user) return;
-    const updated: User = { ...user, name, phone };
-    localStorage.setItem(USER_KEY, JSON.stringify(updated));
-    setUser(updated);
+  const updateUserProfile = async (
+    dataOrName: string | UpdateProfileData,
+    phone?: string
+  ): Promise<{ success: boolean; error?: string }> => {
+    if (!user) return { success: false, error: 'Not logged in.' };
+
+    let payload: UpdateProfileData;
+    if (typeof dataOrName === 'string') {
+      payload = { name: dataOrName, phone: phone || '' };
+    } else {
+      payload = dataOrName;
+    }
+
+    try {
+      const res = await authService.updateProfile(payload);
+      if (res.success && res.user) {
+        setUser(res.user);
+        localStorage.setItem(USER_KEY, JSON.stringify(res.user));
+        localStorage.setItem('edqoo_user', JSON.stringify(res.user));
+        return { success: true };
+      }
+      return { success: false, error: 'Failed to update profile.' };
+    } catch (err: any) {
+      const errorMsg = err.response?.data?.error || err.message || 'Error updating profile.';
+      return { success: false, error: errorMsg };
+    }
   };
 
   const refreshUser = async () => {

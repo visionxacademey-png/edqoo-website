@@ -23,6 +23,7 @@ import { courses } from '../../data/courses';
 import { enquiryService } from '../../services/enquiryService';
 import { useEnquiry } from '../../context/EnquiryContext';
 import { useAuth } from '../../context/AuthContext';
+import { ToolsUpskillsEnquiryModal } from './ToolsUpskillsEnquiryModal';
 
 const enquirySchema = zod.object({
   name: zod.string().min(2, { message: 'Please enter your full name (minimum 2 characters).' }),
@@ -41,8 +42,17 @@ const enquirySchema = zod.object({
 
 type EnquiryFormData = zod.infer<typeof enquirySchema>;
 
-export const EnquiryModal: React.FC = () => {
-  const { isEnquiryModalOpen, selectedProgram, closeEnquiryModal } = useEnquiry();
+interface StandardEnquiryModalProps {
+  isOpen: boolean;
+  onClose: () => void;
+  selectedProgram: string;
+}
+
+const StandardEnquiryModal: React.FC<StandardEnquiryModalProps> = ({
+  isOpen,
+  onClose,
+  selectedProgram
+}) => {
   const { user } = useAuth();
   const [isSuccess, setIsSuccess] = useState(false);
   const [apiError, setApiError] = useState<string | null>(null);
@@ -80,7 +90,7 @@ export const EnquiryModal: React.FC = () => {
   }, [selectedProgram, user, setValue]);
 
   const handleClose = () => {
-    closeEnquiryModal();
+    onClose();
     setTimeout(() => {
       setIsSuccess(false);
       setApiError(null);
@@ -126,7 +136,7 @@ export const EnquiryModal: React.FC = () => {
 
   return (
     <AnimatePresence>
-      {isEnquiryModalOpen && (
+      {isOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6 overflow-y-auto">
           {/* Backdrop */}
           <motion.div
@@ -433,3 +443,57 @@ export const EnquiryModal: React.FC = () => {
     </AnimatePresence>
   );
 };
+
+export const EnquiryModal: React.FC = () => {
+  const { isEnquiryModalOpen, selectedProgram, selectedCategory, selectedCourseId, closeEnquiryModal } = useEnquiry();
+
+  // Identify whether this enquiry belongs to Tools & Upskills category
+  const isToolsAndUpskills = (() => {
+    const normCat = (selectedCategory || '').toLowerCase().trim();
+    if (normCat === 'tools and upskills' || normCat === 'tools & upskills') {
+      return true;
+    }
+
+    if (selectedProgram) {
+      const matched = courses.find(
+        (c) =>
+          c.title.toLowerCase() === selectedProgram.toLowerCase() ||
+          c.id === selectedProgram ||
+          c.slug === selectedProgram
+      );
+      if (matched) {
+        const matchCat = (matched.category || '').toLowerCase().trim();
+        const matchCategories = (matched.categories || []).map((cat) => cat.toLowerCase().trim());
+        if (
+          matchCat === 'tools and upskills' ||
+          matchCat === 'tools & upskills' ||
+          (normCat.includes('tools') && matchCategories.some((c) => c.includes('tools')))
+        ) {
+          return true;
+        }
+      }
+    }
+    return false;
+  })();
+
+  if (isToolsAndUpskills) {
+    return (
+      <ToolsUpskillsEnquiryModal
+        isOpen={isEnquiryModalOpen}
+        onClose={closeEnquiryModal}
+        programTitle={selectedProgram}
+        courseId={selectedCourseId}
+        category="Tools & Upskills"
+      />
+    );
+  }
+
+  return (
+    <StandardEnquiryModal
+      isOpen={isEnquiryModalOpen}
+      onClose={closeEnquiryModal}
+      selectedProgram={selectedProgram}
+    />
+  );
+};
+
