@@ -80,7 +80,7 @@ export const Footer: React.FC = () => {
             <ul className="space-y-2 text-xs">
               <li>
                 <Link to="/courses/advanced-executive-program-data-science-ai" className="hover:text-purple-600 transition-colors">
-                  Advance Executive in Data Science & AI
+                  Advance Executive in Data Science and AI
                 </Link>
               </li>
               <li>

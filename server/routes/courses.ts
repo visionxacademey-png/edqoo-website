@@ -38,15 +38,80 @@ function safeJsonParse<T>(val: any, fallback: T): T {
   return val || fallback;
 }
 
+function normalizeCategoryName(cat: string | null | undefined): string {
+  if (!cat) return '';
+  const trimmed = cat.trim();
+  const lower = trimmed.toLowerCase();
+
+  if (
+    lower === 'ds & ai' ||
+    lower === 'ds and ai' ||
+    lower === 'data science & ai' ||
+    lower === 'data science and ai' ||
+    lower === 'ds &amp; ai' ||
+    lower === 'ds/ai' ||
+    lower === 'ds-ai'
+  ) {
+    return 'Data Science and AI';
+  }
+
+  if (
+    lower === 'da & ai' ||
+    lower === 'da and ai' ||
+    lower === 'data analytics & ai' ||
+    lower === 'data analytics and ai' ||
+    lower === 'da &amp; ai' ||
+    lower === 'da/ai' ||
+    lower === 'da-ai'
+  ) {
+    return 'Data Analytics and AI';
+  }
+
+  if (
+    lower === 'ai & ml' ||
+    lower === 'ai and ml' ||
+    lower === 'ai & machine learning' ||
+    lower === 'ai and machine learning' ||
+    lower === 'ai &amp; ml' ||
+    lower === 'ai/ml' ||
+    lower === 'ai-ml'
+  ) {
+    return 'AI and Machine Learning';
+  }
+
+  if (
+    lower === 'tools & upskills' ||
+    lower === 'tools and upskills' ||
+    lower === 'tools &amp; upskills' ||
+    lower.includes('tools')
+  ) {
+    return 'Tools and Upskills';
+  }
+
+  return trimmed;
+}
+
 // Format DB Row to Course Object
 function formatCourseRow(row: any): Course {
-  const categories = safeJsonParse<string[]>(row.categories, [row.category]);
+  const rawCategories = safeJsonParse<string[]>(row.categories, [row.category]);
+  const categoriesList = Array.isArray(rawCategories) && rawCategories.length > 0 ? rawCategories : [row.category];
+  const normalizedCategory = normalizeCategoryName(row.category) || 'Tools and Upskills';
+  const normalizedCategories = Array.from(new Set(categoriesList.map(normalizeCategoryName).filter(Boolean)));
+
+  const rawTech = safeJsonParse<any[]>(row.technology_stack, []);
+  const normalizedTech = Array.isArray(rawTech)
+    ? rawTech.map((item) => ({
+        ...item,
+        category: normalizeCategoryName(item?.category)
+      }))
+    : rawTech;
+
   return {
     id: row.id,
     slug: row.slug,
     title: row.title,
-    category: row.category,
-    categories: Array.isArray(categories) && categories.length > 0 ? categories : [row.category],
+    category: normalizedCategory,
+    categories: normalizedCategories.length > 0 ? normalizedCategories : [normalizedCategory],
     shortDescription: row.short_description || undefined,
     description: row.description || '',
     image: row.image,
@@ -63,7 +128,7 @@ function formatCourseRow(row: any): Course {
     skills: safeJsonParse<string[]>(row.skills, []),
     curriculum: safeJsonParse<any[]>(row.curriculum, []),
     modules: safeJsonParse<any[]>(row.modules, []),
-    technologyStack: safeJsonParse<any>(row.technology_stack, []),
+    technologyStack: normalizedTech,
     projects: safeJsonParse<string[]>(row.projects, []),
     careerReadiness: safeJsonParse<string[]>(row.career_readiness, []),
     outcome: row.outcome || undefined,

@@ -11,6 +11,7 @@ import {
   RefreshCw
 } from 'lucide-react';
 import { enquiryService } from '../../services/enquiryService';
+import { normalizeCategoryName } from '../../data/courses';
 import type { Enquiry, EnquiryStatus } from '../../types';
 
 export const AdminLeads: React.FC = () => {
@@ -233,7 +234,7 @@ export const AdminLeads: React.FC = () => {
                             </span>
                           ) : (
                             <span className="inline-block px-1.5 py-0.5 text-[9px] font-medium rounded bg-slate-800 text-slate-400">
-                              {lead.category || 'General Track'}
+                              {lead.category ? normalizeCategoryName(lead.category) : 'General Track'}
                             </span>
                           )}
                           {lead.apaarId && (
@@ -326,7 +327,7 @@ export const AdminLeads: React.FC = () => {
                   </h3>
                   {activeLead.category && (
                     <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-purple-950 text-purple-300 border border-purple-800">
-                      {activeLead.category}
+                      {normalizeCategoryName(activeLead.category)}
                     </span>
                   )}
                   {activeLead.leadStatus === 'Incomplete' && (

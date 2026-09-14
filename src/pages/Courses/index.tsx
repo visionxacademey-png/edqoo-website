@@ -15,7 +15,7 @@ import {
   Cpu,
   Wrench
 } from 'lucide-react';
-import { courses as defaultCourses, filterCoursesByCategory, searchCourses } from '../../data/courses';
+import { courses as defaultCourses, filterCoursesByCategory, searchCourses, normalizeCategoryName } from '../../data/courses';
 import { courseService } from '../../services/courseService';
 import type { Course } from '../../types';
 import { SEO } from '../../components/common/SEO';
@@ -261,18 +261,21 @@ export const Courses: React.FC = () => {
                           loading="lazy"
                         />
                         <div className="absolute top-3 left-3 flex flex-wrap gap-1 max-w-[70%]">
-                          {(course.categories || [course.category]).map((cat) => (
-                            <span
-                              key={cat}
-                              className={`px-2 py-0.5 text-[10px] font-bold rounded-md uppercase tracking-wider backdrop-blur-xs border ${
-                                cat === 'Tools and Upskills'
-                                  ? 'bg-emerald-50/90 border-emerald-300 text-emerald-800'
-                                  : 'bg-purple-50/90 border-purple-300 text-purple-800'
-                              }`}
-                            >
-                              {cat}
-                            </span>
-                          ))}
+                          {(course.categories || [course.category]).map((rawCat) => {
+                            const cat = normalizeCategoryName(rawCat);
+                            return (
+                              <span
+                                key={cat}
+                                className={`px-2 py-0.5 text-[10px] font-bold rounded-md uppercase tracking-wider backdrop-blur-xs border ${
+                                  cat === 'Tools and Upskills'
+                                    ? 'bg-emerald-50/90 border-emerald-300 text-emerald-800'
+                                    : 'bg-purple-50/90 border-purple-300 text-purple-800'
+                                }`}
+                              >
+                                {cat}
+                              </span>
+                            );
+                          })}
                         </div>
                         
                         {course.liveHours && (

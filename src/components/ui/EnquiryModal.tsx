@@ -19,7 +19,7 @@ import {
   Clock,
   Radio
 } from 'lucide-react';
-import { courses } from '../../data/courses';
+import { courses, normalizeCategoryName } from '../../data/courses';
 import { enquiryService } from '../../services/enquiryService';
 import { useEnquiry } from '../../context/EnquiryContext';
 import { useAuth } from '../../context/AuthContext';
@@ -294,7 +294,7 @@ const StandardEnquiryModal: React.FC<StandardEnquiryModalProps> = ({
                           <option value="">Select a Program</option>
                           {courses.map((c) => (
                             <option key={c.id} value={c.title}>
-                              {c.title} ({c.category})
+                              {c.title} ({normalizeCategoryName(c.category)})
                             </option>
                           ))}
                           <option value="General Guidance / Multiple Programs">General Guidance / Multiple Programs</option>

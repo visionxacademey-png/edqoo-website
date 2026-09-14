@@ -66,7 +66,7 @@ export const AdminCourseForm: React.FC = () => {
   const [skillInput, setSkillInput] = useState('');
 
   const [whoIsItFor, setWhoIsItFor] = useState<string[]>([
-    'Students & working professionals aspiring for Data Science & AI careers',
+    'Students & working professionals aspiring for Data Science and AI careers',
     'Software engineers transitioning into AI and machine learning architecture'
   ]);
   const [whoInput, setWhoInput] = useState('');

@@ -20,7 +20,7 @@ import {
   CheckCircle,
   Video
 } from 'lucide-react';
-import { courses as defaultCourses, COMMON_PROGRAM_FEATURES } from '../../data/courses';
+import { courses as defaultCourses, COMMON_PROGRAM_FEATURES, normalizeCategoryName } from '../../data/courses';
 import { courseService } from '../../services/courseService';
 import type { Course, TechStackGroup } from '../../types';
 import { Accordion } from '../../components/ui/Accordion';
@@ -68,7 +68,9 @@ export const CourseDetails: React.FC = () => {
     );
   }
 
-  const assignedCategories = course.categories || [course.category];
+  const assignedCategories = Array.from(
+    new Set((course.categories || [course.category]).map(normalizeCategoryName).filter(Boolean))
+  );
   const programFeatures = course.features && course.features.length > 0 ? course.features : COMMON_PROGRAM_FEATURES;
 
   // Curriculum accordion data

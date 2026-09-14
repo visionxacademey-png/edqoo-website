@@ -1,4 +1,4 @@
-import type { Course, CurriculumSection, Module } from '../types/index.js';
+import type { Course, CurriculumSection, Module, TechStackGroup } from '../types/index.js';
 
 // =============================================================================
 // GLOBAL REUSABLE FEATURE LIST (Mandatory 15 Common Features for all Courses)
@@ -30,6 +30,99 @@ export const PROGRAM_CATEGORIES = [
 ] as const;
 
 export type ProgramCategory = typeof PROGRAM_CATEGORIES[number];
+
+/**
+ * Universal category name normalizer.
+ * Maps any legacy abbreviation, variant, or partial string to the exact official full name.
+ */
+export function normalizeCategoryName(cat: string | null | undefined): string {
+  if (!cat) return '';
+  const trimmed = cat.trim();
+  const lower = trimmed.toLowerCase();
+
+  if (
+    lower === 'ds & ai' ||
+    lower === 'ds and ai' ||
+    lower === 'data science & ai' ||
+    lower === 'data science and ai' ||
+    lower === 'ds &amp; ai' ||
+    lower === 'ds/ai' ||
+    lower === 'ds-ai'
+  ) {
+    return 'Data Science and AI';
+  }
+
+  if (
+    lower === 'da & ai' ||
+    lower === 'da and ai' ||
+    lower === 'data analytics & ai' ||
+    lower === 'data analytics and ai' ||
+    lower === 'da &amp; ai' ||
+    lower === 'da/ai' ||
+    lower === 'da-ai'
+  ) {
+    return 'Data Analytics and AI';
+  }
+
+  if (
+    lower === 'ai & ml' ||
+    lower === 'ai and ml' ||
+    lower === 'ai & machine learning' ||
+    lower === 'ai and machine learning' ||
+    lower === 'ai &amp; ml' ||
+    lower === 'ai/ml' ||
+    lower === 'ai-ml'
+  ) {
+    return 'AI and Machine Learning';
+  }
+
+  if (
+    lower === 'tools & upskills' ||
+    lower === 'tools and upskills' ||
+    lower === 'tools &amp; upskills' ||
+    lower.includes('tools')
+  ) {
+    return 'Tools and Upskills';
+  }
+
+  return trimmed;
+}
+
+/**
+ * Ensures any course object has its category and categories array fully normalized to the official standard.
+ */
+export function normalizeCourseCategories(course: Course): Course {
+  if (!course) return course;
+  const normalizedCategory = normalizeCategoryName(course.category) || 'Tools and Upskills';
+  const rawCategories = Array.isArray(course.categories) && course.categories.length > 0
+    ? course.categories
+    : [course.category];
+  const normalizedCategories = Array.from(
+    new Set(rawCategories.map(normalizeCategoryName).filter(Boolean))
+  );
+
+  const rawTech = course.technologyStack;
+  let normalizedTech: Course['technologyStack'] = rawTech;
+  if (
+    Array.isArray(rawTech) &&
+    rawTech.length > 0 &&
+    typeof rawTech[0] === 'object' &&
+    rawTech[0] !== null &&
+    'category' in rawTech[0]
+  ) {
+    normalizedTech = (rawTech as TechStackGroup[]).map((item) => ({
+      ...item,
+      category: normalizeCategoryName(item.category)
+    }));
+  }
+
+  return {
+    ...course,
+    category: normalizedCategory,
+    categories: normalizedCategories.length > 0 ? normalizedCategories : [normalizedCategory],
+    technologyStack: normalizedTech
+  };
+}
 
 // Helper to convert curriculum sections to backward-compatible module format
 function curriculumToModules(sections: CurriculumSection[]): Module[] {
@@ -662,7 +755,7 @@ export const courses: Course[] = [
     modules: curriculumToModules(advancedDataScienceAndAiCurriculum),
     technologyStack: [
       { category: 'Languages & Libraries', skills: ['Python', 'SQL', 'NumPy', 'Pandas', 'Matplotlib', 'Seaborn'] },
-      { category: 'AI & Machine Learning', skills: ['Scikit-learn', 'TensorFlow', 'Keras', 'PyTorch', 'XGBoost'] },
+      { category: 'AI and Machine Learning', skills: ['Scikit-learn', 'TensorFlow', 'Keras', 'PyTorch', 'XGBoost'] },
       { category: 'Business Intelligence', skills: ['Power BI', 'Power Query', 'DAX', 'Time Intelligence'] },
       { category: 'Cloud & Big Data', skills: ['Microsoft Azure', 'Azure Data Factory', 'Apache Spark', 'Linux'] },
       { category: 'Deployment & MLOps', skills: ['Git', 'MLOps', 'Docker', 'CI/CD Pipelines', 'Model Deployment'] }
@@ -706,7 +799,7 @@ export const courses: Course[] = [
   {
     id: 'executive-professional-certificate-data-science-ai',
     slug: 'executive-professional-certificate-data-science-ai',
-    title: 'Executive Professional Certificate in Data Science & AI',
+    title: 'Executive Professional Certificate in Data Science and AI',
     category: 'Data Science and AI',
     categories: ['Data Science and AI'],
     shortDescription: 'Build practical expertise across Data Science, AI, Machine Learning, BI, Cloud and MLOps through hands-on industry labs.',
@@ -1171,10 +1264,17 @@ export function filterCoursesByCategory(courseList: Course[], category: string):
   if (!category || category === 'all' || category === 'All Categories') {
     return courseList;
   }
-  const target = category.toLowerCase().trim();
-  return courseList.filter((c) =>
-    (c.categories || [c.category]).some((cat) => cat.toLowerCase().trim() === target)
-  );
+  const normalizedTarget = normalizeCategoryName(category).toLowerCase();
+  const rawTarget = category.toLowerCase().trim();
+
+  return courseList.filter((c) => {
+    const rawCategories = c.categories || [c.category];
+    return rawCategories.some((cat) => {
+      const norm = normalizeCategoryName(cat).toLowerCase();
+      const raw = (cat || '').toLowerCase().trim();
+      return norm === normalizedTarget || raw === rawTarget || raw === normalizedTarget || norm === rawTarget;
+    });
+  });
 }
 
 /**

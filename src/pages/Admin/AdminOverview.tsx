@@ -17,6 +17,7 @@ import {
 } from 'lucide-react';
 import { adminService } from '../../services/adminService';
 import { courseService } from '../../services/courseService';
+import { normalizeCategoryName } from '../../data/courses';
 import type { AdminStats, DbStatus, UserSession, Course } from '../../types';
 
 export const AdminOverview: React.FC = () => {
@@ -395,7 +396,7 @@ export const AdminOverview: React.FC = () => {
                       <div className="overflow-hidden">
                         <span className="text-xs font-bold text-white truncate block">{course.title}</span>
                         <div className="flex items-center gap-2 text-[10px] text-slate-400 mt-0.5">
-                          <span className="text-purple-400 font-semibold">{course.category}</span>
+                          <span className="text-purple-400 font-semibold">{normalizeCategoryName(course.category)}</span>
                           <span>•</span>
                           <span>₹{course.price.toLocaleString('en-IN')}</span>
                         </div>

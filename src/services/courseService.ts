@@ -2,7 +2,8 @@ import api from './api';
 import {
   courses as defaultCourses,
   filterCoursesByCategory,
-  searchCourses
+  searchCourses,
+  normalizeCourseCategories
 } from '../data/courses';
 import type { Course } from '../types';
 
@@ -26,10 +27,11 @@ export const courseService = {
       const queryString = searchParams.toString();
       const url = queryString ? `/courses?${queryString}` : '/courses';
       const response = await api.get(url);
-      return response.data;
+      const rawData: Course[] = Array.isArray(response.data) ? response.data : [];
+      return rawData.map(normalizeCourseCategories);
     } catch (error) {
       console.warn('Backend unavailable, returning client fallback courses.', error);
-      let result = [...defaultCourses];
+      let result = defaultCourses.map(normalizeCourseCategories);
 
       if (params?.category && params.category !== 'all' && params.category !== 'All Categories') {
         result = filterCoursesByCategory(result, params.category);
@@ -51,25 +53,32 @@ export const courseService = {
   getCourseBySlug: async (slug: string): Promise<Course | null> => {
     try {
       const response = await api.get(`/courses/${slug}`);
-      return response.data;
+      if (!response.data) return null;
+      return normalizeCourseCategories(response.data);
     } catch (error) {
       console.warn(`Backend unavailable, searching client fallback courses for: ${slug}`, error);
       const normalizedSlug = SLUG_ALIASES[slug] || slug;
       const course = defaultCourses.find(
         (c) => c.slug === normalizedSlug || c.id === normalizedSlug || c.slug === slug || c.id === slug
       );
-      return course || null;
+      return course ? normalizeCourseCategories(course) : null;
     }
   },
 
   createCourse: async (courseData: Partial<Course>): Promise<{ success: boolean; course: Course }> => {
     const response = await api.post('/courses', courseData);
-    return response.data;
+    return {
+      ...response.data,
+      course: response.data.course ? normalizeCourseCategories(response.data.course) : response.data.course
+    };
   },
 
   updateCourse: async (id: string, courseData: Partial<Course>): Promise<{ success: boolean; course: Course }> => {
     const response = await api.put(`/courses/${id}`, courseData);
-    return response.data;
+    return {
+      ...response.data,
+      course: response.data.course ? normalizeCourseCategories(response.data.course) : response.data.course
+    };
   },
 
   deleteCourse: async (id: string): Promise<{ success: boolean; message: string }> => {

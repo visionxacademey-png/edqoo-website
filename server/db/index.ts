@@ -536,13 +536,27 @@ export async function initDb() {
       ON CONFLICT (email) DO NOTHING;
     `, [studentPasswordHash]).catch((e) => console.warn('Enquiry user sync note:', e.message));
 
-    // Check if courses exist in NeonDB, seed or update courses catalog only if empty or missing
-    const courseCountRes = await pool.query('SELECT COUNT(*) FROM courses').catch(() => ({ rows: [{ count: '0' }] }));
-    const existingCount = parseInt(courseCountRes.rows[0]?.count || '0', 10);
-    
-    if (existingCount < initialCourses.length) {
-      console.log('📚 [DB] Synchronizing course catalog into NeonDB...');
-      for (const course of initialCourses) {
+    // Ensure all legacy categories in database are updated to new global standards
+    await pool.query(`
+      UPDATE courses SET category = 'Data Science and AI' WHERE category IN ('DS & AI', 'Data Science & AI', 'DS and AI');
+      UPDATE courses SET category = 'Data Analytics and AI' WHERE category IN ('DA & AI', 'Data Analytics & AI', 'DA and AI');
+      UPDATE courses SET category = 'AI and Machine Learning' WHERE category IN ('AI & ML', 'AI & Machine Learning', 'AI and ML');
+
+      UPDATE courses SET categories = REPLACE(categories::text, '"DS & AI"', '"Data Science and AI"')::json WHERE categories::text LIKE '%"DS & AI"%';
+      UPDATE courses SET categories = REPLACE(categories::text, '"Data Science & AI"', '"Data Science and AI"')::json WHERE categories::text LIKE '%"Data Science & AI"%';
+      UPDATE courses SET categories = REPLACE(categories::text, '"DA & AI"', '"Data Analytics and AI"')::json WHERE categories::text LIKE '%"DA & AI"%';
+      UPDATE courses SET categories = REPLACE(categories::text, '"Data Analytics & AI"', '"Data Analytics and AI"')::json WHERE categories::text LIKE '%"Data Analytics & AI"%';
+      UPDATE courses SET categories = REPLACE(categories::text, '"AI & ML"', '"AI and Machine Learning"')::json WHERE categories::text LIKE '%"AI & ML"%';
+      UPDATE courses SET categories = REPLACE(categories::text, '"AI & Machine Learning"', '"AI and Machine Learning"')::json WHERE categories::text LIKE '%"AI & Machine Learning"%';
+
+      UPDATE enquiries SET category = 'Data Science and AI' WHERE category IN ('DS & AI', 'Data Science & AI', 'DS and AI');
+      UPDATE enquiries SET category = 'Data Analytics and AI' WHERE category IN ('DA & AI', 'Data Analytics & AI', 'DA and AI');
+      UPDATE enquiries SET category = 'AI and Machine Learning' WHERE category IN ('AI & ML', 'AI & Machine Learning', 'AI and ML');
+    `).catch((err) => console.warn('[DB] Category migration notice:', err.message));
+
+    // Synchronize full course catalog with exact global category names into NeonDB
+    console.log('📚 [DB] Synchronizing course catalog into NeonDB...');
+    for (const course of initialCourses) {
       await pool.query(
         `INSERT INTO courses (
           id, slug, title, category, categories, short_description, description, image, price, original_price,
@@ -611,7 +625,6 @@ export async function initDb() {
       );
     }
     console.log(`✅ [DB] Synced ${initialCourses.length} courses into NeonDB.`);
-    }
   } catch (err: any) {
     console.error('⚠️ [DB] NeonDB connection or migration error:', err.message);
     isNeonConnected = false;

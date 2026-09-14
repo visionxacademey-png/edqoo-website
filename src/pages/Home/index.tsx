@@ -23,7 +23,7 @@ import {
   BarChart3,
   Cpu
 } from 'lucide-react';
-import { courses, filterCoursesByCategory } from '../../data/courses';
+import { courses, filterCoursesByCategory, normalizeCategoryName } from '../../data/courses';
 import { SEO } from '../../components/common/SEO';
 import { useEnquiry } from '../../context/EnquiryContext';
 
@@ -44,11 +44,11 @@ const heroSlides = [
   },
   {
     id: 'slide-2',
-    launchBadge: 'Advanced Executive Program in Data Science & AI',
+    launchBadge: 'Advanced Executive Program in Data Science and AI',
     accentLine: 'Engineer Real AI.',
     mainLine: 'Deploy Predictive Models & GenAI from Day 1',
     pills: ['Python & PyTorch', 'LLMs & RAG Architectures', '1:1 Mentor Reviews'],
-    primaryCta: 'View Data Science & AI',
+    primaryCta: 'View Data Science and AI',
     primaryLink: '/courses/advanced-executive-program-data-science-ai',
     secondaryCta: 'Request Syllabus',
     image: 'https://images.unsplash.com/photo-1551288049-bebda4e38f71?q=80&w=1600&auto=format&fit=crop',
@@ -57,7 +57,7 @@ const heroSlides = [
   },
   {
     id: 'slide-3',
-    launchBadge: 'Executive Professional Certificate in Data Science & AI',
+    launchBadge: 'Executive Professional Certificate in Data Science and AI',
     accentLine: 'Master Modern AI.',
     mainLine: 'Build Deep Neural Networks & Autonomous Agents',
     pills: ['Computer Vision', 'Transformers & NLP', 'MLOps Serving'],
@@ -588,18 +588,21 @@ export const Home: React.FC = () => {
                           loading="lazy"
                         />
                         <div className="absolute top-3 left-3 flex flex-wrap gap-1 max-w-[70%]">
-                          {(course.categories || [course.category]).map((cat) => (
-                            <span
-                              key={cat}
-                              className={`px-2 py-0.5 text-[10px] font-bold rounded-md uppercase tracking-wider backdrop-blur-xs border ${
-                                cat === 'Tools and Upskills'
-                                  ? 'bg-emerald-50/90 border-emerald-300 text-emerald-800'
-                                  : 'bg-purple-50/90 border-purple-300 text-purple-800'
-                              }`}
-                            >
-                              {cat}
-                            </span>
-                          ))}
+                          {(course.categories || [course.category]).map((rawCat) => {
+                            const cat = normalizeCategoryName(rawCat);
+                            return (
+                              <span
+                                key={cat}
+                                className={`px-2 py-0.5 text-[10px] font-bold rounded-md uppercase tracking-wider backdrop-blur-xs border ${
+                                  cat === 'Tools and Upskills'
+                                    ? 'bg-emerald-50/90 border-emerald-300 text-emerald-800'
+                                    : 'bg-purple-50/90 border-purple-300 text-purple-800'
+                                }`}
+                              >
+                                {cat}
+                              </span>
+                            );
+                          })}
                         </div>
 
                         {course.liveHours && (

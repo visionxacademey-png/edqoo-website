@@ -14,6 +14,7 @@ import {
   RefreshCw
 } from 'lucide-react';
 import { courseService } from '../../services/courseService';
+import { PROGRAM_CATEGORIES, normalizeCategoryName } from '../../data/courses';
 import type { Course } from '../../types';
 
 export const AdminCourses: React.FC = () => {
@@ -89,7 +90,7 @@ export const AdminCourses: React.FC = () => {
     }
   };
 
-  const availableCategories = ['Data Science and AI', 'Data Analytics and AI', 'AI and Machine Learning', 'Tools and Upskills'];
+  const availableCategories = [...PROGRAM_CATEGORIES];
 
   const filteredCourses = courses.filter((c) => {
     const term = searchTerm.toLowerCase();
@@ -261,11 +262,14 @@ export const AdminCourses: React.FC = () => {
                     {/* Category Badges */}
                     <td className="py-3.5 px-4">
                       <div className="flex flex-wrap gap-1">
-                        {(course.categories || [course.category]).map((cat) => (
-                          <span key={cat} className="px-2 py-0.5 rounded text-[10px] font-bold bg-slate-800 text-purple-300 border border-purple-900/50">
-                            {cat}
-                          </span>
-                        ))}
+                        {(course.categories || [course.category]).map((rawCat) => {
+                          const cat = normalizeCategoryName(rawCat);
+                          return (
+                            <span key={cat} className="px-2 py-0.5 rounded text-[10px] font-bold bg-slate-800 text-purple-300 border border-purple-900/50">
+                              {cat}
+                            </span>
+                          );
+                        })}
                       </div>
                     </td>
 
