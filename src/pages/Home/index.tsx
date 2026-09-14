@@ -61,7 +61,7 @@ const heroSlides = [
     accentLine: 'Master Modern AI.',
     mainLine: 'Build Deep Neural Networks & Autonomous Agents',
     pills: ['Computer Vision', 'Transformers & NLP', 'MLOps Serving'],
-    primaryCta: 'View AI & ML Track',
+    primaryCta: 'View AI and Machine Learning Track',
     primaryLink: '/courses/executive-professional-certificate-data-science-ai',
     secondaryCta: 'Book Advisory Call',
     image: 'https://images.unsplash.com/photo-1531482615713-2afd69097998?q=80&w=1600&auto=format&fit=crop',
@@ -86,9 +86,9 @@ const heroSlides = [
 // Clean category navigation with the 5 exact category tracks
 const categoryNav = [
   { id: 'all', label: 'All Categories', count: courses.length, icon: Layers },
-  { id: 'DS & AI', label: 'DS & AI', count: filterCoursesByCategory(courses, 'DS & AI').length, icon: Brain },
-  { id: 'DA & AI', label: 'DA & AI', count: filterCoursesByCategory(courses, 'DA & AI').length, icon: BarChart3 },
-  { id: 'AI & ML', label: 'AI & ML', count: filterCoursesByCategory(courses, 'AI & ML').length, icon: Cpu },
+  { id: 'Data Science and AI', label: 'Data Science and AI', count: filterCoursesByCategory(courses, 'Data Science and AI').length, icon: Brain },
+  { id: 'Data Analytics and AI', label: 'Data Analytics and AI', count: filterCoursesByCategory(courses, 'Data Analytics and AI').length, icon: BarChart3 },
+  { id: 'AI and Machine Learning', label: 'AI and Machine Learning', count: filterCoursesByCategory(courses, 'AI and Machine Learning').length, icon: Cpu },
   { id: 'Tools and Upskills', label: 'Tools and Upskills', count: filterCoursesByCategory(courses, 'Tools and Upskills').length, icon: Wrench }
 ];
 
@@ -480,7 +480,7 @@ export const Home: React.FC = () => {
               Featured Program Tracks & Courses
             </h2>
             <p className="text-slate-500 text-xs sm:text-sm leading-relaxed">
-              Explore specialized program tracks in <strong>DS & AI</strong>, <strong>DA & AI</strong>, <strong>AI & ML</strong>, and intensive <strong>Tools and Upskills</strong>.
+              Explore specialized program tracks in <strong>Data Science and AI</strong>, <strong>Data Analytics and AI</strong>, <strong>AI and Machine Learning</strong>, and intensive <strong>Tools and Upskills</strong>.
             </p>
           </div>
 
@@ -792,7 +792,7 @@ export const Home: React.FC = () => {
       {/* ========================================================================= */}
       {/* 6. "WHY CHOOSE US" / PEDAGOGY */}
       {/* ========================================================================= */}
-      <section className="bg-slate-50 border-b border-slate-200 py-16 sm:py-20">
+      {/* <section className="bg-slate-50 border-b border-slate-200 py-16 sm:py-20">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center max-w-3xl mx-auto mb-12 space-y-2">
             <span className="text-purple-600 text-xs font-extrabold tracking-widest uppercase block">
@@ -844,7 +844,7 @@ export const Home: React.FC = () => {
             })}
           </div>
         </div>
-      </section>
+      </section> */}
 
       {/* ========================================================================= */}
       {/* 7. PROMOTIONAL LEAD BANNER */}

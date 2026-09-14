@@ -75,7 +75,7 @@ export const Footer: React.FC = () => {
           {/* Column 1: Master Programs (2 cols) */}
           <div className="lg:col-span-3 space-y-3">
             <h4 className="font-display font-bold text-slate-950 text-xs uppercase tracking-wider">
-              DS & AI Master Programs
+              Data Science and AI Master Programs
             </h4>
             <ul className="space-y-2 text-xs">
               <li>
@@ -90,7 +90,7 @@ export const Footer: React.FC = () => {
               </li>
               <li>
                 <Link to="/courses/advanced-executive-program-data-science-ai-machine-learning" className="hover:text-purple-600 transition-colors">
-                  Advance Executive in AI & ML
+                  Advance Executive in AI and Machine Learning
                 </Link>
               </li>
               <li>

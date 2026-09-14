@@ -89,7 +89,7 @@ export const AdminCourses: React.FC = () => {
     }
   };
 
-  const availableCategories = ['DS & AI', 'DA & AI', 'AI & ML', 'Tools and Upskills'];
+  const availableCategories = ['Data Science and AI', 'Data Analytics and AI', 'AI and Machine Learning', 'Tools and Upskills'];
 
   const filteredCourses = courses.filter((c) => {
     const term = searchTerm.toLowerCase();

@@ -80,9 +80,9 @@ export const Courses: React.FC = () => {
 
   const categoryTabs = [
     { id: 'all', label: 'All Categories', count: courseList.length, icon: Layers },
-    { id: 'DS & AI', label: 'DS & AI', count: filterCoursesByCategory(courseList, 'DS & AI').length, icon: Brain },
-    { id: 'DA & AI', label: 'DA & AI', count: filterCoursesByCategory(courseList, 'DA & AI').length, icon: BarChart3 },
-    { id: 'AI & ML', label: 'AI & ML', count: filterCoursesByCategory(courseList, 'AI & ML').length, icon: Cpu },
+    { id: 'Data Science and AI', label: 'Data Science and AI', count: filterCoursesByCategory(courseList, 'Data Science and AI').length, icon: Brain },
+    { id: 'Data Analytics and AI', label: 'Data Analytics and AI', count: filterCoursesByCategory(courseList, 'Data Analytics and AI').length, icon: BarChart3 },
+    { id: 'AI and Machine Learning', label: 'AI and Machine Learning', count: filterCoursesByCategory(courseList, 'AI and Machine Learning').length, icon: Cpu },
     { id: 'Tools and Upskills', label: 'Tools and Upskills', count: filterCoursesByCategory(courseList, 'Tools and Upskills').length, icon: Wrench }
   ];
 
@@ -104,7 +104,7 @@ export const Courses: React.FC = () => {
             Explore All Programs & Upskilling Tracks
           </h1>
           <p className="text-slate-500 text-xs sm:text-sm max-w-2xl">
-            Discover comprehensive career tracks across <strong>DS & AI</strong>, <strong>DA & AI</strong>, <strong>AI & ML</strong>, and executive <strong>Tools and Upskills</strong>. Submit an enquiry to connect with our admissions counseling team.
+            Discover comprehensive career tracks across <strong>Data Science and AI</strong>, <strong>Data Analytics and AI</strong>, <strong>AI and Machine Learning</strong>, and executive <strong>Tools and Upskills</strong>. Submit an enquiry to connect with our admissions counseling team.
           </p>
         </div>
 
@@ -184,9 +184,9 @@ export const Courses: React.FC = () => {
                 className="w-full px-3 py-2 bg-slate-50 border border-slate-200 text-xs text-slate-900 rounded-lg focus:outline-none focus:bg-white focus:border-purple-600"
               >
                 <option value="all">All Categories</option>
-                <option value="DS & AI">DS & AI</option>
-                <option value="DA & AI">DA & AI</option>
-                <option value="AI & ML">AI & ML</option>
+                <option value="Data Science and AI">Data Science and AI</option>
+                <option value="Data Analytics and AI">Data Analytics and AI</option>
+                <option value="AI and Machine Learning">AI and Machine Learning</option>
                 <option value="Tools and Upskills">Tools and Upskills</option>
               </select>
             </div>
