@@ -85,11 +85,11 @@ const heroSlides = [
 
 // Clean category navigation with the 5 exact category tracks
 const categoryNav = [
-  { id: 'all', label: 'All Categories', count: courses.length, icon: Layers },
-  { id: 'Data Science and AI', label: 'Data Science and AI', count: filterCoursesByCategory(courses, 'Data Science and AI').length, icon: Brain },
-  { id: 'Data Analytics and AI', label: 'Data Analytics and AI', count: filterCoursesByCategory(courses, 'Data Analytics and AI').length, icon: BarChart3 },
-  { id: 'AI and Machine Learning', label: 'AI and Machine Learning', count: filterCoursesByCategory(courses, 'AI and Machine Learning').length, icon: Cpu },
-  { id: 'Tools and Upskills', label: 'Tools and Upskills', count: filterCoursesByCategory(courses, 'Tools and Upskills').length, icon: Wrench }
+  { id: 'all', label: 'All Categories', icon: Layers },
+  { id: 'Data Science and AI', label: 'Data Science and AI', icon: Brain },
+  { id: 'Data Analytics and AI', label: 'Data Analytics and AI', icon: BarChart3 },
+  { id: 'AI and Machine Learning', label: 'AI and Machine Learning', icon: Cpu },
+  { id: 'Tools and Upskills', label: 'Tools and Upskills', icon: Wrench }
 ];
 
 // Key Highlights data structured into the recommended groups
@@ -502,21 +502,14 @@ export const Home: React.FC = () => {
                     <button
                       key={cat.id}
                       onClick={() => setSelectedCategory(cat.id)}
-                      className={`w-full flex items-center justify-between px-3.5 py-3 text-xs font-bold rounded-xl transition-all text-left cursor-pointer ${
+                      className={`w-full flex items-center gap-2.5 px-3.5 py-3 text-xs font-bold rounded-xl transition-all text-left cursor-pointer ${
                         isActive
                           ? 'bg-purple-600 text-white shadow-sm'
                           : 'text-slate-700 hover:bg-white hover:text-purple-600'
                       }`}
                     >
-                      <span className="flex items-center gap-2.5">
-                        <IconComponent className={`w-4 h-4 ${isActive ? 'text-white' : 'text-slate-500'}`} />
-                        <span>{cat.label}</span>
-                      </span>
-                      <span className={`text-[10px] px-2 py-0.5 rounded-full font-extrabold ${
-                        isActive ? 'bg-white/20 text-white' : 'bg-slate-200 text-slate-700'
-                      }`}>
-                        {cat.count}
-                      </span>
+                      <IconComponent className={`w-4 h-4 ${isActive ? 'text-white' : 'text-slate-500'}`} />
+                      <span>{cat.label}</span>
                     </button>
                   );
                 })}
@@ -551,11 +544,6 @@ export const Home: React.FC = () => {
                   >
                     <IconComponent className="w-3.5 h-3.5" />
                     <span>{cat.label}</span>
-                    <span className={`text-[10px] px-1.5 py-0.2 rounded-full font-bold ${
-                      isActive ? 'bg-white/20 text-white' : 'bg-slate-100 text-slate-600'
-                    }`}>
-                      {cat.count}
-                    </span>
                   </button>
                 );
               })}

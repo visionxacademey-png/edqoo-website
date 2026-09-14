@@ -79,11 +79,11 @@ export const Courses: React.FC = () => {
   }, [courseList, searchTerm, selectedCategory, selectedLevel, sortBy]);
 
   const categoryTabs = [
-    { id: 'all', label: 'All Categories', count: courseList.length, icon: Layers },
-    { id: 'Data Science and AI', label: 'Data Science and AI', count: filterCoursesByCategory(courseList, 'Data Science and AI').length, icon: Brain },
-    { id: 'Data Analytics and AI', label: 'Data Analytics and AI', count: filterCoursesByCategory(courseList, 'Data Analytics and AI').length, icon: BarChart3 },
-    { id: 'AI and Machine Learning', label: 'AI and Machine Learning', count: filterCoursesByCategory(courseList, 'AI and Machine Learning').length, icon: Cpu },
-    { id: 'Tools and Upskills', label: 'Tools and Upskills', count: filterCoursesByCategory(courseList, 'Tools and Upskills').length, icon: Wrench }
+    { id: 'all', label: 'All Categories', icon: Layers },
+    { id: 'Data Science and AI', label: 'Data Science and AI', icon: Brain },
+    { id: 'Data Analytics and AI', label: 'Data Analytics and AI', icon: BarChart3 },
+    { id: 'AI and Machine Learning', label: 'AI and Machine Learning', icon: Cpu },
+    { id: 'Tools and Upskills', label: 'Tools and Upskills', icon: Wrench }
   ];
 
   return (
@@ -125,11 +125,6 @@ export const Courses: React.FC = () => {
               >
                 <IconComponent className="w-3.5 h-3.5" />
                 <span>{tab.label}</span>
-                <span className={`text-[10px] px-1.5 py-0.2 rounded-full font-extrabold ${
-                  isActive ? 'bg-white/20 text-white' : 'bg-slate-100 text-slate-600'
-                }`}>
-                  {tab.count}
-                </span>
               </button>
             );
           })}
