@@ -1162,7 +1162,7 @@ export const courses: Course[] = [
   // 7. Advance Executive in Power BI (Shared across 4 categories)
   // ---------------------------------------------------------------------------
   {
-    id: 'Power-bi',
+    id: 'advance-executive-power-bi',
     slug: 'advance-executive-power-bi',
     title: 'Power BI',
     category: 'Tools and Upskills',

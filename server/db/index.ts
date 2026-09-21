@@ -16,6 +16,16 @@ const DATABASE_URL = (rawDbUrl && rawDbUrl !== 'YOUR_NEON_DATABASE_URL_HERE') ? 
 let pool: Pool | null = null;
 let isNeonConnected = false;
 let connectionError: string | null = null;
+let lastDbHost: string = 'unknown';
+
+function getMaskedDbHost(url: string): string {
+  try {
+    const parsed = new URL(url.replace(/^postgresql:\/\//, 'http://'));
+    return parsed.hostname || 'neon.tech';
+  } catch {
+    return 'neon.tech';
+  }
+}
 
 // In-Memory Fallback Store for seamless local operation when DATABASE_URL is not set
 export interface MockUser {
@@ -83,13 +93,14 @@ export const getDbStatus = () => ({
   connected: isNeonConnected && pool !== null,
   type: (isNeonConnected && pool !== null) ? 'neondatabase_postgresql' : 'in_memory_fallback',
   databaseUrlConfigured: !!DATABASE_URL && DATABASE_URL !== 'YOUR_NEON_DATABASE_URL_HERE',
+  databaseHost: lastDbHost,
   error: connectionError
 });
 
 let initPromise: Promise<void> | null = null;
 let dbReady = false;
 
-export function ensureDbInitialized() {
+export function ensureDbInitialized(): Promise<void> {
   if (dbReady && isNeonConnected && pool) {
     return Promise.resolve();
   }
@@ -99,7 +110,8 @@ export function ensureDbInitialized() {
         dbReady = true;
       })
       .catch((err) => {
-        console.error('Database initialization error:', err);
+        console.error('⚠️ [DB] Database initialization error:', err?.message || err);
+        // Do not block next request from trying
         initPromise = null;
       });
   }
@@ -112,12 +124,12 @@ if (DATABASE_URL && DATABASE_URL !== 'YOUR_NEON_DATABASE_URL_HERE') {
 }
 
 /**
- * Initializes the Neon PostgreSQL pool and creates required tables
+ * Initializes the Neon PostgreSQL pool and creates/verifies required tables
  */
 export async function initDb() {
-  if (dbReady && isNeonConnected) return;
+  if (dbReady && isNeonConnected && pool) return;
 
-  // Pre-seed mock store with default administrator
+  // Pre-seed mock store with default administrator and student for local memory fallback
   const adminPasswordHash = '$2a$10$tZ8V4K9y6t4X0V1b8G4D4eYd0oV.5YtY3wN2qG6K8mP0uL2rS4t';
   const studentPasswordHash = '$2a$10$tZ8V4K9y6t4X0V1b8G4D4eYd0oV.5YtY3wN2qG6K8mP0uL2rS4t';
 
@@ -186,44 +198,6 @@ export async function initDb() {
         }
       }
     );
-
-    // Initial session for demonstration
-    mockStore.sessions.push({
-      id: 'sess-demo-01',
-      user_id: 'usr-admin-01',
-      email: 'admin@edqoo.com',
-      token_hash: 'init_token_hash_admin',
-      ip_address: '127.0.0.1 (Localhost)',
-      user_agent: 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36',
-      device_id: 'dev-adm-win11-8f2e',
-      device_type: 'Desktop',
-      os: 'Windows',
-      os_version: '11 Pro',
-      browser: 'Google Chrome',
-      browser_version: '122.0.6261.129',
-      device_model: 'Windows Workstation PC',
-      screen_resolution: '1920 × 1080 (1.25x DPR, 24-bit)',
-      language: 'en-IN',
-      timezone: 'Asia/Kolkata (UTC+05:30)',
-      fingerprint: 'fp-8f2e91ca-1b4d',
-      device_info: {
-        deviceId: 'dev-adm-win11-8f2e',
-        deviceType: 'Desktop',
-        os: 'Windows',
-        osVersion: '11 Pro',
-        browser: 'Google Chrome',
-        browserVersion: '122.0.6261.129',
-        deviceModel: 'Windows Workstation PC',
-        screenResolution: '1920 × 1080 (1.25x DPR, 24-bit)',
-        language: 'en-IN',
-        timezone: 'Asia/Kolkata (UTC+05:30)',
-        fingerprint: 'fp-8f2e91ca-1b4d'
-      },
-      is_active: true,
-      created_at: new Date().toISOString(),
-      last_active_at: new Date().toISOString(),
-      expires_at: new Date(Date.now() + 86400000 * 7).toISOString()
-    });
   }
 
   if (!DATABASE_URL || DATABASE_URL === 'YOUR_NEON_DATABASE_URL_HERE') {
@@ -235,8 +209,9 @@ export async function initDb() {
   }
 
   try {
+    lastDbHost = getMaskedDbHost(DATABASE_URL);
     if (!pool) {
-      console.log('⚡ [DB] Connecting to NeonDB PostgreSQL...');
+      console.log(`⚡ [DB] Connecting to NeonDB PostgreSQL host (${lastDbHost})...`);
       pool = new Pool({
         connectionString: DATABASE_URL,
         max: 20,
@@ -245,14 +220,14 @@ export async function initDb() {
       });
     }
 
-    // Test connection
+    // 1. Test database connection
     const testResult = await pool.query('SELECT NOW()');
     isNeonConnected = true;
     connectionError = null;
     dbReady = true;
-    console.log(`✅ [DB] Successfully connected to NeonDB at ${testResult.rows[0].now}`);
+    console.log(`✅ [DB] Successfully connected to NeonDB at ${testResult.rows[0].now} (host: ${lastDbHost})`);
 
-    // Create Tables
+    // 2. Create core tables and safe schema migrations
     await pool.query(`
       CREATE TABLE IF NOT EXISTS users (
         id VARCHAR(100) PRIMARY KEY,
@@ -550,251 +525,177 @@ export async function initDb() {
       );
     `);
 
-    console.log('✅ [DB] NeonDB tables verified / created successfully.');
+    console.log('✅ [DB] NeonDB tables verified successfully.');
 
-    // Check and seed default accounts in NeonDB
-    const adminCheck = await pool.query('SELECT id FROM users WHERE email = $1', ['admin@edqoo.com']);
-    if (adminCheck.rows.length === 0) {
-      await pool.query(
-        `INSERT INTO users (id, name, email, password_hash, phone, avatar, role, is_active, created_at, last_login_at)
-         VALUES ($1, $2, $3, $4, $5, $6, $7, $8, NOW(), NOW())`,
-        [
-          'usr-admin-01',
-          'System Administrator',
-          'admin@edqoo.com',
-          adminPasswordHash,
-          '+91 90744 50935',
-          'https://images.unsplash.com/photo-1534528741775-53994a69daeb?q=80&w=150&auto=format&fit=crop',
-          'admin',
-          true
-        ]
-      );
-      console.log('👑 [DB] Seeded default administrator account: admin@edqoo.com / Admin@123456');
+    // 3. Check and seed default administrator if missing
+    try {
+      const adminCheck = await pool.query('SELECT id FROM users WHERE email = $1', ['admin@edqoo.com']);
+      if (adminCheck.rows.length === 0) {
+        await pool.query(
+          `INSERT INTO users (id, name, email, password_hash, phone, avatar, role, is_active, created_at, last_login_at)
+           VALUES ($1, $2, $3, $4, $5, $6, $7, $8, NOW(), NOW())`,
+          [
+            'usr-admin-01',
+            'System Administrator',
+            'admin@edqoo.com',
+            adminPasswordHash,
+            '+91 90744 50935',
+            'https://images.unsplash.com/photo-1534528741775-53994a69daeb?q=80&w=150&auto=format&fit=crop',
+            'admin',
+            true
+          ]
+        );
+        console.log('👑 [DB] Seeded default administrator account: admin@edqoo.com');
+      }
+    } catch (adminErr: any) {
+      console.warn('Admin seed notice:', adminErr.message);
     }
 
-    // Seed student users in NeonDB
-    const studentCheck = await pool.query('SELECT id FROM users WHERE email = $1', ['alex.student@edqoo.com']);
-    if (studentCheck.rows.length === 0) {
-      await pool.query(
-        `INSERT INTO users (id, name, email, password_hash, phone, avatar, role, is_active, created_at, last_login_at)
-         VALUES 
-          ($1, $2, $3, $4, $5, $6, $7, $8, NOW() - INTERVAL '3 days', NOW() - INTERVAL '20 minutes'),
-          ($9, $10, $11, $12, $13, $14, $15, $16, NOW() - INTERVAL '5 days', NOW() - INTERVAL '2 hours')`,
-        [
-          'usr-student-01',
-          'Alex Morgan',
-          'alex.student@edqoo.com',
-          studentPasswordHash,
-          '+91 98765 43210',
-          'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?q=80&w=150&auto=format&fit=crop',
-          'user',
-          true,
-          'usr-student-02',
-          'Sarah Jenkins',
-          'sarah.j@example.com',
-          studentPasswordHash,
-          '+91 90744 50935',
-          'https://images.unsplash.com/photo-1494790108377-be9c29b29330?q=80&w=150&auto=format&fit=crop',
-          'user',
-          true
-        ]
-      );
-      console.log('🎓 [DB] Seeded demo student accounts into NeonDB');
+    // 4. Check total user count in production database
+    try {
+      const userCountRes = await pool.query('SELECT COUNT(*) FROM users');
+      console.log(`📊 [DB] Total registered production users: ${userCountRes.rows[0].count}`);
+    } catch (countErr: any) {
+      console.warn('User count query notice:', countErr.message);
     }
 
-    // Seed initial active sessions in user_sessions if empty
-    const sessionCount = await pool.query('SELECT COUNT(*) FROM user_sessions WHERE is_active = true');
-    if (parseInt(sessionCount.rows[0].count, 10) === 0) {
-      await pool.query(
-        `INSERT INTO user_sessions (id, user_id, email, token_hash, ip_address, user_agent, is_active, created_at, last_active_at, expires_at)
-         VALUES 
-          ($1, $2, $3, $4, $5, $6, $7, NOW() - INTERVAL '1 hour', NOW() - INTERVAL '5 minutes', NOW() + INTERVAL '7 days'),
-          ($8, $9, $10, $11, $12, $13, $14, NOW() - INTERVAL '3 hours', NOW() - INTERVAL '20 minutes', NOW() + INTERVAL '7 days')`,
-        [
-          'sess-admin-live-01',
-          'usr-admin-01',
-          'admin@edqoo.com',
-          'sess-admin-token-hash',
-          '127.0.0.1 (Admin Console)',
-          'Mozilla/5.0 (Windows NT 10.0; Win64; x64) Chrome/122.0.0.0 Safari/537.36',
-          true,
-          'sess-student-live-02',
-          'usr-student-01',
-          'alex.student@edqoo.com',
-          'sess-student-token-hash',
-          '103.212.144.52 (Web Client)',
-          'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) Safari/605.1.15',
-          true
-        ]
-      );
-      console.log('⚡ [DB] Seeded initial active telemetry sessions into NeonDB');
+    // 5. Safely sync course catalog (non-fatal, resilient to duplicate slugs or minor schema diffs)
+    try {
+      for (const course of initialCourses) {
+        await pool.query(
+          `INSERT INTO courses (
+            id, slug, title, category, categories, short_description, description, image, price, original_price,
+            duration, live_hours, lessons, level, rating, students, status, featured,
+            skills, curriculum, modules, technology_stack, projects, career_readiness, outcome, features, requirements, who_is_it_for, created_at, updated_at
+          ) VALUES (
+            $1, $2, $3, $4, $5, $6, $7, $8, $9, $10,
+            $11, $12, $13, $14, $15, $16, $17, $18,
+            $19, $20, $21, $22, $23, $24, $25, $26, $27, $28, NOW(), NOW()
+          )
+          ON CONFLICT (id) DO UPDATE SET
+            slug = EXCLUDED.slug,
+            title = EXCLUDED.title,
+            category = EXCLUDED.category,
+            categories = EXCLUDED.categories,
+            short_description = EXCLUDED.short_description,
+            description = EXCLUDED.description,
+            image = EXCLUDED.image,
+            price = EXCLUDED.price,
+            original_price = EXCLUDED.original_price,
+            duration = EXCLUDED.duration,
+            live_hours = EXCLUDED.live_hours,
+            lessons = EXCLUDED.lessons,
+            level = EXCLUDED.level,
+            skills = EXCLUDED.skills,
+            curriculum = EXCLUDED.curriculum,
+            modules = EXCLUDED.modules,
+            technology_stack = EXCLUDED.technology_stack,
+            projects = EXCLUDED.projects,
+            career_readiness = EXCLUDED.career_readiness,
+            outcome = EXCLUDED.outcome,
+            features = EXCLUDED.features,
+            requirements = EXCLUDED.requirements,
+            who_is_it_for = EXCLUDED.who_is_it_for,
+            updated_at = NOW()`,
+          [
+            course.id,
+            course.slug,
+            course.title,
+            course.category,
+            JSON.stringify(course.categories || [course.category]),
+            course.shortDescription || null,
+            course.description,
+            course.image,
+            course.price,
+            course.originalPrice,
+            course.duration,
+            course.liveHours || null,
+            course.lessons,
+            course.level,
+            course.rating,
+            course.students,
+            course.status,
+            course.featured,
+            JSON.stringify(course.skills || []),
+            JSON.stringify(course.curriculum || []),
+            JSON.stringify(course.modules || []),
+            JSON.stringify(course.technologyStack || []),
+            JSON.stringify(course.projects || []),
+            JSON.stringify(course.careerReadiness || []),
+            course.outcome || null,
+            JSON.stringify(course.features || []),
+            JSON.stringify(course.requirements || []),
+            JSON.stringify(course.whoIsItFor || [])
+          ]
+        ).catch((courseErr) => {
+          console.warn(`Course sync notice for [${course.id}]:`, courseErr.message);
+        });
+      }
+    } catch (syncErr: any) {
+      console.warn('[DB] Course catalog sync warning (non-fatal):', syncErr.message);
     }
 
-    // Sync any enquired candidates into users table
-    await pool.query(`
-      INSERT INTO users (id, name, email, password_hash, phone, avatar, role, is_active, created_at, last_login_at)
-      SELECT 
-        'usr-enq-' || substr(md5(email), 1, 8),
-        name,
-        LOWER(email),
-        $1,
-        phone,
-        'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?q=80&w=150&auto=format&fit=crop',
-        'user',
-        true,
-        submitted_at,
-        submitted_at
-      FROM enquiries
-      ON CONFLICT (email) DO NOTHING;
-    `, [studentPasswordHash]).catch((e) => console.warn('Enquiry user sync note:', e.message));
-
-    // Ensure all legacy categories in database are updated to new global standards
-    await pool.query(`
-      UPDATE courses SET category = 'Data Science and AI' WHERE category IN ('DS & AI', 'Data Science & AI', 'DS and AI');
-      UPDATE courses SET category = 'Data Analytics and AI' WHERE category IN ('DA & AI', 'Data Analytics & AI', 'DA and AI');
-      UPDATE courses SET category = 'AI and Machine Learning' WHERE category IN ('AI & ML', 'AI & Machine Learning', 'AI and ML');
-
-      UPDATE courses SET categories = REPLACE(categories::text, '"DS & AI"', '"Data Science and AI"')::json WHERE categories::text LIKE '%"DS & AI"%';
-      UPDATE courses SET categories = REPLACE(categories::text, '"Data Science & AI"', '"Data Science and AI"')::json WHERE categories::text LIKE '%"Data Science & AI"%';
-      UPDATE courses SET categories = REPLACE(categories::text, '"DA & AI"', '"Data Analytics and AI"')::json WHERE categories::text LIKE '%"DA & AI"%';
-      UPDATE courses SET categories = REPLACE(categories::text, '"Data Analytics & AI"', '"Data Analytics and AI"')::json WHERE categories::text LIKE '%"Data Analytics & AI"%';
-      UPDATE courses SET categories = REPLACE(categories::text, '"AI & ML"', '"AI and Machine Learning"')::json WHERE categories::text LIKE '%"AI & ML"%';
-      UPDATE courses SET categories = REPLACE(categories::text, '"AI & Machine Learning"', '"AI and Machine Learning"')::json WHERE categories::text LIKE '%"AI & Machine Learning"%';
-
-      UPDATE enquiries SET category = 'Data Science and AI' WHERE category IN ('DS & AI', 'Data Science & AI', 'DS and AI');
-      UPDATE enquiries SET category = 'Data Analytics and AI' WHERE category IN ('DA & AI', 'Data Analytics & AI', 'DA and AI');
-      UPDATE enquiries SET category = 'AI and Machine Learning' WHERE category IN ('AI & ML', 'AI & Machine Learning', 'AI and ML');
-    `).catch((err) => console.warn('[DB] Category migration notice:', err.message));
-
-    // Synchronize full course catalog with exact global category names into NeonDB
-    console.log('📚 [DB] Synchronizing course catalog into NeonDB...');
-    for (const course of initialCourses) {
-      await pool.query(
-        `INSERT INTO courses (
-          id, slug, title, category, categories, short_description, description, image, price, original_price,
-          duration, live_hours, lessons, level, rating, students, status, featured,
-          skills, curriculum, modules, technology_stack, projects, career_readiness, outcome, features, requirements, who_is_it_for, created_at, updated_at
-        ) VALUES (
-          $1, $2, $3, $4, $5, $6, $7, $8, $9, $10,
-          $11, $12, $13, $14, $15, $16, $17, $18,
-          $19, $20, $21, $22, $23, $24, $25, $26, $27, $28, NOW(), NOW()
-        )
-        ON CONFLICT (id) DO UPDATE SET
-          slug = EXCLUDED.slug,
-          title = EXCLUDED.title,
-          category = EXCLUDED.category,
-          categories = EXCLUDED.categories,
-          short_description = EXCLUDED.short_description,
-          description = EXCLUDED.description,
-          image = EXCLUDED.image,
-          price = EXCLUDED.price,
-          original_price = EXCLUDED.original_price,
-          duration = EXCLUDED.duration,
-          live_hours = EXCLUDED.live_hours,
-          lessons = EXCLUDED.lessons,
-          level = EXCLUDED.level,
-          skills = EXCLUDED.skills,
-          curriculum = EXCLUDED.curriculum,
-          modules = EXCLUDED.modules,
-          technology_stack = EXCLUDED.technology_stack,
-          projects = EXCLUDED.projects,
-          career_readiness = EXCLUDED.career_readiness,
-          outcome = EXCLUDED.outcome,
-          features = EXCLUDED.features,
-          requirements = EXCLUDED.requirements,
-          who_is_it_for = EXCLUDED.who_is_it_for,
-          updated_at = NOW()`,
-        [
-          course.id,
-          course.slug,
-          course.title,
-          course.category,
-          JSON.stringify(course.categories || [course.category]),
-          course.shortDescription || null,
-          course.description,
-          course.image,
-          course.price,
-          course.originalPrice,
-          course.duration,
-          course.liveHours || null,
-          course.lessons,
-          course.level,
-          course.rating,
-          course.students,
-          course.status,
-          course.featured,
-          JSON.stringify(course.skills || []),
-          JSON.stringify(course.curriculum || []),
-          JSON.stringify(course.modules || []),
-          JSON.stringify(course.technologyStack || []),
-          JSON.stringify(course.projects || []),
-          JSON.stringify(course.careerReadiness || []),
-          course.outcome || null,
-          JSON.stringify(course.features || []),
-          JSON.stringify(course.requirements || []),
-          JSON.stringify(course.whoIsItFor || [])
-        ]
-      );
+    // 6. Safely sync instructor profiles (non-fatal)
+    try {
+      for (const inst of initialInstructors) {
+        await pool.query(
+          `INSERT INTO instructors (
+            id, name, designation, organization, image, profile_image, short_bio, detailed_bio,
+            qualifications, experience, expertise, certifications, courses, projects,
+            linkedin, email, teaching_experience, industry_experience, created_at, updated_at
+          ) VALUES (
+            $1, $2, $3, $4, $5, $6, $7, $8,
+            $9, $10, $11, $12, $13, $14,
+            $15, $16, $17, $18, NOW(), NOW()
+          )
+          ON CONFLICT (id) DO UPDATE SET
+            name = EXCLUDED.name,
+            designation = EXCLUDED.designation,
+            organization = EXCLUDED.organization,
+            image = EXCLUDED.image,
+            profile_image = EXCLUDED.profile_image,
+            short_bio = EXCLUDED.short_bio,
+            detailed_bio = EXCLUDED.detailed_bio,
+            qualifications = EXCLUDED.qualifications,
+            experience = EXCLUDED.experience,
+            expertise = EXCLUDED.expertise,
+            certifications = EXCLUDED.certifications,
+            courses = EXCLUDED.courses,
+            projects = EXCLUDED.projects,
+            linkedin = EXCLUDED.linkedin,
+            email = EXCLUDED.email,
+            teaching_experience = EXCLUDED.teaching_experience,
+            industry_experience = EXCLUDED.industry_experience,
+            updated_at = NOW()`,
+          [
+            inst.id,
+            inst.name,
+            inst.designation,
+            inst.organization,
+            inst.image,
+            inst.profileImage || inst.image,
+            inst.shortBio,
+            inst.detailedBio,
+            inst.qualifications,
+            inst.experience,
+            JSON.stringify(inst.expertise || []),
+            JSON.stringify(inst.certifications || []),
+            JSON.stringify(inst.courses || []),
+            JSON.stringify(inst.projects || []),
+            inst.linkedin || null,
+            inst.email || null,
+            inst.teachingExperience || null,
+            inst.industryExperience || null
+          ]
+        ).catch((instErr) => {
+          console.warn(`Instructor sync notice for [${inst.id}]:`, instErr.message);
+        });
+      }
+    } catch (instSyncErr: any) {
+      console.warn('[DB] Instructor catalog sync warning (non-fatal):', instSyncErr.message);
     }
-    console.log(`✅ [DB] Synced ${initialCourses.length} courses into NeonDB.`);
-
-    // Synchronize instructor catalog into NeonDB
-    console.log('👨‍🏫 [DB] Synchronizing instructor profiles into NeonDB...');
-    for (const inst of initialInstructors) {
-      await pool.query(
-        `INSERT INTO instructors (
-          id, name, designation, organization, image, profile_image, short_bio, detailed_bio,
-          qualifications, experience, expertise, certifications, courses, projects,
-          linkedin, email, teaching_experience, industry_experience, created_at, updated_at
-        ) VALUES (
-          $1, $2, $3, $4, $5, $6, $7, $8,
-          $9, $10, $11, $12, $13, $14,
-          $15, $16, $17, $18, NOW(), NOW()
-        )
-        ON CONFLICT (id) DO UPDATE SET
-          name = EXCLUDED.name,
-          designation = EXCLUDED.designation,
-          organization = EXCLUDED.organization,
-          image = EXCLUDED.image,
-          profile_image = EXCLUDED.profile_image,
-          short_bio = EXCLUDED.short_bio,
-          detailed_bio = EXCLUDED.detailed_bio,
-          qualifications = EXCLUDED.qualifications,
-          experience = EXCLUDED.experience,
-          expertise = EXCLUDED.expertise,
-          certifications = EXCLUDED.certifications,
-          courses = EXCLUDED.courses,
-          projects = EXCLUDED.projects,
-          linkedin = EXCLUDED.linkedin,
-          email = EXCLUDED.email,
-          teaching_experience = EXCLUDED.teaching_experience,
-          industry_experience = EXCLUDED.industry_experience,
-          updated_at = NOW()`,
-        [
-          inst.id,
-          inst.name,
-          inst.designation,
-          inst.organization,
-          inst.image,
-          inst.profileImage || inst.image,
-          inst.shortBio,
-          inst.detailedBio,
-          inst.qualifications,
-          inst.experience,
-          JSON.stringify(inst.expertise || []),
-          JSON.stringify(inst.certifications || []),
-          JSON.stringify(inst.courses || []),
-          JSON.stringify(inst.projects || []),
-          inst.linkedin || null,
-          inst.email || null,
-          inst.teachingExperience || null,
-          inst.industryExperience || null
-        ]
-      );
-    }
-    console.log(`✅ [DB] Synced ${initialInstructors.length} instructors into NeonDB.`);
   } catch (err: any) {
-    console.error('⚠️ [DB] NeonDB connection or migration error:', err.message);
+    console.error('⚠️ [DB] NeonDB connection or critical migration error:', err.message);
     isNeonConnected = false;
     connectionError = err.message;
   }

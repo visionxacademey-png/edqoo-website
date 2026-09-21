@@ -115,41 +115,48 @@ router.post('/register', async (req, res) => {
 
     if (isDbConnected()) {
       // Check existing user by email in NeonDB
-      const existing = await query('SELECT id, phone, role FROM users WHERE LOWER(email) = LOWER($1)', [normalizedEmail]);
+      const existing = await query('SELECT id, phone, role, password_hash FROM users WHERE LOWER(email) = LOWER($1)', [normalizedEmail]);
       if (existing.rows.length > 0) {
-        finalUserId = existing.rows[0].id;
-        finalPhone = cleanPhone || existing.rows[0].phone || '';
+        const existingRow = existing.rows[0];
+        const isEnquiryLead = existingRow.id?.startsWith('usr-enq-') || (existingRow.password_hash && existingRow.password_hash.length < 15);
         
-        // Update existing record with device metadata
-        await query(
-          `UPDATE users SET
-            name = $1,
-            password_hash = $2,
-            phone = COALESCE(NULLIF($3, ''), phone),
-            device_info = $4,
-            last_ip = $5,
-            last_device_id = $6,
-            last_device_type = $7,
-            last_os = $8,
-            last_browser = $9,
-            last_timezone = $10,
-            is_active = true,
-            last_login_at = NOW()
-           WHERE id = $11`,
-          [
-            name.trim(),
-            passwordHash,
-            cleanPhone,
-            JSON.stringify(meta.deviceInfo),
-            meta.ip,
-            meta.deviceId,
-            meta.deviceType,
-            meta.os,
-            meta.browser,
-            meta.timezone,
-            finalUserId
-          ]
-        );
+        if (isEnquiryLead) {
+          // Upgrade enquiry lead to fully registered student account
+          finalUserId = existingRow.id;
+          finalPhone = cleanPhone || existingRow.phone || '';
+          
+          await query(
+            `UPDATE users SET
+              name = $1,
+              password_hash = $2,
+              phone = COALESCE(NULLIF($3, ''), phone),
+              device_info = $4,
+              last_ip = $5,
+              last_device_id = $6,
+              last_device_type = $7,
+              last_os = $8,
+              last_browser = $9,
+              last_timezone = $10,
+              is_active = true,
+              last_login_at = NOW()
+             WHERE id = $11`,
+            [
+              name.trim(),
+              passwordHash,
+              cleanPhone,
+              JSON.stringify(meta.deviceInfo),
+              meta.ip,
+              meta.deviceId,
+              meta.deviceType,
+              meta.os,
+              meta.browser,
+              meta.timezone,
+              finalUserId
+            ]
+          );
+        } else {
+          return res.status(409).json({ error: 'An account with this email address already exists. Please log in.' });
+        }
       } else {
         // Insert new user into NeonDB users table with device info
         await query(
