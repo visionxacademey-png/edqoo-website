@@ -72,10 +72,10 @@ export const Footer: React.FC = () => {
             </div>
           </div>
 
-          {/* Column 1: Master Programs (2 cols) */}
+          {/* Column 1: Master Programs (3 cols) */}
           <div className="lg:col-span-3 space-y-3">
             <h4 className="font-display font-bold text-slate-950 text-xs uppercase tracking-wider">
-              Data Science and AI Master Programs
+              Master Programs
             </h4>
             <ul className="space-y-2 text-xs">
               <li>
@@ -90,52 +90,42 @@ export const Footer: React.FC = () => {
               </li>
               <li>
                 <Link to="/courses/advanced-executive-program-data-science-ai-machine-learning" className="hover:text-purple-600 transition-colors">
-                  Advance Executive in AI and Machine Learning
+                  Advance Executive in AI and ML
                 </Link>
               </li>
               <li>
                 <Link to="/courses" className="hover:text-purple-600 font-bold text-purple-700 transition-colors inline-flex items-center gap-1">
-                  <span>View All 9 Programs</span>
+                  <span>View All Programs</span>
                   <ArrowRight className="w-3 h-3" />
                 </Link>
               </li>
             </ul>
           </div>
 
-          {/* Column 2: Tools And Upskills (2 cols) */}
+          {/* Column 2: Work With Us (3 cols) */}
           <div className="lg:col-span-3 space-y-3">
             <h4 className="font-display font-bold text-slate-950 text-xs uppercase tracking-wider">
-              Tools And Upskills (24–36 Hrs)
+              Work With Us
             </h4>
             <ul className="space-y-2 text-xs">
               <li>
-                <Link to="/courses/advance-executive-python" className="hover:text-purple-600 transition-colors">
-                  Advance Executive in Python
+                <Link to="/hire-from-us" className="hover:text-purple-600 transition-colors">
+                  Hire From Us
                 </Link>
               </li>
               <li>
-                <Link to="/courses/advance-executive-sql" className="hover:text-purple-600 transition-colors">
-                  Advance Executive in SQL
+                <Link to="/become-an-instructor" className="hover:text-purple-600 transition-colors">
+                  Become an Instructor
                 </Link>
               </li>
               <li>
-                <Link to="/courses/advance-executive-excel" className="hover:text-purple-600 transition-colors">
-                  Advance Executive in Excel
+                <Link to="/become-a-partner" className="hover:text-purple-600 transition-colors">
+                  Become a Partner
                 </Link>
               </li>
               <li>
-                <Link to="/courses/advance-executive-power-bi" className="hover:text-purple-600 transition-colors">
-                  Advance Executive in Power BI
-                </Link>
-              </li>
-              <li>
-                <Link to="/courses/advance-executive-ms-office" className="hover:text-purple-600 transition-colors">
-                  Advance Executive in MS Office
-                </Link>
-              </li>
-              <li>
-                <Link to="/courses/advance-executive-prompt-engineering" className="hover:text-purple-600 transition-colors">
-                  Advance Executive in Prompt Engineering
+                <Link to="/leadership-council" className="hover:text-purple-600 transition-colors">
+                  Leadership Council
                 </Link>
               </li>
             </ul>
@@ -159,7 +149,7 @@ export const Footer: React.FC = () => {
               </div>
               <div className="flex items-start gap-2">
                 <MapPin className="w-4 h-4 text-purple-600 mt-0.5 flex-shrink-0" />
-                <span>100 Pine St, San Francisco, CA</span>
+                <span className="line-clamp-2">Indus Avenue, Chalappuram, Kozhikode</span>
               </div>
               <div className="pt-2">
                 <button
@@ -176,11 +166,26 @@ export const Footer: React.FC = () => {
 
         </div>
 
-        {/* Bottom Bar: Copyright & Socials */}
-        <div className="border-t border-slate-200 pt-6 flex flex-col sm:flex-row items-center justify-between gap-4">
-          <p className="text-xs text-slate-500">
+        {/* Bottom Bar: Copyright, Legal Links & Socials */}
+        <div className="border-t border-slate-200 pt-6 flex flex-col lg:flex-row items-center justify-between gap-4">
+          <p className="text-xs text-slate-500 text-center lg:text-left">
             &copy; {currentYear} Edqoo. All rights reserved. Your skill partner in professional tech education.
           </p>
+
+          {/* Core Footer Navigation & Legal Links */}
+          <div className="flex flex-wrap items-center justify-center gap-2 sm:gap-3 text-xs font-bold text-slate-600">
+            <Link to="/terms-and-conditions" className="hover:text-purple-600 transition-colors">
+              Terms &amp; Conditions
+            </Link>
+            <span className="text-slate-300 select-none">|</span>
+            <Link to="/privacy-policy" className="hover:text-purple-600 transition-colors">
+              Privacy Policy
+            </Link>
+            <span className="text-slate-300 select-none">|</span>
+            <Link to="/instructors" className="hover:text-purple-600 transition-colors">
+              Instructors
+            </Link>
+          </div>
 
           <div className="flex items-center gap-2.5">
             <a

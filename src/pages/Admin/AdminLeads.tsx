@@ -8,7 +8,9 @@ import {
   AlertCircle,
   Edit,
   Save,
-  RefreshCw
+  RefreshCw,
+  Tag,
+  GraduationCap
 } from 'lucide-react';
 import { enquiryService } from '../../services/enquiryService';
 import { normalizeCategoryName } from '../../data/courses';
@@ -68,9 +70,16 @@ export const AdminLeads: React.FC = () => {
   };
 
   const filteredLeads = leads.filter((lead) => {
+    const isStudentOffer =
+      lead.enquiryType === 'STUDENT_OFFER' ||
+      lead.category === 'Student Offer' ||
+      (lead.program && lead.program.toLowerCase().includes('student offer'));
+
     const statusMatch =
       selectedStatus === 'all'
         ? true
+        : selectedStatus === 'student_offer'
+        ? isStudentOffer
         : selectedStatus === 'incomplete'
         ? (lead.leadStatus === 'Incomplete' || lead.status === 'Incomplete')
         : selectedStatus === 'completed'
@@ -85,7 +94,9 @@ export const AdminLeads: React.FC = () => {
       lead.program.toLowerCase().includes(searchTerm.toLowerCase()) ||
       (lead.category && lead.category.toLowerCase().includes(searchTerm.toLowerCase())) ||
       (lead.ktuId && lead.ktuId.toLowerCase().includes(searchTerm.toLowerCase())) ||
-      (lead.universityName && lead.universityName.toLowerCase().includes(searchTerm.toLowerCase()));
+      (lead.universityName && lead.universityName.toLowerCase().includes(searchTerm.toLowerCase())) ||
+      (lead.collegeOrSchool && lead.collegeOrSchool.toLowerCase().includes(searchTerm.toLowerCase())) ||
+      (lead.collegeName && lead.collegeName.toLowerCase().includes(searchTerm.toLowerCase()));
 
     return statusMatch && matchesSearch;
   });
@@ -170,6 +181,7 @@ export const AdminLeads: React.FC = () => {
             className="bg-slate-950 border border-slate-800 text-slate-300 text-xs rounded-xl px-3 py-2 focus:outline-none focus:border-purple-500"
           >
             <option value="all">All Enquiries &amp; Statuses</option>
+            <option value="student_offer">Student Offer Enquiries (60% Off)</option>
             <option value="incomplete">Incomplete Leads (Step 1)</option>
             <option value="completed">Completed Enquiries (Step 2)</option>
             <option value="Submitted">Submitted</option>
@@ -206,6 +218,10 @@ export const AdminLeads: React.FC = () => {
               </thead>
               <tbody className="divide-y divide-slate-800/60">
                 {filteredLeads.map((lead) => {
+                  const isStudentOffer =
+                    lead.enquiryType === 'STUDENT_OFFER' ||
+                    lead.category === 'Student Offer' ||
+                    (lead.program && lead.program.toLowerCase().includes('student offer'));
                   const isToolsCategory =
                     (lead.category && lead.category.toLowerCase().includes('tools')) ||
                     (lead.source && lead.source.toLowerCase().includes('tools'));
@@ -223,12 +239,22 @@ export const AdminLeads: React.FC = () => {
                             </span>
                           )}
                         </div>
+                        {(lead.collegeOrSchool || lead.collegeName) && (
+                          <div className="text-[10px] font-normal text-slate-400 mt-0.5 flex items-center gap-1">
+                            <GraduationCap className="w-3 h-3 text-slate-500 inline-shrink-0" />
+                            <span className="truncate max-w-[200px]">{lead.collegeOrSchool || lead.collegeName}</span>
+                          </div>
+                        )}
                       </td>
 
                       <td className="py-3.5 px-4">
                         <span className="text-purple-300 font-semibold block">{lead.program}</span>
                         <div className="flex items-center gap-1.5 mt-0.5">
-                          {isToolsCategory ? (
+                          {isStudentOffer ? (
+                            <span className="inline-block px-1.5 py-0.5 text-[9px] font-bold rounded bg-purple-950 text-purple-300 border border-purple-800/60">
+                              Student Offer (60% Off)
+                            </span>
+                          ) : isToolsCategory ? (
                             <span className="inline-block px-1.5 py-0.5 text-[9px] font-bold rounded bg-purple-950 text-purple-300 border border-purple-800/60">
                               Tools &amp; Upskills
                             </span>
@@ -255,9 +281,14 @@ export const AdminLeads: React.FC = () => {
                         <div className="text-[10px] text-slate-400">{lead.email}</div>
                       </td>
 
-                      {/* Lead Status (Step 1 vs Step 2) */}
+                      {/* Lead Status (Step 1 vs Step 2 vs Student Offer) */}
                       <td className="py-3.5 px-4">
-                        {isIncomplete ? (
+                        {isStudentOffer ? (
+                          <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-[10px] font-bold bg-purple-950/80 text-purple-300 border border-purple-800/80">
+                            <Tag className="w-3 h-3 text-purple-400" />
+                            Student Offer
+                          </span>
+                        ) : isIncomplete ? (
                           <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-[10px] font-bold bg-amber-950/80 text-amber-300 border border-amber-800/80">
                             <span className="w-1.5 h-1.5 rounded-full bg-amber-400 animate-pulse" />
                             Incomplete (Step 1)
@@ -325,11 +356,16 @@ export const AdminLeads: React.FC = () => {
                   <h3 className="text-base font-bold text-white">
                     Lead Consultation Record
                   </h3>
-                  {activeLead.category && (
+                  {(activeLead.enquiryType === 'STUDENT_OFFER' || activeLead.category === 'Student Offer' || (activeLead.program && activeLead.program.toLowerCase().includes('student offer'))) ? (
+                    <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-purple-950 text-purple-300 border border-purple-800 flex items-center gap-1">
+                      <Tag className="w-3 h-3 text-purple-400" />
+                      Student Offer (60% Off)
+                    </span>
+                  ) : activeLead.category ? (
                     <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-purple-950 text-purple-300 border border-purple-800">
                       {normalizeCategoryName(activeLead.category)}
                     </span>
-                  )}
+                  ) : null}
                   {activeLead.leadStatus === 'Incomplete' && (
                     <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-amber-950 text-amber-300 border border-amber-800">
                       Incomplete (Step 1 Only)
@@ -349,6 +385,26 @@ export const AdminLeads: React.FC = () => {
             </div>
 
             <div className="space-y-4 text-xs text-slate-300 overflow-y-auto flex-1 pr-1">
+              {/* Student Offer & Institution Details */}
+              {(activeLead.collegeOrSchool || activeLead.enquiryType === 'STUDENT_OFFER' || activeLead.category === 'Student Offer' || (activeLead.program && activeLead.program.toLowerCase().includes('student offer'))) && (
+                <div className="space-y-2 p-3.5 rounded-xl bg-purple-950/30 border border-purple-800/60">
+                  <div className="flex items-center gap-1.5 text-[11px] font-bold text-purple-400 uppercase tracking-wider">
+                    <Tag className="w-3.5 h-3.5 text-purple-400" />
+                    <span>60% Student Offer Lead Details</span>
+                  </div>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    <div>
+                      <span className="text-slate-500 block text-[10px] uppercase font-bold">Offer Applied</span>
+                      <span className="font-bold text-purple-300 text-sm">60% Student Discount</span>
+                    </div>
+                    <div>
+                      <span className="text-slate-500 block text-[10px] uppercase font-bold">College / School</span>
+                      <span className="font-bold text-white text-sm">{activeLead.collegeOrSchool || activeLead.collegeName || '—'}</span>
+                    </div>
+                  </div>
+                </div>
+              )}
+
               {/* Basic Contact Info */}
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 p-3.5 rounded-xl bg-slate-950 border border-slate-800">
                 <div>

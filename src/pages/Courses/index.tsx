@@ -83,14 +83,15 @@ export const Courses: React.FC = () => {
     { id: 'Data Science and AI', label: 'Data Science and AI', icon: Brain },
     { id: 'Data Analytics and AI', label: 'Data Analytics and AI', icon: BarChart3 },
     { id: 'AI and Machine Learning', label: 'AI and Machine Learning', icon: Cpu },
-    { id: 'Tools and Upskills', label: 'Tools and Upskills', icon: Wrench }
+    { id: 'Tools and Upskills', label: 'Tools and Upskills', icon: Wrench },
+    { id: 'Free Learning', label: 'Free Learning', icon: BookOpen }
   ];
 
   return (
     <div className="bg-slate-50 min-h-screen py-10 text-left">
       <SEO 
         title="Explore Program Tracks & Course Catalog | Edqoo" 
-        description="Browse professional program tracks in Data Science, Artificial Intelligence, Machine Learning, Data Analytics, Python, SQL, Power BI, Excel, and Prompt Engineering."
+        description="Browse professional program tracks in Data Science, Artificial Intelligence, Machine Learning, Data Analytics, Python, SQL, Power BI, Excel, Prompt Engineering, and Free Learning courses."
         canonical="/courses"
       />
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-8">
@@ -104,7 +105,7 @@ export const Courses: React.FC = () => {
             Explore All Programs & Upskilling Tracks
           </h1>
           <p className="text-slate-500 text-xs sm:text-sm max-w-2xl">
-            Discover comprehensive career tracks across <strong>Data Science and AI</strong>, <strong>Data Analytics and AI</strong>, <strong>AI and Machine Learning</strong>, and executive <strong>Tools and Upskills</strong>. Submit an enquiry to connect with our admissions counseling team.
+            Discover comprehensive career tracks across <strong>Data Science and AI</strong>, <strong>Data Analytics and AI</strong>, <strong>AI and Machine Learning</strong>, executive <strong>Tools and Upskills</strong>, and <strong>Free Learning</strong> programs. Submit an enquiry to connect with our admissions counseling team.
           </p>
         </div>
 
@@ -158,7 +159,7 @@ export const Courses: React.FC = () => {
                 <input
                   type="text"
                   id="course-search"
-                  placeholder="e.g. Python, SQL, AI, Power BI..."
+                  placeholder="e.g. Python, SQL, AI, Power BI, Java, HR..."
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
                   className="w-full pl-8 pr-3 py-2 bg-slate-50 border border-slate-200 text-xs text-slate-900 rounded-lg focus:outline-none focus:bg-white focus:border-purple-600"
@@ -183,6 +184,7 @@ export const Courses: React.FC = () => {
                 <option value="Data Analytics and AI">Data Analytics and AI</option>
                 <option value="AI and Machine Learning">AI and Machine Learning</option>
                 <option value="Tools and Upskills">Tools and Upskills</option>
+                <option value="Free Learning">Free Learning</option>
               </select>
             </div>
 
@@ -247,6 +249,7 @@ export const Courses: React.FC = () => {
             ) : (
               <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-5">
                 {filteredCourses.map((course) => {
+                  const isFree = (course.categories || [course.category]).some((c) => normalizeCategoryName(c) === 'Free Learning') || course.price === 0;
                   return (
                     <div
                       key={course.id}
@@ -267,7 +270,9 @@ export const Courses: React.FC = () => {
                               <span
                                 key={cat}
                                 className={`px-2 py-0.5 text-[10px] font-bold rounded-md uppercase tracking-wider backdrop-blur-xs border ${
-                                  cat === 'Tools and Upskills'
+                                  cat === 'Free Learning'
+                                    ? 'bg-emerald-50/90 border-emerald-300 text-emerald-800'
+                                    : cat === 'Tools and Upskills'
                                     ? 'bg-emerald-50/90 border-emerald-300 text-emerald-800'
                                     : 'bg-purple-50/90 border-purple-300 text-purple-800'
                                 }`}
@@ -278,11 +283,15 @@ export const Courses: React.FC = () => {
                           })}
                         </div>
                         
-                        {course.liveHours && (
+                        {isFree ? (
+                          <span className="absolute top-3 right-3 px-2 py-0.5 bg-emerald-600 text-white text-[10px] font-extrabold rounded-md shadow-sm uppercase tracking-wider">
+                            FREE
+                          </span>
+                        ) : course.liveHours ? (
                           <span className="absolute top-3 right-3 px-2 py-0.5 bg-slate-900 text-white text-[10px] font-extrabold rounded-md shadow-sm">
                             {course.liveHours} Live
                           </span>
-                        )}
+                        ) : null}
                       </div>
 
                       <div className="p-4 flex-1 flex flex-col justify-between space-y-3">
@@ -331,31 +340,30 @@ export const Courses: React.FC = () => {
 
                         {/* Pricing & Actions */}
                         <div className="flex items-center justify-between pt-2.5 border-t border-slate-100 gap-2">
-                          <div className="flex flex-col">
-                            {course.originalPrice > 0 && (
-                              <span className="text-slate-400 text-[9px] line-through leading-none">
-                                ₹{course.originalPrice}
-                              </span>
-                            )}
-                            <span className="text-slate-900 font-extrabold text-sm leading-tight">
-                              ₹{course.price}
-                            </span>
-                          </div>
-                          <div className="flex items-center gap-1.5">
+                          <div className="flex items-center gap-1.5 w-full">
                             <button
                               type="button"
                               onClick={(e) => {
                                 e.stopPropagation();
                                 openEnquiryModal(course.title, {
-                                  category: selectedCategory === 'Tools and Upskills' ? 'Tools and Upskills' : course.category,
+                                  category: isFree ? 'Free Learning' : selectedCategory === 'Tools and Upskills' ? 'Tools and Upskills' : course.category,
                                   courseId: course.id,
                                   categories: course.categories
                                 });
                               }}
-                              className="btn-primary px-3 py-1.5 text-[10px] font-bold rounded-lg inline-flex items-center gap-1 shadow-2xs"
+                              className="btn-primary flex-1 py-1.5 text-[10px] font-bold rounded-lg inline-flex items-center justify-center gap-1 shadow-2xs"
                             >
-                              <PhoneCall className="w-3 h-3" />
-                              <span>Enquire Now</span>
+                              {isFree ? (
+                                <>
+                                  <BookOpen className="w-3 h-3" />
+                                  <span>Enquire Now</span>
+                                </>
+                              ) : (
+                                <>
+                                  <PhoneCall className="w-3 h-3" />
+                                  <span>Enquire Now</span>
+                                </>
+                              )}
                             </button>
                             <Link
                               to={`/courses/${course.slug}`}

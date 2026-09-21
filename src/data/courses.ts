@@ -1,4 +1,86 @@
-import type { Course, CurriculumSection, Module, TechStackGroup } from '../types/index.js';
+import type { Course, CurriculumSection, Module, TechStackGroup, ProjectItem } from '../types/index.js';
+
+// =============================================================================
+// GLOBAL REUSABLE DATA SCIENCE & AI PROJECT PORTFOLIO (7 Core Projects)
+// =============================================================================
+export const DATA_SCIENCE_AI_PROJECTS: ProjectItem[] = [
+  {
+    id: 'ds-ai-proj-1',
+    category: 'AMAZON',
+    title: 'Diwali Sales Analysis & Reporting',
+    description: 'Analyzed customer purchasing behavior and sales performance during the Diwali sales period. Identified top-selling products, revenue trends, and customer segments using Python, machine learning, and data visualization.',
+    technologies: ['Python', 'Machine Learning', 'Pandas', 'Data Visualization'],
+    image: 'https://images.unsplash.com/photo-1605792657660-596af9009e82?q=80&w=800&auto=format&fit=crop',
+    imageUrl: 'https://images.unsplash.com/photo-1605792657660-596af9009e82?q=80&w=800&auto=format&fit=crop',
+    imageAlt: 'Diwali sales analysis, festive retail shopping and customer purchasing analytics'
+  },
+  {
+    id: 'ds-ai-proj-2',
+    category: 'NETFLIX',
+    title: 'Netflix Data Analysis',
+    description: 'Analyzed Netflix content data including genres, ratings, countries, and content types. Developed an interactive Power BI dashboard to uncover content trends and generate data-driven insights.',
+    technologies: ['Power BI', 'DAX', 'Data Analysis', 'Data Visualization'],
+    image: 'https://images.unsplash.com/photo-1522869635100-9f4c5e86aa37?q=80&w=800&auto=format&fit=crop',
+    imageUrl: 'https://images.unsplash.com/photo-1522869635100-9f4c5e86aa37?q=80&w=800&auto=format&fit=crop',
+    imageAlt: 'Entertainment streaming content analytics, viewer metrics and movie catalogue insights'
+  },
+  {
+    id: 'ds-ai-proj-3',
+    category: 'EV',
+    title: 'Electric Vehicle Data Analysis',
+    description: 'Examined electric vehicle adoption trends, vehicle categories, and regional distribution. Created interactive Tableau dashboards to visualize growth patterns and support EV market analysis.',
+    technologies: ['Tableau', 'Data Analysis', 'Data Visualization', 'EV Analytics'],
+    image: 'https://images.unsplash.com/photo-1593941707882-a5bba14938c7?q=80&w=800&auto=format&fit=crop',
+    imageUrl: 'https://images.unsplash.com/photo-1593941707882-a5bba14938c7?q=80&w=800&auto=format&fit=crop',
+    imageAlt: 'Electric vehicle charging station and clean transportation analytics'
+  },
+  {
+    id: 'ds-ai-proj-4',
+    category: 'AI',
+    title: 'AI Interview Preparation Assistant',
+    description: 'Built an AI-powered application that generates role-specific technical and HR interview questions using Generative AI. Developed the interactive application with Streamlit and secure API integration.',
+    technologies: ['Python', 'Streamlit', 'Generative AI', 'LLM', 'API Integration'],
+    image: 'https://images.unsplash.com/photo-1516321318423-f06f85e504b3?q=80&w=800&auto=format&fit=crop',
+    imageUrl: 'https://images.unsplash.com/photo-1516321318423-f06f85e504b3?q=80&w=800&auto=format&fit=crop',
+    imageAlt: 'AI interview preparation assistant, conversational interface and career tech'
+  },
+  {
+    id: 'ds-ai-proj-5',
+    category: 'MEDICAL AI',
+    title: 'Pneumonia Severity Detection Using Deep Learning',
+    description: 'Developed an automated deep learning system to classify chest X-ray images into Pneumonia and Normal categories using transfer learning. Extended the system to analyze infection severity and support faster medical assessment.',
+    technologies: ['Deep Learning', 'Transfer Learning', 'CNN', 'Medical AI'],
+    projectType: 'Class Project',
+    duration: 'Aug 2024 – Dec 2024',
+    image: 'https://images.unsplash.com/photo-1576091160399-112ba8d25d1d?q=80&w=800&auto=format&fit=crop',
+    imageUrl: 'https://images.unsplash.com/photo-1576091160399-112ba8d25d1d?q=80&w=800&auto=format&fit=crop',
+    imageAlt: 'Chest X-ray analysis, medical deep learning and healthcare diagnostics'
+  },
+  {
+    id: 'ds-ai-proj-6',
+    category: 'LEGAL AI',
+    title: 'Kanoon Darpan AI – IPC Section Identification',
+    description: 'Developed a multi-label NLP classification model using LegalBERT to identify relevant IPC sections from textual case descriptions. Fine-tuned the model using an annotated legal-document dataset to improve contextual understanding and generalization.',
+    technologies: ['Python', 'NLP', 'LegalBERT', 'Transformers', 'Multi-Label Classification'],
+    projectType: 'Mini Project',
+    duration: 'Aug 2024 – Dec 2024',
+    image: 'https://images.unsplash.com/photo-1589829545856-d10d557cf95f?q=80&w=800&auto=format&fit=crop',
+    imageUrl: 'https://images.unsplash.com/photo-1589829545856-d10d557cf95f?q=80&w=800&auto=format&fit=crop',
+    imageAlt: 'Legal technology, AI-assisted legal research and IPC section classification'
+  },
+  {
+    id: 'ds-ai-proj-7',
+    category: 'NLP AI',
+    title: 'Suicide Ideation Detection from Text',
+    description: 'Developed an interactive NLP-based web application to detect potential suicide ideation from textual inputs using machine learning. Implemented the project as part of an NLP course and collaborated with a five-member team.',
+    technologies: ['Python', 'NLP', 'Machine Learning', 'Text Classification', 'Web Application'],
+    projectType: 'Class Project',
+    duration: 'Mar 2024 – Jun 2024',
+    image: 'https://images.unsplash.com/photo-1555421689-491a97ff2040?q=80&w=800&auto=format&fit=crop',
+    imageUrl: 'https://images.unsplash.com/photo-1555421689-491a97ff2040?q=80&w=800&auto=format&fit=crop',
+    imageAlt: 'Natural language processing text analytics and machine learning classification'
+  }
+];
 
 // =============================================================================
 // GLOBAL REUSABLE FEATURE LIST (Mandatory 15 Common Features for all Courses)
@@ -26,7 +108,8 @@ export const PROGRAM_CATEGORIES = [
   'Data Science and AI',
   'Data Analytics and AI',
   'AI and Machine Learning',
-  'Tools and Upskills'
+  'Tools and Upskills',
+  'Free Learning'
 ] as const;
 
 export type ProgramCategory = typeof PROGRAM_CATEGORIES[number];
@@ -83,6 +166,15 @@ export function normalizeCategoryName(cat: string | null | undefined): string {
     lower.includes('tools')
   ) {
     return 'Tools and Upskills';
+  }
+
+  if (
+    lower === 'free learning' ||
+    lower === 'free-learning' ||
+    lower === 'free' ||
+    lower.includes('free learning')
+  ) {
+    return 'Free Learning';
   }
 
   return trimmed;
@@ -731,8 +823,8 @@ export const courses: Course[] = [
     shortDescription: 'Comprehensive 11-month industry track covering Data Science, AI, Machine Learning, Deep Learning, Generative AI, Power BI, Cloud & MLOps.',
     description: 'A comprehensive industry-focused program covering Data Science, Artificial Intelligence, Machine Learning, Generative AI, Business Intelligence, Cloud Computing, Big Data and MLOps.',
     image: 'https://images.unsplash.com/photo-1551288049-bebda4e38f71?q=80&w=800&auto=format&fit=crop',
-    price: 34999,
-    originalPrice: 69999,
+    price: 128990,
+    originalPrice: 169999,
     duration: '11 Months',
     liveHours: '90+ Hours',
     lessons: 88,
@@ -760,17 +852,7 @@ export const courses: Course[] = [
       { category: 'Cloud & Big Data', skills: ['Microsoft Azure', 'Azure Data Factory', 'Apache Spark', 'Linux'] },
       { category: 'Deployment & MLOps', skills: ['Git', 'MLOps', 'Docker', 'CI/CD Pipelines', 'Model Deployment'] }
     ],
-    projects: [
-      'Real-World Data Science Case Studies',
-      'Machine Learning Projects',
-      'Deep Learning Projects',
-      'NLP & Generative AI Projects',
-      'Business Intelligence Dashboards',
-      'Predictive Analytics Projects',
-      'Recommendation Systems',
-      'Time Series Projects',
-      'End-to-End Capstone Projects'
-    ],
+    projects: DATA_SCIENCE_AI_PROJECTS,
     careerReadiness: [
       'Industry-Oriented Assignments',
       'Portfolio Development',
@@ -805,8 +887,8 @@ export const courses: Course[] = [
     shortDescription: 'Build practical expertise across Data Science, AI, Machine Learning, BI, Cloud and MLOps through hands-on industry labs.',
     description: 'Build practical expertise across Data Science, Artificial Intelligence, Machine Learning, Business Intelligence, Cloud Technologies and MLOps through a hands-on, industry-oriented learning experience.',
     image: 'https://images.unsplash.com/photo-1526379095098-d400fd0bf935?q=80&w=800&auto=format&fit=crop',
-    price: 29999,
-    originalPrice: 59999,
+    price: 88990,
+    originalPrice: 169999,
     duration: '6 Months',
     liveHours: '70+ Hours',
     lessons: 64,
@@ -833,18 +915,7 @@ export const courses: Course[] = [
       { category: 'Cloud & Data', skills: ['Microsoft Azure', 'Azure Data Factory', 'Azure SQL', 'Apache Spark', 'Linux'] },
       { category: 'Development & Deployment', skills: ['Git', 'MLOps', 'Model Deployment'] }
     ],
-    projects: [
-      'Predictive Analytics',
-      'Business Analytics',
-      'Machine Learning',
-      'Deep Learning',
-      'Computer Vision',
-      'NLP',
-      'Generative AI',
-      'Recommendation Systems',
-      'Time Series Forecasting',
-      'Business Intelligence'
-    ],
+    projects: DATA_SCIENCE_AI_PROJECTS,
     careerReadiness: [
       'Hands-on Assignments',
       'Industry Case Studies',
@@ -883,7 +954,7 @@ export const courses: Course[] = [
     shortDescription: 'Build strong foundations in Python, Data Analytics, Machine Learning and Deep Learning with hands-on projects.',
     description: 'A practical program designed to build strong foundations in Python, Data Analytics, Machine Learning and Deep Learning, with hands-on projects and career preparation.',
     image: 'https://images.unsplash.com/photo-1460925895917-afdab827c52f?q=80&w=800&auto=format&fit=crop',
-    price: 24999,
+    price: 50000,
     originalPrice: 49999,
     duration: '6 Months',
     liveHours: '60+ Hours',
@@ -903,13 +974,7 @@ export const courses: Course[] = [
     ],
     curriculum: dataScienceMasteryCurriculum,
     modules: curriculumToModules(dataScienceMasteryCurriculum),
-    projects: [
-      'Predictive Analytics',
-      'Machine Learning',
-      'Business Intelligence',
-      'Recommendation Systems',
-      'Time Series Forecasting'
-    ],
+    projects: DATA_SCIENCE_AI_PROJECTS,
     careerReadiness: [
       'Git',
       'Project Documentation',
@@ -939,13 +1004,13 @@ export const courses: Course[] = [
   {
     id: 'advance-executive-python',
     slug: 'advance-executive-python',
-    title: 'Advance Executive in Python',
+    title: 'Python training program',
     category: 'Tools and Upskills',
     categories: ['Data Science and AI', 'Data Analytics and AI', 'AI and Machine Learning', 'Tools and Upskills'],
     shortDescription: 'Master modern Python scripting, OOP design, data manipulation with Pandas, automation, and API integration.',
     description: 'An intensive executive masterclass in Python covering programming foundations, object-oriented design, data manipulation, automation scripting, and API development.',
     image: 'https://images.unsplash.com/photo-1515879218367-8466d910aaa4?q=80&w=800&auto=format&fit=crop',
-    price: 8999,
+    price: 4990,
     originalPrice: 17999,
     duration: 'Flexible duration',
     liveHours: '30+ Hours',
@@ -994,13 +1059,13 @@ export const courses: Course[] = [
   {
     id: 'advance-executive-sql',
     slug: 'advance-executive-sql',
-    title: 'Advance Executive in SQL',
+    title: 'SQL Certification Course',
     category: 'Tools and Upskills',
     categories: ['Data Science and AI', 'Data Analytics and AI', 'AI and Machine Learning', 'Tools and Upskills'],
     shortDescription: 'Master advanced database queries, analytical window functions, complex CTEs, database indexing, and query optimization.',
     description: 'Master advanced database queries, analytical window functions, complex CTEs, database indexing, query optimization, and enterprise relational data manipulation.',
     image: 'https://images.unsplash.com/photo-1544383835-bda2bc66a55d?q=80&w=800&auto=format&fit=crop',
-    price: 7999,
+    price: 4990,
     originalPrice: 15999,
     duration: 'Flexible duration',
     liveHours: '25+ Hours',
@@ -1047,13 +1112,13 @@ export const courses: Course[] = [
   {
     id: 'advance-executive-excel',
     slug: 'advance-executive-excel',
-    title: 'Advance Executive in Excel',
+    title: 'Avanced excel course',
     category: 'Tools and Upskills',
     categories: ['Data Science and AI', 'Data Analytics and AI', 'AI and Machine Learning', 'Tools and Upskills'],
     shortDescription: 'Transform spreadsheet workflows with Dynamic Arrays (XLOOKUP, FILTER), Power Query automated ETL, and executive modeling.',
     description: 'Transform spreadsheet workflows with modern Dynamic Arrays (XLOOKUP, FILTER, UNIQUE), Power Query automated ETL transformations, PivotTables, and executive business modeling.',
     image: 'https://images.unsplash.com/photo-1551836022-d5d88e9218df?q=80&w=800&auto=format&fit=crop',
-    price: 6999,
+    price: 4990,
     originalPrice: 13999,
     duration: 'Flexible duration',
     liveHours: '25+ Hours',
@@ -1097,15 +1162,15 @@ export const courses: Course[] = [
   // 7. Advance Executive in Power BI (Shared across 4 categories)
   // ---------------------------------------------------------------------------
   {
-    id: 'advance-executive-power-bi',
+    id: 'Power-bi',
     slug: 'advance-executive-power-bi',
-    title: 'Advance Executive in Power BI',
+    title: 'Power BI',
     category: 'Tools and Upskills',
     categories: ['Data Science and AI', 'Data Analytics and AI', 'AI and Machine Learning', 'Tools and Upskills'],
     shortDescription: 'Build enterprise-grade BI solutions, master DAX computations, design Star Schemas, and deploy interactive reports.',
     description: 'Build enterprise-grade business intelligence solutions, master DAX computations, design dimensional data models (Star Schema), and deploy executive interactive reporting.',
     image: 'https://images.unsplash.com/photo-1504868584819-f8e8b4b6d7e3?q=80&w=800&auto=format&fit=crop',
-    price: 8499,
+    price: 4990,
     originalPrice: 16999,
     duration: 'Flexible duration',
     liveHours: '30+ Hours',
@@ -1157,7 +1222,7 @@ export const courses: Course[] = [
     shortDescription: 'Comprehensive executive suite mastery across Microsoft Word, Excel, PowerPoint, Outlook, and M365 collaboration tools.',
     description: 'Comprehensive executive suite mastery across Microsoft Word, Excel, PowerPoint, Outlook, and collaborative Microsoft 365 cloud workflows to maximize workplace productivity.',
     image: 'https://images.unsplash.com/photo-1517245386807-bb43f82c33c4?q=80&w=800&auto=format&fit=crop',
-    price: 6499,
+    price: 4990,
     originalPrice: 12999,
     duration: 'Flexible duration',
     liveHours: '20+ Hours',
@@ -1203,13 +1268,13 @@ export const courses: Course[] = [
   {
     id: 'advance-executive-prompt-engineering',
     slug: 'advance-executive-prompt-engineering',
-    title: 'Advance Executive in Prompt Engineering',
+    title: 'Prompt Engineering',
     category: 'Tools and Upskills',
     categories: ['Tools and Upskills'],
     shortDescription: 'Master generative AI prompting, Chain-of-Thought, structured outputs, guardrails, and enterprise AI workflows.',
     description: 'Master practical generative AI prompting techniques, Chain-of-Thought, few-shot prompting, structured JSON/XML outputs, automated workflow integrations, and enterprise AI tooling.',
     image: 'https://images.unsplash.com/photo-1620712943543-bcc4688e7485?q=80&w=800&auto=format&fit=crop',
-    price: 9499,
+    price: 4990,
     originalPrice: 18999,
     duration: 'Flexible duration',
     liveHours: '25+ Hours',
@@ -1248,6 +1313,318 @@ export const courses: Course[] = [
       'Executives, product managers, software engineers, content strategists, and consultants.',
       'Professionals eager to multiply their day-to-day productivity using cutting-edge Generative AI.'
     ]
+  },
+
+  // ---------------------------------------------------------------------------
+  // 10. HR (Free Learning)
+  // ---------------------------------------------------------------------------
+  {
+    id: 'hr',
+    slug: 'hr',
+    title: 'HR',
+    category: 'Free Learning',
+    categories: ['Free Learning'],
+    shortDescription: 'Human Resources learning content.',
+    description: 'Human Resources learning content.',
+    image: 'https://images.unsplash.com/photo-1521737604893-d14cc237f11d?q=80&w=800&auto=format&fit=crop',
+    price: 0,
+    originalPrice: 0,
+    duration: 'Self-Paced',
+    lessons: 6,
+    level: 'Beginner Friendly',
+    rating: 4.88,
+    students: 540,
+    status: 'available',
+    featured: false,
+    skills: ['HR Operations', 'Talent Acquisition', 'Employee Relations', 'Workplace Management'],
+    curriculum: [
+      {
+        title: 'Human Resources Fundamentals',
+        topics: [
+          'HR Operations & Policies',
+          'Talent Acquisition & Recruitment',
+          'Employee Engagement & Performance',
+          'Workplace Compliance & Labor Relations'
+        ]
+      }
+    ],
+    modules: curriculumToModules([
+      {
+        title: 'Human Resources Fundamentals',
+        topics: [
+          'HR Operations & Policies',
+          'Talent Acquisition & Recruitment',
+          'Employee Engagement & Performance',
+          'Workplace Compliance & Labor Relations'
+        ]
+      }
+    ]),
+    projects: ['HR Policy Handbook Design', 'Recruitment Workflow Matrix'],
+    careerReadiness: ['HR Generalist Foundations', 'Workplace Communication Best Practices'],
+    outcome: 'Gain practical knowledge of fundamental Human Resources operations, talent recruitment pipelines, and employee management practices.',
+    features: COMMON_PROGRAM_FEATURES,
+    requirements: ['No prior HR experience required. Basic interest in people operations and management.'],
+    whoIsItFor: ['Aspiring HR professionals, management students, and team leaders.']
+  },
+
+  // ---------------------------------------------------------------------------
+  // 11. Finance (Free Learning)
+  // ---------------------------------------------------------------------------
+  {
+    id: 'finance',
+    slug: 'finance',
+    title: 'Finance',
+    category: 'Free Learning',
+    categories: ['Free Learning'],
+    shortDescription: 'Finance learning content.',
+    description: 'Finance learning content.',
+    image: 'https://images.unsplash.com/photo-1590283603385-17ffb3a7f29f?q=80&w=800&auto=format&fit=crop',
+    price: 0,
+    originalPrice: 0,
+    duration: 'Self-Paced',
+    lessons: 6,
+    level: 'Beginner Friendly',
+    rating: 4.90,
+    students: 620,
+    status: 'available',
+    featured: false,
+    skills: ['Financial Analysis', 'Budgeting & Planning', 'Financial Statements', 'Corporate Finance Basics'],
+    curriculum: [
+      {
+        title: 'Finance Essentials',
+        topics: [
+          'Principles of Finance & Accounting',
+          'Financial Statement Analysis',
+          'Budgeting & Cash Flow Management',
+          'Corporate Investment & Capital Planning'
+        ]
+      }
+    ],
+    modules: curriculumToModules([
+      {
+        title: 'Finance Essentials',
+        topics: [
+          'Principles of Finance & Accounting',
+          'Financial Statement Analysis',
+          'Budgeting & Cash Flow Management',
+          'Corporate Investment & Capital Planning'
+        ]
+      }
+    ]),
+    projects: ['Corporate Financial Statement Review', 'Cash Flow Budget Model'],
+    careerReadiness: ['Financial Decision-Making', 'Budget Analysis Fundamentals'],
+    outcome: 'Understand essential financial concepts, interpret financial statements, and apply fundamental budgeting principles in business.',
+    features: COMMON_PROGRAM_FEATURES,
+    requirements: ['Basic arithmetic skills and interest in corporate finance fundamentals.'],
+    whoIsItFor: ['Students, entrepreneurs, and professionals seeking a solid grounding in corporate and personal finance.']
+  },
+
+  // ---------------------------------------------------------------------------
+  // 12. Digital Marketing (Free Learning)
+  // ---------------------------------------------------------------------------
+  {
+    id: 'digital-marketing',
+    slug: 'digital-marketing',
+    title: 'Digital Marketing',
+    category: 'Free Learning',
+    categories: ['Free Learning'],
+    shortDescription: 'Digital marketing learning content.',
+    description: 'Digital marketing learning content.',
+    image: 'https://images.unsplash.com/photo-1460925895917-afdab827c52f?q=80&w=800&auto=format&fit=crop',
+    price: 0,
+    originalPrice: 0,
+    duration: 'Self-Paced',
+    lessons: 6,
+    level: 'Beginner Friendly',
+    rating: 4.92,
+    students: 780,
+    status: 'available',
+    featured: false,
+    skills: ['SEO Fundamentals', 'Social Media Strategy', 'Content Marketing', 'Digital Campaign Analytics'],
+    curriculum: [
+      {
+        title: 'Digital Marketing Fundamentals',
+        topics: [
+          'Digital Marketing Channels & Strategy',
+          'Search Engine Optimization (SEO)',
+          'Social Media & Content Marketing',
+          'Campaign Performance & Web Analytics'
+        ]
+      }
+    ],
+    modules: curriculumToModules([
+      {
+        title: 'Digital Marketing Fundamentals',
+        topics: [
+          'Digital Marketing Channels & Strategy',
+          'Search Engine Optimization (SEO)',
+          'Social Media & Content Marketing',
+          'Campaign Performance & Web Analytics'
+        ]
+      }
+    ]),
+    projects: ['Search Engine Optimization Strategy Plan', 'Multi-Channel Brand Campaign Blueprint'],
+    careerReadiness: ['Digital Growth Portfolio', 'Marketing Analytics Overview'],
+    outcome: 'Learn the core channels and growth mechanics of modern digital marketing, including search engine visibility and social media campaigns.',
+    features: COMMON_PROGRAM_FEATURES,
+    requirements: ['Internet connection and basic familiarity with social platforms and search engines.'],
+    whoIsItFor: ['Students, small business owners, career switchers, and marketing enthusiasts.']
+  },
+
+  // ---------------------------------------------------------------------------
+  // 13. Accounting and GST (Free Learning)
+  // ---------------------------------------------------------------------------
+  {
+    id: 'accounting-and-gst',
+    slug: 'accounting-and-gst',
+    title: 'Accounting and GST',
+    category: 'Free Learning',
+    categories: ['Free Learning'],
+    shortDescription: 'Accounting and GST learning content.',
+    description: 'Accounting and GST learning content.',
+    image: 'https://images.unsplash.com/photo-1554224155-8d04cb21cd6c?q=80&w=800&auto=format&fit=crop',
+    price: 0,
+    originalPrice: 0,
+    duration: 'Self-Paced',
+    lessons: 6,
+    level: 'Beginner Friendly',
+    rating: 4.87,
+    students: 490,
+    status: 'available',
+    featured: false,
+    skills: ['Double-Entry Bookkeeping', 'GST Compliance', 'Tax Invoicing', 'Ledger Balancing'],
+    curriculum: [
+      {
+        title: 'Accounting and GST Essentials',
+        topics: [
+          'Financial Accounting Principles',
+          'Ledger & Trial Balance Preparation',
+          'GST Law, Framework & Invoicing',
+          'GST Returns & Compliance Filing'
+        ]
+      }
+    ],
+    modules: curriculumToModules([
+      {
+        title: 'Accounting and GST Essentials',
+        topics: [
+          'Financial Accounting Principles',
+          'Ledger & Trial Balance Preparation',
+          'GST Law, Framework & Invoicing',
+          'GST Returns & Compliance Filing'
+        ]
+      }
+    ]),
+    projects: ['Business Bookkeeping & Ledger Setup', 'GST Invoice & Filing Simulation'],
+    careerReadiness: ['Accounting Documentation Standards', 'GST Filing Best Practices'],
+    outcome: 'Develop practical skills in recording financial transactions, maintaining books of accounts, and navigating Goods and Services Tax compliance.',
+    features: COMMON_PROGRAM_FEATURES,
+    requirements: ['Basic mathematical and numerical ability.'],
+    whoIsItFor: ['Commerce students, accountants, business owners, and finance assistants.']
+  },
+
+  // ---------------------------------------------------------------------------
+  // 14. Java (Free Learning)
+  // ---------------------------------------------------------------------------
+  {
+    id: 'java',
+    slug: 'java',
+    title: 'Java',
+    category: 'Free Learning',
+    categories: ['Free Learning'],
+    shortDescription: 'Java programming learning content.',
+    description: 'Java programming learning content.',
+    image: 'https://images.unsplash.com/photo-1517694712202-14dd9538aa97?q=80&w=800&auto=format&fit=crop',
+    price: 0,
+    originalPrice: 0,
+    duration: 'Self-Paced',
+    lessons: 8,
+    level: 'Beginner Friendly',
+    rating: 4.93,
+    students: 890,
+    status: 'available',
+    featured: false,
+    skills: ['Java Core Syntax', 'Object-Oriented Programming (OOP)', 'Collections & Lists', 'Exception Handling'],
+    curriculum: [
+      {
+        title: 'Java Programming Foundations',
+        topics: [
+          'Java Syntax, Variables & Data Types',
+          'Control Flow & Loops',
+          'Object-Oriented Programming (OOP)',
+          'Collections Framework & Exception Handling'
+        ]
+      }
+    ],
+    modules: curriculumToModules([
+      {
+        title: 'Java Programming Foundations',
+        topics: [
+          'Java Syntax, Variables & Data Types',
+          'Control Flow & Loops',
+          'Object-Oriented Programming (OOP)',
+          'Collections Framework & Exception Handling'
+        ]
+      }
+    ]),
+    projects: ['Console Student Management System', 'Object-Oriented Banking Application'],
+    careerReadiness: ['Software Engineering Fundamentals', 'Java Coding Interview Starters'],
+    outcome: 'Build foundational programming competencies in Java with solid grounding in object-oriented architecture and software development principles.',
+    features: COMMON_PROGRAM_FEATURES,
+    requirements: ['A desktop or laptop computer with Java Development Kit (JDK) installed (free).'],
+    whoIsItFor: ['Beginner programmers, engineering students, and developers wanting to learn Java.']
+  },
+
+  // ---------------------------------------------------------------------------
+  // 15. HTML (Free Learning)
+  // ---------------------------------------------------------------------------
+  {
+    id: 'html',
+    slug: 'html',
+    title: 'HTML',
+    category: 'Free Learning',
+    categories: ['Free Learning'],
+    shortDescription: 'HTML and web-development fundamentals.',
+    description: 'HTML and web-development fundamentals.',
+    image: 'https://images.unsplash.com/photo-1542838132-92c53300491e?q=80&w=800&auto=format&fit=crop',
+    price: 0,
+    originalPrice: 0,
+    duration: 'Self-Paced',
+    lessons: 6,
+    level: 'Beginner Friendly',
+    rating: 4.91,
+    students: 950,
+    status: 'available',
+    featured: false,
+    skills: ['HTML5 Tags & Structure', 'Web Forms & Inputs', 'Semantic Web Elements', 'Web Standards'],
+    curriculum: [
+      {
+        title: 'HTML & Web Development Fundamentals',
+        topics: [
+          'HTML Document Structure & Tags',
+          'Text Formatting, Links & Images',
+          'Forms, Inputs & Validation',
+          'Semantic HTML5 & Best Practices'
+        ]
+      }
+    ],
+    modules: curriculumToModules([
+      {
+        title: 'HTML & Web Development Fundamentals',
+        topics: [
+          'HTML Document Structure & Tags',
+          'Text Formatting, Links & Images',
+          'Forms, Inputs & Validation',
+          'Semantic HTML5 & Best Practices'
+        ]
+      }
+    ]),
+    projects: ['Personal Portfolio Webpage', 'Interactive Multi-Section Registration Form'],
+    careerReadiness: ['Web Development Foundation', 'Clean Code and Semantic Markup'],
+    outcome: 'Master HyperText Markup Language to construct clean, accessible, and structured web pages from scratch.',
+    features: COMMON_PROGRAM_FEATURES,
+    requirements: ['Any modern web browser and a free code editor (like VS Code or Notepad).'],
+    whoIsItFor: ['Anyone starting their web development journey, students, and digital creators.']
   }
 ];
 
@@ -1321,7 +1698,14 @@ export function searchCourses(courseList: Course[], query: string): Course[] {
     }
 
     // Check projects & outcome
-    if (course.projects?.some((p) => p.toLowerCase().includes(term))) return true;
+    if (
+      course.projects?.some((p) => {
+        const text = typeof p === 'string' ? p : `${p.title} ${p.description} ${p.technologies.join(' ')} ${p.category}`;
+        return text.toLowerCase().includes(term);
+      })
+    ) {
+      return true;
+    }
     if (course.outcome?.toLowerCase().includes(term)) return true;
 
     return false;

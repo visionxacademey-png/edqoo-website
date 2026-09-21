@@ -88,6 +88,15 @@ function normalizeCategoryName(cat: string | null | undefined): string {
     return 'Tools and Upskills';
   }
 
+  if (
+    lower === 'free learning' ||
+    lower === 'free-learning' ||
+    lower === 'free' ||
+    lower.includes('free learning')
+  ) {
+    return 'Free Learning';
+  }
+
   return trimmed;
 }
 

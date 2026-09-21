@@ -6,7 +6,6 @@ import {
   Save,
   Plus,
   Trash2,
-  Sparkles,
   Layers,
   CheckCircle2,
   AlertCircle,
@@ -14,7 +13,7 @@ import {
 } from 'lucide-react';
 import { courseService } from '../../services/courseService';
 import { COMMON_PROGRAM_FEATURES, PROGRAM_CATEGORIES } from '../../data/courses';
-import type { Course, Module, Lesson } from '../../types';
+import type { Course, Module, Lesson, ProjectItem } from '../../types';
 
 // Slugify helper
 function slugify(text: string): string {
@@ -56,6 +55,7 @@ export const AdminCourseForm: React.FC = () => {
   const [features, setFeatures] = useState<string[]>(COMMON_PROGRAM_FEATURES);
   const [rating, setRating] = useState<number>(4.9);
   const [students, setStudents] = useState<number>(350);
+  const [projects, setProjects] = useState<Array<string | ProjectItem>>([]);
 
   // Dynamic Lists
   const [skills, setSkills] = useState<string[]>([
@@ -121,6 +121,7 @@ export const AdminCourseForm: React.FC = () => {
             setRating(course.rating);
             setStudents(course.students);
             if (course.skills) setSkills(course.skills);
+            if (course.projects) setProjects(course.projects);
             if (course.whoIsItFor) setWhoIsItFor(course.whoIsItFor);
             if (course.requirements) setRequirements(course.requirements);
             if (course.modules && course.modules.length > 0) setModules(course.modules);
@@ -278,6 +279,7 @@ export const AdminCourseForm: React.FC = () => {
       students: Number(students) || 0,
       lessons: totalCalculatedLessons || 10,
       skills,
+      projects: projects.length > 0 ? projects : undefined,
       whoIsItFor,
       requirements,
       modules
@@ -507,8 +509,7 @@ export const AdminCourseForm: React.FC = () => {
                   onChange={(e) => setFeatured(e.target.checked)}
                   className="w-4 h-4 rounded text-purple-600 bg-slate-950 border-slate-700 focus:ring-purple-500"
                 />
-                <span className="text-xs font-bold text-white flex items-center gap-1.5">
-                  <Sparkles className="w-3.5 h-3.5 text-amber-400" />
+                <span className="text-xs font-bold text-white">
                   Mark as Featured Track on Homepage
                 </span>
               </label>
@@ -527,9 +528,9 @@ export const AdminCourseForm: React.FC = () => {
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4">
             {/* Offer Price */}
             <div>
-              <label className="text-xs font-bold text-slate-300 block mb-1">
+              {/* <label className="text-xs font-bold text-slate-300 block mb-1">
                 Offer Price (₹) <span className="text-red-400">*</span>
-              </label>
+              </label> */}
               <input
                 type="number"
                 required
@@ -542,9 +543,9 @@ export const AdminCourseForm: React.FC = () => {
 
             {/* Original Price */}
             <div>
-              <label className="text-xs font-bold text-slate-300 block mb-1">
+              {/* <label className="text-xs font-bold text-slate-300 block mb-1">
                 Original Price (₹)
-              </label>
+              </label> */}
               <input
                 type="number"
                 min={0}

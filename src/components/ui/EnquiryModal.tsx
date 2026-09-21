@@ -14,7 +14,6 @@ import {
   CheckCircle2,
   AlertCircle,
   MessageCircle,
-  Sparkles,
   Send,
   Clock,
   Radio
@@ -158,9 +157,8 @@ const StandardEnquiryModal: React.FC<StandardEnquiryModalProps> = ({
             {/* Header */}
             <div className="bg-gradient-to-r from-purple-800 via-purple-700 to-purple-900 text-white px-6 py-5 flex items-center justify-between flex-shrink-0">
               <div className="space-y-1 text-left">
-                <div className="flex items-center gap-1.5 text-purple-100 text-xs font-semibold uppercase tracking-wider">
-                  <Sparkles className="w-3.5 h-3.5 text-purple-200" />
-                  <span>Course Enquiry & Advisory</span>
+                <div className="text-purple-100 text-xs font-semibold uppercase tracking-wider">
+                  <span>Course Enquiry &amp; Advisory</span>
                 </div>
                 <h3 className="text-xl font-display font-bold text-white">
                   Request Course Details & Callback

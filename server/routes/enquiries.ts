@@ -59,6 +59,8 @@ router.post('/', async (req, res) => {
       designation,
       yearsOfExperience,
       department,
+      collegeOrSchool,
+      enquiryType,
       details
     } = req.body;
 
@@ -72,24 +74,29 @@ router.post('/', async (req, res) => {
     const sessionId = `sess-${Date.now().toString(36)}-${Math.random().toString(36).substring(2, 6)}`;
     let assignedUserId = userId || `usr-${Date.now().toString(36)}-${Math.random().toString(36).substring(2, 6)}`;
 
+    const finalEnquiryType = enquiryType || (category === 'Student Offer' || program?.includes('Student Offer') ? 'STUDENT_OFFER' : 'COURSE_ENQUIRY');
+    const finalCollege = (collegeOrSchool || collegeName || '').trim();
+
     const newEnquiry: Enquiry = {
       id,
       userId: assignedUserId,
       name: name.trim(),
       email: normalizedEmail,
       phone: phone.trim(),
-      program: program || 'Tools and Upskills Track',
+      program: program || (finalEnquiryType === 'STUDENT_OFFER' ? '60% Student Offer' : 'Tools and Upskills Track'),
       courseId: courseId || '',
-      category: category || 'Tools & Upskills',
-      source: source || 'Tools & Upskills Enquire Now',
-      leadStatus: (leadStatus as any) || 'Incomplete',
+      category: category || (finalEnquiryType === 'STUDENT_OFFER' ? 'Student Offer' : 'Tools & Upskills'),
+      source: source || (finalEnquiryType === 'STUDENT_OFFER' ? 'Student Offer Popup' : 'Tools & Upskills Enquire Now'),
+      enquiryType: finalEnquiryType,
+      collegeOrSchool: finalCollege,
+      leadStatus: (leadStatus as any) || (finalEnquiryType === 'STUDENT_OFFER' ? 'Completed' : 'Incomplete'),
       experienceLevel: experienceLevel || 'Beginner',
       learningMode: learningMode || 'Online Live',
       location: location || '',
       preferredContactMethod: preferredContactMethod || 'WhatsApp',
       preferredCallbackTime: preferredCallbackTime || 'Flexible',
       message: message || '',
-      status: (status as any) || (leadStatus === 'Completed' ? 'Submitted' : 'Incomplete'),
+      status: (status as any) || (leadStatus === 'Completed' || finalEnquiryType === 'STUDENT_OFFER' ? 'Submitted' : 'Incomplete'),
       notes: '',
       gender: gender || '',
       dateOfBirth: dateOfBirth || '',
@@ -97,7 +104,7 @@ router.post('/', async (req, res) => {
       pincode: pincode || '',
       state: state || '',
       city: city || '',
-      profession: profession || '',
+      profession: profession || (finalEnquiryType === 'STUDENT_OFFER' ? 'Student' : ''),
       highestQualification: highestQualification || '',
       yearOfGraduation: yearOfGraduation || '',
       apaarAbcStatus: apaarAbcStatus || '',
@@ -105,7 +112,7 @@ router.post('/', async (req, res) => {
       ktuId: ktuId || '',
       swayamChapter: swayamChapter || '',
       collegeState: collegeState || '',
-      collegeName: collegeName || '',
+      collegeName: finalCollege || '',
       universityName: universityName || '',
       rollNumber: rollNumber || '',
       highestAcademicLevel: highestAcademicLevel || '',
@@ -115,7 +122,11 @@ router.post('/', async (req, res) => {
       designation: designation || '',
       yearsOfExperience: yearsOfExperience || '',
       department: department || '',
-      details: details || {},
+      details: {
+        ...(details || {}),
+        collegeOrSchool: finalCollege,
+        enquiryType: finalEnquiryType
+      },
       submittedAt: new Date().toISOString()
     };
 
@@ -298,6 +309,10 @@ router.post('/', async (req, res) => {
 
 // Helper function to map DB row to Enquiry object
 function formatEnquiryRow(row: any): Enquiry {
+  const details = typeof row.details === 'string' ? JSON.parse(row.details || '{}') : (row.details || {});
+  const enquiryType = details.enquiryType || (row.category === 'Student Offer' || row.program?.includes('Student Offer') ? 'STUDENT_OFFER' : 'COURSE_ENQUIRY');
+  const collegeOrSchool = details.collegeOrSchool || row.college_name || '';
+
   return {
     id: row.id,
     userId: row.user_id,
@@ -308,6 +323,8 @@ function formatEnquiryRow(row: any): Enquiry {
     courseId: row.course_id,
     category: row.category,
     source: row.source,
+    enquiryType,
+    collegeOrSchool,
     leadStatus: row.lead_status || 'Incomplete',
     experienceLevel: row.experience_level,
     learningMode: row.learning_mode,
@@ -331,7 +348,7 @@ function formatEnquiryRow(row: any): Enquiry {
     ktuId: row.ktu_id,
     swayamChapter: row.swayam_chapter,
     collegeState: row.college_state,
-    collegeName: row.college_name,
+    collegeName: row.college_name || collegeOrSchool,
     universityName: row.university_name,
     rollNumber: row.roll_number,
     highestAcademicLevel: row.highest_academic_level,
@@ -341,7 +358,7 @@ function formatEnquiryRow(row: any): Enquiry {
     designation: row.designation,
     yearsOfExperience: row.years_of_experience,
     department: row.department,
-    details: typeof row.details === 'string' ? JSON.parse(row.details || '{}') : (row.details || {}),
+    details,
     lastContactedDate: row.last_contacted_date,
     submittedAt: row.submitted_at,
     updatedAt: row.updated_at

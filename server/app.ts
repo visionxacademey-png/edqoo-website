@@ -6,6 +6,12 @@ import authRoutes from './routes/auth.js';
 import adminRoutes from './routes/admin.js';
 import coursesRoutes from './routes/courses.js';
 import enquiriesRoutes from './routes/enquiries.js';
+import instructorsRoutes from './routes/instructors.js';
+import hiringRoutes from './routes/hiring.js';
+import instructorApplicationsRoutes from './routes/instructorApplications.js';
+import partnersRoutes from './routes/partners.js';
+import leadershipRoutes from './routes/leadership.js';
+import chatRoutes from './routes/chat.js';
 
 dotenv.config();
 
@@ -62,6 +68,12 @@ app.use(['/api/auth', '/auth'], authRoutes);
 app.use(['/api/admin', '/admin'], adminRoutes);
 app.use(['/api/courses', '/courses'], coursesRoutes);
 app.use(['/api/enquiries', '/enquiries'], enquiriesRoutes);
+app.use(['/api/instructors', '/instructors'], instructorsRoutes);
+app.use(['/api/hiring-enquiries', '/hiring-enquiries'], hiringRoutes);
+app.use(['/api/instructor-applications', '/instructor-applications'], instructorApplicationsRoutes);
+app.use(['/api/partner-enquiries', '/partner-enquiries'], partnersRoutes);
+app.use(['/api/leadership', '/leadership'], leadershipRoutes);
+app.use(['/api/chat', '/chat'], chatRoutes);
 
 // Global Error Handler
 app.use((err: any, _req: express.Request, res: express.Response, _next: express.NextFunction) => {

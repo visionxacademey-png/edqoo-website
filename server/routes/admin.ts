@@ -23,13 +23,23 @@ router.get('/stats', async (_req, res) => {
       const activeSessionsRes = await query('SELECT COUNT(*) FROM user_sessions WHERE is_active = true');
       const coursesRes = await query('SELECT COUNT(*) FROM courses');
       const enquiriesRes = await query('SELECT COUNT(*) FROM enquiries');
+      const studentOfferRes = await query("SELECT COUNT(*) FROM enquiries WHERE category = 'Student Offer' OR source ILIKE '%Student Offer%' OR details->>'enquiryType' = 'STUDENT_OFFER'").catch(() => ({ rows: [{ count: '0' }] }));
       const adminsRes = await query("SELECT COUNT(*) FROM users WHERE role = 'admin'");
+      const hiringRes = await query('SELECT COUNT(*) FROM hiring_enquiries').catch(() => ({ rows: [{ count: '0' }] }));
+      const instructorAppsRes = await query('SELECT COUNT(*) FROM instructor_applications').catch(() => ({ rows: [{ count: '0' }] }));
+      const partnerRes = await query('SELECT COUNT(*) FROM partner_enquiries').catch(() => ({ rows: [{ count: '0' }] }));
+      const leadershipRes = await query('SELECT COUNT(*) FROM leadership_members').catch(() => ({ rows: [{ count: '0' }] }));
 
       return res.json({
         totalUsers: parseInt(usersRes.rows[0].count, 10),
         activeSessions: parseInt(activeSessionsRes.rows[0].count, 10),
         totalCourses: parseInt(coursesRes.rows[0].count, 10),
         totalEnquiries: parseInt(enquiriesRes.rows[0].count, 10),
+        studentOfferEnquiries: parseInt(studentOfferRes.rows[0].count, 10),
+        totalHiringRequests: parseInt(hiringRes.rows[0].count, 10),
+        totalInstructorApps: parseInt(instructorAppsRes.rows[0].count, 10),
+        totalPartnerRequests: parseInt(partnerRes.rows[0].count, 10),
+        totalLeadershipMembers: parseInt(leadershipRes.rows[0].count, 10),
         adminCount: parseInt(adminsRes.rows[0].count, 10),
         dbType: 'neondb_postgresql'
       });
@@ -38,6 +48,11 @@ router.get('/stats', async (_req, res) => {
       const activeSessions = mockStore.sessions.filter(s => s.is_active).length;
       const totalCourses = mockStore.courses.length;
       const totalEnquiries = mockStore.enquiries.length;
+      const studentOfferEnquiries = mockStore.enquiries.filter(e => e.category === 'Student Offer' || e.source?.includes('Student Offer') || (e.details && e.details.enquiryType === 'STUDENT_OFFER')).length;
+      const totalHiringRequests = mockStore.hiringEnquiries ? mockStore.hiringEnquiries.length : 0;
+      const totalInstructorApps = mockStore.instructorApplications ? mockStore.instructorApplications.length : 0;
+      const totalPartnerRequests = mockStore.partnerEnquiries ? mockStore.partnerEnquiries.length : 0;
+      const totalLeadershipMembers = mockStore.leadershipMembers ? mockStore.leadershipMembers.length : 0;
       const adminCount = mockStore.users.filter(u => u.role === 'admin').length;
 
       return res.json({
@@ -45,6 +60,11 @@ router.get('/stats', async (_req, res) => {
         activeSessions,
         totalCourses,
         totalEnquiries,
+        studentOfferEnquiries,
+        totalHiringRequests,
+        totalInstructorApps,
+        totalPartnerRequests,
+        totalLeadershipMembers,
         adminCount,
         dbType: 'in_memory_fallback'
       });

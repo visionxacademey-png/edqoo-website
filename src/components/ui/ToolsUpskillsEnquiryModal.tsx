@@ -12,7 +12,6 @@ import {
   CheckCircle2,
   AlertCircle,
   MessageCircle,
-  Sparkles,
   ArrowRight,
   GraduationCap,
   IdCard
@@ -428,9 +427,8 @@ export const ToolsUpskillsEnquiryModal: React.FC<ToolsUpskillsEnquiryModalProps>
             <div className="bg-gradient-to-r from-purple-800 via-purple-700 to-indigo-900 text-white px-5 sm:px-6 py-4 sm:py-5 flex items-center justify-between flex-shrink-0 border-b border-purple-900/40">
               <div className="space-y-1 text-left flex-1 min-w-0 pr-3">
                 <div className="flex items-center gap-2 text-purple-200 text-xs font-bold uppercase tracking-wider">
-                  <span className="inline-flex items-center gap-1 bg-purple-900/60 px-2 py-0.5 rounded-md border border-purple-500/30 text-[10px]">
-                    <Sparkles className="w-3 h-3 text-purple-300" />
-                    Tools & Upskills Track
+                  <span className="inline-flex items-center bg-purple-900/60 px-2 py-0.5 rounded-md border border-purple-500/30 text-[10px]">
+                    Tools &amp; Upskills Track
                   </span>
                   <span className="text-[11px] text-purple-200 font-semibold hidden sm:inline">
                     {currentStep === 1 ? 'Step 1 of 2' : 'Step 2 of 2'}

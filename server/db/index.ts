@@ -2,6 +2,7 @@ import { Pool, neonConfig } from '@neondatabase/serverless';
 import ws from 'ws';
 import dotenv from 'dotenv';
 import { courses as initialCourses } from '../../src/data/courses.js';
+import { instructors as initialInstructors } from '../../src/data/instructors.js';
 
 dotenv.config();
 
@@ -66,7 +67,12 @@ export const mockStore = {
   users: [] as MockUser[],
   sessions: [] as MockSession[],
   courses: [...initialCourses],
-  enquiries: [] as any[]
+  instructors: [...initialInstructors],
+  enquiries: [] as any[],
+  hiringEnquiries: [] as any[],
+  instructorApplications: [] as any[],
+  partnerEnquiries: [] as any[],
+  leadershipMembers: [] as any[]
 };
 
 export function isDbConnected(): boolean {
@@ -436,6 +442,112 @@ export async function initDb() {
       ALTER TABLE enquiries ADD COLUMN IF NOT EXISTS years_of_experience VARCHAR(100);
       ALTER TABLE enquiries ADD COLUMN IF NOT EXISTS department VARCHAR(255);
       ALTER TABLE enquiries ADD COLUMN IF NOT EXISTS details JSONB DEFAULT '{}'::jsonb;
+
+      CREATE TABLE IF NOT EXISTS instructors (
+        id VARCHAR(100) PRIMARY KEY,
+        name VARCHAR(255) NOT NULL,
+        designation VARCHAR(255) NOT NULL,
+        organization VARCHAR(255) NOT NULL,
+        image TEXT,
+        profile_image TEXT,
+        short_bio TEXT,
+        detailed_bio TEXT,
+        qualifications VARCHAR(255),
+        experience VARCHAR(100),
+        expertise JSONB DEFAULT '[]'::jsonb,
+        certifications JSONB DEFAULT '[]'::jsonb,
+        courses JSONB DEFAULT '[]'::jsonb,
+        projects JSONB DEFAULT '[]'::jsonb,
+        linkedin VARCHAR(255),
+        email VARCHAR(255),
+        teaching_experience TEXT,
+        industry_experience TEXT,
+        created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+        updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+      );
+
+      CREATE TABLE IF NOT EXISTS hiring_enquiries (
+        id VARCHAR(100) PRIMARY KEY,
+        company_name VARCHAR(255) NOT NULL,
+        contact_person VARCHAR(255) NOT NULL,
+        email VARCHAR(255) NOT NULL,
+        phone VARCHAR(100) NOT NULL,
+        job_role VARCHAR(255) NOT NULL,
+        openings VARCHAR(100),
+        required_skills TEXT,
+        experience VARCHAR(100),
+        location VARCHAR(255),
+        work_mode VARCHAR(50) DEFAULT 'Remote',
+        additional_requirements TEXT,
+        status VARCHAR(50) DEFAULT 'New',
+        notes TEXT,
+        submitted_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+        updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+      );
+
+      CREATE TABLE IF NOT EXISTS instructor_applications (
+        id VARCHAR(100) PRIMARY KEY,
+        name VARCHAR(255) NOT NULL,
+        email VARCHAR(255) NOT NULL,
+        phone VARCHAR(100) NOT NULL,
+        designation VARCHAR(255) NOT NULL,
+        organization VARCHAR(255) NOT NULL,
+        qualification VARCHAR(255) NOT NULL,
+        expertise TEXT NOT NULL,
+        experience VARCHAR(100) NOT NULL,
+        linkedin VARCHAR(255),
+        portfolio VARCHAR(255),
+        courses TEXT NOT NULL,
+        teaching_experience VARCHAR(100),
+        bio TEXT NOT NULL,
+        resume TEXT,
+        additional_info TEXT,
+        status VARCHAR(50) DEFAULT 'New',
+        notes TEXT,
+        submitted_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+        updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+      );
+
+      CREATE TABLE IF NOT EXISTS partner_enquiries (
+        id VARCHAR(100) PRIMARY KEY,
+        organization_name VARCHAR(255) NOT NULL,
+        contact_person VARCHAR(255) NOT NULL,
+        designation VARCHAR(255) NOT NULL,
+        email VARCHAR(255) NOT NULL,
+        phone VARCHAR(100) NOT NULL,
+        organization_type VARCHAR(100) NOT NULL,
+        partnership_area VARCHAR(255) NOT NULL,
+        website VARCHAR(255),
+        location VARCHAR(255),
+        proposal TEXT NOT NULL,
+        additional_info TEXT,
+        status VARCHAR(50) DEFAULT 'New',
+        notes TEXT,
+        submitted_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+        updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+      );
+
+      CREATE TABLE IF NOT EXISTS leadership_members (
+        id VARCHAR(100) PRIMARY KEY,
+        name VARCHAR(255) NOT NULL,
+        profile_image TEXT,
+        designation VARCHAR(255) NOT NULL,
+        organization VARCHAR(255) NOT NULL,
+        qualification VARCHAR(255),
+        experience VARCHAR(100),
+        expertise JSONB DEFAULT '[]'::jsonb,
+        short_bio TEXT NOT NULL,
+        detailed_bio TEXT,
+        leadership_experience TEXT,
+        achievements JSONB DEFAULT '[]'::jsonb,
+        publications JSONB DEFAULT '[]'::jsonb,
+        linkedin VARCHAR(255),
+        website VARCHAR(255),
+        email VARCHAR(255),
+        display_order INTEGER DEFAULT 0,
+        created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+        updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+      );
     `);
 
     console.log('✅ [DB] NeonDB tables verified / created successfully.');
@@ -625,6 +737,62 @@ export async function initDb() {
       );
     }
     console.log(`✅ [DB] Synced ${initialCourses.length} courses into NeonDB.`);
+
+    // Synchronize instructor catalog into NeonDB
+    console.log('👨‍🏫 [DB] Synchronizing instructor profiles into NeonDB...');
+    for (const inst of initialInstructors) {
+      await pool.query(
+        `INSERT INTO instructors (
+          id, name, designation, organization, image, profile_image, short_bio, detailed_bio,
+          qualifications, experience, expertise, certifications, courses, projects,
+          linkedin, email, teaching_experience, industry_experience, created_at, updated_at
+        ) VALUES (
+          $1, $2, $3, $4, $5, $6, $7, $8,
+          $9, $10, $11, $12, $13, $14,
+          $15, $16, $17, $18, NOW(), NOW()
+        )
+        ON CONFLICT (id) DO UPDATE SET
+          name = EXCLUDED.name,
+          designation = EXCLUDED.designation,
+          organization = EXCLUDED.organization,
+          image = EXCLUDED.image,
+          profile_image = EXCLUDED.profile_image,
+          short_bio = EXCLUDED.short_bio,
+          detailed_bio = EXCLUDED.detailed_bio,
+          qualifications = EXCLUDED.qualifications,
+          experience = EXCLUDED.experience,
+          expertise = EXCLUDED.expertise,
+          certifications = EXCLUDED.certifications,
+          courses = EXCLUDED.courses,
+          projects = EXCLUDED.projects,
+          linkedin = EXCLUDED.linkedin,
+          email = EXCLUDED.email,
+          teaching_experience = EXCLUDED.teaching_experience,
+          industry_experience = EXCLUDED.industry_experience,
+          updated_at = NOW()`,
+        [
+          inst.id,
+          inst.name,
+          inst.designation,
+          inst.organization,
+          inst.image,
+          inst.profileImage || inst.image,
+          inst.shortBio,
+          inst.detailedBio,
+          inst.qualifications,
+          inst.experience,
+          JSON.stringify(inst.expertise || []),
+          JSON.stringify(inst.certifications || []),
+          JSON.stringify(inst.courses || []),
+          JSON.stringify(inst.projects || []),
+          inst.linkedin || null,
+          inst.email || null,
+          inst.teachingExperience || null,
+          inst.industryExperience || null
+        ]
+      );
+    }
+    console.log(`✅ [DB] Synced ${initialInstructors.length} instructors into NeonDB.`);
   } catch (err: any) {
     console.error('⚠️ [DB] NeonDB connection or migration error:', err.message);
     isNeonConnected = false;

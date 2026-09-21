@@ -4,6 +4,7 @@ import { Navbar } from '../components/layout/Navbar';
 import { Footer } from '../components/layout/Footer';
 import { FloatingSupport } from '../components/ui/FloatingSupport';
 import { EnquiryModal } from '../components/ui/EnquiryModal';
+import { StudentOfferModal } from '../components/ui/StudentOfferModal';
 import { motion } from 'framer-motion';
 
 export const MainLayout: React.FC = () => {
@@ -25,6 +26,9 @@ export const MainLayout: React.FC = () => {
 
       {/* Global Advisory / Enquiry Modal */}
       <EnquiryModal />
+
+      {/* 60% Student Offer Promotional Modal */}
+      <StudentOfferModal />
 
       {/* Floating Customer Helpdesk */}
       <FloatingSupport />

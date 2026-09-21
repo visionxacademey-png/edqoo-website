@@ -336,5 +336,71 @@ export const enquiryService = {
       }
       return { success: false };
     }
+  },
+
+  submitStudentOfferEnquiry: async (data: {
+    name: string;
+    email: string;
+    phone: string;
+    collegeOrSchool: string;
+  }): Promise<{ success: boolean; message: string; enquiry?: Enquiry }> => {
+    const payload = {
+      name: data.name.trim(),
+      email: data.email.trim().toLowerCase(),
+      phone: data.phone.trim(),
+      collegeOrSchool: data.collegeOrSchool.trim(),
+      collegeName: data.collegeOrSchool.trim(),
+      program: '60% Student Offer',
+      category: 'Student Offer',
+      source: 'Student Offer Popup',
+      enquiryType: 'STUDENT_OFFER',
+      profession: 'Student',
+      leadStatus: 'Completed',
+      status: 'Submitted',
+      learningMode: 'Online Live',
+      preferredContactMethod: 'WhatsApp',
+      details: {
+        enquiryType: 'STUDENT_OFFER',
+        collegeOrSchool: data.collegeOrSchool.trim(),
+        offerDiscount: '60%'
+      }
+    };
+
+    recordLocalCandidateActivity(payload.name, payload.email, payload.phone);
+
+    try {
+      const response = await api.post('/enquiries', payload);
+      return {
+        success: true,
+        message: 'Thank you! Your enquiry has been submitted successfully. Our team will contact you soon.',
+        enquiry: response.data.enquiry
+      };
+    } catch (error: any) {
+      console.warn('Backend unavailable, storing Student Offer enquiry in local fallback store.', error);
+      const all = getStoredEnquiries();
+      const fallback: Enquiry = {
+        id: `enq-offer-${Date.now().toString(36)}-${Math.random().toString(36).substring(2, 6)}`,
+        name: payload.name,
+        email: payload.email,
+        phone: payload.phone,
+        program: payload.program,
+        category: payload.category,
+        source: payload.source,
+        enquiryType: 'STUDENT_OFFER',
+        collegeOrSchool: payload.collegeOrSchool,
+        collegeName: payload.collegeOrSchool,
+        profession: 'Student',
+        leadStatus: 'Completed',
+        status: 'Submitted',
+        details: payload.details,
+        submittedAt: new Date().toISOString()
+      };
+      saveStoredEnquiries([fallback, ...all]);
+      return {
+        success: true,
+        message: 'Thank you! Your enquiry has been submitted successfully. Our team will contact you soon.',
+        enquiry: fallback
+      };
+    }
   }
 };

@@ -2,7 +2,6 @@ import React, { useState, useEffect, useRef } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
-  Sparkles,
   Award,
   Users,
   Star,
@@ -16,9 +15,6 @@ import {
   PhoneCall,
   CheckCircle,
   Briefcase,
-  Video,
-  FolderGit2,
-  UserCheck,
   Brain,
   BarChart3,
   Cpu
@@ -26,6 +22,7 @@ import {
 import { courses, filterCoursesByCategory, normalizeCategoryName } from '../../data/courses';
 import { SEO } from '../../components/common/SEO';
 import { useEnquiry } from '../../context/EnquiryContext';
+import { KeyHighlights } from '../../components/common/KeyHighlights';
 
 // Hero slide definitions matching EDQOO visual identity
 const heroSlides = [
@@ -38,7 +35,9 @@ const heroSlides = [
     primaryCta: 'Explore All Programs',
     primaryLink: '/courses',
     secondaryCta: 'Talk to Advisor',
+    desktopImage: 'https://images.unsplash.com/photo-1522071820081-009f0129c71c?q=80&w=1600&auto=format&fit=crop',
     image: 'https://images.unsplash.com/photo-1522071820081-009f0129c71c?q=80&w=1600&auto=format&fit=crop',
+    mobileImage: 'https://images.unsplash.com/photo-1531482615713-2afd69097998?q=80&w=1080&h=1920&auto=format&fit=crop',
     statHighlight: '53% of learners received 50% and above salary hike post completion of the program*',
     partnerLogo: 'Enterprise Benchmark'
   },
@@ -51,7 +50,9 @@ const heroSlides = [
     primaryCta: 'View Data Science and AI',
     primaryLink: '/courses/advanced-executive-program-data-science-ai',
     secondaryCta: 'Request Syllabus',
+    desktopImage: 'https://images.unsplash.com/photo-1551288049-bebda4e38f71?q=80&w=1600&auto=format&fit=crop',
     image: 'https://images.unsplash.com/photo-1551288049-bebda4e38f71?q=80&w=1600&auto=format&fit=crop',
+    mobileImage: 'https://images.unsplash.com/photo-1551836022-d5d88e9218df?q=80&w=1080&h=1920&auto=format&fit=crop',
     statHighlight: '94% of alumni report direct career advancement in data & AI operations*',
     partnerLogo: 'Accredited Labs'
   },
@@ -64,7 +65,9 @@ const heroSlides = [
     primaryCta: 'View AI and Machine Learning Track',
     primaryLink: '/courses/executive-professional-certificate-data-science-ai',
     secondaryCta: 'Book Advisory Call',
+    desktopImage: 'https://images.unsplash.com/photo-1531482615713-2afd69097998?q=80&w=1600&auto=format&fit=crop',
     image: 'https://images.unsplash.com/photo-1531482615713-2afd69097998?q=80&w=1600&auto=format&fit=crop',
+    mobileImage: 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?q=80&w=1080&h=1920&auto=format&fit=crop',
     statHighlight: 'Over 2,500+ active practitioners enrolled across modern engineering tracks*',
     partnerLogo: 'Global Standards'
   },
@@ -77,61 +80,22 @@ const heroSlides = [
     primaryCta: 'Explore Tools & Upskills',
     primaryLink: '/courses',
     secondaryCta: 'Enquire for Teams',
+    desktopImage: 'https://images.unsplash.com/photo-1460925895917-afdab827c52f?q=80&w=1600&auto=format&fit=crop',
     image: 'https://images.unsplash.com/photo-1460925895917-afdab827c52f?q=80&w=1600&auto=format&fit=crop',
+    mobileImage: 'https://images.unsplash.com/photo-1552664730-d307ca884978?q=80&w=1080&h=1920&auto=format&fit=crop',
     statHighlight: '100% lab-driven curriculum audited and verified by enterprise architects*',
     partnerLogo: 'Industry Verified'
   }
 ];
 
-// Clean category navigation with the 5 exact category tracks
+// Clean category navigation with the exact category tracks
 const categoryNav = [
   { id: 'all', label: 'All Categories', icon: Layers },
   { id: 'Data Science and AI', label: 'Data Science and AI', icon: Brain },
   { id: 'Data Analytics and AI', label: 'Data Analytics and AI', icon: BarChart3 },
   { id: 'AI and Machine Learning', label: 'AI and Machine Learning', icon: Cpu },
-  { id: 'Tools and Upskills', label: 'Tools and Upskills', icon: Wrench }
-];
-
-// Key Highlights data structured into the recommended groups
-const highlightGroups = [
-  {
-    id: 'learning',
-    category: 'Learning',
-    badgeColor: 'bg-purple-50 text-purple-700 border-purple-200',
-    icon: BookOpen,
-    items: [
-      { text: '218 Hrs of Self-Paced Learning', icon: Clock },
-      { text: '100+ Live Sessions Across 12 Months', icon: Video },
-      { text: '50+ Industry Projects & Case Studies', icon: FolderGit2 }
-    ]
-  },
-  {
-    id: 'technology',
-    category: 'Technology',
-    badgeColor: 'bg-blue-50 text-blue-700 border-blue-200',
-    icon: Cpu,
-    items: [
-      { text: 'AI Powered LMS', icon: Sparkles }
-    ]
-  },
-  {
-    id: 'career',
-    category: 'Career',
-    badgeColor: 'bg-amber-50 text-amber-800 border-amber-200',
-    icon: Briefcase,
-    items: [
-      { text: '3 Guaranteed Job Interviews upon movement to Placement Pool', icon: Briefcase }
-    ]
-  },
-  {
-    id: 'audience',
-    category: 'Audience',
-    badgeColor: 'bg-rose-50 text-rose-700 border-rose-200',
-    icon: UserCheck,
-    items: [
-      { text: 'Designed for Working Professionals and Freshers', icon: UserCheck }
-    ]
-  }
+  { id: 'Tools and Upskills', label: 'Tools and Upskills', icon: Wrench },
+  { id: 'Free Learning', label: 'Free Learning', icon: BookOpen }
 ];
 
 export const Home: React.FC = () => {
@@ -144,11 +108,15 @@ export const Home: React.FC = () => {
   const statsSectionRef = useRef<HTMLDivElement>(null);
   const touchStartX = useRef<number | null>(null);
 
-  // Preload all hero slide images for instant switching
+  // Preload all hero slide images for instant switching (desktop and mobile)
   useEffect(() => {
     heroSlides.forEach((slide) => {
-      const img = new Image();
-      img.src = slide.image;
+      const desktopImg = new Image();
+      desktopImg.src = slide.desktopImage || slide.image;
+      if (slide.mobileImage) {
+        const mobileImg = new Image();
+        mobileImg.src = slide.mobileImage;
+      }
     });
   }, []);
 
@@ -218,10 +186,149 @@ export const Home: React.FC = () => {
       />
 
       {/* ========================================================================= */}
-      {/* 1. HERO SLIDER SECTION (EDQOO BRAND THEME) */}
+      {/* 1A. DEDICATED MOBILE HERO SLIDER (SEPARATE PORTRAIT-FIRST PRESENTATION)   */}
       {/* ========================================================================= */}
       <section
-        className="relative bg-white text-slate-900 overflow-hidden pt-8 pb-0 sm:pt-14 sm:pb-0 border-b border-slate-200 select-none min-h-[520px] lg:min-h-[580px] flex flex-col justify-between"
+        className="flex md:hidden relative bg-white text-slate-900 overflow-hidden w-full max-w-full select-none min-h-[calc(100svh-64px)] flex-col justify-between border-b border-slate-200"
+        onTouchStart={handleTouchStart}
+        onTouchEnd={handleTouchEnd}
+      >
+        {/* Mobile Portrait Hero Background Stage with Multi-Stop Readable Gradient */}
+        <div className="absolute inset-0 w-full h-full pointer-events-none z-0 overflow-hidden">
+          <AnimatePresence mode="wait">
+            <motion.img
+              key={currentHero.id}
+              src={currentHero.mobileImage}
+              alt={currentHero.mainLine}
+              initial={{ opacity: 0, scale: 1.05 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.45, ease: 'easeOut' }}
+              className="absolute inset-0 w-full h-full object-cover object-center"
+            />
+          </AnimatePresence>
+          {/* Multi-stop gradient overlay tailored for mobile typography legibility */}
+          <div className="absolute inset-0 bg-gradient-to-b from-slate-950/40 via-transparent to-transparent" />
+          <div className="absolute inset-x-0 bottom-0 top-[28%] bg-gradient-to-t from-white via-white/95 to-transparent" />
+        </div>
+
+        {/* Mobile Hero Content Container */}
+        <div className="w-full relative z-10 px-5 pt-6 pb-4 flex-1 flex flex-col justify-end space-y-3.5 text-left">
+          <AnimatePresence mode="wait">
+            <motion.div
+              key={currentHero.id}
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -10 }}
+              transition={{ duration: 0.3, ease: 'easeOut' }}
+              className="w-full space-y-3"
+            >
+              {/* Launch Badge */}
+              <div className="inline-flex items-center px-3 py-1 rounded-full bg-purple-50/95 border border-purple-200/90 text-purple-700 text-[11px] font-bold tracking-wide shadow-2xs backdrop-blur-xs max-w-full">
+                <span className="truncate">{currentHero.launchBadge}</span>
+              </div>
+
+              {/* Mobile Headline Hierarchy */}
+              <div className="space-y-1">
+                <span className="block text-purple-600 font-display font-extrabold text-xs sm:text-sm tracking-tight">
+                  {currentHero.accentLine}
+                </span>
+                <h1 className="text-[23px] sm:text-2xl font-display font-black text-slate-950 tracking-tight leading-[1.16]">
+                  {currentHero.mainLine}
+                </h1>
+              </div>
+
+              {/* Mobile Feature Pills */}
+              <div className="flex flex-wrap gap-1.5 pt-0.5">
+                {currentHero.pills.map((pill, idx) => (
+                  <span
+                    key={idx}
+                    className="px-2.5 py-0.5 bg-slate-100/95 border border-slate-200/90 rounded-lg text-[11px] font-semibold text-slate-700 backdrop-blur-xs shadow-2xs"
+                  >
+                    {pill}
+                  </span>
+                ))}
+              </div>
+
+              {/* Mobile Action Buttons - Full-width / Easy Tap */}
+              <div className="flex flex-col gap-2 pt-1 w-full">
+                <Link
+                  to={currentHero.primaryLink}
+                  className="btn-primary w-full py-3.5 text-xs font-bold rounded-xl shadow-md inline-flex items-center justify-center gap-2"
+                >
+                  <span>{currentHero.primaryCta}</span>
+                  <ArrowRight className="w-4 h-4" />
+                </Link>
+                <button
+                  type="button"
+                  onClick={() => openEnquiryModal()}
+                  className="btn-secondary w-full py-3 text-xs font-bold rounded-xl shadow-2xs text-center"
+                >
+                  {currentHero.secondaryCta}
+                </button>
+              </div>
+            </motion.div>
+          </AnimatePresence>
+        </div>
+
+        {/* Mobile Bottom Highlight Strip & Slide Pagination */}
+        <div className="relative z-20 bg-white/95 backdrop-blur-md border-t border-slate-200/90 px-5 py-3 w-full">
+          <AnimatePresence mode="wait">
+            <motion.div
+              key={currentHero.id}
+              initial={{ opacity: 0, x: -4 }}
+              animate={{ opacity: 1, x: 0 }}
+              exit={{ opacity: 0, x: 4 }}
+              transition={{ duration: 0.2 }}
+              className="flex items-start gap-2 text-[11px] text-slate-600 mb-2.5 leading-snug"
+            >
+              <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse flex-shrink-0 mt-0.5" />
+              <p>
+                <span className="font-bold text-slate-900">{currentHero.partnerLogo}: </span>
+                <span>{currentHero.statHighlight}</span>
+              </p>
+            </motion.div>
+          </AnimatePresence>
+
+          {/* Mobile Slider Controls */}
+          <div className="flex items-center justify-between pt-1 border-t border-slate-100">
+            <div className="flex items-center gap-1.5">
+              {heroSlides.map((_, idx) => (
+                <button
+                  key={idx}
+                  onClick={() => setActiveSlide(idx)}
+                  className={`h-1.5 rounded-full transition-all duration-300 ${
+                    activeSlide === idx ? 'w-6 bg-purple-600' : 'w-2 bg-slate-300 hover:bg-slate-400'
+                  }`}
+                  aria-label={`Go to slide ${idx + 1}`}
+                />
+              ))}
+            </div>
+            {/* <div className="flex items-center gap-1.5">
+              <button
+                onClick={prevSlide}
+                className="p-1.5 rounded-lg bg-slate-50 hover:bg-purple-50 text-slate-700 hover:text-purple-700 border border-slate-200 transition-colors shadow-2xs"
+                aria-label="Previous slide"
+              >
+                <ChevronLeft className="w-3.5 h-3.5" />
+              </button>
+              <button
+                onClick={nextSlide}
+                className="p-1.5 rounded-lg bg-slate-50 hover:bg-purple-50 text-slate-700 hover:text-purple-700 border border-slate-200 transition-colors shadow-2xs"
+                aria-label="Next slide"
+              >
+                <ChevronRight className="w-3.5 h-3.5" />
+              </button>
+            </div> */}
+          </div>
+        </div>
+      </section>
+
+      {/* ========================================================================= */}
+      {/* 1B. DESKTOP & TABLET HERO SLIDER SECTION (UNCHANGED)                      */}
+      {/* ========================================================================= */}
+      <section
+        className="hidden md:flex relative bg-white text-slate-900 overflow-hidden pt-8 pb-0 sm:pt-14 sm:pb-0 border-b border-slate-200 select-none min-h-[520px] lg:min-h-[580px] flex-col justify-between"
         onMouseEnter={() => setIsSlidePaused(true)}
         onMouseLeave={() => setIsSlidePaused(false)}
         onTouchStart={handleTouchStart}
@@ -229,10 +336,10 @@ export const Home: React.FC = () => {
       >
         {/* Right-aligned Photographic Banner with Left Seamless Fade Mask */}
         <div className="absolute top-0 right-0 bottom-0 w-full lg:w-[62%] h-full pointer-events-none z-0 overflow-hidden">
-          <AnimatePresence>
+          <AnimatePresence mode="wait">
             <motion.img
               key={currentHero.id}
-              src={currentHero.image}
+              src={currentHero.desktopImage || currentHero.image}
               alt={currentHero.mainLine}
               initial={{ opacity: 0, scale: 1.03 }}
               animate={{ opacity: 1, scale: 1 }}
@@ -257,8 +364,7 @@ export const Home: React.FC = () => {
               className="max-w-2xl space-y-4 sm:space-y-6"
             >
               {/* Launch Badge */}
-              <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-purple-50 border border-purple-200 text-purple-700 text-xs font-bold tracking-wide shadow-2xs">
-                <Sparkles className="w-3.5 h-3.5 text-purple-600" />
+              <div className="inline-flex items-center px-3 py-1.5 rounded-full bg-purple-50 border border-purple-200 text-purple-700 text-xs font-bold tracking-wide shadow-2xs">
                 <span>{currentHero.launchBadge}</span>
               </div>
 
@@ -396,74 +502,9 @@ export const Home: React.FC = () => {
       </section>
 
       {/* ========================================================================= */}
-      {/* 3. KEY HIGHLIGHTS SECTION (New Requirements) */}
+      {/* 3. KEY HIGHLIGHTS SECTION (Exactly 6 Highlights) */}
       {/* ========================================================================= */}
-      <section id="highlights" className="section-padding bg-gradient-to-b from-white via-purple-50/20 to-slate-50 border-b border-slate-200">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-10">
-          
-          {/* Section Header */}
-          <div className="text-center max-w-3xl mx-auto space-y-2">
-            <span className="text-purple-600 text-xs font-extrabold tracking-widest uppercase block">
-              PROGRAM PILLARS
-            </span>
-            <h2 className="text-2xl sm:text-3xl lg:text-4xl font-display font-extrabold text-slate-950">
-              Key Highlights
-            </h2>
-            <p className="text-slate-500 text-xs sm:text-sm leading-relaxed">
-              Experience an unmatched standard of practical technology education designed with academic rigor and enterprise outcomes.
-            </p>
-          </div>
-
-          {/* Grouped Highlights Feature Cards Grid */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {highlightGroups.map((group) => {
-              const GroupIcon = group.icon;
-              return (
-                <div
-                  key={group.id}
-                  className="bg-white border border-slate-200/90 rounded-2xl p-6 shadow-2xs hover:border-purple-300 hover:shadow-md transition-all flex flex-col justify-between space-y-4 group"
-                >
-                  <div className="space-y-4">
-                    {/* Header with Group Category Badge */}
-                    <div className="flex items-center justify-between border-b border-slate-100 pb-3">
-                      <span className={`px-2.5 py-1 text-[11px] font-bold rounded-lg border ${group.badgeColor}`}>
-                        {group.category}
-                      </span>
-                      <div className="w-8 h-8 rounded-lg bg-purple-50 flex items-center justify-center text-purple-600 group-hover:bg-purple-600 group-hover:text-white transition-colors">
-                        <GroupIcon className="w-4 h-4" />
-                      </div>
-                    </div>
-
-                    {/* Highlights List inside this Card */}
-                    <ul className="space-y-3">
-                      {group.items.map((item, idx) => {
-                        const ItemIcon = item.icon;
-                        return (
-                          <li key={idx} className="flex items-start gap-3">
-                            <div className="mt-0.5 p-1 rounded-md bg-purple-50 text-purple-700 flex-shrink-0">
-                              <ItemIcon className="w-3.5 h-3.5" />
-                            </div>
-                            <span className="text-xs sm:text-sm font-bold text-slate-800 leading-snug">
-                              {item.text}
-                            </span>
-                          </li>
-                        );
-                      })}
-                    </ul>
-                  </div>
-
-                  {/* Micro Accent */}
-                  <div className="pt-2 border-t border-slate-50 flex items-center gap-1.5 text-[10px] font-bold text-purple-600">
-                    <CheckCircle className="w-3 h-3 text-purple-600" />
-                    <span>Verified EDQOO Standard</span>
-                  </div>
-                </div>
-              );
-            })}
-          </div>
-
-        </div>
-      </section>
+      <KeyHighlights />
 
       {/* ========================================================================= */}
       {/* 4. COURSES / PROGRAM TRACKS SECTION */}
@@ -573,6 +614,7 @@ export const Home: React.FC = () => {
               <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-5">
                 {displayedCourses.map((course) => {
                   const isTools = (course.categories || [course.category]).includes('Tools and Upskills');
+                  const isFree = (course.categories || [course.category]).some((c) => normalizeCategoryName(c) === 'Free Learning') || course.price === 0;
                   return (
                     <div
                       key={course.id}
@@ -594,7 +636,9 @@ export const Home: React.FC = () => {
                               <span
                                 key={cat}
                                 className={`px-2 py-0.5 text-[10px] font-bold rounded-md uppercase tracking-wider backdrop-blur-xs border ${
-                                  cat === 'Tools and Upskills'
+                                  cat === 'Free Learning'
+                                    ? 'bg-emerald-50/90 border-emerald-300 text-emerald-800'
+                                    : cat === 'Tools and Upskills'
                                     ? 'bg-emerald-50/90 border-emerald-300 text-emerald-800'
                                     : 'bg-purple-50/90 border-purple-300 text-purple-800'
                                 }`}
@@ -605,11 +649,15 @@ export const Home: React.FC = () => {
                           })}
                         </div>
 
-                        {course.liveHours && (
+                        {isFree ? (
+                          <span className="absolute top-3 right-3 px-2 py-0.5 bg-emerald-600 text-white text-[10px] font-extrabold rounded-md shadow-sm uppercase tracking-wider">
+                            FREE
+                          </span>
+                        ) : course.liveHours ? (
                           <span className="absolute top-3 right-3 px-2 py-0.5 bg-slate-900 text-white text-[10px] font-extrabold rounded-md shadow-sm">
                             {course.liveHours} Live
                           </span>
-                        )}
+                        ) : null}
                       </div>
 
                       {/* Card Content Details */}
@@ -656,7 +704,7 @@ export const Home: React.FC = () => {
                           ) : (
                             <span className="flex items-center gap-1">
                               <BookOpen className="w-3.5 h-3.5 text-slate-400" />
-                              {isTools ? 'Executive' : 'Master Track'}
+                              {isFree ? 'Free Learning' : isTools ? 'Executive' : 'Master Track'}
                             </span>
                           )}
                           <span className="flex items-center gap-1 text-amber-500 font-bold">
@@ -667,31 +715,30 @@ export const Home: React.FC = () => {
 
                         {/* Action & Pricing Footer */}
                         <div className="pt-3 border-t border-slate-100 flex items-center justify-between gap-2">
-                          <div className="flex flex-col">
-                            {course.originalPrice > 0 && (
-                              <span className="text-[10px] text-slate-400 line-through leading-none">
-                                ₹{course.originalPrice}
-                              </span>
-                            )}
-                            <span className="text-slate-950 font-extrabold text-sm leading-tight">
-                              ₹{course.price}
-                            </span>
-                          </div>
-                          <div className="flex items-center gap-1.5">
+                          <div className="flex items-center gap-1.5 w-full">
                             <button
                               type="button"
                               onClick={(e) => {
                                 e.stopPropagation();
                                 openEnquiryModal(course.title, {
-                                  category: selectedCategory === 'Tools and Upskills' ? 'Tools and Upskills' : course.category,
+                                  category: isFree ? 'Free Learning' : selectedCategory === 'Tools and Upskills' ? 'Tools and Upskills' : course.category,
                                   courseId: course.id,
                                   categories: course.categories
                                 });
                               }}
-                              className="btn-primary px-3 py-1.5 text-[10px] font-bold rounded-lg inline-flex items-center gap-1 shadow-2xs"
+                              className="btn-primary flex-1 py-1.5 text-[10px] font-bold rounded-lg inline-flex items-center justify-center gap-1 shadow-2xs"
                             >
-                              <PhoneCall className="w-3 h-3" />
-                              <span>Enquire Now</span>
+                              {isFree ? (
+                                <>
+                                  <BookOpen className="w-3 h-3" />
+                                  <span>Enquire Now</span>
+                                </>
+                              ) : (
+                                <>
+                                  <PhoneCall className="w-3 h-3" />
+                                  <span>Enquire Now</span>
+                                </>
+                              )}
                             </button>
                             <Link
                               to={`/courses/${course.slug}`}
@@ -847,7 +894,7 @@ export const Home: React.FC = () => {
               Career Advisory
             </span>
             <h3 className="text-2xl sm:text-3xl font-display font-extrabold text-white">
-              Start Learning Today — Accelerate Your Career
+              Enquire Now Today — Accelerate Your Career
             </h3>
             <p className="text-purple-100 text-xs sm:text-sm leading-relaxed max-w-xl">
               Connect with our learning advisors for a personalized track assessment, course roadmap, and customized corporate training options.

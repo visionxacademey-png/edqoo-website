@@ -13,7 +13,11 @@ import {
   Database,
   ExternalLink,
   ChevronRight,
-  Activity
+  Activity,
+  GraduationCap,
+  Building2,
+  Handshake,
+  UserCheck
 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { adminService } from '../services/adminService';
@@ -42,10 +46,14 @@ export const AdminLayout: React.FC = () => {
 
   const navItems = [
     { to: '/admin', label: 'Overview & Metrics', icon: LayoutDashboard, end: true },
-    { to: '/admin/users', label: 'Logged-in Users & Sessions', icon: Users, end: false },
-    { to: '/admin/courses', label: 'Course Management', icon: BookOpen, end: true },
-    { to: '/admin/courses/new', label: 'Add New Course', icon: PlusCircle, end: false },
+    { to: '/admin/courses', label: 'Course Management', icon: BookOpen, end: false },
+    { to: '/admin/instructors', label: 'Instructor Catalog', icon: GraduationCap, end: false },
+    { to: '/admin/leadership', label: 'Leadership Council', icon: ShieldCheck, end: false },
+    { to: '/admin/hiring', label: 'Hiring Requests', icon: Building2, end: false },
+    { to: '/admin/instructor-applications', label: 'Instructor Applications', icon: UserCheck, end: false },
+    { to: '/admin/partners', label: 'Partnership Requests', icon: Handshake, end: false },
     { to: '/admin/leads', label: 'Leads & Enquiries', icon: MessageSquareCheck, end: false },
+    { to: '/admin/users', label: 'Users & Telemetry', icon: Users, end: false },
   ];
 
   return (

@@ -239,7 +239,7 @@ export const Contact: React.FC = () => {
                 <MapPin className="w-4.5 h-4.5 text-purple-600 mt-0.5 flex-shrink-0" />
                 <div>
                   <span className="font-bold text-slate-900 block">Corporate Office</span>
-                  <span className="text-slate-500">Edqoo Technologies, 100 Pine St, San Francisco, CA</span>
+                  <span className="text-slate-500">Edqoo Technologies, 3rd floor, Indus Avenue, Pushpa Junction, Chalappuram, Kozhikode, Kerala 673002</span>
                 </div>
               </div>
             </div>

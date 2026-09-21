@@ -13,11 +13,13 @@ import {
   CheckCircle2,
   AlertTriangle,
   Phone,
-  MessageCircle
+  MessageCircle,
+  Building2,
+  Handshake,
+  UserCheck
 } from 'lucide-react';
 import { adminService } from '../../services/adminService';
 import { courseService } from '../../services/courseService';
-import { normalizeCategoryName } from '../../data/courses';
 import type { AdminStats, DbStatus, UserSession, Course } from '../../types';
 
 export const AdminOverview: React.FC = () => {
@@ -88,7 +90,7 @@ export const AdminOverview: React.FC = () => {
         </div>
       </div>
 
-      {/* Metrics Row */}
+      {/* Metrics Row 1 */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         {/* Active Sessions */}
         <div className="p-5 rounded-2xl bg-gradient-to-br from-purple-900/30 to-indigo-900/20 border border-purple-800/40 relative overflow-hidden group">
@@ -194,6 +196,117 @@ export const AdminOverview: React.FC = () => {
             className="mt-3 text-[11px] font-bold text-slate-400 hover:text-slate-200 flex items-center gap-1 transition-colors"
           >
             <span>Counseling Pipeline</span>
+            <ArrowRight className="w-3 h-3" />
+          </Link>
+        </div>
+      </div>
+
+      {/* Metrics Row 2: Institutional & Corporate Pipelines */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        {/* Hiring Requests */}
+        <div className="p-5 rounded-2xl bg-slate-900/90 border border-slate-800 relative overflow-hidden">
+          <div className="flex items-center justify-between">
+            <span className="text-xs font-bold uppercase tracking-wider text-slate-400">
+              Hiring Requests
+            </span>
+            <div className="w-8 h-8 rounded-xl bg-slate-800 flex items-center justify-center text-purple-400">
+              <Building2 className="w-4 h-4" />
+            </div>
+          </div>
+          <div className="mt-3 flex items-baseline gap-2">
+            <span className="text-3xl font-black text-white font-display">
+              {stats?.totalHiringRequests ?? 0}
+            </span>
+            <span className="text-xs text-purple-400 font-semibold">
+              Employer Submissions
+            </span>
+          </div>
+          <Link
+            to="/admin/hiring"
+            className="mt-3 text-[11px] font-bold text-slate-400 hover:text-slate-200 flex items-center gap-1 transition-colors"
+          >
+            <span>Manage Hiring Reqs</span>
+            <ArrowRight className="w-3 h-3" />
+          </Link>
+        </div>
+
+        {/* Instructor Applications */}
+        <div className="p-5 rounded-2xl bg-slate-900/90 border border-slate-800 relative overflow-hidden">
+          <div className="flex items-center justify-between">
+            <span className="text-xs font-bold uppercase tracking-wider text-slate-400">
+              Instructor Apps
+            </span>
+            <div className="w-8 h-8 rounded-xl bg-slate-800 flex items-center justify-center text-cyan-400">
+              <UserCheck className="w-4 h-4" />
+            </div>
+          </div>
+          <div className="mt-3 flex items-baseline gap-2">
+            <span className="text-3xl font-black text-white font-display">
+              {stats?.totalInstructorApps ?? 0}
+            </span>
+            <span className="text-xs text-cyan-400 font-semibold">
+              Faculty Candidates
+            </span>
+          </div>
+          <Link
+            to="/admin/instructor-applications"
+            className="mt-3 text-[11px] font-bold text-slate-400 hover:text-slate-200 flex items-center gap-1 transition-colors"
+          >
+            <span>Review Applications</span>
+            <ArrowRight className="w-3 h-3" />
+          </Link>
+        </div>
+
+        {/* Partnership Proposals */}
+        <div className="p-5 rounded-2xl bg-slate-900/90 border border-slate-800 relative overflow-hidden">
+          <div className="flex items-center justify-between">
+            <span className="text-xs font-bold uppercase tracking-wider text-slate-400">
+              Partnership Requests
+            </span>
+            <div className="w-8 h-8 rounded-xl bg-slate-800 flex items-center justify-center text-amber-400">
+              <Handshake className="w-4 h-4" />
+            </div>
+          </div>
+          <div className="mt-3 flex items-baseline gap-2">
+            <span className="text-3xl font-black text-white font-display">
+              {stats?.totalPartnerRequests ?? 0}
+            </span>
+            <span className="text-xs text-amber-400 font-semibold">
+              Alliance Proposals
+            </span>
+          </div>
+          <Link
+            to="/admin/partners"
+            className="mt-3 text-[11px] font-bold text-slate-400 hover:text-slate-200 flex items-center gap-1 transition-colors"
+          >
+            <span>View Proposals</span>
+            <ArrowRight className="w-3 h-3" />
+          </Link>
+        </div>
+
+        {/* Leadership Council Members */}
+        <div className="p-5 rounded-2xl bg-slate-900/90 border border-slate-800 relative overflow-hidden">
+          <div className="flex items-center justify-between">
+            <span className="text-xs font-bold uppercase tracking-wider text-slate-400">
+              Leadership Council
+            </span>
+            <div className="w-8 h-8 rounded-xl bg-slate-800 flex items-center justify-center text-emerald-400">
+              <ShieldCheck className="w-4 h-4" />
+            </div>
+          </div>
+          <div className="mt-3 flex items-baseline gap-2">
+            <span className="text-3xl font-black text-white font-display">
+              {stats?.totalLeadershipMembers ?? 0}
+            </span>
+            <span className="text-xs text-emerald-400 font-semibold">
+              Council Members
+            </span>
+          </div>
+          <Link
+            to="/admin/leadership"
+            className="mt-3 text-[11px] font-bold text-slate-400 hover:text-slate-200 flex items-center gap-1 transition-colors"
+          >
+            <span>Manage Council</span>
             <ArrowRight className="w-3 h-3" />
           </Link>
         </div>
@@ -395,11 +508,11 @@ export const AdminOverview: React.FC = () => {
                       />
                       <div className="overflow-hidden">
                         <span className="text-xs font-bold text-white truncate block">{course.title}</span>
-                        <div className="flex items-center gap-2 text-[10px] text-slate-400 mt-0.5">
+                        {/* <div className="flex items-center gap-2 text-[10px] text-slate-400 mt-0.5">
                           <span className="text-purple-400 font-semibold">{normalizeCategoryName(course.category)}</span>
                           <span>•</span>
                           <span>₹{course.price.toLocaleString('en-IN')}</span>
-                        </div>
+                        </div> */}
                       </div>
                     </div>
 

@@ -10,7 +10,6 @@ import {
   Clock,
   CheckCircle2,
   AlertCircle,
-  Sparkles,
   RefreshCw
 } from 'lucide-react';
 import { courseService } from '../../services/courseService';
@@ -274,7 +273,7 @@ export const AdminCourses: React.FC = () => {
                     </td>
 
                     {/* Price */}
-                    <td className="py-3.5 px-4">
+                    {/* <td className="py-3.5 px-4">
                       <div className="font-bold text-white">
                         ₹{course.price.toLocaleString('en-IN')}
                       </div>
@@ -283,7 +282,7 @@ export const AdminCourses: React.FC = () => {
                           ₹{course.originalPrice.toLocaleString('en-IN')}
                         </div>
                       )}
-                    </td>
+                    </td> */}
 
                     {/* Duration & Live Hours */}
                     <td className="py-3.5 px-4 text-slate-300">
@@ -307,7 +306,6 @@ export const AdminCourses: React.FC = () => {
                         }`}
                         title="Click to toggle featured badge"
                       >
-                        <Sparkles className="w-3 h-3" />
                         <span>{course.featured ? 'Featured' : 'Standard'}</span>
                       </button>
                     </td>
