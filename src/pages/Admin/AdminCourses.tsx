@@ -15,6 +15,7 @@ import {
 import { courseService } from '../../services/courseService';
 import { PROGRAM_CATEGORIES, normalizeCategoryName } from '../../data/courses';
 import type { Course } from '../../types';
+import { getCacheBustedImageUrl } from '../../utils/imageUrl';
 
 export const AdminCourses: React.FC = () => {
   const [courses, setCourses] = useState<Course[]>([]);
@@ -23,6 +24,8 @@ export const AdminCourses: React.FC = () => {
   const [selectedStatus, setSelectedStatus] = useState('all');
   const [loading, setLoading] = useState(true);
   const [toast, setToast] = useState<{ text: string; type: 'success' | 'error' } | null>(null);
+  const [courseToDelete, setCourseToDelete] = useState<{ id: string; title: string } | null>(null);
+  const [deletingId, setDeletingId] = useState<string | null>(null);
 
   const showToast = (text: string, type: 'success' | 'error' = 'success') => {
     setToast({ text, type });
@@ -45,24 +48,32 @@ export const AdminCourses: React.FC = () => {
     loadCourses();
   }, []);
 
-  const handleDeleteCourse = async (id: string, title: string) => {
-    if (!window.confirm(`Are you sure you want to delete "${title}"? This cannot be undone.`)) return;
+  const confirmDeleteCourse = async () => {
+    if (!courseToDelete) return;
+    const { id, title } = courseToDelete;
+    console.log('[ADMIN DELETE] Initiating deletion for Course ID:', id);
+    setDeletingId(id);
 
     try {
       const res = await courseService.deleteCourse(id);
       if (res.success) {
         showToast(`Course "${title}" deleted successfully.`);
-        setCourses((prev) => prev.filter((c) => c.id !== id));
+        setCourseToDelete(null);
+        // Refresh live database courses list
+        await loadCourses();
       }
     } catch (err: any) {
+      console.error('[ADMIN DELETE FAILED]', err);
       showToast(err.message || 'Failed to delete course.', 'error');
+    } finally {
+      setDeletingId(null);
     }
   };
 
   const handleToggleFeatured = async (course: Course) => {
     const updatedFeatured = !course.featured;
     try {
-      const res = await courseService.updateCourse(course.id, { featured: updatedFeatured });
+      const res = await courseService.patchCourse(course.id, { featured: updatedFeatured, source: 'FEATURED_TOGGLE' });
       if (res.success) {
         showToast(`"${course.title}" is now ${updatedFeatured ? 'Featured' : 'Standard'}.`);
         setCourses((prev) =>
@@ -77,7 +88,7 @@ export const AdminCourses: React.FC = () => {
   const handleToggleStatus = async (course: Course) => {
     const newStatus = course.status === 'available' ? 'coming-soon' : 'available';
     try {
-      const res = await courseService.updateCourse(course.id, { status: newStatus });
+      const res = await courseService.patchCourse(course.id, { status: newStatus, source: 'STATUS_TOGGLE' });
       if (res.success) {
         showToast(`"${course.title}" status changed to ${newStatus}.`);
         setCourses((prev) =>
@@ -207,7 +218,12 @@ export const AdminCourses: React.FC = () => {
 
       {/* Courses List Table / Cards */}
       <div className="rounded-2xl bg-slate-900/90 border border-slate-800 overflow-hidden shadow-sm">
-        {filteredCourses.length === 0 ? (
+        {loading ? (
+          <div className="p-12 text-center space-y-3">
+            <RefreshCw className="w-8 h-8 text-purple-500 animate-spin mx-auto" />
+            <p className="text-sm font-bold text-slate-400">Loading courses...</p>
+          </div>
+        ) : filteredCourses.length === 0 ? (
           <div className="p-12 text-center space-y-3">
             <BookOpen className="w-10 h-10 text-slate-700 mx-auto" />
             <p className="text-sm font-bold text-slate-400">No courses match your filter.</p>
@@ -240,7 +256,7 @@ export const AdminCourses: React.FC = () => {
                     <td className="py-3.5 px-4 max-w-sm">
                       <div className="flex items-center gap-3">
                         <img
-                          src={course.image}
+                          src={getCacheBustedImageUrl(course.image, course.updatedAt || course.imageUpdatedAt)}
                           alt={course.title}
                           className="w-12 h-12 rounded-xl object-cover border border-slate-700 flex-shrink-0"
                         />
@@ -346,11 +362,20 @@ export const AdminCourses: React.FC = () => {
                         </Link>
 
                         <button
-                          onClick={() => handleDeleteCourse(course.id, course.title)}
-                          className="p-1.5 rounded-lg bg-red-950/40 text-red-400 hover:bg-red-900/60 hover:text-red-200 border border-red-900/50 transition-colors"
+                          onClick={() => setCourseToDelete({ id: course.id, title: course.title })}
+                          disabled={deletingId === course.id}
+                          className={`p-1.5 rounded-lg border transition-colors ${
+                            deletingId === course.id
+                              ? 'bg-red-950/20 text-red-700 border-red-900/30 cursor-not-allowed opacity-50'
+                              : 'bg-red-950/40 text-red-400 hover:bg-red-900/60 hover:text-red-200 border border-red-900/50 cursor-pointer'
+                          }`}
                           title="Delete course"
                         >
-                          <Trash2 className="w-3.5 h-3.5" />
+                          {deletingId === course.id ? (
+                            <RefreshCw className="w-3.5 h-3.5 animate-spin" />
+                          ) : (
+                            <Trash2 className="w-3.5 h-3.5" />
+                          )}
                         </button>
                       </div>
                     </td>
@@ -361,6 +386,57 @@ export const AdminCourses: React.FC = () => {
           </div>
         )}
       </div>
+
+      {/* Delete Confirmation Modal */}
+      {courseToDelete && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-xs animate-in fade-in duration-200">
+          <div className="bg-slate-900 border border-slate-800 rounded-2xl max-w-md w-full p-6 shadow-2xl space-y-4 text-left">
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 rounded-xl bg-red-950/80 border border-red-800/80 flex items-center justify-center text-red-400">
+                <Trash2 className="w-5 h-5" />
+              </div>
+              <div>
+                <h3 className="text-base font-bold text-white font-display">Delete Course?</h3>
+                <p className="text-xs text-slate-400">This action cannot be undone.</p>
+              </div>
+            </div>
+
+            <p className="text-xs text-slate-300 leading-relaxed bg-slate-950/60 p-3 rounded-xl border border-slate-800/80">
+              Are you sure you want to permanently delete{' '}
+              <strong className="text-white">"{courseToDelete.title}"</strong>? This will delete the course record directly from the Neon PostgreSQL database.
+            </p>
+
+            <div className="flex items-center justify-end gap-3 pt-2">
+              <button
+                type="button"
+                onClick={() => setCourseToDelete(null)}
+                disabled={deletingId !== null}
+                className="px-4 py-2 text-xs font-bold text-slate-400 hover:text-white bg-slate-800 hover:bg-slate-700 rounded-xl transition-colors cursor-pointer"
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                onClick={confirmDeleteCourse}
+                disabled={deletingId !== null}
+                className="px-4 py-2 text-xs font-bold text-white bg-red-600 hover:bg-red-500 rounded-xl transition-colors inline-flex items-center gap-1.5 shadow-sm cursor-pointer disabled:opacity-50"
+              >
+                {deletingId ? (
+                  <>
+                    <RefreshCw className="w-3.5 h-3.5 animate-spin" />
+                    <span>Deleting...</span>
+                  </>
+                ) : (
+                  <>
+                    <Trash2 className="w-3.5 h-3.5" />
+                    <span>Delete Course</span>
+                  </>
+                )}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

@@ -90,9 +90,10 @@ export const Register: React.FC = () => {
   return (
     <div className="bg-slate-50 min-h-screen flex items-center justify-center py-16 px-4">
       <SEO 
-        title="Create an Edqoo Account" 
+        title="Create an Account | Edqoo" 
         description="Create an account on Edqoo to manage your profile, track your submitted program enquiries, and receive counseling follow-ups."
         canonical="/register"
+        noIndex={true}
       />
       <div className="w-full max-w-md bg-white border border-slate-200 p-8 rounded-2xl shadow-xl space-y-6 text-left">
         

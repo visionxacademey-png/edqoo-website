@@ -4,6 +4,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import * as zod from 'zod';
 import { Link } from 'react-router-dom';
 import { Mail, ArrowLeft, CheckCircle2, ShieldAlert } from 'lucide-react';
+import { SEO } from '../../components/common/SEO';
 import { authService } from '../../services/authService';
 
 const forgotPasswordSchema = zod.object({
@@ -40,6 +41,12 @@ export const ForgotPassword: React.FC = () => {
 
   return (
     <div className="bg-slate-50 min-h-screen flex items-center justify-center py-16 px-4">
+      <SEO 
+        title="Reset Password | Edqoo"
+        description="Reset your Edqoo password."
+        canonical="/forgot-password"
+        noIndex={true}
+      />
       <div className="w-full max-w-md bg-white border border-slate-200 p-8 rounded-2xl shadow-xl space-y-6 text-left">
         {/* Header Logo */}
         <div className="text-center space-y-3">

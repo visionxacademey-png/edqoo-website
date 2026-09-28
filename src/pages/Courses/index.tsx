@@ -13,32 +13,72 @@ import {
   Brain,
   BarChart3,
   Cpu,
-  Wrench
+  Wrench,
+  Shield
 } from 'lucide-react';
-import { courses as defaultCourses, filterCoursesByCategory, searchCourses, normalizeCategoryName } from '../../data/courses';
+import { filterCoursesByCategory, searchCourses, normalizeCategoryName } from '../../data/courses';
 import { courseService } from '../../services/courseService';
 import type { Course } from '../../types';
 import { SEO } from '../../components/common/SEO';
+import { Breadcrumbs } from '../../components/common/Breadcrumbs';
 import { useEnquiry } from '../../context/EnquiryContext';
+import { getCacheBustedImageUrl } from '../../utils/imageUrl';
+import { CourseSkeleton } from '../../components/ui/CourseSkeleton';
 
 export const Courses: React.FC = () => {
   const navigate = useNavigate();
-  const [searchParams] = useSearchParams();
+  const [searchParams, setSearchParams] = useSearchParams();
   const initialSearch = searchParams.get('search') || '';
+  const initialCategory = searchParams.get('category') || 'all';
 
   const { openEnquiryModal } = useEnquiry();
-  const [courseList, setCourseList] = useState<Course[]>(defaultCourses);
+  const [courseList, setCourseList] = useState<Course[]>([]);
+  const [loading, setLoading] = useState<boolean>(true);
+  const [error, setError] = useState<string | null>(null);
   const [searchTerm, setSearchTerm] = useState(initialSearch);
-  const [selectedCategory, setSelectedCategory] = useState<string>('all');
+  const [selectedCategory, setSelectedCategory] = useState<string>(initialCategory);
   const [selectedLevel, setSelectedLevel] = useState<string>('all');
   const [sortBy, setSortBy] = useState<string>('popular');
 
+  // Sync category state when URL searchParams change
   useEffect(() => {
-    courseService.getCourses().then((data) => {
-      if (data && data.length > 0) {
-        setCourseList(data);
-      }
-    }).catch(console.warn);
+    const urlCategory = searchParams.get('category');
+    setSelectedCategory(urlCategory || 'all');
+
+    const urlSearch = searchParams.get('search');
+    setSearchTerm(urlSearch || '');
+  }, [searchParams]);
+
+  const loadCourses = (signal?: AbortSignal) => {
+    console.log('[COURSE DEBUG] loadCourses() called');
+    setLoading(true);
+    setError(null);
+    courseService
+      .getCourses({ signal })
+      .then((data) => {
+        console.log('[COURSE DEBUG] setCourses with count:', Array.isArray(data) ? data.length : typeof data);
+        if (Array.isArray(data)) {
+          setCourseList(data);
+          setError(null);
+        }
+      })
+      .catch((err) => {
+        if (err?.name !== 'CanceledError' && err?.name !== 'AbortError') {
+          console.error('[COURSE DEBUG] Failed to load courses:', err);
+          setError(err?.message || 'Unable to load courses from the database. Please try again.');
+        }
+      })
+      .finally(() => {
+        setLoading(false);
+      });
+  };
+
+  useEffect(() => {
+    const controller = new AbortController();
+    loadCourses(controller.signal);
+    return () => {
+      controller.abort();
+    };
   }, []);
 
   const handleClearFilters = () => {
@@ -46,6 +86,7 @@ export const Courses: React.FC = () => {
     setSelectedCategory('all');
     setSelectedLevel('all');
     setSortBy('popular');
+    setSearchParams({});
   };
 
   // Filter & Sort computation
@@ -53,29 +94,38 @@ export const Courses: React.FC = () => {
     let result = [...courseList];
 
     // 1. Category Filter
-    if (selectedCategory !== 'all' && selectedCategory !== 'All Categories') {
+    if (selectedCategory && selectedCategory !== 'all' && selectedCategory !== 'All Categories') {
       result = filterCoursesByCategory(result, selectedCategory);
     }
 
     // 2. Search Keyword
-    if (searchTerm.trim()) {
+    if (searchTerm && searchTerm.trim()) {
       result = searchCourses(result, searchTerm);
     }
 
     // 3. Experience Level Filter
-    if (selectedLevel !== 'all') {
+    if (selectedLevel && selectedLevel !== 'all') {
       result = result.filter((course) =>
-        course.level.toLowerCase().includes(selectedLevel.toLowerCase())
+        (course.level || '').toLowerCase().includes(selectedLevel.toLowerCase())
       );
     }
 
-    // 4. Sort
-    return result.sort((a, b) => {
-      if (sortBy === 'rating') return b.rating - a.rating;
-      if (sortBy === 'price-low') return a.price - b.price;
-      if (sortBy === 'price-high') return b.price - a.price;
-      return b.students - a.students; // Default: popular
+    // 4. Sort safely handling numbers
+    result.sort((a, b) => {
+      const aRating = Number(a.rating) || 0;
+      const bRating = Number(b.rating) || 0;
+      const aPrice = Number(a.price) || 0;
+      const bPrice = Number(b.price) || 0;
+      const aStudents = Number(a.students) || 0;
+      const bStudents = Number(b.students) || 0;
+
+      if (sortBy === 'rating') return bRating - aRating;
+      if (sortBy === 'price-low') return aPrice - bPrice;
+      if (sortBy === 'price-high') return bPrice - aPrice;
+      return bStudents - aStudents; // Default: popular
     });
+
+    return result;
   }, [courseList, searchTerm, selectedCategory, selectedLevel, sortBy]);
 
   const categoryTabs = [
@@ -84,18 +134,27 @@ export const Courses: React.FC = () => {
     { id: 'Data Analytics and AI', label: 'Data Analytics and AI', icon: BarChart3 },
     { id: 'AI and Machine Learning', label: 'AI and Machine Learning', icon: Cpu },
     { id: 'Tools and Upskills', label: 'Tools and Upskills', icon: Wrench },
-    { id: 'Free Learning', label: 'Free Learning', icon: BookOpen }
+    { id: 'Free Learning', label: 'Free Learning', icon: BookOpen },
+    { id: 'Cybersecurity', label: 'Cybersecurity', icon: Shield }
   ];
 
   return (
-    <div className="bg-slate-50 min-h-screen py-10 text-left">
+    <div className="bg-slate-50 min-h-screen py-8 text-left">
       <SEO 
-        title="Explore Program Tracks & Course Catalog | Edqoo" 
-        description="Browse professional program tracks in Data Science, Artificial Intelligence, Machine Learning, Data Analytics, Python, SQL, Power BI, Excel, Prompt Engineering, and Free Learning courses."
+        title="Edqoo Courses | Learn AI, Data Science, Python & More" 
+        description="Explore Edqoo's online certification courses in Data Science, AI, Python, Machine Learning, Data Analytics, and professional workplace tools. Learn with real projects."
         canonical="/courses"
+        keywords="Edqoo courses, learn AI, Data Science, Python, Machine Learning, Data Analytics, Power BI, Edqoo online"
+        breadcrumbs={[
+          { name: 'Home', url: '/' },
+          { name: 'Edqoo Courses', url: '/courses' }
+        ]}
       />
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-8">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-6">
         
+        {/* Breadcrumb Navigation */}
+        <Breadcrumbs items={[{ name: 'Courses', url: '/courses' }]} />
+
         {/* Page Header */}
         <div className="space-y-2">
           <span className="text-xs font-bold text-purple-600 uppercase tracking-widest block">
@@ -159,7 +218,7 @@ export const Courses: React.FC = () => {
                 <input
                   type="text"
                   id="course-search"
-                  placeholder="e.g. Python, SQL, AI, Power BI, Java, HR..."
+                  placeholder="e.g. Python, Data Science, AI, Power BI, Java, HR..."
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
                   className="w-full pl-8 pr-3 py-2 bg-slate-50 border border-slate-200 text-xs text-slate-900 rounded-lg focus:outline-none focus:bg-white focus:border-purple-600"
@@ -185,6 +244,7 @@ export const Courses: React.FC = () => {
                 <option value="AI and Machine Learning">AI and Machine Learning</option>
                 <option value="Tools and Upskills">Tools and Upskills</option>
                 <option value="Free Learning">Free Learning</option>
+                <option value="Cybersecurity">Cybersecurity</option>
               </select>
             </div>
 
@@ -227,21 +287,52 @@ export const Courses: React.FC = () => {
 
           {/* Right panel: Course listing grids (9 columns) */}
           <main className="lg:col-span-9 space-y-6">
-            <div className="flex items-center justify-between text-xs text-slate-500 font-semibold border-b border-slate-200 pb-3">
-              <span>Showing <strong>{filteredCourses.length}</strong> programs in <strong className="text-purple-600">{selectedCategory === 'all' ? 'All Categories' : selectedCategory}</strong></span>
-              {searchTerm && <span>Search: "{searchTerm}"</span>}
+            <div className="flex items-center justify-between text-xs text-slate-500 font-semibold border-b border-slate-200 pb-3 min-h-[32px]">
+              {loading ? (
+                <span className="flex items-center gap-2 text-purple-600 font-bold">
+                  <RefreshCw className="w-3.5 h-3.5 animate-spin" />
+                  <span>Loading courses...</span>
+                </span>
+              ) : error ? (
+                <span className="text-rose-600 font-bold">Unable to load courses</span>
+              ) : (
+                <span>
+                  Showing <strong>{filteredCourses.length}</strong> programs in{' '}
+                  <strong className="text-purple-600">{selectedCategory === 'all' ? 'All Categories' : selectedCategory}</strong>
+                </span>
+              )}
+              {searchTerm && !loading && <span>Search: "{searchTerm}"</span>}
             </div>
 
-            {filteredCourses.length === 0 ? (
+            {loading ? (
+              <CourseSkeleton count={6} />
+            ) : error ? (
+              <div className="bg-white border border-rose-200 p-10 rounded-2xl shadow-2xs text-center max-w-lg mx-auto space-y-4">
+                <div className="w-12 h-12 bg-rose-50 text-rose-600 rounded-full flex items-center justify-center mx-auto">
+                  <AlertCircle className="w-6 h-6" />
+                </div>
+                <h3 className="font-display font-bold text-slate-900 text-base">Unable to load courses</h3>
+                <p className="text-xs text-slate-500 leading-relaxed">
+                  {error}
+                </p>
+                <button
+                  onClick={() => loadCourses()}
+                  className="btn-primary px-5 py-2.5 text-xs font-bold rounded-lg shadow-sm inline-flex items-center gap-2 cursor-pointer"
+                >
+                  <RefreshCw className="w-3.5 h-3.5" />
+                  <span>Try Again</span>
+                </button>
+              </div>
+            ) : filteredCourses.length === 0 ? (
               <div className="bg-white border border-slate-200 p-12 rounded-2xl shadow-2xs text-center max-w-lg mx-auto space-y-4">
                 <AlertCircle className="w-10 h-10 text-slate-400 mx-auto" />
-                <h3 className="font-display font-bold text-slate-900 text-base">No programs match your search</h3>
+                <h3 className="font-display font-bold text-slate-900 text-base">No courses available</h3>
                 <p className="text-xs text-slate-500 leading-relaxed">
-                  Try adjusting your filters or resetting the search keyword.
+                  No programs match your search or filter criteria. Try adjusting your filters or resetting the search keyword.
                 </p>
                 <button
                   onClick={handleClearFilters}
-                  className="btn-primary px-4 py-2 text-xs font-bold rounded-lg shadow-sm"
+                  className="btn-primary px-4 py-2 text-xs font-bold rounded-lg shadow-sm cursor-pointer"
                 >
                   Reset Filters
                 </button>
@@ -258,7 +349,7 @@ export const Courses: React.FC = () => {
                     >
                       <div className="relative aspect-[16/10] overflow-hidden bg-slate-100">
                         <img
-                          src={course.image}
+                          src={getCacheBustedImageUrl(course.image, course.updatedAt || course.imageUpdatedAt)}
                           alt={course.title}
                           className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                           loading="lazy"
@@ -308,14 +399,14 @@ export const Courses: React.FC = () => {
 
                         {/* Skill badges */}
                         <div className="flex flex-wrap gap-1">
-                          {course.skills.slice(0, 3).map((skill) => (
+                          {(course.skills || []).slice(0, 3).map((skill) => (
                             <span key={skill} className="px-1.5 py-0.5 bg-purple-50 text-purple-800 text-[9px] font-semibold rounded">
                               {skill}
                             </span>
                           ))}
-                          {course.skills.length > 3 && (
+                          {(course.skills || []).length > 3 && (
                             <span className="px-1.5 py-0.5 bg-slate-50 text-slate-400 text-[9px] font-medium rounded">
-                              +{course.skills.length - 3}
+                              +{(course.skills || []).length - 3}
                             </span>
                           )}
                         </div>

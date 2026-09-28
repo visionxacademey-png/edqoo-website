@@ -11,6 +11,7 @@ import {
 import { courseService } from '../../services/courseService';
 import { normalizeCategoryName } from '../../data/courses';
 import type { Course } from '../../types';
+import { getCacheBustedImageUrl } from '../../utils/imageUrl';
 
 interface CourseSearchBarProps {
   variant?: 'desktop' | 'mobile' | 'inline';
@@ -383,7 +384,7 @@ export const CourseSearchBar: React.FC<CourseSearchBarProps> = ({
                       <div className="w-11 h-11 rounded-lg overflow-hidden bg-slate-100 border border-slate-200/80 flex-shrink-0 flex items-center justify-center relative shadow-2xs">
                         {course.image ? (
                           <img
-                            src={course.image}
+                            src={getCacheBustedImageUrl(course.image, course.updatedAt || course.imageUpdatedAt)}
                             alt={course.title}
                             className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
                             loading="lazy"

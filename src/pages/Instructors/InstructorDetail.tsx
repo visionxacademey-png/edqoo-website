@@ -7,7 +7,6 @@ import {
   BookOpen,
   ArrowLeft,
   Mail,
-  ChevronRight,
   CheckCircle2,
   Code2,
   FolderGit2,
@@ -18,7 +17,9 @@ import {
 import { instructorService } from '../../services/instructorService';
 import type { Instructor } from '../../types';
 import { SEO } from '../../components/common/SEO';
+import { Breadcrumbs } from '../../components/common/Breadcrumbs';
 import { useEnquiry } from '../../context/EnquiryContext';
+import { getCacheBustedImageUrl } from '../../utils/imageUrl';
 
 export const InstructorDetail: React.FC = () => {
   const { id } = useParams<{ id: string }>();
@@ -74,25 +75,33 @@ export const InstructorDetail: React.FC = () => {
     );
   }
 
-  const photo = instructor.profileImage || instructor.image || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?q=80&w=400&auto=format&fit=crop';
+  const photo = getCacheBustedImageUrl(
+    instructor.profileImage || instructor.image,
+    instructor.updatedAt || instructor.imageUpdatedAt,
+    'https://images.unsplash.com/photo-1534528741775-53994a69daeb?q=80&w=400&auto=format&fit=crop'
+  );
+
+  const breadcrumbs = [
+    { name: 'Home', url: '/' },
+    { name: 'Instructors', url: '/instructors' },
+    { name: instructor.name, url: `/instructors/${instructor.id}` }
+  ];
 
   return (
     <div className="bg-slate-50 min-h-screen text-slate-900 text-left">
       <SEO
-        title={`${instructor.name} - ${instructor.designation || instructor.role}`}
+        title={`${instructor.name} | Edqoo Faculty & Mentor`}
         description={`${instructor.name} is a ${instructor.designation || instructor.role} at ${instructor.organization}. ${instructor.shortBio || ''}`}
         canonical={`/instructors/${instructor.id}`}
         ogImage={photo}
+        ogImageAlt={instructor.name}
+        breadcrumbs={breadcrumbs}
       />
 
       {/* Breadcrumb Bar */}
       <div className="border-b border-slate-200 bg-white">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-2.5 text-xs text-slate-500 flex items-center gap-2">
-          <Link to="/" className="hover:text-purple-600 transition-colors">Home</Link>
-          <ChevronRight className="w-3.5 h-3.5 text-slate-400" />
-          <Link to="/instructors" className="hover:text-purple-600 transition-colors">Instructors</Link>
-          <ChevronRight className="w-3.5 h-3.5 text-slate-400" />
-          <span className="text-slate-900 font-semibold truncate">{instructor.name}</span>
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-2.5">
+          <Breadcrumbs items={breadcrumbs.slice(1)} />
         </div>
       </div>
 

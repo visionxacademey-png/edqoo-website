@@ -1,9 +1,30 @@
-# https://www.robotstxt.org/robotstxt.html
+# Production Robots.txt for Edqoo (https://edqoo.com)
 User-agent: *
 Allow: /
 Allow: /courses
-Allow: /resources
-Disallow: /dashboard/
-Disallow: /checkout/
+Allow: /programs/
+Allow: /tools-and-upskills
+Allow: /blog
+Allow: /instructors
+Allow: /about
+Allow: /contact
+Allow: /hire-from-us
+Allow: /become-an-instructor
+Allow: /become-a-partner
+Allow: /leadership-council
+Allow: /terms-and-conditions
+Allow: /privacy-policy
 
-Sitemap: https://Edqoo.com/sitemap.xml
+# Disallow private and administrative areas
+Disallow: /admin/
+Disallow: /dashboard/
+Disallow: /mentor/
+Disallow: /student/
+Disallow: /api/
+Disallow: /login
+Disallow: /register
+Disallow: /forgot-password
+Disallow: /404
+
+# Sitemap reference
+Sitemap: https://edqoo.com/sitemap.xml

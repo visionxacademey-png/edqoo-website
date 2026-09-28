@@ -18,7 +18,9 @@ import {
   Clock,
   Radio
 } from 'lucide-react';
-import { courses, normalizeCategoryName } from '../../data/courses';
+import { normalizeCategoryName } from '../../data/courses';
+import { courseService } from '../../services/courseService';
+import type { Course } from '../../types';
 import { enquiryService } from '../../services/enquiryService';
 import { useEnquiry } from '../../context/EnquiryContext';
 import { useAuth } from '../../context/AuthContext';
@@ -55,6 +57,20 @@ const StandardEnquiryModal: React.FC<StandardEnquiryModalProps> = ({
   const { user } = useAuth();
   const [isSuccess, setIsSuccess] = useState(false);
   const [apiError, setApiError] = useState<string | null>(null);
+  const [courseList, setCourseList] = useState<Course[]>([]);
+
+  useEffect(() => {
+    courseService
+      .getCourses()
+      .then((data) => {
+        if (Array.isArray(data)) {
+          setCourseList(data);
+        }
+      })
+      .catch((err) => {
+        console.error('Failed to load courses for enquiry modal:', err);
+      });
+  }, []);
 
   const {
     register,
@@ -290,7 +306,7 @@ const StandardEnquiryModal: React.FC<StandardEnquiryModalProps> = ({
                           }`}
                         >
                           <option value="">Select a Program</option>
-                          {courses.map((c) => (
+                          {courseList.map((c) => (
                             <option key={c.id} value={c.title}>
                               {c.title} ({normalizeCategoryName(c.category)})
                             </option>
@@ -444,6 +460,20 @@ const StandardEnquiryModal: React.FC<StandardEnquiryModalProps> = ({
 
 export const EnquiryModal: React.FC = () => {
   const { isEnquiryModalOpen, selectedProgram, selectedCategory, selectedCourseId, closeEnquiryModal } = useEnquiry();
+  const [courseList, setCourseList] = useState<Course[]>([]);
+
+  useEffect(() => {
+    courseService
+      .getCourses()
+      .then((data) => {
+        if (Array.isArray(data)) {
+          setCourseList(data);
+        }
+      })
+      .catch((err) => {
+        console.error('Failed to load courses in EnquiryModal wrapper:', err);
+      });
+  }, []);
 
   // Identify whether this enquiry belongs to Tools & Upskills category
   const isToolsAndUpskills = (() => {
@@ -453,7 +483,7 @@ export const EnquiryModal: React.FC = () => {
     }
 
     if (selectedProgram) {
-      const matched = courses.find(
+      const matched = courseList.find(
         (c) =>
           c.title.toLowerCase() === selectedProgram.toLowerCase() ||
           c.id === selectedProgram ||

@@ -21,6 +21,7 @@ import {
 import { adminService } from '../../services/adminService';
 import { courseService } from '../../services/courseService';
 import type { AdminStats, DbStatus, UserSession, Course } from '../../types';
+import { getCacheBustedImageUrl } from '../../utils/imageUrl';
 
 export const AdminOverview: React.FC = () => {
   const [stats, setStats] = useState<AdminStats | null>(null);
@@ -502,7 +503,7 @@ export const AdminOverview: React.FC = () => {
                   >
                     <div className="flex items-center gap-3 overflow-hidden">
                       <img
-                        src={course.image}
+                        src={getCacheBustedImageUrl(course.image, course.updatedAt || course.imageUpdatedAt)}
                         alt={course.title}
                         className="w-10 h-10 rounded-lg object-cover border border-slate-700 flex-shrink-0"
                       />

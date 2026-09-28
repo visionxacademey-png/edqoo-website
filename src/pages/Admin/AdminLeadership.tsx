@@ -16,6 +16,7 @@ import {
 } from 'lucide-react';
 import { leadershipService } from '../../services/leadershipService';
 import type { LeadershipCouncilMember } from '../../types';
+import { getCacheBustedImageUrl } from '../../utils/imageUrl';
 
 export const AdminLeadership: React.FC = () => {
   const [members, setMembers] = useState<LeadershipCouncilMember[]>([]);
@@ -177,9 +178,11 @@ export const AdminLeadership: React.FC = () => {
               </thead>
               <tbody className="divide-y divide-slate-800/60">
                 {filteredMembers.map((member) => {
-                  const photo =
-                    member.profileImage ||
-                    'https://images.unsplash.com/photo-1534528741775-53994a69daeb?q=80&w=150&auto=format&fit=crop';
+                  const photo = getCacheBustedImageUrl(
+                    member.profileImage,
+                    member.updatedAt || member.imageUpdatedAt,
+                    'https://images.unsplash.com/photo-1534528741775-53994a69daeb?q=80&w=150&auto=format&fit=crop'
+                  );
 
                   return (
                     <tr key={member.id} className="hover:bg-slate-800/30 transition-colors">

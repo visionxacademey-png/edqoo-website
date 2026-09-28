@@ -55,9 +55,10 @@ export const Login: React.FC = () => {
   return (
     <div className="bg-slate-50 min-h-screen flex items-center justify-center py-16 px-4">
       <SEO 
-        title="Sign In to Edqoo" 
+        title="Sign In | Edqoo" 
         description="Sign in to your Edqoo account to manage your profile, view course enquiries, and track counselor feedback."
         canonical="/login"
+        noIndex={true}
       />
       <div className="w-full max-w-md bg-white border border-slate-200 p-8 rounded-2xl shadow-xl space-y-6 text-left">
         

@@ -10,7 +10,8 @@ import {
   RotateCcw,
   Loader2,
   ArrowRight,
-  HelpCircle
+  HelpCircle,
+  BookOpen
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { chatService, type ChatMessage as ServiceChatMessage, type SearchResultItem } from '../../services/chatService';
@@ -22,7 +23,8 @@ interface Message {
   timestamp: string;
   needsContact?: boolean;
   results?: SearchResultItem[];
-  errorCode?: string;
+  resultType?: string;
+  errorCode?: string | null;
   contactInfo?: {
     phone: string;
     whatsapp: string;
@@ -45,7 +47,7 @@ const WELCOME_TEXT = "Hi! 👋 I'm the AI Assistant. I can help you find courses
 
 /**
  * Reusable ContactSupportCard component
- * Always prominently displays actual phone number and WhatsApp with direct action buttons.
+ * Prominently displays actual phone number and WhatsApp with direct action buttons.
  */
 export const ContactSupportCard: React.FC<{
   phone: string;
@@ -56,8 +58,8 @@ export const ContactSupportCard: React.FC<{
 }> = ({
   phone,
   whatsapp,
-  title = 'Need more help?',
-  subtitle = 'Our academic and technical support team is ready to assist you directly.'
+  title = 'Need more guidance?',
+  subtitle = 'Our academic counseling and support team is available on Phone and WhatsApp.'
 }) => {
   const cleanPhone = phone.replace(/[^0-9+]/g, '');
   const cleanWa = whatsapp.replace(/[^0-9]/g, '');
@@ -66,7 +68,7 @@ export const ContactSupportCard: React.FC<{
     <motion.div
       initial={{ opacity: 0, scale: 0.96, y: 6 }}
       animate={{ opacity: 1, scale: 1, y: 0 }}
-      className="mt-3 p-4 bg-gradient-to-br from-blue-50/95 via-indigo-50/80 to-purple-50/70 border border-blue-200/90 rounded-2xl shadow-xs text-left space-y-3"
+      className="mt-3 p-3.5 bg-gradient-to-br from-blue-50/95 via-indigo-50/80 to-purple-50/70 border border-blue-200/90 rounded-2xl shadow-xs text-left space-y-2.5"
     >
       <div className="flex items-center gap-2 text-blue-950 font-bold text-xs">
         <HelpCircle className="w-4 h-4 text-blue-600 shrink-0" />
@@ -77,7 +79,7 @@ export const ContactSupportCard: React.FC<{
         {subtitle}
       </p>
 
-      {/* Prominently visible contact numbers */}
+      {/* Visible contact numbers */}
       <div className="bg-white/90 border border-blue-100/90 rounded-xl p-2.5 space-y-1.5 text-xs text-slate-800">
         <div className="flex items-center justify-between">
           <span className="flex items-center gap-1.5 text-slate-500 font-medium text-[11px]">
@@ -214,6 +216,7 @@ export const FloatingSupport: React.FC = () => {
         timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
         needsContact: res.needsContact,
         results: res.results,
+        resultType: res.resultType,
         errorCode: res.errorCode,
         contactInfo: res.contactInfo || contactFallback
       };
@@ -228,7 +231,7 @@ export const FloatingSupport: React.FC = () => {
       const errorMessage: Message = {
         id: `err-${Date.now()}`,
         role: 'model',
-        content: "I'm unable to process your question right now. Please contact our support team directly.",
+        content: "I'm temporarily unable to process your question. Please feel free to reach out to our team directly via Phone or WhatsApp.",
         timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
         needsContact: true,
         errorCode: 'AI_SERVICE_UNAVAILABLE',
@@ -258,10 +261,11 @@ export const FloatingSupport: React.FC = () => {
     }
   };
 
-  // Markdown-like bold and bullet point renderer
+  // Helper to render formatted content with bolding, bullets, and route links
   const renderFormattedContent = (content: string) => {
     const lines = content.split('\n');
     return lines.map((line, idx) => {
+      // Split by bold (**text**)
       const parts = line.split(/(\*\*.*?\*\*)/g);
       const formattedParts = parts.map((part, pIdx) => {
         if (part.startsWith('**') && part.endsWith('**')) {
@@ -274,7 +278,10 @@ export const FloatingSupport: React.FC = () => {
       const isNumbered = /^\d+\.\s/.test(line.trim());
 
       return (
-        <p key={idx} className={`${isBullet || isNumbered ? 'pl-2 py-0.5' : 'py-0.5'} ${line.trim() === '' ? 'h-1.5' : ''}`}>
+        <p
+          key={idx}
+          className={`${isBullet || isNumbered ? 'pl-2 py-0.5' : 'py-0.5'} ${line.trim() === '' ? 'h-1.5' : ''}`}
+        >
           {formattedParts}
         </p>
       );
@@ -407,6 +414,8 @@ export const FloatingSupport: React.FC = () => {
             <div className="flex-1 p-4 overflow-y-auto space-y-4 bg-slate-50/70 text-left text-xs sm:text-sm">
               {messages.map((msg) => {
                 const isUser = msg.role === 'user';
+                const hasCourses = msg.results && msg.results.some((r) => r.type === 'course');
+
                 return (
                   <motion.div
                     key={msg.id}
@@ -445,51 +454,78 @@ export const FloatingSupport: React.FC = () => {
                           )}
                         </div>
 
-                        {/* MATCHED RESULTS COURSE CARDS WITH WORKING [VIEW COURSE] LINKS */}
+                        {/* MATCHED RESULTS COURSE / ENTITY CARDS WITH REAL WORKING LINKS */}
                         {!isUser && msg.results && msg.results.length > 0 && (
                           <div className="space-y-2 pt-1">
-                            {msg.results.map((item) => (
-                              <div
-                                key={item.id}
-                                className="bg-white border border-slate-200/90 hover:border-blue-300 rounded-xl p-3 shadow-2xs transition-all text-left space-y-1.5"
-                              >
-                                <div className="flex items-start justify-between gap-2">
-                                  <h6 className="font-bold text-slate-950 text-xs leading-snug">
-                                    {item.title}
-                                  </h6>
-                                  <span className="shrink-0 text-[10px] font-semibold px-2 py-0.5 rounded-md bg-blue-50 text-blue-700 border border-blue-100">
-                                    {item.category}
-                                  </span>
+                            {msg.results.map((item) => {
+                              const isFree = item.category?.toLowerCase().includes('free') || item.price === 0;
+                              const buttonText =
+                                item.type === 'instructor'
+                                  ? 'View Profile'
+                                  : item.type === 'project'
+                                  ? 'View Project'
+                                  : item.type === 'page'
+                                  ? 'Explore Page'
+                                  : 'View Course';
+
+                              return (
+                                <div
+                                  key={item.id}
+                                  className="bg-white border border-slate-200/90 hover:border-blue-300 rounded-xl p-3 shadow-2xs transition-all text-left space-y-1.5"
+                                >
+                                  <div className="flex items-start justify-between gap-2">
+                                    <h6 className="font-bold text-slate-950 text-xs leading-snug">
+                                      {item.title}
+                                    </h6>
+                                    <span className="shrink-0 text-[10px] font-semibold px-2 py-0.5 rounded-md bg-blue-50 text-blue-700 border border-blue-100">
+                                      {item.category}
+                                    </span>
+                                  </div>
+
+                                  {item.description && (
+                                    <p className="text-[11px] text-slate-500 line-clamp-2 leading-normal">
+                                      {item.description}
+                                    </p>
+                                  )}
+
+                                  <div className="flex items-center justify-between pt-1.5 border-t border-slate-100">
+                                    <span className="text-[10px] font-medium text-slate-500">
+                                      {isFree ? (
+                                        <span className="text-emerald-600 font-semibold">100% Free</span>
+                                      ) : item.duration ? (
+                                        <span>{item.duration}</span>
+                                      ) : (
+                                        <span>Flexible</span>
+                                      )}
+                                    </span>
+
+                                    <Link
+                                      to={item.url}
+                                      onClick={() => setIsOpen(false)}
+                                      className="inline-flex items-center gap-1 px-3 py-1.5 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-xs font-bold shadow-2xs transition-colors cursor-pointer"
+                                    >
+                                      <span>{buttonText}</span>
+                                      <ArrowRight className="w-3 h-3" />
+                                    </Link>
+                                  </div>
                                 </div>
+                              );
+                            })}
 
-                                {item.description && (
-                                  <p className="text-[11px] text-slate-500 line-clamp-2 leading-normal">
-                                    {item.description}
-                                  </p>
-                                )}
-
-                                <div className="flex items-center justify-between pt-1.5 border-t border-slate-100">
-                                  <span className="text-[11px] font-medium text-slate-500">
-                                    {Number(item.price) === 0 ? (
-                                      <span className="text-emerald-600 font-bold">100% Free</span>
-                                    ) : item.price ? (
-                                      <span className="text-slate-900 font-bold">₹{item.price.toLocaleString()}</span>
-                                    ) : (
-                                      <span>{item.duration || 'Flexible'}</span>
-                                    )}
-                                  </span>
-
-                                  <Link
-                                    to={item.url}
-                                    onClick={() => setIsOpen(false)}
-                                    className="inline-flex items-center gap-1 px-3 py-1.5 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-xs font-bold shadow-2xs transition-colors cursor-pointer"
-                                  >
-                                    <span>View Course</span>
-                                    <ArrowRight className="w-3 h-3" />
-                                  </Link>
-                                </div>
+                            {/* "View All Courses" Action Link */}
+                            {hasCourses && (
+                              <div className="pt-1 text-center">
+                                <Link
+                                  to="/courses"
+                                  onClick={() => setIsOpen(false)}
+                                  className="inline-flex items-center justify-center gap-1.5 w-full py-2 px-3 bg-slate-100 hover:bg-blue-50 text-blue-700 hover:text-blue-800 rounded-xl text-xs font-semibold border border-slate-200 hover:border-blue-200 transition-colors"
+                                >
+                                  <BookOpen className="w-3.5 h-3.5" />
+                                  <span>View all courses on website</span>
+                                  <ArrowRight className="w-3 h-3" />
+                                </Link>
                               </div>
-                            ))}
+                            )}
                           </div>
                         )}
                       </div>
@@ -500,7 +536,7 @@ export const FloatingSupport: React.FC = () => {
                       {msg.timestamp}
                     </span>
 
-                    {/* REUSABLE CONTACT SUPPORT CARD (WHEN FALLBACK IS NEEDED) */}
+                    {/* CONTACT SUPPORT CARD (WHEN FALLBACK IS NEEDED) */}
                     {msg.needsContact && (
                       <div className="ml-9 w-full max-w-[92%]">
                         <ContactSupportCard

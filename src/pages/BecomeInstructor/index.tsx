@@ -9,7 +9,6 @@ import {
   ArrowRight,
   Send,
   Loader2,
-  ChevronRight,
   Upload,
   BrainCircuit,
   Code2,
@@ -17,6 +16,7 @@ import {
   FileText
 } from 'lucide-react';
 import { SEO } from '../../components/common/SEO';
+import { Breadcrumbs } from '../../components/common/Breadcrumbs';
 import { instructorApplicationService } from '../../services/instructorApplicationService';
 import type { InstructorApplication } from '../../types';
 
@@ -168,9 +168,10 @@ export const BecomeInstructor: React.FC = () => {
   return (
     <div className="bg-slate-50 min-h-screen text-slate-900 text-left">
       <SEO
-        title="Become an Instructor | Teach Tech & AI"
-        description="Share your knowledge, industry experience, and expertise with the next generation of technology professionals at Edqoo."
+        title="Become an Instructor | Teach Data Science & AI | Edqoo"
+        description="Share your industry experience and teach Data Science, AI, Machine Learning, and Python to ambitious students through Edqoo's faculty network."
         canonical="/become-an-instructor"
+        keywords={['become tech instructor', 'teach data science online', 'teach AI machine learning', 'mentor coding students India', 'faculty jobs Kerala']}
       />
 
       {/* Hero Section */}
@@ -203,14 +204,8 @@ export const BecomeInstructor: React.FC = () => {
         </div>
       </section>
 
-      {/* Breadcrumb Bar */}
-      <div className="border-b border-slate-200 bg-white">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-2.5 text-xs text-slate-500 flex items-center gap-2">
-          <span>Home</span>
-          <ChevronRight className="w-3.5 h-3.5 text-slate-400" />
-          <span className="text-slate-900 font-semibold">Become an Instructor</span>
-        </div>
-      </div>
+      {/* Breadcrumbs */}
+      <Breadcrumbs items={[{ label: 'Become an Instructor' }]} />
 
       {/* Who Can Apply Section */}
       <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">

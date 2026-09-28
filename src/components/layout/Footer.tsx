@@ -1,13 +1,11 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { ArrowRight, Mail, Phone, MapPin, CheckCircle2 } from 'lucide-react';
-import { useEnquiry } from '../../context/EnquiryContext';
 
 export const Footer: React.FC = () => {
   const currentYear = new Date().getFullYear();
   const [newsletterEmail, setNewsletterEmail] = useState('');
   const [isSubscribed, setIsSubscribed] = useState(false);
-  const { openEnquiryModal } = useEnquiry();
 
   const handleNewsletterSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -26,24 +24,24 @@ export const Footer: React.FC = () => {
         {/* Top Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-12 gap-8 mb-12">
           
-          {/* Brand & Newsletter (4 cols) */}
-          <div className="lg:col-span-4 space-y-4">
+          {/* Brand & Newsletter (3 cols) */}
+          <div className="lg:col-span-3 space-y-4">
             <Link to="/" className="inline-block">
               <img 
                 src="/logo.jpg" 
-                alt="EDQOO - Your skill partner" 
+                alt="Edqoo" 
                 className="h-10 w-auto object-contain max-w-[160px]" 
               />
             </Link>
             
-            {/* <p className="text-xs sm:text-sm leading-relaxed text-slate-500 max-w-sm">
-              Edqoo is your premier technology skill partner. Master Data Science, AI, Python, Analytics, and executive workplace tools through practical, industry-aligned curricula taught by NIT faculty.
-            </p> */}
+            <p className="text-xs leading-relaxed text-slate-500">
+              Edqoo is an online learning platform focused on practical, industry-oriented education in Data Science, Artificial Intelligence, Python, Data Analytics and professional upskilling.
+            </p>
 
             {/* Newsletter */}
-            <div className="pt-2">
+            <div className="pt-1">
               <span className="text-xs font-bold text-slate-900 uppercase tracking-wider block mb-2">
-                Stay Updated On New Programs
+                Stay Updated On New Batches
               </span>
               {isSubscribed ? (
                 <div className="p-2.5 bg-purple-50 border border-purple-200 text-purple-900 text-xs rounded-lg flex items-center gap-2 font-medium">
@@ -62,7 +60,7 @@ export const Footer: React.FC = () => {
                   />
                   <button
                     type="submit"
-                    className="p-2 bg-purple-600 hover:bg-purple-800 text-white rounded-lg transition-colors flex items-center justify-center shadow-2xs"
+                    className="p-2 bg-purple-600 hover:bg-purple-800 text-white rounded-lg transition-colors flex items-center justify-center shadow-2xs cursor-pointer"
                     aria-label="Subscribe to newsletter"
                   >
                     <ArrowRight className="w-4 h-4" />
@@ -72,71 +70,115 @@ export const Footer: React.FC = () => {
             </div>
           </div>
 
-          {/* Column 1: Master Programs (3 cols) */}
+          {/* Column 1: Core Programs (3 cols) */}
           <div className="lg:col-span-3 space-y-3">
             <h4 className="font-display font-bold text-slate-950 text-xs uppercase tracking-wider">
-              Master Programs
+              Core Program Tracks
             </h4>
             <ul className="space-y-2 text-xs">
               <li>
-                <Link to="/courses/advanced-executive-program-data-science-ai" className="hover:text-purple-600 transition-colors">
-                  Advance Executive in Data Science and AI
+                <Link to="/programs/data-science-and-ai" className="hover:text-purple-600 transition-colors">
+                  Data Science and AI Course
                 </Link>
               </li>
               <li>
-                <Link to="/courses/advanced-executive-program-data-science-ai-python" className="hover:text-purple-600 transition-colors">
-                  Advance Executive with Python
+                <Link to="/programs/python" className="hover:text-purple-600 transition-colors">
+                  Python Course Online
                 </Link>
               </li>
               <li>
-                <Link to="/courses/advanced-executive-program-data-science-ai-machine-learning" className="hover:text-purple-600 transition-colors">
-                  Advance Executive in AI and ML
+                <Link to="/programs/ai-and-machine-learning" className="hover:text-purple-600 transition-colors">
+                  AI and Machine Learning Course
+                </Link>
+              </li>
+              <li>
+                <Link to="/programs/data-analytics-and-ai" className="hover:text-purple-600 transition-colors">
+                  Data Analytics and AI Course
+                </Link>
+              </li>
+              <li>
+                <Link to="/tools-and-upskills" className="hover:text-purple-600 transition-colors">
+                  Tools &amp; Upskills (Excel, Power BI, GenAI)
                 </Link>
               </li>
               <li>
                 <Link to="/courses" className="hover:text-purple-600 font-bold text-purple-700 transition-colors inline-flex items-center gap-1">
-                  <span>View All Programs</span>
+                  <span>Explore All Online Courses</span>
                   <ArrowRight className="w-3 h-3" />
                 </Link>
               </li>
             </ul>
           </div>
 
-          {/* Column 2: Work With Us (3 cols) */}
+          {/* Column 2: Career Guides & Articles (3 cols) */}
           <div className="lg:col-span-3 space-y-3">
             <h4 className="font-display font-bold text-slate-950 text-xs uppercase tracking-wider">
-              Work With Us
+              Career Guides &amp; Blog
             </h4>
             <ul className="space-y-2 text-xs">
               <li>
-                <Link to="/hire-from-us" className="hover:text-purple-600 transition-colors">
-                  Hire From Us
+                <Link to="/blog/what-is-data-science" className="hover:text-purple-600 transition-colors">
+                  What is Data Science? (2026 Guide)
                 </Link>
               </li>
               <li>
-                <Link to="/become-an-instructor" className="hover:text-purple-600 transition-colors">
-                  Become an Instructor
+                <Link to="/blog/how-to-learn-python" className="hover:text-purple-600 transition-colors">
+                  How to Learn Python Step-by-Step
                 </Link>
               </li>
               <li>
-                <Link to="/become-a-partner" className="hover:text-purple-600 transition-colors">
-                  Become a Partner
+                <Link to="/blog/python-vs-sql" className="hover:text-purple-600 transition-colors">
+                  Python vs SQL: Which to Learn First?
                 </Link>
               </li>
               <li>
-                <Link to="/leadership-council" className="hover:text-purple-600 transition-colors">
-                  Leadership Council
+                <Link to="/blog/what-is-machine-learning" className="hover:text-purple-600 transition-colors">
+                  What is Machine Learning?
+                </Link>
+              </li>
+              <li>
+                <Link to="/blog/ai-career-skills" className="hover:text-purple-600 transition-colors">
+                  AI Career Skills for the Future
+                </Link>
+              </li>
+              <li>
+                <Link to="/blog" className="hover:text-purple-600 font-bold text-purple-700 transition-colors inline-flex items-center gap-1">
+                  <span>View All Career Guides</span>
+                  <ArrowRight className="w-3 h-3" />
                 </Link>
               </li>
             </ul>
           </div>
 
-          {/* Column 3: Contact & Advisory (2 cols) */}
-          <div className="lg:col-span-2 space-y-3">
+          {/* Column 3: Contact & Institutional (3 cols) */}
+          <div className="lg:col-span-3 space-y-3">
             <h4 className="font-display font-bold text-slate-950 text-xs uppercase tracking-wider">
-              Contact Us
+              Work With Us &amp; Contact
             </h4>
-            <div className="space-y-2.5 text-xs text-slate-600">
+            <ul className="space-y-2 text-xs mb-3">
+              <li>
+                <Link to="/hire-from-us" className="hover:text-purple-600 transition-colors">
+                  Hire Skilled Tech Talent
+                </Link>
+              </li>
+              <li>
+                <Link to="/become-an-instructor" className="hover:text-purple-600 transition-colors">
+                  Become an Online Instructor
+                </Link>
+              </li>
+              <li>
+                <Link to="/become-a-partner" className="hover:text-purple-600 transition-colors">
+                  Institutional &amp; University Partnerships
+                </Link>
+              </li>
+              <li>
+                <Link to="/leadership-council" className="hover:text-purple-600 transition-colors">
+                  Leadership Council &amp; Advisors
+                </Link>
+              </li>
+            </ul>
+
+            <div className="space-y-2 text-xs text-slate-600 pt-2 border-t border-slate-100">
               <div className="flex items-start gap-2">
                 <Mail className="w-4 h-4 text-purple-600 mt-0.5 flex-shrink-0" />
                 <a href="mailto:support@edqoo.com" className="hover:text-purple-600 transition-colors">
@@ -149,17 +191,7 @@ export const Footer: React.FC = () => {
               </div>
               <div className="flex items-start gap-2">
                 <MapPin className="w-4 h-4 text-purple-600 mt-0.5 flex-shrink-0" />
-                <span className="line-clamp-2">Indus Avenue, Chalappuram, Kozhikode</span>
-              </div>
-              <div className="pt-2">
-                <button
-                  type="button"
-                  onClick={() => openEnquiryModal()}
-                  className="px-3 py-1.5 bg-purple-50 border border-purple-200 text-purple-700 font-bold rounded-lg hover:bg-purple-100 transition-colors text-xs inline-flex items-center gap-1"
-                >
-                  <span>Request Advisory</span>
-                  <ArrowRight className="w-3 h-3" />
-                </button>
+                <span>Indus Avenue, Chalappuram, Kozhikode, Kerala</span>
               </div>
             </div>
           </div>
@@ -169,31 +201,51 @@ export const Footer: React.FC = () => {
         {/* Bottom Bar: Copyright, Legal Links & Socials */}
         <div className="border-t border-slate-200 pt-6 flex flex-col lg:flex-row items-center justify-between gap-4">
           <p className="text-xs text-slate-500 text-center lg:text-left">
-            &copy; {currentYear} Edqoo. All rights reserved. Your skill partner in professional tech education.
+            &copy; {currentYear} Edqoo. All rights reserved.
           </p>
 
           {/* Core Footer Navigation & Legal Links */}
           <div className="flex flex-wrap items-center justify-center gap-2 sm:gap-3 text-xs font-bold text-slate-600">
-            <Link to="/terms-and-conditions" className="hover:text-purple-600 transition-colors">
-              Terms &amp; Conditions
+            <Link to="/" className="hover:text-purple-600 transition-colors">
+              Home
+            </Link>
+            <span className="text-slate-300 select-none">|</span>
+            <Link to="/programs" className="hover:text-purple-600 transition-colors">
+              Programs
+            </Link>
+            <span className="text-slate-300 select-none">|</span>
+            <Link to="/courses" className="hover:text-purple-600 transition-colors">
+              Courses
+            </Link>
+            <span className="text-slate-300 select-none">|</span>
+            <Link to="/tools-and-upskills" className="hover:text-purple-600 transition-colors">
+              Tools &amp; Upskills
+            </Link>
+            <span className="text-slate-300 select-none">|</span>
+            <Link to="/about" className="hover:text-purple-600 transition-colors">
+              About Edqoo
+            </Link>
+            <span className="text-slate-300 select-none">|</span>
+            <Link to="/contact" className="hover:text-purple-600 transition-colors">
+              Contact Edqoo
             </Link>
             <span className="text-slate-300 select-none">|</span>
             <Link to="/privacy-policy" className="hover:text-purple-600 transition-colors">
               Privacy Policy
             </Link>
             <span className="text-slate-300 select-none">|</span>
-            <Link to="/instructors" className="hover:text-purple-600 transition-colors">
-              Instructors
+            <Link to="/terms-and-conditions" className="hover:text-purple-600 transition-colors">
+              Terms &amp; Conditions
             </Link>
           </div>
 
           <div className="flex items-center gap-2.5">
             <a
-              href="https://linkedin.com"
+              href="https://www.linkedin.com/company/edqoo"
               target="_blank"
               rel="noopener noreferrer"
               className="p-2 bg-slate-50 hover:bg-purple-600 text-slate-600 hover:text-white border border-slate-200 rounded-lg shadow-2xs transition-colors"
-              aria-label="LinkedIn"
+              aria-label="Edqoo LinkedIn"
             >
               <svg className="w-4 h-4 fill-current" viewBox="0 0 24 24">
                 <path d="M19 0h-14c-2.761 0-5 2.239-5 5v14c0 2.761 2.239 5 5 5h14c2.762 0 5-2.239 5-5v-14c0-2.761-2.238-5-5-5zm-11 19h-3v-11h3v11zm-1.5-12.268c-.966 0-1.75-.79-1.75-1.764s.784-1.764 1.75-1.764 1.75.79 1.75 1.764-.783 1.764-1.75 1.764zm13.5 12.268h-3v-5.604c0-3.368-4-3.113-4 0v5.604h-3v-11h3v1.765c1.396-2.586 7-2.777 7 2.476v6.759z"/>
@@ -201,11 +253,11 @@ export const Footer: React.FC = () => {
             </a>
 
             <a
-              href="https://youtube.com"
+              href="https://www.youtube.com/@edqoo"
               target="_blank"
               rel="noopener noreferrer"
               className="p-2 bg-slate-50 hover:bg-purple-600 text-slate-600 hover:text-white border border-slate-200 rounded-lg shadow-2xs transition-colors"
-              aria-label="YouTube"
+              aria-label="Edqoo YouTube"
             >
               <svg className="w-4 h-4 fill-current" viewBox="0 0 24 24">
                 <path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/>
@@ -213,11 +265,11 @@ export const Footer: React.FC = () => {
             </a>
 
             <a
-              href="https://facebook.com"
+              href="https://www.facebook.com/edqoo"
               target="_blank"
               rel="noopener noreferrer"
               className="p-2 bg-slate-50 hover:bg-purple-600 text-slate-600 hover:text-white border border-slate-200 rounded-lg shadow-2xs transition-colors"
-              aria-label="Facebook"
+              aria-label="Edqoo Facebook"
             >
               <svg className="w-4 h-4 fill-current" viewBox="0 0 24 24">
                 <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/>

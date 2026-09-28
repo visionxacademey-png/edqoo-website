@@ -9,7 +9,7 @@ export interface SearchResultItem {
   url: string;
   description?: string;
   level?: string;
-  type: 'course' | 'project' | 'instructor' | 'page';
+  type: 'course' | 'program' | 'project' | 'instructor' | 'page' | 'faq';
 }
 
 export interface ChatMessage {
@@ -20,17 +20,19 @@ export interface ChatMessage {
   confidence?: 'supported' | 'unsupported';
   needsContact?: boolean;
   results?: SearchResultItem[];
-  errorCode?: string;
+  resultType?: 'courses' | 'programs' | 'projects' | 'instructors' | 'faq' | 'general' | 'mixed';
+  errorCode?: string | null;
 }
 
 export interface ChatResponse {
   success?: boolean;
   answer: string;
-  source: 'database' | 'website' | 'gemini' | 'fallback';
-  confidence: 'supported' | 'unsupported';
+  source?: 'database' | 'website' | 'gemini' | 'fallback';
+  confidence?: 'supported' | 'unsupported';
   needsContact: boolean;
   results?: SearchResultItem[];
-  errorCode?: 'NOT_FOUND' | 'AI_SERVICE_UNAVAILABLE' | 'DB_UNAVAILABLE';
+  resultType?: 'courses' | 'programs' | 'projects' | 'instructors' | 'faq' | 'general' | 'mixed';
+  errorCode?: 'NOT_FOUND' | 'AI_SERVICE_UNAVAILABLE' | 'DB_UNAVAILABLE' | null;
   contactInfo: {
     phone: string;
     whatsapp: string;
@@ -65,10 +67,9 @@ export const chatService = {
       return response.data;
     } catch (error: any) {
       console.error('Chat API request error:', error);
-      // Determine if it was network / server failure
       return {
         success: false,
-        answer: "I'm unable to process your question right now. Please contact our support team directly.",
+        answer: "I'm temporarily experiencing difficulty connecting to the assistant. Please contact our support team directly for immediate assistance.",
         source: 'fallback',
         confidence: 'unsupported',
         needsContact: true,

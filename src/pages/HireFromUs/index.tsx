@@ -17,7 +17,6 @@ import {
   Cloud,
   Send,
   Loader2,
-  ChevronRight,
   PhoneCall,
   Layers,
   FileCheck2
@@ -26,6 +25,8 @@ import { SEO } from '../../components/common/SEO';
 import { hiringService } from '../../services/hiringService';
 import { useEnquiry } from '../../context/EnquiryContext';
 import type { HiringEnquiry } from '../../types';
+
+import { Breadcrumbs } from '../../components/common/Breadcrumbs';
 
 const hiringFormSchema = zod.object({
   companyName: zod.string().min(2, { message: 'Company name is required' }),
@@ -190,9 +191,10 @@ export const HireFromUs: React.FC = () => {
   return (
     <div className="bg-slate-50 min-h-screen text-slate-900 text-left">
       <SEO
-        title="Hire From Us | Hire Skilled Tech & AI Talent"
-        description="Connect with trained, industry-ready talent equipped with practical skills in Data Science, Artificial Intelligence, Python, and Data Analytics."
+        title="Hire Skilled Tech & AI Talent | Edqoo"
+        description="Hire trained, industry-ready talent in Data Science, Artificial Intelligence, Python, and Data Analytics through Edqoo corporate hiring partnerships."
         canonical="/hire-from-us"
+        keywords={['hire data scientists', 'hire AI engineers', 'hire Python developers', 'tech talent recruitment India', 'hire freshers Kerala']}
       />
 
       {/* Hero Section */}
@@ -234,14 +236,8 @@ export const HireFromUs: React.FC = () => {
         </div>
       </section>
 
-      {/* Breadcrumb Bar */}
-      <div className="border-b border-slate-200 bg-white">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-2.5 text-xs text-slate-500 flex items-center gap-2">
-          <span>Home</span>
-          <ChevronRight className="w-3.5 h-3.5 text-slate-400" />
-          <span className="text-slate-900 font-semibold">Hire From Us</span>
-        </div>
-      </div>
+      {/* Breadcrumbs */}
+      <Breadcrumbs items={[{ label: 'Hire From Us' }]} />
 
       {/* Why Hire From Us Section */}
       <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">

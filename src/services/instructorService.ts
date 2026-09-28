@@ -1,29 +1,38 @@
 import api from './api';
-import { instructors as defaultInstructors } from '../data/instructors';
 import type { Instructor } from '../types';
 
 export const instructorService = {
   getInstructors: async (): Promise<Instructor[]> => {
     try {
-      const response = await api.get('/instructors');
-      if (Array.isArray(response.data) && response.data.length > 0) {
+      const response = await api.get(`/instructors?_t=${Date.now()}`, {
+        headers: {
+          'Cache-Control': 'no-cache, no-store, must-revalidate',
+          'Pragma': 'no-cache'
+        }
+      });
+      if (Array.isArray(response.data)) {
         return response.data;
       }
-      return defaultInstructors;
+      return [];
     } catch (error) {
-      console.warn('Backend unavailable, returning client fallback instructors.', error);
-      return defaultInstructors;
+      console.error('Failed to get instructors from server:', error);
+      return [];
     }
   },
 
   getInstructorById: async (id: string): Promise<Instructor | null> => {
     try {
-      const response = await api.get(`/instructors/${id}`);
+      const response = await api.get(`/instructors/${id}?_t=${Date.now()}`, {
+        headers: {
+          'Cache-Control': 'no-cache, no-store, must-revalidate',
+          'Pragma': 'no-cache'
+        }
+      });
       if (response.data) return response.data;
-      return defaultInstructors.find((i) => i.id === id) || null;
+      return null;
     } catch (error) {
-      console.warn(`Backend unavailable, searching client fallback instructors for: ${id}`, error);
-      return defaultInstructors.find((i) => i.id === id) || null;
+      console.error(`Failed to get instructor from server for: ${id}`, error);
+      return null;
     }
   },
 

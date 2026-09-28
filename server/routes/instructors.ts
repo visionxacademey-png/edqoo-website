@@ -38,7 +38,10 @@ function formatInstructorRow(row: any): Instructor {
     linkedin: row.linkedin || undefined,
     email: row.email || undefined,
     teachingExperience: row.teaching_experience || undefined,
-    industryExperience: row.industry_experience || undefined
+    industryExperience: row.industry_experience || undefined,
+    createdAt: row.created_at ? new Date(row.created_at).getTime() : undefined,
+    updatedAt: row.updated_at ? new Date(row.updated_at).getTime() : undefined,
+    imageUpdatedAt: row.updated_at ? new Date(row.updated_at).getTime() : undefined
   };
 }
 
@@ -49,6 +52,10 @@ function formatInstructorRow(row: any): Instructor {
 router.get('/', async (_req, res: Response) => {
   try {
     await ensureDbInitialized();
+
+    res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate');
+    res.setHeader('Pragma', 'no-cache');
+    res.setHeader('Expires', '0');
 
     if (isDbConnected()) {
       const result = await query(
@@ -198,6 +205,11 @@ router.put('/:id', authenticateToken, requireAdmin, async (req: AuthRequest, res
       }
 
       const current = formatInstructorRow(existing.rows[0]);
+      const isImageChanging = (data.image !== undefined && data.image !== current.image) || (data.profileImage !== undefined && data.profileImage !== current.profileImage);
+      if (isImageChanging) {
+        console.log(`[IMAGE_UPDATE_START]\nrecordId: ${id}\noldImage: ${current.profileImage || current.image}\nnewImage: ${data.profileImage || data.image}`);
+      }
+
       const updated: Instructor = {
         ...current,
         ...data,
@@ -208,6 +220,8 @@ router.put('/:id', authenticateToken, requireAdmin, async (req: AuthRequest, res
         certifications: data.certifications ? (Array.isArray(data.certifications) ? data.certifications : [data.certifications]) : current.certifications,
         courses: data.courses ? (Array.isArray(data.courses) ? data.courses : [data.courses]) : current.courses,
         projects: data.projects ? (Array.isArray(data.projects) ? data.projects : [data.projects]) : current.projects,
+        updatedAt: Date.now(),
+        imageUpdatedAt: Date.now()
       };
 
       await query(
@@ -240,6 +254,16 @@ router.put('/:id', authenticateToken, requireAdmin, async (req: AuthRequest, res
         ]
       );
 
+      // Verify database record immediately
+      const verifyRes = await query('SELECT id, image, profile_image, updated_at FROM instructors WHERE id = $1', [id]);
+      const verifiedRow = verifyRes.rows[0];
+
+      if (isImageChanging) {
+        console.log(`[IMAGE_DATABASE_UPDATED]\nrecordId: ${id}\nimage: ${updated.profileImage || updated.image}\nupdatedAt: ${new Date().toISOString()}`);
+        console.log(`[IMAGE_DATABASE_VERIFY]\nrecordId: ${verifiedRow?.id}\nimage: ${verifiedRow?.profile_image || verifiedRow?.image}\nupdatedAt: ${verifiedRow?.updated_at}`);
+        console.log(`[IMAGE_DATABASE_WRITE]\nrecordId: ${id}\nfield: profile_image\noldValue: ${current.profileImage || current.image}\nnewValue: ${updated.profileImage || updated.image}\nsource: instructors_update_api`);
+      }
+
       // Update mock store
       const mockIdx = mockStore.instructors.findIndex((i) => i.id === id);
       if (mockIdx >= 0) mockStore.instructors[mockIdx] = updated;
@@ -256,7 +280,9 @@ router.put('/:id', authenticateToken, requireAdmin, async (req: AuthRequest, res
     mockStore.instructors[idx] = {
       ...mockStore.instructors[idx],
       ...data,
-      id
+      id,
+      updatedAt: Date.now(),
+      imageUpdatedAt: Date.now()
     };
 
     return res.json({ success: true, instructor: mockStore.instructors[idx] });

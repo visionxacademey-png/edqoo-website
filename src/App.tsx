@@ -4,6 +4,7 @@ import { HelmetProvider } from 'react-helmet-async';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { AuthProvider } from './context/AuthContext';
 import { EnquiryProvider } from './context/EnquiryContext';
+import { ScrollToTop } from './components/common/ScrollToTop';
 import { AppRoutes } from './routes';
 
 // Initialize TanStack React Query Client for API management
@@ -22,6 +23,7 @@ const App: React.FC = () => {
     <QueryClientProvider client={queryClient}>
       <HelmetProvider>
         <BrowserRouter>
+          <ScrollToTop />
           <AuthProvider>
             <EnquiryProvider>
               <div className="page-transition">

@@ -15,6 +15,7 @@ import {
 import { useAuth } from '../context/AuthContext';
 import { useEnquiry } from '../context/EnquiryContext';
 import { EnquiryModal } from '../components/ui/EnquiryModal';
+import { SEO } from '../components/common/SEO';
 
 export const DashboardLayout: React.FC = () => {
   const [sidebarOpen, setSidebarOpen] = useState(false);
@@ -38,6 +39,12 @@ export const DashboardLayout: React.FC = () => {
 
   return (
     <div className="flex h-screen bg-slate-50 overflow-hidden text-left">
+      <SEO 
+        title="User Dashboard | Edqoo" 
+        description="Private user portal for Edqoo students and enquiries." 
+        canonical="/dashboard" 
+        noIndex={true} 
+      />
       {/* Mobile Sidebar Overlay Drawer */}
       {sidebarOpen && (
         <div 

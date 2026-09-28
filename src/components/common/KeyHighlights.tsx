@@ -29,7 +29,7 @@ export const KEY_HIGHLIGHTS_DATA: KeyHighlightItem[] = [
     iconBg: 'bg-purple-50 text-purple-600',
     iconHoverBg: 'group-hover:bg-purple-600 group-hover:text-white',
     icon: GraduationCap,
-    title: 'Learn from NIT Faculty & Industry Practitioners',
+    title: 'Learn from Industry Practitioners',
     description: 'Learn from experienced faculty members and industry practitioners with practical knowledge and real-world exposure.',
     microAccent: 'Academic & Industry Rigor'
   },

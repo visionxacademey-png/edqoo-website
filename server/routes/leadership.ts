@@ -36,7 +36,8 @@ function formatLeadershipRow(row: any): LeadershipCouncilMember {
     email: row.email || undefined,
     displayOrder: row.display_order || row.displayOrder || 0,
     createdAt: row.created_at ? new Date(row.created_at).toISOString() : new Date().toISOString(),
-    updatedAt: row.updated_at ? new Date(row.updated_at).toISOString() : undefined
+    updatedAt: row.updated_at ? new Date(row.updated_at).toISOString() : undefined,
+    imageUpdatedAt: row.updated_at ? new Date(row.updated_at).getTime() : undefined
   };
 }
 
@@ -47,6 +48,10 @@ function formatLeadershipRow(row: any): LeadershipCouncilMember {
 router.get('/', async (_req, res: Response) => {
   try {
     await ensureDbInitialized().catch(() => {});
+
+    res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate');
+    res.setHeader('Pragma', 'no-cache');
+    res.setHeader('Expires', '0');
     if (isDbConnected()) {
       const result = await query('SELECT * FROM leadership_members ORDER BY display_order ASC, created_at ASC');
       return res.json(result.rows.map(formatLeadershipRow));
@@ -176,6 +181,18 @@ router.put('/:id', authenticateToken, requireAdmin, async (req: AuthRequest, res
     const publications = Array.isArray(data.publications) ? data.publications : (typeof data.publications === 'string' ? data.publications.split('\n').map((s: string) => s.trim()).filter(Boolean) : []);
 
     if (isDbConnected()) {
+      const existing = await query('SELECT * FROM leadership_members WHERE id = $1', [id]);
+      if (existing.rows.length === 0) {
+        return res.status(404).json({ error: 'Council member not found' });
+      }
+
+      const currentRow = existing.rows[0];
+      const newImg = data.profileImage || data.image;
+      const isImageChanging = newImg !== undefined && newImg !== currentRow.profile_image;
+      if (isImageChanging) {
+        console.log(`[IMAGE_UPDATE_START]\nrecordId: ${id}\noldImage: ${currentRow.profile_image}\nnewImage: ${newImg}`);
+      }
+
       const result = await query(
         `UPDATE leadership_members
          SET name = COALESCE($1, name),
@@ -222,7 +239,19 @@ router.put('/:id', authenticateToken, requireAdmin, async (req: AuthRequest, res
         return res.status(404).json({ error: 'Council member not found' });
       }
 
-      return res.json({ success: true, member: formatLeadershipRow(result.rows[0]) });
+      const formatted = formatLeadershipRow(result.rows[0]);
+
+      if (isImageChanging) {
+        console.log(`[IMAGE_DATABASE_UPDATED]\nrecordId: ${id}\nimage: ${formatted.profileImage}\nupdatedAt: ${new Date().toISOString()}`);
+        console.log(`[IMAGE_DATABASE_VERIFY]\nrecordId: ${formatted.id}\nimage: ${formatted.profileImage}\nupdatedAt: ${formatted.updatedAt}`);
+        console.log(`[IMAGE_DATABASE_WRITE]\nrecordId: ${id}\nfield: profile_image\noldValue: ${currentRow.profile_image}\nnewValue: ${formatted.profileImage}\nsource: leadership_update_api`);
+      }
+
+      // Keep mock store in sync
+      const mockIdx = mockStore.leadershipMembers.findIndex((m: any) => m.id === id);
+      if (mockIdx >= 0) mockStore.leadershipMembers[mockIdx] = formatted;
+
+      return res.json({ success: true, member: formatted });
     }
 
     const index = mockStore.leadershipMembers.findIndex((m: any) => m.id === id);

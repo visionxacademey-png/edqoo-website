@@ -93,7 +93,7 @@ export const Navbar: React.FC = () => {
               <Link to="/" className="flex items-center focus:outline-none group">
                 <img 
                   src="/logo.jpg" 
-                  alt="EDQOO - Your skill partner" 
+                  alt="Edqoo" 
                   className="h-9 sm:h-10 xl:h-11 w-auto object-contain max-w-[125px] sm:max-w-[145px] xl:max-w-[160px] transition-transform duration-200 group-hover:scale-[1.02]"
                 />
               </Link>
@@ -114,18 +114,117 @@ export const Navbar: React.FC = () => {
                 Home
               </NavLink>
 
-              <NavLink
-                to="/courses"
-                className={({ isActive }) =>
-                  `text-[13px] xl:text-[14px] font-semibold tracking-normal px-2.5 xl:px-3 py-1.5 rounded-lg transition-all ${
-                    isActive
+              {/* Programs Dropdown */}
+              <div
+                className="relative"
+                onMouseEnter={() => handleMouseEnter('programs')}
+                onMouseLeave={handleMouseLeave}
+              >
+                <button
+                  type="button"
+                  onClick={() => setActiveDropdown(activeDropdown === 'programs' ? null : 'programs')}
+                  className={`inline-flex items-center gap-1 text-[13px] xl:text-[14px] font-semibold tracking-normal px-2.5 xl:px-3 py-1.5 rounded-lg transition-all ${
+                    location.pathname.startsWith('/programs') || location.pathname === '/courses' || location.pathname === '/tools-and-upskills' || activeDropdown === 'programs'
                       ? 'text-purple-600 bg-purple-50/70 font-bold'
                       : 'text-slate-700 hover:text-purple-600 hover:bg-slate-50'
-                  }`
-                }
-              >
-                Programs
-              </NavLink>
+                  }`}
+                >
+                  <span>Programs</span>
+                  <ChevronDown
+                    className={`w-3.5 h-3.5 transition-transform duration-200 ${
+                      activeDropdown === 'programs' ? 'rotate-180 text-purple-600' : 'text-slate-400'
+                    }`}
+                  />
+                </button>
+
+                {activeDropdown === 'programs' && (
+                  <div className="absolute top-full left-0 pt-1.5 w-72 z-50 animate-fadeIn">
+                    <div className="bg-white border border-slate-200/90 rounded-2xl shadow-xl shadow-purple-950/5 p-2 text-left space-y-0.5">
+                      <Link
+                        to="/courses"
+                        onClick={() => setActiveDropdown(null)}
+                        className="flex items-start gap-2.5 p-2 rounded-xl hover:bg-purple-50 transition-colors group"
+                      >
+                        <div className="w-7 h-7 rounded-lg bg-purple-100 text-purple-600 flex items-center justify-center flex-shrink-0 group-hover:bg-purple-600 group-hover:text-white transition-colors">
+                          <Award className="w-3.5 h-3.5" />
+                        </div>
+                        <div>
+                          <span className="text-xs font-bold text-slate-900 block group-hover:text-purple-700">All Master Programs</span>
+                          <span className="text-[10px] text-slate-500 block leading-tight">Explore full certification catalog</span>
+                        </div>
+                      </Link>
+                      <Link
+                        to="/programs/data-science-and-ai"
+                        onClick={() => setActiveDropdown(null)}
+                        className="flex items-start gap-2.5 p-2 rounded-xl hover:bg-purple-50 transition-colors group"
+                      >
+                        <div className="w-7 h-7 rounded-lg bg-purple-50 text-purple-600 flex items-center justify-center flex-shrink-0 group-hover:bg-purple-600 group-hover:text-white transition-colors">
+                          <span className="text-[10px] font-black">DS</span>
+                        </div>
+                        <div>
+                          <span className="text-xs font-bold text-slate-900 block group-hover:text-purple-700">Data Science and AI</span>
+                          <span className="text-[10px] text-slate-500 block leading-tight">Machine learning & analytics</span>
+                        </div>
+                      </Link>
+                      <Link
+                        to="/programs/python"
+                        onClick={() => setActiveDropdown(null)}
+                        className="flex items-start gap-2.5 p-2 rounded-xl hover:bg-purple-50 transition-colors group"
+                      >
+                        <div className="w-7 h-7 rounded-lg bg-purple-50 text-purple-600 flex items-center justify-center flex-shrink-0 group-hover:bg-purple-600 group-hover:text-white transition-colors">
+                          <span className="text-[10px] font-black">PY</span>
+                        </div>
+                        <div>
+                          <span className="text-xs font-bold text-slate-900 block group-hover:text-purple-700">Python Programming</span>
+                          <span className="text-[10px] text-slate-500 block leading-tight">Core to advanced software engineering</span>
+                        </div>
+                      </Link>
+                      <Link
+                        to="/programs/ai-and-machine-learning"
+                        onClick={() => setActiveDropdown(null)}
+                        className="flex items-start gap-2.5 p-2 rounded-xl hover:bg-purple-50 transition-colors group"
+                      >
+                        <div className="w-7 h-7 rounded-lg bg-purple-50 text-purple-600 flex items-center justify-center flex-shrink-0 group-hover:bg-purple-600 group-hover:text-white transition-colors">
+                          <span className="text-[10px] font-black">AI</span>
+                        </div>
+                        <div>
+                          <span className="text-xs font-bold text-slate-900 block group-hover:text-purple-700">AI &amp; Machine Learning</span>
+                          <span className="text-[10px] text-slate-500 block leading-tight">Deep learning & LLMs</span>
+                        </div>
+                      </Link>
+                      <Link
+                        to="/programs/data-analytics-and-ai"
+                        onClick={() => setActiveDropdown(null)}
+                        className="flex items-start gap-2.5 p-2 rounded-xl hover:bg-purple-50 transition-colors group"
+                      >
+                        <div className="w-7 h-7 rounded-lg bg-purple-50 text-purple-600 flex items-center justify-center flex-shrink-0 group-hover:bg-purple-600 group-hover:text-white transition-colors">
+                          <span className="text-[10px] font-black">DA</span>
+                        </div>
+                        <div>
+                          <span className="text-xs font-bold text-slate-900 block group-hover:text-purple-700">Data Analytics &amp; AI</span>
+                          <span className="text-[10px] text-slate-500 block leading-tight">Power BI, SQL & Business Intelligence</span>
+                        </div>
+                      </Link>
+                      <Link
+                        to="/tools-and-upskills"
+                        onClick={() => setActiveDropdown(null)}
+                        className="flex items-start gap-2.5 p-2 rounded-xl hover:bg-purple-50 transition-colors group border-t border-slate-100 pt-2"
+                      >
+                        <div className="w-7 h-7 rounded-lg bg-purple-100 text-purple-700 flex items-center justify-center flex-shrink-0 group-hover:bg-purple-600 group-hover:text-white transition-colors">
+                          <span className="text-[10px] font-black">TU</span>
+                        </div>
+                        <div>
+                          <span className="text-xs font-bold text-slate-900 block group-hover:text-purple-700">Tools &amp; Upskills</span>
+                          <span className="text-[10px] text-slate-500 block leading-tight">Excel, Power BI, Prompt Eng., Cloud</span>
+                        </div>
+                      </Link>
+                    </div>
+                  </div>
+                )}
+              </div>
+
+              {/* Blog Link */}
+              
 
               {/* For Organizations Dropdown */}
               <div
@@ -233,7 +332,7 @@ export const Navbar: React.FC = () => {
                         </div>
                         <div>
                           <span className="text-xs font-bold text-slate-900 block group-hover:text-purple-700">Faculty Directory</span>
-                          <span className="text-[11px] text-slate-500 block leading-tight mt-0.5">Meet our NIT &amp; industry faculty</span>
+                          <span className="text-[11px] text-slate-500 block leading-tight mt-0.5">Meet our&amp; industry faculty</span>
                         </div>
                       </Link>
                     </div>
@@ -501,7 +600,82 @@ export const Navbar: React.FC = () => {
                 }`
               }
             >
-              Explore Programs
+              All Programs &amp; Courses
+            </NavLink>
+
+            {/* Program Categories */}
+            <div className="pt-2 pb-1 px-3">
+              <span className="text-[10px] font-extrabold uppercase tracking-wider text-slate-400">
+                Program Categories
+              </span>
+            </div>
+            <NavLink
+              to="/programs/data-science-and-ai"
+              onClick={() => setIsMobileMenuOpen(false)}
+              className={({ isActive }) =>
+                `text-xs font-bold py-1.5 px-3 pl-5 rounded-lg transition-all ${
+                  isActive ? 'bg-purple-50 text-purple-700 font-extrabold' : 'text-slate-800 hover:bg-slate-50'
+                }`
+              }
+            >
+              Data Science and AI
+            </NavLink>
+            <NavLink
+              to="/programs/python"
+              onClick={() => setIsMobileMenuOpen(false)}
+              className={({ isActive }) =>
+                `text-xs font-bold py-1.5 px-3 pl-5 rounded-lg transition-all ${
+                  isActive ? 'bg-purple-50 text-purple-700 font-extrabold' : 'text-slate-800 hover:bg-slate-50'
+                }`
+              }
+            >
+              Python Programming
+            </NavLink>
+            <NavLink
+              to="/programs/ai-and-machine-learning"
+              onClick={() => setIsMobileMenuOpen(false)}
+              className={({ isActive }) =>
+                `text-xs font-bold py-1.5 px-3 pl-5 rounded-lg transition-all ${
+                  isActive ? 'bg-purple-50 text-purple-700 font-extrabold' : 'text-slate-800 hover:bg-slate-50'
+                }`
+              }
+            >
+              AI &amp; Machine Learning
+            </NavLink>
+            <NavLink
+              to="/programs/data-analytics-and-ai"
+              onClick={() => setIsMobileMenuOpen(false)}
+              className={({ isActive }) =>
+                `text-xs font-bold py-1.5 px-3 pl-5 rounded-lg transition-all ${
+                  isActive ? 'bg-purple-50 text-purple-700 font-extrabold' : 'text-slate-800 hover:bg-slate-50'
+                }`
+              }
+            >
+              Data Analytics &amp; AI
+            </NavLink>
+            <NavLink
+              to="/tools-and-upskills"
+              onClick={() => setIsMobileMenuOpen(false)}
+              className={({ isActive }) =>
+                `text-xs font-bold py-1.5 px-3 pl-5 rounded-lg transition-all ${
+                  isActive ? 'bg-purple-50 text-purple-700 font-extrabold' : 'text-slate-800 hover:bg-slate-50'
+                }`
+              }
+            >
+              Tools &amp; Upskills
+            </NavLink>
+
+            {/* Blog Link */}
+            <NavLink
+              to="/blog"
+              onClick={() => setIsMobileMenuOpen(false)}
+              className={({ isActive }) =>
+                `text-xs font-bold py-2 px-3 rounded-lg transition-all mt-1 ${
+                  isActive ? 'bg-purple-50 text-purple-700 font-extrabold' : 'text-slate-800 hover:bg-slate-50'
+                }`
+              }
+            >
+              Blog &amp; Career Guides
             </NavLink>
 
             {/* Organizations Group */}
@@ -514,7 +688,7 @@ export const Navbar: React.FC = () => {
               to="/hire-from-us"
               onClick={() => setIsMobileMenuOpen(false)}
               className={({ isActive }) =>
-                `text-xs font-bold py-2 px-3 pl-5 rounded-lg transition-all ${
+                `text-xs font-bold py-1.5 px-3 pl-5 rounded-lg transition-all ${
                   isActive ? 'bg-purple-50 text-purple-700 font-extrabold' : 'text-slate-800 hover:bg-slate-50'
                 }`
               }
@@ -525,7 +699,7 @@ export const Navbar: React.FC = () => {
               to="/become-a-partner"
               onClick={() => setIsMobileMenuOpen(false)}
               className={({ isActive }) =>
-                `text-xs font-bold py-2 px-3 pl-5 rounded-lg transition-all ${
+                `text-xs font-bold py-1.5 px-3 pl-5 rounded-lg transition-all ${
                   isActive ? 'bg-purple-50 text-purple-700 font-extrabold' : 'text-slate-800 hover:bg-slate-50'
                 }`
               }
@@ -543,7 +717,7 @@ export const Navbar: React.FC = () => {
               to="/become-an-instructor"
               onClick={() => setIsMobileMenuOpen(false)}
               className={({ isActive }) =>
-                `text-xs font-bold py-2 px-3 pl-5 rounded-lg transition-all ${
+                `text-xs font-bold py-1.5 px-3 pl-5 rounded-lg transition-all ${
                   isActive ? 'bg-purple-50 text-purple-700 font-extrabold' : 'text-slate-800 hover:bg-slate-50'
                 }`
               }
@@ -554,7 +728,7 @@ export const Navbar: React.FC = () => {
               to="/instructors"
               onClick={() => setIsMobileMenuOpen(false)}
               className={({ isActive }) =>
-                `text-xs font-bold py-2 px-3 pl-5 rounded-lg transition-all ${
+                `text-xs font-bold py-1.5 px-3 pl-5 rounded-lg transition-all ${
                   isActive ? 'bg-purple-50 text-purple-700 font-extrabold' : 'text-slate-800 hover:bg-slate-50'
                 }`
               }
@@ -572,7 +746,7 @@ export const Navbar: React.FC = () => {
               to="/about"
               onClick={() => setIsMobileMenuOpen(false)}
               className={({ isActive }) =>
-                `text-xs font-bold py-2 px-3 pl-5 rounded-lg transition-all ${
+                `text-xs font-bold py-1.5 px-3 pl-5 rounded-lg transition-all ${
                   isActive ? 'bg-purple-50 text-purple-700 font-extrabold' : 'text-slate-800 hover:bg-slate-50'
                 }`
               }
@@ -583,7 +757,7 @@ export const Navbar: React.FC = () => {
               to="/leadership-council"
               onClick={() => setIsMobileMenuOpen(false)}
               className={({ isActive }) =>
-                `text-xs font-bold py-2 px-3 pl-5 rounded-lg transition-all ${
+                `text-xs font-bold py-1.5 px-3 pl-5 rounded-lg transition-all ${
                   isActive ? 'bg-purple-50 text-purple-700 font-extrabold' : 'text-slate-800 hover:bg-slate-50'
                 }`
               }

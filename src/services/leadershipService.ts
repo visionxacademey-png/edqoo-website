@@ -23,7 +23,12 @@ const saveStoredMembers = (items: LeadershipCouncilMember[]) => {
 export const leadershipService = {
   getMembers: async (): Promise<LeadershipCouncilMember[]> => {
     try {
-      const response = await api.get('/leadership');
+      const response = await api.get(`/leadership?_t=${Date.now()}`, {
+        headers: {
+          'Cache-Control': 'no-cache, no-store, must-revalidate',
+          'Pragma': 'no-cache'
+        }
+      });
       if (Array.isArray(response.data)) {
         saveStoredMembers(response.data);
         return response.data;
@@ -36,7 +41,12 @@ export const leadershipService = {
 
   getMemberById: async (id: string): Promise<LeadershipCouncilMember | null> => {
     try {
-      const response = await api.get(`/leadership/${id}`);
+      const response = await api.get(`/leadership/${id}?_t=${Date.now()}`, {
+        headers: {
+          'Cache-Control': 'no-cache, no-store, must-revalidate',
+          'Pragma': 'no-cache'
+        }
+      });
       if (response.data) return response.data;
     } catch (error) {
       console.warn(`Backend unavailable, searching client storage for member: ${id}`, error);

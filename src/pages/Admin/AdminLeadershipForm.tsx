@@ -90,12 +90,17 @@ export const AdminLeadershipForm: React.FC = () => {
       return;
     }
 
+    console.log('IMAGE UPDATE STARTED', { fileName: file.name, fileSize: file.size });
     const reader = new FileReader();
     reader.onload = () => {
+      const dataUrl = reader.result as string;
+      console.log('IMAGE UPLOAD SUCCESS', { fileName: file.name, size: file.size });
+      console.log('NEW IMAGE URL:', dataUrl.substring(0, 50) + '...');
       setFormData((prev) => ({
         ...prev,
-        profileImage: reader.result as string
+        profileImage: dataUrl
       }));
+      showToast('Leadership portrait loaded into preview.');
     };
     reader.readAsDataURL(file);
   };
@@ -132,6 +137,7 @@ export const AdminLeadershipForm: React.FC = () => {
     }
 
     setSaving(true);
+    console.log('IMAGE UPDATE STARTED', { isEditing, id, newImageUrl: formData.profileImage.substring(0, 50) + '...' });
     try {
       const payload: Partial<LeadershipCouncilMember> = {
         name: formData.name.trim(),
@@ -159,10 +165,12 @@ export const AdminLeadershipForm: React.FC = () => {
       };
 
       if (isEditing && id) {
-        await leadershipService.updateMember(id, payload);
+        const res = await leadershipService.updateMember(id, payload);
+        console.log('DATABASE UPDATE SUCCESS', { id, newImageUrl: res.member?.profileImage?.substring(0, 50) });
         showToast('Leadership member updated successfully!');
       } else {
-        await leadershipService.createMember(payload);
+        const res = await leadershipService.createMember(payload);
+        console.log('DATABASE UPDATE SUCCESS', { id: res.member?.id, newImageUrl: res.member?.profileImage?.substring(0, 50) });
         showToast('Leadership member created successfully!');
       }
 

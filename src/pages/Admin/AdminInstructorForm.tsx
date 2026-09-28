@@ -8,7 +8,8 @@ import {
   AlertCircle,
   Award,
   BookOpen,
-  Mail
+  Mail,
+  Upload
 } from 'lucide-react';
 import { instructorService } from '../../services/instructorService';
 import type { Instructor } from '../../types';
@@ -85,6 +86,27 @@ export const AdminInstructorForm: React.FC = () => {
     }
   }, [id, isEditMode]);
 
+  const handleImageFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    if (file.size > 4 * 1024 * 1024) {
+      showToast('Image size exceeds 4MB limit.', 'error');
+      return;
+    }
+
+    console.log('IMAGE UPDATE STARTED', { fileName: file.name, fileSize: file.size });
+    const reader = new FileReader();
+    reader.onload = () => {
+      const dataUrl = reader.result as string;
+      console.log('IMAGE UPLOAD SUCCESS', { fileName: file.name, size: file.size });
+      console.log('NEW IMAGE URL:', dataUrl.substring(0, 50) + '...');
+      setFormData((prev) => ({ ...prev, profileImage: dataUrl }));
+      showToast('Instructor photo selected and loaded into preview.');
+    };
+    reader.readAsDataURL(file);
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!formData.name.trim() || !formData.designation.trim()) {
@@ -93,6 +115,7 @@ export const AdminInstructorForm: React.FC = () => {
     }
 
     setSubmitting(true);
+    console.log('IMAGE UPDATE STARTED', { isEditMode, id, newImageUrl: formData.profileImage.substring(0, 50) + '...' });
     try {
       const payload: Partial<Instructor> = {
         name: formData.name.trim(),
@@ -128,10 +151,12 @@ export const AdminInstructorForm: React.FC = () => {
       };
 
       if (isEditMode && id) {
-        await instructorService.updateInstructor(id, payload);
+        const res = await instructorService.updateInstructor(id, payload);
+        console.log('DATABASE UPDATE SUCCESS', { id, newImageUrl: res.instructor?.image?.substring(0, 50) });
         showToast('Instructor profile updated successfully.');
       } else {
-        await instructorService.createInstructor(payload);
+        const res = await instructorService.createInstructor(payload);
+        console.log('DATABASE UPDATE SUCCESS', { id: res.instructor?.id, newImageUrl: res.instructor?.image?.substring(0, 50) });
         showToast('New instructor profile created successfully.');
       }
 
@@ -268,22 +293,51 @@ export const AdminInstructorForm: React.FC = () => {
 
           <div>
             <label className="text-xs font-bold text-slate-300 block mb-1">
-              Profile Photo URL
+              Profile Photo <span className="text-slate-500 font-normal">(File upload or Image URL)</span>
             </label>
-            <div className="flex gap-3 items-center">
-              <input
-                type="url"
-                placeholder="https://images.unsplash.com/photo-..."
-                value={formData.profileImage}
-                onChange={(e) => setFormData({ ...formData, profileImage: e.target.value })}
-                className="flex-1 bg-slate-950 border border-slate-800 rounded-xl py-2 px-3.5 text-xs text-slate-200 placeholder-slate-500 focus:outline-none focus:border-purple-600"
-              />
-              {formData.profileImage && (
-                <img
-                  src={formData.profileImage}
-                  alt="Preview"
-                  className="w-9 h-9 rounded-xl object-cover border border-slate-700 flex-shrink-0"
+            <div className="flex flex-col sm:flex-row gap-3 items-start sm:items-center">
+              <div className="flex-1 w-full flex gap-2">
+                <input
+                  type="text"
+                  placeholder="https://images.unsplash.com/... or click Upload"
+                  value={formData.profileImage}
+                  onChange={(e) => {
+                    setFormData({ ...formData, profileImage: e.target.value });
+                    console.log('IMAGE UPDATE STARTED', { newUrl: e.target.value });
+                  }}
+                  className="flex-1 bg-slate-950 border border-slate-800 rounded-xl py-2 px-3.5 text-xs text-slate-200 placeholder-slate-500 focus:outline-none focus:border-purple-600 font-mono"
                 />
+                <label className="cursor-pointer px-3.5 py-2 bg-slate-800 hover:bg-slate-700 border border-slate-700 rounded-xl text-xs font-semibold text-slate-200 flex items-center gap-1.5 transition-colors shrink-0">
+                  <Upload className="w-3.5 h-3.5 text-purple-400" />
+                  <span>Upload</span>
+                  <input
+                    type="file"
+                    accept="image/*"
+                    onChange={handleImageFileChange}
+                    className="hidden"
+                  />
+                </label>
+              </div>
+              {formData.profileImage && (
+                <div className="flex items-center gap-2 p-1 bg-slate-950 border border-slate-800 rounded-xl shrink-0">
+                  <img
+                    src={formData.profileImage}
+                    alt="Preview"
+                    className="w-10 h-10 rounded-lg object-cover border border-slate-700 flex-shrink-0"
+                    onError={(e) => ((e.target as HTMLElement).style.display = 'none')}
+                  />
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setFormData({ ...formData, profileImage: '' });
+                      console.log('IMAGE REMOVED');
+                    }}
+                    className="p-1 hover:bg-slate-800 rounded text-slate-400 hover:text-red-400 text-xs px-2"
+                    title="Remove image"
+                  >
+                    ✕
+                  </button>
+                </div>
               )}
             </div>
           </div>

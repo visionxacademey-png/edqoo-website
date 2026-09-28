@@ -21,6 +21,7 @@ import {
 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { adminService } from '../services/adminService';
+import { SEO } from '../components/common/SEO';
 import type { DbStatus } from '../types';
 
 export const AdminLayout: React.FC = () => {
@@ -58,6 +59,12 @@ export const AdminLayout: React.FC = () => {
 
   return (
     <div className="flex h-screen bg-slate-950 text-slate-100 overflow-hidden font-sans text-left">
+      <SEO 
+        title="Admin Console | Edqoo" 
+        description="Private administrative portal for Edqoo platform management." 
+        canonical="/admin" 
+        noIndex={true} 
+      />
       {/* Mobile Sidebar Overlay Drawer */}
       {sidebarOpen && (
         <div

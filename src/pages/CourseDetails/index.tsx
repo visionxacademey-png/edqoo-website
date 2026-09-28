@@ -6,7 +6,6 @@ import {
   BookOpen,
   User,
   CheckCircle2,
-  ChevronRight,
   ShieldCheck,
   PhoneCall,
   MessageCircle,
@@ -24,7 +23,7 @@ import {
   ExternalLink,
   Headphones
 } from 'lucide-react';
-import { courses as defaultCourses, COMMON_PROGRAM_FEATURES, normalizeCategoryName } from '../../data/courses';
+import { COMMON_PROGRAM_FEATURES, normalizeCategoryName } from '../../data/courses';
 import { courseService } from '../../services/courseService';
 import { instructorService } from '../../services/instructorService';
 import type { Course, TechStackGroup, ProjectItem, Instructor } from '../../types';
@@ -33,27 +32,47 @@ import { SEO } from '../../components/common/SEO';
 import { useEnquiry } from '../../context/EnquiryContext';
 import { ProjectCardItem } from './ProjectCardItem';
 
+import { Breadcrumbs } from '../../components/common/Breadcrumbs';
+import { getCacheBustedImageUrl } from '../../utils/imageUrl';
+
 export const CourseDetails: React.FC = () => {
   const { slug } = useParams<{ slug: string }>();
   const { openEnquiryModal } = useEnquiry();
 
-  const [course, setCourse] = useState<Course | null>(() => {
-    return defaultCourses.find((c) => c.slug === slug || c.id === slug) || null;
-  });
-  const [loading, setLoading] = useState(!course);
+  const [course, setCourse] = useState<Course | null>(null);
+  const [loading, setLoading] = useState(true);
   const [allInstructors, setAllInstructors] = useState<Instructor[]>([]);
+  const [allCourses, setAllCourses] = useState<Course[]>([]);
   const [activeSection, setActiveSection] = useState<string>('overview');
 
   useEffect(() => {
+    courseService
+      .getCourses()
+      .then((data) => {
+        if (Array.isArray(data)) {
+          setAllCourses(data);
+        }
+      })
+      .catch((err) => {
+        console.error('Failed to load courses list:', err);
+      });
+  }, []);
+
+  useEffect(() => {
     if (slug) {
+      setLoading(true);
       courseService
         .getCourseBySlug(slug)
         .then((fetched) => {
           if (fetched) {
             setCourse(fetched);
+          } else {
+            setCourse(null);
           }
         })
-        .catch(console.warn)
+        .catch((err) => {
+          console.warn('Failed to fetch course details from backend:', err);
+        })
         .finally(() => setLoading(false));
     }
   }, [slug]);
@@ -133,15 +152,61 @@ export const CourseDetails: React.FC = () => {
   const isFreeLearning = assignedCategories.some((c) => c === 'Free Learning') || course.price === 0;
   const programFeatures = course.features && course.features.length > 0 ? course.features : COMMON_PROGRAM_FEATURES;
 
+  const primaryCategory = assignedCategories[0] || 'Data Science and AI';
+  const primaryCategorySlug = primaryCategory.toLowerCase().replace(/\s+/g, '-');
+
+  const seoTitle = course.seoTitle || `${course.title} | Online Course | Edqoo`;
+  const seoDescription =
+    course.seoDescription ||
+    (course.shortDescription
+      ? `${course.shortDescription} Learn with practical projects and expert mentorship on Edqoo.`
+      : `Learn ${course.title} through practical lessons, projects and industry-focused training with Edqoo.`);
+
+  const breadcrumbItems = [
+    { name: 'Home', url: '/' },
+    { name: 'Courses', url: '/courses' },
+    { name: primaryCategory, url: `/programs/${primaryCategorySlug}` },
+    { name: course.title, url: `/courses/${course.slug}` }
+  ];
+
+  const rawCourseFaqs = [
+    {
+      question: 'How does the enquiry and admission process work?',
+      answer: 'Once you submit an enquiry through our website, an Edqoo senior academic advisor contacts you to discuss your career objectives, explain batch schedules and fee structures, and provide sample syllabus materials.'
+    },
+    {
+      question: 'Is this program suitable for working professionals or career transitioners?',
+      answer: 'Yes. Our programs feature interactive live sessions, flexible scheduling, self-paced learning resources, and dedicated 1:1 mentor support tailored for both working professionals and learners entering the domain.'
+    },
+    {
+      question: 'What certification and placement assistance are provided?',
+      answer: 'Learners receive the verified Edqoo Certificate upon successful completion, and qualify for 3 Guaranteed Job Interviews upon movement to the Placement Pool.'
+    },
+    {
+      question: 'Are all program features and capstone projects included?',
+      answer: 'Yes! Every course includes Live Interactive Classes, LMS access, Dedicated Mentorship, Placement Assistance, Real-World Capstone Projects, and rewards for top performers.'
+    }
+  ];
+
+  const faqItems = rawCourseFaqs.map((faq, index) => ({
+    id: `faq-${index + 1}`,
+    title: faq.question,
+    content: <p className="text-xs leading-relaxed text-slate-600">{faq.answer}</p>
+  }));
+
+  const relatedCourses = allCourses
+    .filter((c) => c.slug !== course.slug && (c.category === course.category || (c.categories && c.categories.some((cat) => course.categories?.includes(cat)))))
+    .slice(0, 3);
+
   // Curriculum accordion data
   const curriculumItems = (course.curriculum && course.curriculum.length > 0)
     ? course.curriculum.map((section, idx) => ({
         id: `curric-${idx + 1}`,
-        title: `${section.title} (${section.topics.length} Key Topics)`,
+        title: `${section.title} (${(section.topics || []).length} Key Topics)`,
         content: (
           <div className="space-y-2 pt-1 pb-2">
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-              {section.topics.map((topic, tIdx) => (
+              {(section.topics || []).map((topic, tIdx) => (
                 <div
                   key={tIdx}
                   className="flex items-start gap-2.5 text-xs py-2 px-3 rounded-lg bg-slate-50 border border-slate-200/60"
@@ -154,54 +219,36 @@ export const CourseDetails: React.FC = () => {
           </div>
         )
       }))
-    : (course.modules || []).map((module) => ({
-        id: `mod-${module.id}`,
-        title: `${module.title} (${module.lessons.length} Sessions / Labs)`,
-        content: (
-          <div className="space-y-2 pt-1 pb-2">
-            {module.lessons.map((lesson) => (
-              <div
-                key={lesson.id}
-                className="flex items-center justify-between text-xs py-2 px-3.5 rounded-lg bg-slate-50 border border-slate-200/60"
-              >
-                <div className="flex items-center gap-2.5">
-                  <BookOpen className="w-3.5 h-3.5 text-purple-600" />
-                  <span className="font-semibold text-slate-800">{lesson.title}</span>
-                </div>
-                <span className="text-[10px] text-slate-500 font-medium">{lesson.duration}</span>
-              </div>
-            ))}
-          </div>
-        )
-      }));
-
-  // FAQ items
-  const faqItems = [
-    {
-      id: 'faq-1',
-      title: 'How does the enquiry and admission process work.',
-      content: 'Once you submit an enquiry through our website, an EDQOO senior academic advisor contacts you to discuss your career objectives, explain batch schedules and fee structures, and provide sample syllabus materials.'
-    },
-    {
-      id: 'faq-2',
-      title: 'Is this program suitable for working professionals or career transitioners.',
-      content: 'Yes. Our programs feature interactive live sessions, flexible scheduling, self-paced learning resources, and dedicated 1:1 mentor support tailored for both working professionals and learners entering the domain.'
-    },
-    {
-      id: 'faq-3',
-      title: 'What certification and placement assistance are provided.',
-      content: 'Learners receive the theccpeeps Certification upon successful completion, and qualify for 3 Guaranteed Job Interviews upon movement to the Placement Pool.'
-    },
-    {
-      id: 'faq-4',
-      title: 'Are all 15 program features included with this course.',
-      content: 'Yes! Every course includes all 15 core features including Live Interactive Classes, LMS access, Campus Immersion, Dedicated Mentorship, Placement Assistance, Capstone Projects, and rewards for top performers.'
-    }
-  ].map((faq) => ({
-    id: faq.id,
-    title: faq.title,
-    content: <p className="text-xs leading-relaxed text-slate-600">{faq.content}</p>
-  }));
+    : (course.modules || []).map((module, mIdx) => {
+        const lessons = Array.isArray(module.lessons) ? module.lessons : [];
+        return {
+          id: `mod-${module.id || mIdx + 1}`,
+          title: `${module.title} (${lessons.length > 0 ? `${lessons.length} Sessions / Labs` : 'Curriculum Module'})`,
+          content: (
+            <div className="space-y-2 pt-1 pb-2">
+              {lessons.map((lesson: any, lIdx: number) => {
+                const lessonTitle = typeof lesson === 'string' ? lesson : (lesson?.title || `Session ${lIdx + 1}`);
+                const lessonDuration = typeof lesson === 'object' && lesson ? lesson.duration : null;
+                return (
+                  <div
+                    key={lesson?.id || lIdx}
+                    className="flex items-center justify-between text-xs py-2 px-3.5 rounded-lg bg-slate-50 border border-slate-200/60"
+                  >
+                    <div className="flex items-center gap-2.5">
+                      <BookOpen className="w-3.5 h-3.5 text-purple-600" />
+                      <span className="font-semibold text-slate-800">{lessonTitle}</span>
+                    </div>
+                    {lessonDuration && <span className="text-[10px] text-slate-500 font-medium">{lessonDuration}</span>}
+                  </div>
+                );
+              })}
+              {lessons.length === 0 && module.description && (
+                <p className="text-xs text-slate-600 py-1 leading-relaxed">{module.description}</p>
+              )}
+            </div>
+          )
+        };
+      });
 
   // Normalized Tech Stack
   const techStackList: TechStackGroup[] = Array.isArray(course.technologyStack)
@@ -268,10 +315,16 @@ export const CourseDetails: React.FC = () => {
   return (
     <div className="bg-slate-50/70 min-h-screen text-left">
       <SEO 
-        title={`${course.title} - Data Science & AI Projects, Curriculum & Admissions | Edqoo`}
-        description={`${course.description} Work on practical Data Science Projects, Artificial Intelligence Projects, Machine Learning Projects, Data Analytics Projects, Generative AI Projects, and NLP Projects.`}
+        title={seoTitle}
+        description={seoDescription}
         canonical={`/courses/${course.slug}`}
-        ogImage={course.image}
+        ogImage={getCacheBustedImageUrl(course.image, course.updatedAt || course.imageUpdatedAt)}
+        ogImageAlt={`${course.title} - Edqoo Online Course`}
+        keywords={course.seoKeywords || course.skills || [course.title, course.category, 'online course', 'Edqoo']}
+        breadcrumbs={breadcrumbItems}
+        course={course}
+        instructor={displayInstructors[0] || null}
+        faqs={rawCourseFaqs}
       />
 
       {/* 1. Course Program Hero Banner */}
@@ -279,11 +332,7 @@ export const CourseDetails: React.FC = () => {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-4 relative z-10">
           
           {/* Breadcrumb */}
-          <div className="flex items-center gap-1.5 text-slate-500 text-xs font-semibold">
-            <Link to="/courses" className="hover:text-purple-600 transition-colors">Program Tracks</Link>
-            <ChevronRight className="w-3.5 h-3.5 text-slate-400" />
-            <span className="text-purple-700 font-bold">{assignedCategories.join(' • ')}</span>
-          </div>
+          <Breadcrumbs items={breadcrumbItems.slice(1)} className="pb-1" />
 
           {/* Category Chips */}
           <div className="flex flex-wrap items-center gap-2 pt-1">
@@ -414,19 +463,21 @@ export const CourseDetails: React.FC = () => {
             </div>
 
             {/* Key Skills & Competencies */}
-            <div className="bg-white border border-slate-200 p-6 rounded-2xl shadow-2xs space-y-4">
-              <h3 className="font-display font-bold text-base text-slate-900">
-                Key Skills &amp; Competencies You Will Build
-              </h3>
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-1">
-                {course.skills.map((skill) => (
-                  <div key={skill} className="flex items-start gap-2.5">
-                    <CheckCircle2 className="w-4 h-4 text-emerald-600 mt-0.5 flex-shrink-0" />
-                    <span className="text-xs font-semibold text-slate-800">{skill}</span>
-                  </div>
-                ))}
+            {course.skills && course.skills.length > 0 && (
+              <div className="bg-white border border-slate-200 p-6 rounded-2xl shadow-2xs space-y-4">
+                <h3 className="font-display font-bold text-base text-slate-900">
+                  Key Skills &amp; Competencies You Will Build
+                </h3>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-1">
+                  {course.skills.map((skill) => (
+                    <div key={skill} className="flex items-start gap-2.5">
+                      <CheckCircle2 className="w-4 h-4 text-emerald-600 mt-0.5 flex-shrink-0" />
+                      <span className="text-xs font-semibold text-slate-800">{skill}</span>
+                    </div>
+                  ))}
+                </div>
               </div>
-            </div>
+            )}
 
             {/* Program Outcome Banner */}
             {course.outcome && (
@@ -670,7 +721,11 @@ export const CourseDetails: React.FC = () => {
                     <div className="space-y-3">
                       <div className="flex items-center gap-3.5">
                         <img
-                          src={inst.profileImage || inst.image || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?q=80&w=200&auto=format&fit=crop'}
+                          src={getCacheBustedImageUrl(
+                            inst.profileImage || inst.image,
+                            inst.updatedAt || inst.imageUpdatedAt,
+                            'https://images.unsplash.com/photo-1534528741775-53994a69daeb?q=80&w=200&auto=format&fit=crop'
+                          )}
                           alt={inst.name}
                           className="w-14 h-14 rounded-xl object-cover border border-purple-200 shadow-2xs"
                         />
@@ -792,7 +847,7 @@ export const CourseDetails: React.FC = () => {
             {/* Image Preview */}
             <div className="aspect-[16/10] rounded-xl overflow-hidden bg-slate-100 border border-slate-200">
               <img
-                src={course.image}
+                src={getCacheBustedImageUrl(course.image, course.updatedAt || course.imageUpdatedAt)}
                 alt={course.title}
                 className="w-full h-full object-cover"
               />
@@ -851,7 +906,7 @@ export const CourseDetails: React.FC = () => {
               </span>
               <div className="flex items-center gap-2">
                 <GraduationCap className="w-4 h-4 text-purple-600 flex-shrink-0" />
-                <span>Learn from NIT Faculty &amp; Industry Practitioners</span>
+                <span>Learn from Faculty &amp; Industry Practitioners</span>
               </div>
               <div className="flex items-center gap-2">
                 <Clock className="w-4 h-4 text-purple-600 flex-shrink-0" />
@@ -893,6 +948,76 @@ export const CourseDetails: React.FC = () => {
         </div>
 
       </div>
+
+      {/* 4. Related Programs Section */}
+      {relatedCourses.length > 0 && (
+        <section className="border-t border-slate-200 bg-white py-12 text-left">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-6">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+              <div>
+                <span className="text-[10px] font-bold text-purple-600 uppercase tracking-widest block">
+                  RECOMMENDED TRACKS
+                </span>
+                <h2 className="text-xl sm:text-2xl font-display font-bold text-slate-900">
+                  Related Courses in {primaryCategory}
+                </h2>
+              </div>
+              <Link
+                to="/courses"
+                className="text-xs font-bold text-purple-600 hover:text-purple-800 inline-flex items-center gap-1"
+              >
+                <span>Explore All Programs</span>
+                <ArrowRight className="w-3.5 h-3.5" />
+              </Link>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              {relatedCourses.map((rel) => (
+                <div
+                  key={rel.id}
+                  className="bg-slate-50 border border-slate-200 rounded-2xl overflow-hidden hover:border-purple-300 hover:shadow-md transition-all flex flex-col justify-between group"
+                >
+                  <div className="aspect-[16/10] overflow-hidden bg-slate-100">
+                    <img
+                      src={getCacheBustedImageUrl(rel.image, rel.updatedAt || rel.imageUpdatedAt)}
+                      alt={`${rel.title} - Edqoo online course`}
+                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                      loading="lazy"
+                    />
+                  </div>
+                  <div className="p-5 flex-1 flex flex-col justify-between space-y-3">
+                    <div className="space-y-1">
+                      <span className="text-[10px] font-bold text-purple-600 uppercase tracking-wider block">
+                        {rel.category}
+                      </span>
+                      <h3 className="font-display font-bold text-sm text-slate-900 group-hover:text-purple-600 transition-colors line-clamp-2">
+                        <Link to={`/courses/${rel.slug}`}>{rel.title}</Link>
+                      </h3>
+                      <p className="text-xs text-slate-500 line-clamp-2 leading-relaxed">
+                        {rel.shortDescription || rel.description}
+                      </p>
+                    </div>
+
+                    <div className="pt-3 border-t border-slate-200/80 flex items-center justify-between text-xs">
+                      <span className="font-bold text-purple-700">
+                        {rel.price === 0 ? 'Free Learning' : `₹${rel.price.toLocaleString('en-IN')}`}
+                      </span>
+                      <Link
+                        to={`/courses/${rel.slug}`}
+                        className="text-xs font-bold text-slate-700 hover:text-purple-600 inline-flex items-center gap-1"
+                      >
+                        <span>View Syllabus</span>
+                        <ArrowRight className="w-3 h-3" />
+                      </Link>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </section>
+      )}
+
     </div>
   );
 };

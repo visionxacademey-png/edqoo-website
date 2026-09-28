@@ -1,6 +1,7 @@
 import { GoogleGenAI } from '@google/genai';
 import { query, isDbConnected, ensureDbInitialized, mockStore } from '../db/index.js';
 import { DATA_SCIENCE_AI_PROJECTS } from '../../src/data/courses.js';
+import { evaluateFuzzyMatch } from './fuzzyMatch.js';
 
 export interface ChatMessage {
   role: 'user' | 'model' | 'assistant';
@@ -16,7 +17,9 @@ export interface SearchResultItem {
   url: string;
   description?: string;
   level?: string;
-  type: 'course' | 'project' | 'instructor' | 'page';
+  type: 'course' | 'program' | 'project' | 'instructor' | 'page' | 'faq';
+  similarity?: number;
+  matchType?: 'exact' | 'prefix' | 'contains' | 'fuzzy' | 'content' | 'none';
 }
 
 export interface ChatResponse {
@@ -26,7 +29,8 @@ export interface ChatResponse {
   confidence: 'supported' | 'unsupported';
   needsContact: boolean;
   results?: SearchResultItem[];
-  errorCode?: 'NOT_FOUND' | 'AI_SERVICE_UNAVAILABLE' | 'DB_UNAVAILABLE';
+  resultType?: 'courses' | 'programs' | 'projects' | 'instructors' | 'faq' | 'general' | 'mixed';
+  errorCode?: 'NOT_FOUND' | 'AI_SERVICE_UNAVAILABLE' | 'DB_UNAVAILABLE' | null;
   contactInfo: {
     phone: string;
     whatsapp: string;
@@ -47,113 +51,354 @@ export function getContactInfo() {
 }
 
 // =============================================================================
-// APPROVED STATIC WEBSITE KNOWLEDGE
+// VERIFIED PUBLIC WEBSITE PAGES REGISTRY (REAL ROUTES)
 // =============================================================================
 
-export const STATIC_WEBSITE_KNOWLEDGE = {
-  company: `
-EDQOO OVERVIEW:
-- Edqoo is a premium technology education and corporate upskilling platform.
-- Core Value: "Practical Skills. Real Projects. Better Careers."
-- Mission: Closing the gap between academic theory and real-world enterprise technology requirements with project-driven, hands-on learning.
-- Learning Philosophy:
-  1. Focus on Code, Not Slides (learning through live terminals, Python notebooks, and system architectures).
-  2. Defensive Hardening & Industry Standards (security, scalable configurations, clean code).
-  3. Shareable Demos (building standalone portfolio capstones for hiring evaluations).
-- Learning Modes: Live cohort masterclasses, 1-on-1 mentorship, self-paced modules, practical capstone projects, career support.
-- Contact: Support Email (support@edqoo.com), Phone & WhatsApp available for academic counseling.
-`,
+export interface WebsitePageRecord {
+  id: string;
+  title: string;
+  url: string;
+  category: string;
+  description: string;
+  aliases: string[];
+  contentSummary: string;
+}
 
-  projects: `
-APPROVED DATA SCIENCE & AI PROJECTS PORTFOLIO (7 Core Capstones):
-1. Title: Diwali Sales Analysis & Reporting
-   Category: AMAZON / E-Commerce
-   Description: Analyzed customer purchasing behavior and sales performance during Diwali. Identified top-selling products, revenue trends, and customer segments using Python, machine learning, and data visualization.
-   Technologies: Python, Machine Learning, Pandas, Data Visualization.
-
-2. Title: Netflix Data Analysis
-   Category: NETFLIX / Entertainment Analytics
-   Description: Analyzed Netflix content data including genres, ratings, countries, and content types. Developed an interactive Power BI dashboard to uncover content trends and generate data-driven insights.
-   Technologies: Power BI, DAX, Data Analysis, Data Visualization.
-
-3. Title: Electric Vehicle Data Analysis
-   Category: EV / Clean Transportation Analytics
-   Description: Examined electric vehicle adoption trends, vehicle categories, and regional distribution. Created interactive Tableau dashboards to visualize growth patterns and support EV market analysis.
-   Technologies: Tableau, Data Analysis, Data Visualization, EV Analytics.
-
-4. Title: AI Interview Preparation Assistant
-   Category: AI / Career Tech
-   Description: Built an AI-powered application that generates role-specific technical and HR interview questions using Generative AI. Developed interactive UI with Streamlit and secure LLM API integration.
-   Technologies: Python, Streamlit, Generative AI, LLM, API Integration.
-
-5. Title: Pneumonia Severity Detection Using Deep Learning
-   Category: MEDICAL AI / Healthcare Diagnostics
-   Description: Automated deep learning system to classify chest X-ray images into Pneumonia and Normal categories using transfer learning. Analyzes infection severity for medical diagnosis.
-   Technologies: Deep Learning, Transfer Learning, CNN, Medical AI.
-
-6. Title: Kanoon Darpan AI – IPC Section Identification
-   Category: LEGAL AI / Natural Language Processing
-   Description: NLP-driven legal assistant to identify relevant Indian Penal Code (IPC) sections and legal provisions from natural language case descriptions.
-   Technologies: NLP, Python, Transformers, Semantic Search, FastAPI.
-
-7. Title: Suicide Ideation Detection from Text
-   Category: HEALTHCARE NLP / Mental Health Analytics
-   Description: Sensitive text classification and sentiment severity pipeline using deep learning and transformer models to identify warning signs in anonymized social posts.
-   Technologies: PyTorch, RoBERTa/BERT, NLP, Python.
-`,
-
-  hireFromUs: `
-HIRE FROM US PROGRAM (/hire-from-us):
-- Overview: Connects forward-thinking companies, startups, and enterprises with pre-vetted, job-ready talent in Data Science, AI/ML, Data Analytics, Python, and Business Intelligence with ZERO placement or hiring fees.
-- Why Hire From Edqoo:
-  1. Industry-Oriented Skills: Candidates have worked on real datasets and production-grade workflows.
-  2. Verified Capstone Portfolios: Every candidate has built 5+ verified industry projects with GitHub code repositories and live dashboards.
-  3. Zero Placement/Hiring Fees for Partner Employers.
-  4. Immediate Joining: Candidates ready for full-time, contract, or internship roles.
-- Talent Domains: Data Scientists, Machine Learning Engineers, Data Analysts, Python Developers, Business Intelligence / Power BI Specialists.
-- Hiring Process for Companies:
-  1. Submit Hiring Requirement on website (/hire-from-us) (Company Name, Contact Person, Email, Phone, Job Role, Openings, Required Skills, Experience Level, Location, Work Mode: Remote/Hybrid/On-site).
-  2. Candidate Shortlisting within 24-48 hours.
-  3. Direct Interviews & Smooth Onboarding.
-`,
-
-  becomeInstructor: `
-BECOME AN INSTRUCTOR (/become-an-instructor):
-- Overview: Edqoo invites experienced industry practitioners, senior researchers, and subject-matter experts to teach and mentor aspiring tech professionals.
-- Who Can Apply: Senior Data Scientists, AI Researchers, BI Consultants, Software Engineers, and Corporate Trainers with 3+ years of industry or academic experience.
-- Benefits for Instructors: Competitive compensation, global reach, flexible teaching schedules (weekend/evening cohorts), and pedagogical support.
-- Application Process: Submit details on /become-an-instructor page including Name, Email, Phone, Designation, Organization, Qualification, Expertise, Experience, Courses you can teach, Teaching Experience, Short Bio, and Resume/Portfolio link.
-`,
-
-  becomePartner: `
-BECOME A PARTNER (/become-a-partner):
-- Overview: Edqoo collaborates with universities, engineering colleges, training centers, and corporate enterprises.
-- Partnership Areas:
-  1. Academic Institutions: Industry-aligned curriculum integration, credit-bearing electives, faculty development programs (FDP), student upskilling bootcamps.
-  2. Corporate Enterprises: Customized workforce upskilling in Data & AI, corporate training workshops, executive coaching.
-- How to Partner: Submit partnership enquiry on the /become-a-partner page with organization name, type, contact person, partnership area, and proposal summary.
-`,
-
-  termsAndConditions: `
-TERMS & CONDITIONS SUMMARY (/terms-and-conditions):
-- Key Policy on Curriculum & Content: Courses, curriculums, projects, technologies, learning materials, instructor allocations, and other program components may be modified, updated, or enhanced periodically based on technological advancement, industry requirements, or educational and operational considerations.
-- Access & Intellectual Property: All course materials, code, lectures, and platforms are proprietary. Enrollment provides a limited, non-exclusive, non-transferable personal license.
-- User Responsibilities: Users must provide accurate information, maintain account security, and adhere to ethical use policies.
-- For complete terms, visit /terms-and-conditions or contact support@edqoo.com.
-`,
-
-  privacyPolicy: `
-PRIVACY POLICY SUMMARY (/privacy-policy):
-- Data Collection: We collect contact information (name, email, phone), academic/professional background provided during enquiries, and course progress telemetry.
-- Usage: Information is used solely to deliver educational programs, respond to enquiries, issue certifications, and improve curriculum.
-- Data Protection: We employ industry-standard encryption, secure session tokens, and strict access controls.
-- Third Parties: We do NOT sell, rent, or trade personal data to third parties.
-- User Rights: Users can request data access, correction, or deletion by emailing support@edqoo.com.
+export const WEBSITE_PAGES_REGISTRY: WebsitePageRecord[] = [
+  {
+    id: 'page-privacy',
+    title: 'Privacy Policy',
+    url: '/privacy-policy',
+    category: 'Policy',
+    description: 'Read how your personal data, contact information, and learning telemetry are protected.',
+    aliases: [
+      'privacy',
+      'privacy policy',
+      'privcy',
+      'prvacy policy',
+      'data privacy',
+      'personal data',
+      'cookies',
+      'data protection',
+      'security policy',
+      'user data',
+      'gdpr'
+    ],
+    contentSummary: `
+EDQOO PRIVACY POLICY (/privacy-policy):
+- Personal Data: We collect contact details (name, email, phone) provided during inquiries and course enrollment.
+- Usage: Information is used solely to deliver educational programs, respond to inquiries, issue course certificates, and improve curriculum.
+- Protection: Industry-standard encryption, secure session tokens, and strict access controls are used.
+- Third Parties: We NEVER sell, rent, or trade user data to third parties.
+- User Rights: Users can request data access, correction, or deletion anytime by emailing support@edqoo.com.
 `
-};
+  },
+  {
+    id: 'page-terms',
+    title: 'Terms & Conditions',
+    url: '/terms-and-conditions',
+    category: 'Policy',
+    description: 'Understand platform terms, course curriculum updates, and intellectual property terms.',
+    aliases: [
+      'terms',
+      'terms and conditions',
+      'term',
+      'terms conditons',
+      'term conditons',
+      'terms & conditions',
+      'policy',
+      'terms of service',
+      'tos',
+      'legal',
+      'licensing',
+      'curriculum policy'
+    ],
+    contentSummary: `
+EDQOO TERMS & CONDITIONS (/terms-and-conditions):
+- Curriculum Policy: Courses, curriculums, projects, technologies, and learning materials may be updated periodically based on technological advancement and industry requirements.
+- Intellectual Property: All course materials, code lectures, assignments, and platforms are proprietary. Enrollment grants a personal, non-exclusive license.
+- User Conduct: Users must provide accurate profile details and adhere to professional learning standards.
+- Inquiries & Support: For full legal terms, visit /terms-and-conditions or contact support@edqoo.com.
+`
+  },
+  {
+    id: 'page-contact',
+    title: 'Contact & Support',
+    url: '/contact',
+    category: 'Support',
+    description: 'Get in touch with academic counselors and technical support via Phone, WhatsApp, or Email.',
+    aliases: [
+      'contact',
+      'contact us',
+      'contct',
+      'how can i contact you',
+      'how to contact you',
+      'how to contact',
+      'phone',
+      'whatsapp',
+      'call',
+      'call us',
+      'support',
+      'helpdesk',
+      'customer support',
+      'academic counselor',
+      'reach out',
+      'contact details',
+      'phone number'
+    ],
+    contentSummary: `
+EDQOO CONTACT & ADMISSIONS (/contact):
+- Direct Phone: +91 90744 50935
+- WhatsApp: +91 90744 50935
+- Support Email: support@edqoo.com
+- Academic Advisors: Available for syllabus walkthroughs, admission guidance, and technical counseling.
+`
+  },
+  {
+    id: 'page-become-instructor',
+    title: 'Become an Instructor',
+    url: '/become-an-instructor',
+    category: 'Teaching Opportunities',
+    description: 'Apply to join our faculty of industry practitioners and teach cutting-edge technology tracks.',
+    aliases: [
+      'become an instructor',
+      'become instructor',
+      'how can i become an instructor',
+      'teach',
+      'apply to teach',
+      'teacher',
+      'mentor',
+      'instructor application',
+      'teach at edqoo',
+      'faculty application',
+      'how can i teach',
+      'want to teach'
+    ],
+    contentSummary: `
+BECOME AN INSTRUCTOR (/become-an-instructor):
+- Who Can Apply: Senior Data Scientists, AI Researchers, BI Consultants, Software Engineers with 3+ years of experience.
+- Benefits: Competitive compensation, flexible teaching cohorts (weekends/evenings), and pedagogical support.
+- Application: Submit profile details, qualifications, teaching experience, and resume on the /become-an-instructor page.
+`
+  },
+  {
+    id: 'page-become-partner',
+    title: 'Become a Partner',
+    url: '/become-a-partner',
+    category: 'Academic & Corporate Partnerships',
+    description: 'Collaborate with Edqoo for university curriculum integration, bootcamps, or corporate team training.',
+    aliases: [
+      'become a partner',
+      'become partner',
+      'how can i become a partner',
+      'partner',
+      'parter',
+      'partnership',
+      'collaboration',
+      'college partnership',
+      'university partner',
+      'corporate partnership',
+      'partner with us'
+    ],
+    contentSummary: `
+BECOME A PARTNER (/become-a-partner):
+- Academic Institutions: Curriculum integration, student upskilling bootcamps, and faculty development programs (FDP).
+- Corporate Enterprises: Tailored workforce upskilling in Data Science, AI, Machine Learning, and Power BI.
+- How to Apply: Submit organization details and proposal on the /become-a-partner page.
+`
+  },
+  {
+    id: 'page-hire',
+    title: 'Hire From Us',
+    url: '/hire-from-us',
+    category: 'Corporate Hiring',
+    description: 'Recruit pre-vetted, job-ready talent in Data Science, AI, and Analytics with ZERO hiring fees.',
+    aliases: [
+      'hire from us',
+      'hire',
+      'recruiter',
+      'placement',
+      'hire talent',
+      'hiring partners',
+      'recruit graduates',
+      'zero fee hiring',
+      'hire developers'
+    ],
+    contentSummary: `
+HIRE FROM US PROGRAM (/hire-from-us):
+- Zero Hiring/Placement Fees for corporate partners.
+- Pre-vetted candidates with 5+ verified industry capstones in Python, Data Science, AI/ML, and Power BI.
+- Fast Turnaround: Shortlisted candidate profiles within 24-48 hours.
+- Process: Submit job requirements on /hire-from-us for direct technical interviews.
+`
+  },
+  {
+    id: 'page-leadership',
+    title: 'Leadership Council',
+    url: '/leadership-council',
+    category: 'Advisory Board',
+    description: 'Meet our distinguished academic council and executive leadership steering Edqoo learning pathways.',
+    aliases: [
+      'leadership council',
+      'leadership',
+      'leadershp',
+      'advisory board',
+      'council',
+      'advisors',
+      'directors',
+      'executive leadership'
+    ],
+    contentSummary: `
+LEADERSHIP COUNCIL (/leadership-council):
+- Steered by senior researchers, and enterprise technology directors.
+- Guides curriculum modernization, industry relevance, and academic excellence.
+`
+  },
+  {
+    id: 'page-about',
+    title: 'About Edqoo',
+    url: '/about',
+    category: 'Overview',
+    description: 'Learn about Edqoo’s mission, core values, and hands-on, project-driven learning philosophy.',
+    aliases: [
+      'about',
+      'about us',
+      'mission',
+      'vision',
+      'philosophy',
+      'who is edqoo',
+      'company overview'
+    ],
+    contentSummary: `
+ABOUT EDQOO (/about):
+- Value: "Practical Skills. Real Projects. Better Careers."
+- Philosophy: Focus on live coding, standalone github capstone demos, and defensive security hardening rather than passive slide lectures.
+`
+  },
+  {
+    id: 'page-courses-catalog',
+    title: 'Courses & Programs Catalog',
+    url: '/courses',
+    category: 'Catalog',
+    description: 'Explore all live masterclasses, executive certificates, and self-paced technology programs.',
+    aliases: [
+      'courses',
+      'all courses',
+      'programs',
+      'course list',
+      'catalog',
+      'curriculum list',
+      'training tracks'
+    ],
+    contentSummary: `
+COURSES CATALOG (/courses):
+- Programs across Data Science & AI, Data Analytics, AI & Machine Learning, Tools & Upskills, and Free Learning.
+`
+  },
+  {
+    id: 'page-free-learning',
+    title: 'Free Learning Catalog',
+    url: '/courses',
+    category: 'Free Learning',
+    description: '100% free foundational courses in Python, Java, HR, Finance, and Accounting & GST.',
+    aliases: [
+      'free learning',
+      'free courses',
+      'fre lernng',
+      'free',
+      'free programs',
+      'free learning catalog'
+    ],
+    contentSummary: `
+FREE LEARNING (/courses):
+- Self-paced foundational courses with practical exercises: Python, Java, HR, Finance, Accounting & GST.
+`
+  },
+  {
+    id: 'page-tools-upskills',
+    title: 'Tools & Upskills Catalog',
+    url: '/courses',
+    category: 'Tools and Upskills',
+    description: '15 practical 24-hour training tracks: HTML, SQL, Generative AI, Prompt Engineering, Python, Data Analytics, Data Science, Ethical Hacking, Web Dev, UI/UX, Digital Marketing, AWS, HR, Accounting & Finance, and Content Writing.',
+    aliases: [
+      'tools and upskills',
+      'tools',
+      'upskills',
+      'tools courses',
+      'executive tools',
+      'html',
+      'html course',
+      'html5',
+      'sql',
+      'sql course',
+      'database',
+      'sql database',
+      'gen ai',
+      'chatgpt',
+      'prompt engineering',
+      'ethical hacking',
+      'web development',
+      'ui ux',
+      'aws',
+      'digital marketing',
+      'hr management',
+      'content writing',
+      'accounting and finance'
+    ],
+    contentSummary: `
+TOOLS & UPSKILLS (/courses):
+- 15 practical 24-hour training tracks with hands-on curriculums: HTML, SQL, Generative AI & ChatGPT, Prompt Engineering, Python Programming, Data Analytics with Excel & Power BI, Data Science Foundations, Ethical Hacking, Web Development, UI/UX Design, Digital Marketing, Cloud Computing & AWS, HR Management, Accounting & Finance, and Content Writing.
+`
+  },
+  {
+    id: 'page-instructors',
+    title: 'Our Faculty & Instructors',
+    url: '/instructors',
+    category: 'Faculty',
+    description: 'Meet our senior industry educators, machine learning practitioners, and BI specialists.',
+    aliases: [
+      'instructors',
+      'faculty',
+      'instrutor',
+      'who teaches',
+      'teachers',
+      'faculty members',
+      'mentor list',
+      'who are your instructors'
+    ],
+    contentSummary: `
+OUR FACULTY (/instructors):
+- Dr. Evelyn Vance (Lead AI & Machine Learning Faculty, 12+ yrs exp)
+- Michael Kovac (Principal Data Scientist & Analytics Lead, 10+ yrs exp)
+- Dr. Priya Sundaram (Senior Faculty & BI Specialist, 9+ yrs exp)
+- Arun Kumar (Generative AI & Prompt Engineering Specialist)
+`
+  },
+  {
+    id: 'page-projects',
+    title: 'Data Science & AI Capstone Projects',
+    url: '/courses/advanced-executive-program-data-science-ai',
+    category: 'Projects',
+    description: '7 approved real-world capstone projects including Diwali Sales, Netflix Analytics, EV adoption, and Medical AI.',
+    aliases: [
+      'projects',
+      'capstone',
+      'prjects',
+      'capstones',
+      'portfolio projects',
+      'real world projects',
+      'live projects',
+      'what projects do you have'
+    ],
+    contentSummary: `
+CAPSTONE PROJECTS:
+- 7 enterprise portfolio capstones: Diwali Sales Analysis (Amazon), Netflix Analytics, EV Analytics, AI Interview Prep, Pneumonia Severity Detection, Kanoon Darpan Legal AI, Suicide Ideation Detection.
+`
+  }
+];
 
 // =============================================================================
-// DATABASE RETRIEVAL HELPERS
+// DATABASE RETRIEVAL HELPERS (SOURCE OF TRUTH)
 // =============================================================================
 
 export async function getAllCourses(): Promise<any[]> {
@@ -162,7 +407,8 @@ export async function getAllCourses(): Promise<any[]> {
     if (isDbConnected()) {
       const res = await query(`
         SELECT id, slug, title, category, categories, short_description, description, price, original_price,
-               duration, live_hours, lessons, level, rating, students, skills, projects, outcome, who_is_it_for
+               duration, live_hours, lessons, level, rating, students, status, featured, skills, curriculum, modules,
+               technology_stack, projects, career_readiness, outcome, features, requirements, who_is_it_for
         FROM courses
         ORDER BY featured DESC, rating DESC
       `);
@@ -171,7 +417,7 @@ export async function getAllCourses(): Promise<any[]> {
       }
     }
   } catch (err) {
-    console.warn('DB course fetch error, using mockStore:', err);
+    console.warn('DB course fetch error, using fallback:', err);
   }
   return mockStore.courses || [];
 }
@@ -186,297 +432,780 @@ export async function getAllInstructors(): Promise<any[]> {
       }
     }
   } catch (err) {
-    console.warn('DB instructor fetch error, using mockStore:', err);
+    console.warn('DB instructor fetch error, using fallback:', err);
   }
   return mockStore.instructors || [];
 }
 
-export async function getAllLeadership(): Promise<any[]> {
-  try {
-    await ensureDbInitialized().catch(() => {});
-    if (isDbConnected()) {
-      const res = await query('SELECT * FROM leadership_members ORDER BY display_order ASC');
-      if (res.rows && res.rows.length > 0) {
-        return res.rows;
-      }
-    }
-  } catch (err) {
-    console.warn('DB leadership fetch error, using mockStore:', err);
-  }
-  return mockStore.leadershipMembers || [];
-}
-
 // =============================================================================
-// MULTI-SOURCE SEARCH ENGINE (DATABASE FIRST)
+// NORMALIZATION & HELPERS
 // =============================================================================
 
-function normalizeText(text: string): string {
-  return text
+export function normalizeText(text: string): string {
+  return (text || '')
     .toLowerCase()
     .replace(/[^\w\s]/g, ' ')
     .replace(/\s+/g, ' ')
     .trim();
 }
 
-/**
- * Searches courses, projects, instructors, and website content
- */
-export async function directWebsiteSearch(userQuery: string): Promise<{
-  courses: SearchResultItem[];
-  projects: SearchResultItem[];
-  instructors: SearchResultItem[];
-  pages: SearchResultItem[];
-}> {
-  const normQuery = normalizeText(userQuery);
-  const words = normQuery.split(' ').filter((w) => w.length > 1);
+function safeArrayParse(val: any): any[] {
+  if (Array.isArray(val)) return val;
+  if (typeof val === 'string') {
+    try {
+      const parsed = JSON.parse(val);
+      return Array.isArray(parsed) ? parsed : [parsed];
+    } catch {
+      return [val];
+    }
+  }
+  return [];
+}
 
+function getCourseRoute(course: any): string {
+  const isFree = Number(course.price) === 0 || (course.category && course.category.toLowerCase().includes('free'));
+  return isFree ? `/free-learning/${course.slug}` : `/courses/${course.slug}`;
+}
+
+export function courseToSearchResult(course: any, similarity = 1.0, matchType: SearchResultItem['matchType'] = 'exact'): SearchResultItem {
+  return {
+    id: course.id,
+    title: course.title,
+    category: course.category,
+    price: Number(course.price) || 0,
+    duration: course.duration,
+    url: getCourseRoute(course),
+    description: course.short_description || course.shortDescription || course.description || '',
+    level: course.level,
+    type: 'course',
+    similarity,
+    matchType
+  };
+}
+
+// =============================================================================
+// UNIFIED SEARCH ENGINE (PAGES + COURSES + PROJECTS + INSTRUCTORS + FUZZY)
+// =============================================================================
+
+export interface WebsiteSearchResults {
+  matchedPages: SearchResultItem[];
+  matchedCourses: SearchResultItem[];
+  matchedProjects: SearchResultItem[];
+  matchedInstructors: SearchResultItem[];
+  allCategoryGroupedCourses?: Record<string, SearchResultItem[]>;
+  isAmbiguous: boolean;
+  isFuzzyCorrection: boolean;
+  correctedTerm?: string;
+  queryIntent:
+    | 'broad_courses'
+    | 'page_search'
+    | 'course_search'
+    | 'project_search'
+    | 'instructor_search'
+    | 'content_question'
+    | 'follow_up'
+    | 'general';
+  contentAnswerSnippet?: string;
+  followUpContext?: { referencedCourse?: any; attributeRequested?: string };
+}
+
+/**
+ * Extracts dynamic keyword aliases from course titles and descriptions.
+ * Allows any newly added course in DB / admin to automatically support fuzzy and partial search.
+ */
+function extractCourseAliases(course: any): string[] {
+  const aliases: string[] = [];
+  const title = (course.title || '').toLowerCase();
+  const slug = (course.slug || '').toLowerCase();
+
+  aliases.push(slug);
+  aliases.push(slug.replace(/-/g, ' '));
+
+  // Common technology and track aliases
+  if (slug.includes('generative-ai') || slug.includes('chatgpt') || title.includes('generative ai') || title.includes('chatgpt')) {
+    aliases.push('generative ai', 'gen ai', 'genai', 'chatgpt', 'chat gpt', 'ai tools', 'generative ai and chatgpt', 'generative ai & chatgpt', 'chatgpt training');
+  }
+  if (slug.includes('prompt') || title.includes('prompt')) {
+    aliases.push('prompt engineering', 'prompting', 'prompt', 'prompts', 'prompt training', 'prompt course');
+  }
+  if (slug.includes('python') || title.includes('python')) {
+    aliases.push('python', 'python course', 'python training', 'python programming', 'python development', 'python masterclass', 'coding');
+  }
+  if (slug.includes('data-analytics') || slug.includes('excel') || slug.includes('power-bi') || title.includes('power bi') || title.includes('excel')) {
+    aliases.push('data analytics', 'data analytics and ai', 'power bi', 'powerbi', 'power-bi', 'excel', 'advanced excel', 'power bi dashboard', 'excel and power bi', 'data analytics with excel & power bi');
+  }
+  if (slug.includes('data-science') || title.includes('data science')) {
+    aliases.push('data science', 'datascience', 'data science foundations', 'data science program', 'data science course', 'data science and ai');
+  }
+  if (slug.includes('ethical-hacking') || title.includes('ethical hacking') || title.includes('cybersecurity')) {
+    aliases.push('ethical hacking', 'ethical hacker', 'cybersecurity', 'cyber security', 'hacking', 'network security', 'penetration testing', 'security assessment');
+  }
+  if (slug.includes('web-development') || title.includes('web development') || slug.includes('web-dev')) {
+    aliases.push('web development', 'web dev', 'website development', 'frontend', 'html css js', 'web design', 'web developer');
+  }
+  if (slug.includes('ui-ux') || slug.includes('ui/ux') || title.includes('ui/ux') || title.includes('ui/ux design') || title.includes('figma')) {
+    aliases.push('ui ux', 'ui/ux', 'uiux', 'ui design', 'ux design', 'figma', 'prototyping', 'wireframing', 'product design');
+  }
+  if (slug.includes('digital-marketing') || title.includes('digital marketing') || title.includes('marketing')) {
+    aliases.push('digital marketing', 'marketing', 'seo', 'social media marketing', 'google ads', 'content marketing', 'campaign marketing');
+  }
+  if (slug.includes('cloud-computing') || slug.includes('aws') || title.includes('cloud computing') || title.includes('aws')) {
+    aliases.push('aws', 'cloud', 'cloud computing', 'amazon web services', 'ec2', 's3', 'cloud training', 'aws cloud');
+  }
+  if (slug.includes('hr-management') || slug === 'hr' || title.includes('hr management') || title.includes('human resource')) {
+    aliases.push('hr', 'hr management', 'human resources', 'human resource management', 'talent acquisition', 'payroll', 'hr practices');
+  }
+  if (slug.includes('accounting-finance') || slug.includes('accounting') || slug.includes('finance') || title.includes('accounting') || title.includes('finance')) {
+    aliases.push('accounting', 'finance', 'accounting and finance', 'accounting & finance', 'gst', 'financial statements', 'tally', 'bookkeeping');
+  }
+  if (slug.includes('content-writing') || title.includes('content writing') || title.includes('copywriting')) {
+    aliases.push('content writing', 'content writer', 'copywriting', 'blog writing', 'seo writing', 'article writing', 'creative writing');
+  }
+  if (slug.includes('machine-learning') || title.includes('machine learning')) {
+    aliases.push('machine learning', 'ai and machine learning', 'ai and ml', 'ml');
+  }
+  if (slug === 'java' || title.includes('java')) {
+    aliases.push('java', 'java programming', 'core java', 'java course');
+  }
+  if (slug === 'html' || title.includes('html')) {
+    aliases.push('html', 'html course', 'html5', 'web development', 'html basics', 'html training', 'frontend development', 'semantic html');
+  }
+  if (slug === 'css' || title.includes('css')) {
+    aliases.push('css', 'css course', 'css3', 'web styling', 'styling', 'flexbox', 'css grid', 'responsive design', 'frontend styling', 'modern css');
+  }
+  if (slug === 'sql' || title.includes('sql')) {
+    aliases.push('sql', 'sql course', 'database', 'sql database', 'relational database', 'sql queries', 'mysql', 'postgresql', 'data analysis with sql');
+  }
+
+  // Tokenize words in title (length >= 3)
+  const titleWords = title.replace(/[^\w\s]/g, ' ').split(/\s+/).filter((w: string) => w.length >= 3);
+  aliases.push(...titleWords);
+
+  return Array.from(new Set(aliases));
+}
+
+/**
+ * Searches across pages, courses, projects, and instructors with multi-layer fuzzy matching
+ */
+export async function searchWebsiteKnowledge(
+  rawQuery: string,
+  _history: ChatMessage[] = []
+): Promise<WebsiteSearchResults> {
+  const normQuery = normalizeText(rawQuery);
   const allCourses = await getAllCourses();
   const allInstructors = await getAllInstructors();
 
-  // 1. MATCH COURSES
-  const scoredCourses: Array<{ course: any; score: number }> = [];
+  // ---------------------------------------------------------------------------
+  // 1. BROAD COURSE DISCOVERY INTENT
+  // ---------------------------------------------------------------------------
+  const isBroad = [
+    'courses',
+    'all courses',
+    'give me courses',
+    'give courses',
+    'give me the courses',
+    'what courses do you have',
+    'what courses do you offer',
+    'what courses are available',
+    'show me courses',
+    'show courses',
+    'show all courses',
+    'show me all courses',
+    'list all courses',
+    'list of courses',
+    'available courses',
+    'what programs do you offer',
+    'what programs are available',
+    'what can i learn',
+    'what do you offer',
+    'what do you teach',
+    'tell me about your courses'
+  ].some((p) => normQuery === p || normQuery.startsWith(p));
+
+  if (isBroad) {
+    const grouped: Record<string, SearchResultItem[]> = {};
+    const courseItems: SearchResultItem[] = [];
+
+    for (const c of allCourses) {
+      if (c.status === 'coming-soon') continue;
+      const item = courseToSearchResult(c, 1.0, 'exact');
+      courseItems.push(item);
+      const cat = c.category || 'Tools and Upskills';
+      if (!grouped[cat]) grouped[cat] = [];
+      grouped[cat].push(item);
+    }
+
+    return {
+      matchedPages: [{ id: 'page-courses', title: 'All Courses & Programs', category: 'Catalog', url: '/courses', type: 'page' }],
+      matchedCourses: courseItems,
+      matchedProjects: [],
+      matchedInstructors: [],
+      allCategoryGroupedCourses: grouped,
+      isAmbiguous: false,
+      isFuzzyCorrection: false,
+      queryIntent: 'broad_courses'
+    };
+  }
+
+  // ---------------------------------------------------------------------------
+  // 2. CHECK FOR DIRECT CONTENT QUESTIONS
+  // ---------------------------------------------------------------------------
+  if (
+    normQuery.includes('how do you use my data') ||
+    normQuery.includes('what is your privacy policy') ||
+    normQuery.includes('how is my data protected') ||
+    normQuery.includes('what data do you collect')
+  ) {
+    const pRecord = WEBSITE_PAGES_REGISTRY.find((p) => p.id === 'page-privacy')!;
+    return {
+      matchedPages: [{ id: pRecord.id, title: pRecord.title, category: pRecord.category, url: pRecord.url, description: pRecord.description, type: 'page' }],
+      matchedCourses: [],
+      matchedProjects: [],
+      matchedInstructors: [],
+      isAmbiguous: false,
+      isFuzzyCorrection: false,
+      queryIntent: 'content_question',
+      contentAnswerSnippet: `Based on Edqoo's **Privacy Policy** (/privacy-policy):\n\n• **Data Collection**: We collect only essential contact details (name, email, phone) provided during inquiries and course enrollment.\n• **Strict Protection**: Personal data is protected with industry-standard encryption and secure session tokens.\n• **Zero Sharing**: We **never** sell, rent, or share personal data with third-party advertisers.\n• **User Control**: You can request full data access, correction, or deletion anytime by contacting support@edqoo.com.`
+    };
+  }
+
+  if (
+    normQuery.includes('what are your terms') ||
+    normQuery.includes('what is your policy') ||
+    normQuery.includes('refund policy') ||
+    normQuery.includes('curriculum policy')
+  ) {
+    const tRecord = WEBSITE_PAGES_REGISTRY.find((p) => p.id === 'page-terms')!;
+    return {
+      matchedPages: [{ id: tRecord.id, title: tRecord.title, category: tRecord.category, url: tRecord.url, description: tRecord.description, type: 'page' }],
+      matchedCourses: [],
+      matchedProjects: [],
+      matchedInstructors: [],
+      isAmbiguous: false,
+      isFuzzyCorrection: false,
+      queryIntent: 'content_question',
+      contentAnswerSnippet: `Based on Edqoo's **Terms & Conditions** (/terms-and-conditions):\n\n• **Curriculum & Updates**: Learning curriculums, projects, and technologies may be enhanced periodically based on technological advances and industry standards.\n• **Proprietary Materials**: All course materials and source code are protected proprietary intellectual property.\n• **Admissions & License**: Enrollment grants a personal, non-exclusive learning license.`
+    };
+  }
+
+  if (
+    normQuery.includes('how can i become an instructor') ||
+    normQuery.includes('how to teach') ||
+    normQuery.includes('how can i teach') ||
+    normQuery.includes('how do i apply to teach')
+  ) {
+    const bRecord = WEBSITE_PAGES_REGISTRY.find((p) => p.id === 'page-become-instructor')!;
+    return {
+      matchedPages: [{ id: bRecord.id, title: bRecord.title, category: bRecord.category, url: bRecord.url, description: bRecord.description, type: 'page' }],
+      matchedCourses: [],
+      matchedProjects: [],
+      matchedInstructors: [],
+      isAmbiguous: false,
+      isFuzzyCorrection: false,
+      queryIntent: 'content_question',
+      contentAnswerSnippet: `To become an instructor at Edqoo:\n\n• **Eligibility**: Senior practitioners, AI researchers, and software engineers with 3+ years of industry experience.\n• **Benefits**: Competitive remuneration, flexible teaching cohorts, and dedicated pedagogical support.\n• **Apply**: Submit your background, resume, and preferred technology tracks on our **/become-an-instructor** page.`
+    };
+  }
+
+  if (
+    normQuery.includes('how can i become a partner') ||
+    normQuery.includes('how to partner') ||
+    normQuery.includes('partnership process')
+  ) {
+    const pRecord = WEBSITE_PAGES_REGISTRY.find((p) => p.id === 'page-become-partner')!;
+    return {
+      matchedPages: [{ id: pRecord.id, title: pRecord.title, category: pRecord.category, url: pRecord.url, description: pRecord.description, type: 'page' }],
+      matchedCourses: [],
+      matchedProjects: [],
+      matchedInstructors: [],
+      isAmbiguous: false,
+      isFuzzyCorrection: false,
+      queryIntent: 'content_question',
+      contentAnswerSnippet: `Edqoo partners with academic institutions and corporate enterprises:\n\n• **Colleges & Universities**: Curriculum co-delivery, student bootcamps, and faculty development programs (FDP).\n• **Corporate Enterprises**: Custom workforce upskilling in Data Science, AI, and Power BI.\n• **Get Started**: Submit your proposal on our **/become-a-partner** page.`
+    };
+  }
+
+  if (
+    normQuery.includes('how can i contact you') ||
+    normQuery.includes('how to contact') ||
+    normQuery.includes('contact number') ||
+    normQuery.includes('customer care')
+  ) {
+    const cRecord = WEBSITE_PAGES_REGISTRY.find((p) => p.id === 'page-contact')!;
+    const contactInfo = getContactInfo();
+    return {
+      matchedPages: [{ id: cRecord.id, title: cRecord.title, category: cRecord.category, url: cRecord.url, description: cRecord.description, type: 'page' }],
+      matchedCourses: [],
+      matchedProjects: [],
+      matchedInstructors: [],
+      isAmbiguous: false,
+      isFuzzyCorrection: false,
+      queryIntent: 'content_question',
+      contentAnswerSnippet: `You can reach Edqoo directly through any of these channels:\n\n• **Direct Phone**: ${contactInfo.phone}\n• **WhatsApp Support**: ${contactInfo.phone}\n• **Email**: ${contactInfo.email}\n• **Admissions Helpdesk**: Available for 1-on-1 counseling and curriculum walkthroughs on our **/contact** page.`
+    };
+  }
+
+  // ---------------------------------------------------------------------------
+  // 3. SEARCH COURSES (EXACT + PARTIAL + PREFIX + FUZZY WORD-LEVEL)
+  // ---------------------------------------------------------------------------
+  const scoredCourses: Array<{ course: any; score: number; similarity: number; matchType: SearchResultItem['matchType'] }> = [];
 
   for (const c of allCourses) {
-    let score = 0;
+    if (c.status === 'coming-soon') continue;
     const titleNorm = normalizeText(c.title || '');
-    const slugNorm = normalizeText(c.slug || '');
     const catNorm = normalizeText(c.category || '');
-    const descNorm = normalizeText(c.short_description || c.description || '');
-    const skillsArr = Array.isArray(c.skills) ? c.skills : (typeof c.skills === 'string' ? JSON.parse(c.skills || '[]') : []);
-    const skillsNorm = normalizeText(skillsArr.join(' '));
+    const rawCategories = safeArrayParse(c.categories).map((cat) => normalizeText(String(cat)));
+    const skillsNorm = normalizeText(safeArrayParse(c.skills).join(' '));
+    const dynamicAliases = extractCourseAliases(c);
 
-    // Exact name match
-    if (titleNorm === normQuery || slugNorm === normQuery) {
-      score += 100;
-    }
-    // Title starts with or contains query
-    else if (titleNorm.includes(normQuery)) {
-      score += 70;
-    }
-    // Slug contains query
-    else if (slugNorm.includes(normQuery)) {
-      score += 60;
-    }
+    const match = evaluateFuzzyMatch(normQuery, titleNorm, dynamicAliases);
 
-    // Category match (e.g. "free learning", "tools", "data science")
-    if (catNorm === normQuery) {
-      score += 80;
-    } else if (catNorm.includes(normQuery)) {
-      score += 50;
-    }
+    let score = 0;
+    let matchType: SearchResultItem['matchType'] = 'none';
+    let similarity = match.similarity;
 
-    // Keyword tokens match
-    for (const w of words) {
-      // Ignore common filler words
-      if (['what', 'have', 'your', 'course', 'courses', 'program', 'programs', 'tell', 'show', 'give', 'about', 'with', 'does', 'find', 'learn', 'online'].includes(w)) {
-        continue;
+    if (match.isMatch) {
+      score = match.rankScore;
+      matchType = match.matchType;
+    } else {
+      const catMatch = evaluateFuzzyMatch(normQuery, catNorm, rawCategories);
+      if (catMatch.isMatch) {
+        score = Math.round(catMatch.rankScore * 0.75);
+        matchType = catMatch.matchType;
+        similarity = catMatch.similarity;
+      } else if (skillsNorm.includes(normQuery) && normQuery.length >= 3) {
+        score = 650;
+        matchType = 'contains';
+        similarity = 0.85;
       }
-
-      if (titleNorm.includes(w)) score += 30;
-      if (slugNorm.includes(w)) score += 25;
-      if (skillsNorm.includes(w)) score += 20;
-      if (catNorm.includes(w)) score += 15;
-      if (descNorm.includes(w)) score += 10;
     }
 
-    // Special exact keyword shortcuts
-    if (normQuery.includes('python') && (titleNorm.includes('python') || slugNorm.includes('python') || skillsNorm.includes('python'))) {
-      score += 40;
-    }
-    if (normQuery.includes('java') && !normQuery.includes('javascript') && (titleNorm.includes('java') || slugNorm.includes('java') || skillsNorm.includes('java'))) {
-      score += 40;
-    }
-    if (normQuery.includes('free') && (catNorm.includes('free') || Number(c.price) === 0)) {
-      score += 40;
-    }
-    if (normQuery.includes('data science') && (catNorm.includes('data science') || titleNorm.includes('data science'))) {
-      score += 40;
-    }
-    if (normQuery.includes('analytics') && (catNorm.includes('analytics') || titleNorm.includes('analytics'))) {
-      score += 40;
-    }
-    if (normQuery.includes('excel') && (titleNorm.includes('excel') || skillsNorm.includes('excel'))) {
-      score += 40;
-    }
-    if (normQuery.includes('power bi') && (titleNorm.includes('power bi') || skillsNorm.includes('power bi'))) {
-      score += 40;
-    }
-    if (normQuery.includes('sql') && (titleNorm.includes('sql') || skillsNorm.includes('sql'))) {
-      score += 40;
-    }
-    if (normQuery.includes('digital marketing') && (titleNorm.includes('digital marketing') || catNorm.includes('free'))) {
-      score += 40;
-    }
-    if (normQuery.includes('gst') && (titleNorm.includes('gst') || titleNorm.includes('accounting'))) {
-      score += 40;
-    }
-    if (normQuery.includes('hr') && (titleNorm === 'hr' || titleNorm.includes('human resources'))) {
-      score += 40;
-    }
-
-    if (score > 0) {
-      scoredCourses.push({ course: c, score });
+    if (score >= 450) {
+      scoredCourses.push({ course: c, score, similarity, matchType });
     }
   }
 
   scoredCourses.sort((a, b) => b.score - a.score);
 
-  const matchedCourses: SearchResultItem[] = scoredCourses.slice(0, 5).map(({ course }) => {
-    const isFree = Number(course.price) === 0 || (course.category && course.category.toLowerCase().includes('free'));
-    const routeUrl = isFree ? `/free-learning/${course.slug}` : `/courses/${course.slug}`;
+  // ---------------------------------------------------------------------------
+  // 4. SEARCH WEBSITE PAGES (EXACT + FUZZY)
+  // ---------------------------------------------------------------------------
+  const scoredPages: Array<{ page: WebsitePageRecord; score: number; similarity: number; matchType: SearchResultItem['matchType'] }> = [];
 
-    return {
-      id: course.id,
-      title: course.title,
-      category: course.category,
-      price: course.price,
-      duration: course.duration,
-      url: routeUrl,
-      description: course.short_description || course.description,
-      level: course.level,
-      type: 'course'
-    };
-  });
+  for (const page of WEBSITE_PAGES_REGISTRY) {
+    const match = evaluateFuzzyMatch(normQuery, page.title, page.aliases);
+    if (match.isMatch) {
+      scoredPages.push({
+        page,
+        score: match.rankScore,
+        similarity: match.similarity,
+        matchType: match.matchType
+      });
+    }
+  }
 
-  // 2. MATCH PROJECTS
+  scoredPages.sort((a, b) => b.score - a.score);
+
+  // ---------------------------------------------------------------------------
+  // 5. SEARCH PROJECTS
+  // ---------------------------------------------------------------------------
   const matchedProjects: SearchResultItem[] = [];
-  if (normQuery.includes('project') || normQuery.includes('capstone') || normQuery.includes('diwali') || normQuery.includes('netflix') || normQuery.includes('ev') || normQuery.includes('interview') || normQuery.includes('pneumonia') || normQuery.includes('kanoon') || normQuery.includes('suicide')) {
-    for (const p of DATA_SCIENCE_AI_PROJECTS) {
-      const pTitle = normalizeText(p.title);
-      const pDesc = normalizeText(p.description);
-      const pTech = normalizeText((p.technologies || []).join(' '));
-
-      let matched = false;
-      if (normQuery.includes('project') || normQuery.includes('capstone')) {
-        matched = true;
-      } else {
-        for (const w of words) {
-          if (w.length > 2 && (pTitle.includes(w) || pDesc.includes(w) || pTech.includes(w))) {
-            matched = true;
-            break;
-          }
-        }
-      }
-
-      if (matched) {
-        matchedProjects.push({
-          id: p.id || `proj-${Date.now()}`,
-          title: p.title || 'Capstone Project',
-          category: `Project (${p.category || 'Portfolio'})`,
-          url: '/courses/advanced-executive-program-data-science-ai',
-          description: p.description || '',
-          type: 'project'
-        });
-      }
+  for (const p of DATA_SCIENCE_AI_PROJECTS) {
+    const pTitle = normalizeText(p.title);
+    const pTech = (p.technologies || []).map(normalizeText);
+    const match = evaluateFuzzyMatch(normQuery, pTitle, pTech);
+    if (match.isMatch || (normQuery.includes('project') && match.similarity >= 0.5)) {
+      matchedProjects.push({
+        id: p.id || `proj-${p.title}`,
+        title: p.title,
+        category: `Capstone Project (${p.category || 'Portfolio'})`,
+        url: '/courses/advanced-executive-program-data-science-ai',
+        description: p.description,
+        type: 'project',
+        similarity: match.similarity,
+        matchType: match.matchType
+      });
     }
   }
 
-  // 3. MATCH INSTRUCTORS
+  // ---------------------------------------------------------------------------
+  // 6. SEARCH INSTRUCTORS
+  // ---------------------------------------------------------------------------
   const matchedInstructors: SearchResultItem[] = [];
-  if (normQuery.includes('instructor') || normQuery.includes('who teaches') || normQuery.includes('faculty') || normQuery.includes('teacher') || normQuery.includes('evelyn') || normQuery.includes('kovac') || normQuery.includes('priya') || normQuery.includes('arun')) {
-    for (const inst of allInstructors) {
-      const iName = normalizeText(inst.name || '');
-      const iDesig = normalizeText(inst.designation || '');
-      const iExp = normalizeText(Array.isArray(inst.expertise) ? inst.expertise.join(' ') : (inst.expertise || ''));
-
-      let matched = false;
-      if (normQuery.includes('instructor') || normQuery.includes('faculty') || normQuery.includes('who teaches')) {
-        matched = true;
-      } else {
-        for (const w of words) {
-          if (w.length > 2 && (iName.includes(w) || iDesig.includes(w) || iExp.includes(w))) {
-            matched = true;
-            break;
-          }
-        }
-      }
-
-      if (matched) {
-        matchedInstructors.push({
-          id: inst.id || `inst-${Date.now()}`,
-          title: inst.name || 'Faculty Member',
-          category: inst.designation || 'Instructor',
-          url: `/instructors/${inst.id || ''}`,
-          description: inst.short_bio || inst.shortBio || inst.qualifications || '',
-          type: 'instructor'
-        });
-      }
+  for (const inst of allInstructors) {
+    const iName = normalizeText(inst.name || '');
+    const iDesig = normalizeText(inst.designation || '');
+    const match = evaluateFuzzyMatch(normQuery, iName, [iDesig]);
+    if (match.isMatch) {
+      matchedInstructors.push({
+        id: inst.id,
+        title: inst.name,
+        category: inst.designation || 'Faculty Member',
+        url: `/instructors/${inst.id}`,
+        description: inst.short_bio || inst.shortBio || inst.qualifications || '',
+        type: 'instructor',
+        similarity: match.similarity,
+        matchType: match.matchType
+      });
     }
   }
 
-  // 4. MATCH STATIC PAGES
-  const matchedPages: SearchResultItem[] = [];
-  if (normQuery.includes('hire') || normQuery.includes('recruiter') || normQuery.includes('placement')) {
-    matchedPages.push({
-      id: 'page-hire',
-      title: 'Hire From Us',
-      category: 'Corporate Hiring',
-      url: '/hire-from-us',
-      description: 'Recruit job-ready talent in Data Science, AI, and Analytics with zero hiring fees.',
-      type: 'page'
-    });
+  // ---------------------------------------------------------------------------
+  // 7. RESULT COMPILATION & INTENT RESOLUTION
+  // ---------------------------------------------------------------------------
+  const courseResults: SearchResultItem[] = scoredCourses.slice(0, 6).map(({ course, similarity, matchType }) =>
+    courseToSearchResult(course, similarity, matchType)
+  );
+
+  const pageResults: SearchResultItem[] = scoredPages.slice(0, 4).map(({ page, similarity, matchType }) => ({
+    id: page.id,
+    title: page.title,
+    category: page.category,
+    url: page.url,
+    description: page.description,
+    type: 'page',
+    similarity,
+    matchType
+  }));
+
+  // Disambiguation check (e.g. query "instructor" or "instrutor")
+  const hasMultiplePageIntents =
+    (normQuery === 'instructor' || normQuery === 'instrutor' || normQuery === 'teacher' || normQuery === 'faculty') &&
+    !normQuery.includes('become') &&
+    !normQuery.includes('apply');
+
+  const topPage = scoredPages[0];
+  const topCourse = scoredCourses[0];
+
+  let queryIntent: WebsiteSearchResults['queryIntent'] = 'general';
+  let isFuzzyCorrection = false;
+  let correctedTerm: string | undefined;
+
+  // Dedicated page query detection (exact or strong page alias)
+  const isExplicitPageSearch = topPage && (
+    topPage.matchType === 'exact' ||
+    topPage.matchType === 'prefix' ||
+    (topPage.score >= 700 && (!topCourse || topPage.score > topCourse.score))
+  );
+
+  if (hasMultiplePageIntents) {
+    queryIntent = 'general';
+  } else if (topCourse && topCourse.score >= 700 && (!topPage || topCourse.score >= topPage.score)) {
+    queryIntent = 'course_search';
+    if (topCourse.matchType === 'fuzzy') {
+      isFuzzyCorrection = true;
+      correctedTerm = topCourse.course.title;
+    }
+  } else if (isExplicitPageSearch) {
+    queryIntent = 'page_search';
+    if (topPage.matchType === 'fuzzy') {
+      isFuzzyCorrection = true;
+      correctedTerm = topPage.page.title;
+    }
+  } else if (courseResults.length > 0) {
+    queryIntent = 'course_search';
+    if (topCourse && topCourse.matchType === 'fuzzy') {
+      isFuzzyCorrection = true;
+      correctedTerm = topCourse.course.title;
+    }
+  } else if (matchedProjects.length > 0) {
+    queryIntent = 'project_search';
+  } else if (matchedInstructors.length > 0) {
+    queryIntent = 'instructor_search';
+  } else if (pageResults.length > 0) {
+    queryIntent = 'page_search';
   }
-  if (normQuery.includes('become an instructor') || normQuery.includes('teach') || normQuery.includes('apply to teach')) {
-    matchedPages.push({
-      id: 'page-instructor',
-      title: 'Become an Instructor',
-      category: 'Teaching Opportunities',
-      url: '/become-an-instructor',
-      description: 'Join our faculty of industry experts and teach cutting-edge technology tracks.',
-      type: 'page'
-    });
+
+  // Handle Free Learning & Tools & Upskills catalog queries
+  if (topPage && (topPage.page.id === 'page-free-learning' || topPage.page.id === 'page-tools-upskills')) {
+    queryIntent = 'page_search';
   }
-  if (normQuery.includes('partner') || normQuery.includes('partnership') || normQuery.includes('collaboration')) {
-    matchedPages.push({
-      id: 'page-partner',
-      title: 'Become a Partner',
-      category: 'Academic & Corporate Partnerships',
-      url: '/become-a-partner',
-      description: 'Partner with Edqoo for curriculum integration, campus training, and workforce upskilling.',
-      type: 'page'
-    });
-  }
+
+  const shouldAttachCourses = queryIntent === 'course_search' ||
+    (topPage && (topPage.page.id === 'page-free-learning' || topPage.page.id === 'page-tools-upskills' || topPage.page.id === 'page-courses-catalog'));
 
   return {
-    courses: matchedCourses,
-    projects: matchedProjects,
-    instructors: matchedInstructors,
-    pages: matchedPages
+    matchedPages: pageResults,
+    matchedCourses: shouldAttachCourses ? courseResults : (queryIntent === 'page_search' ? [] : courseResults),
+    matchedProjects,
+    matchedInstructors,
+    isAmbiguous: hasMultiplePageIntents,
+    isFuzzyCorrection,
+    correctedTerm,
+    queryIntent
   };
 }
 
 // =============================================================================
-// SYSTEM INSTRUCTION FOR GEMINI
+// DETERMINISTIC NATURAL LANGUAGE FALLBACK GENERATOR (ZERO GEMINI DEPENDENCY)
 // =============================================================================
 
-const SYSTEM_INSTRUCTION = `
-You are the official AI assistant for Edqoo (this website).
+export function generateDeterministicAnswer(
+  rawQuery: string,
+  searchData: WebsiteSearchResults,
+  _history: ChatMessage[] = [],
+  contactInfo = getContactInfo()
+): ChatResponse {
+  const normQuery = normalizeText(rawQuery);
+  const {
+    matchedPages,
+    matchedCourses,
+    matchedProjects,
+    matchedInstructors,
+    allCategoryGroupedCourses,
+    isAmbiguous,
+    isFuzzyCorrection,
+    correctedTerm,
+    queryIntent,
+    contentAnswerSnippet
+  } = searchData;
 
-Your job is to answer questions about this organization, its programs,
-courses, instructors, projects, services, policies, and website.
+  // 1. CONTENT QUESTION ANSWER
+  if (contentAnswerSnippet) {
+    return {
+      success: true,
+      answer: contentAnswerSnippet,
+      source: 'website',
+      confidence: 'supported',
+      needsContact: false,
+      results: matchedPages,
+      resultType: 'general',
+      contactInfo
+    };
+  }
 
-You may ONLY use the information provided in the approved website
-knowledge/context and current database information.
+  // 2. AMBIGUOUS QUERY DISAMBIGUATION
+  if (isAmbiguous) {
+    const combined: SearchResultItem[] = [
+      {
+        id: 'page-instructors',
+        title: 'Our Faculty & Mentors',
+        category: 'Directory',
+        url: '/instructors',
+        description: 'Meet our senior industry educators, machine learning practitioners, and BI specialists.',
+        type: 'page'
+      },
+      {
+        id: 'page-become-instructor',
+        title: 'Become an Instructor',
+        category: 'Teaching Opportunities',
+        url: '/become-an-instructor',
+        description: 'Join our faculty of industry experts and teach cutting-edge technology tracks.',
+        type: 'page'
+      }
+    ];
 
-Do not invent information.
+    return {
+      success: true,
+      answer: `I found two relevant sections on our website. Which one would you like to explore?`,
+      source: 'website',
+      confidence: 'supported',
+      needsContact: false,
+      results: combined,
+      resultType: 'general',
+      contactInfo
+    };
+  }
 
-Do not guess.
+  // 3. PAGE SEARCH INTENT
+  if (queryIntent === 'page_search' && matchedPages.length > 0) {
+    const page = matchedPages[0];
+    let answerText = `Here is our **${page.title}** page:`;
+    if (page.url === '/privacy-policy') {
+      answerText = `Here is our **Privacy Policy**, which explains how website information and personal data are protected.`;
+    } else if (page.url === '/terms-and-conditions') {
+      answerText = `Here are our **Terms & Conditions**, outlining program terms, curriculum updates, and licensing policies.`;
+    } else if (page.url === '/contact') {
+      answerText = `You can reach our academic and technical support team directly on Phone (${contactInfo.phone}), WhatsApp, or Email (${contactInfo.email}).`;
+    } else if (page.url === '/become-an-instructor') {
+      answerText = `To apply as an instructor at Edqoo, submit your profile and teaching tracks on our **/become-an-instructor** page.`;
+    } else if (page.url === '/become-a-partner') {
+      answerText = `Edqoo collaborates with universities and corporate enterprises for workforce upskilling. Learn more on our **/become-a-partner** page.`;
+    } else if (page.url === '/hire-from-us') {
+      answerText = `Through our **Hire From Us** program, companies can recruit pre-vetted tech talent with zero placement fees.`;
+    } else if (page.url === '/leadership-council') {
+      answerText = `Meet our **Leadership Council**, steering academic pathways, curriculum modernization, and research initiatives.`;
+    } else if (page.id === 'page-free-learning') {
+      answerText = `We offer **Free Learning courses** designed for practical foundational skill-building in Python, Java, HR, Finance, and Accounting & GST on our /courses catalog.`;
+    } else if (page.id === 'page-tools-upskills') {
+      answerText = `Explore our specialized executive **Tools & Upskills** masterclasses in Generative AI, Prompt Engineering, Python, Advanced Excel, Power BI, Cloud Computing, and more on our /courses catalog.`;
+    }
 
-Do not make up course fees, durations, instructors, certifications,
-placements, salaries, job guarantees, schedules, eligibility requirements, partnerships, or
-other organizational information.
+    if (isFuzzyCorrection && correctedTerm) {
+      answerText = `Did you mean **${correctedTerm}**?\n\n${answerText}`;
+    }
 
-If the requested information is not available in the provided
-website knowledge, clearly say:
-"I couldn't find information about that on our website. Please contact our support team for the most accurate information."
+    const attachResults = page.id === 'page-free-learning' || page.id === 'page-tools-upskills'
+      ? [page, ...matchedCourses]
+      : matchedPages;
 
-Never pretend that unknown information is known.
 
-Keep answers concise, direct, helpful, and professional.
-`;
+    return {
+      success: true,
+      answer: answerText,
+      source: 'website',
+      confidence: 'supported',
+      needsContact: page.url === '/contact',
+      results: attachResults,
+      resultType: 'general',
+      contactInfo
+    };
+  }
+
+  // 4. BROAD COURSES LISTING
+  if (queryIntent === 'broad_courses' || allCategoryGroupedCourses) {
+    let answerText = `Sure! Here are the courses currently available at **Edqoo**:\n\n`;
+
+    if (allCategoryGroupedCourses) {
+      for (const [category, items] of Object.entries(allCategoryGroupedCourses)) {
+        answerText += `**${category}**\n`;
+        for (const item of items) {
+          answerText += `• ${item.title}\n`;
+        }
+        answerText += `\n`;
+      }
+    } else if (matchedCourses.length > 0) {
+      for (const item of matchedCourses) {
+        answerText += `• **${item.title}** (${item.category})\n`;
+      }
+      answerText += `\n`;
+    }
+
+    answerText += `You can explore complete syllabus details, projects, and admissions on our website.`;
+
+    return {
+      success: true,
+      answer: answerText.trim(),
+      source: 'database',
+      confidence: 'supported',
+      needsContact: false,
+      results: matchedCourses.slice(0, 6),
+      resultType: 'courses',
+      contactInfo
+    };
+  }
+
+  // 5. MATCHED COURSES (EXACT / FUZZY TYPOS)
+  if (matchedCourses.length > 0) {
+    let intro = `Yes! We offer the following courses:`;
+
+    if (isFuzzyCorrection && correctedTerm) {
+      intro = `Yes! Did you mean **${correctedTerm}**? I found these matching courses:`;
+    } else if (normQuery.includes('python') || normQuery === 'py' || normQuery === 'p') {
+      intro = `Yes! We offer Python-related learning programs:`;
+    } else if (normQuery.includes('java') || normQuery === 'j') {
+      intro = `Yes! We offer Java foundational training:`;
+    } else if (normQuery.includes('data science') || normQuery.includes('ai') || normQuery === 'd') {
+      intro = `Yes! We offer industry-aligned Data Science & AI programs:`;
+    } else if (normQuery.includes('digital marketing')) {
+      intro = `Yes! We offer Digital Marketing learning:`;
+    } else if (normQuery.includes('power bi') || normQuery.includes('powerbi')) {
+      intro = `Yes! We offer Power BI business intelligence training:`;
+    }
+
+    return {
+      success: true,
+      answer: intro,
+      source: 'database',
+      confidence: 'supported',
+      needsContact: false,
+      results: matchedCourses,
+      resultType: 'courses',
+      contactInfo
+    };
+  }
+
+  // 6. MATCHED PROJECTS
+  if (matchedProjects.length > 0) {
+    const listText = DATA_SCIENCE_AI_PROJECTS.map(
+      (p, idx) => `${idx + 1}. **${p.title}** (${p.technologies.join(', ')}) — ${p.description}`
+    ).join('\n\n');
+
+    return {
+      success: true,
+      answer: `Our Data Science and AI programs feature **${DATA_SCIENCE_AI_PROJECTS.length} verified real-world capstone projects**:\n\n${listText}\n\nEach project includes standalone code repositories and shareable dashboards.`,
+      source: 'website',
+      confidence: 'supported',
+      needsContact: false,
+      results: matchedProjects.slice(0, 4),
+      resultType: 'projects',
+      contactInfo
+    };
+  }
+
+  // 7. MATCHED INSTRUCTORS
+  if (matchedInstructors.length > 0) {
+    return {
+      success: true,
+      answer: `Our programs are taught by experienced industry practitioners and researchers:\n\n` +
+        `• **Dr. Evelyn Vance** — Lead AI & Machine Learning Faculty (12+ yrs exp, Ph.D. in CS & AI)\n` +
+        `• **Michael Kovac** — Principal Data Scientist & Analytics Lead (10+ yrs exp in SQL & quantitative modeling)\n` +
+        `• **Dr. Priya Sundaram** — Senior Faculty & Business Intelligence Specialist (9+ yrs exp in Power BI & DAX)\n` +
+        `• **Arun Kumar** — Generative AI & Prompt Engineering Specialist\n\n` +
+        `All faculty focus on hands-on code and real-world architectures.`,
+      source: 'database',
+      confidence: 'supported',
+      needsContact: false,
+      results: matchedInstructors,
+      resultType: 'instructors',
+      contactInfo
+    };
+  }
+
+  // 8. UNRELATED QUERY REJECTION (e.g. "xyzabc")
+  return {
+    success: true,
+    answer: `I couldn't find a matching course, program, or page on our website for "${rawQuery}". Try searching for Python, Data Science, Power BI, Free Learning, Instructors, Privacy Policy, Terms, or Contact.`,
+    source: 'website',
+    confidence: 'unsupported',
+    needsContact: true,
+    results: [],
+    resultType: 'general',
+    errorCode: 'NOT_FOUND',
+    contactInfo
+  };
+}
 
 // =============================================================================
-// MAIN CHAT / QUERY CONTROLLER
+// GEMINI SYSTEM INSTRUCTION & SERVER INTEGRATION
+// =============================================================================
+
+export const GEMINI_SYSTEM_INSTRUCTION = `
+You are the official website assistant for Edqoo.
+
+Answer questions using ONLY the verified website information supplied to you in the context.
+
+The supplied context is the source of truth.
+
+Never invent:
+- courses
+- pages or routes
+- prices
+- instructors
+- durations
+- certifications
+- placement claims
+- eligibility requirements
+- discounts
+- contact details
+- policies
+- program features
+
+If the requested information exists in the supplied website data, answer using that information.
+
+If the information is not present, clearly say that the website does not currently provide that information.
+
+Do not claim that the system is unavailable merely because a search returned no exact match.
+
+Be concise, helpful and conversational.
+
+When listing courses, use the actual course names from the supplied data.
+
+When a relevant course or page exists, provide its name and a link to its actual page when available.
+`.trim();
+
+// =============================================================================
+// MAIN CHAT CONTROLLER: askGemini
 // =============================================================================
 
 export async function askGemini(message: string, history: ChatMessage[] = []): Promise<ChatResponse> {
@@ -484,354 +1213,87 @@ export async function askGemini(message: string, history: ChatMessage[] = []): P
   const rawQuery = (message || '').trim();
   const normQuery = normalizeText(rawQuery);
 
-  // ---------------------------------------------------------------------------
-  // STEP 1: DETECT KNOWN UNSUPPORTED / OUT-OF-SCOPE QUERIES (STATE 2)
-  // ---------------------------------------------------------------------------
-  if (
-    normQuery.includes('best university in india') ||
-    normQuery.includes('salary will i get') ||
-    normQuery.includes('exact salary') ||
-    normQuery.includes('guarantee me a job') ||
-    normQuery.includes('100 placement') ||
-    normQuery.includes('weather') ||
-    normQuery.includes('capital of') ||
-    normQuery.includes('who is the prime minister') ||
-    normQuery.includes('tell me a joke') ||
-    normQuery.includes('course that isn t on the website') ||
-    normQuery.includes('course that is not on the website')
-  ) {
-    let specificMsg = "I couldn't find information about that on our website.";
-    if (normQuery.includes('salary')) {
-      specificMsg = "I don't have information about specific salary outcomes on our website.";
-    } else if (normQuery.includes('guarantee') || normQuery.includes('placement')) {
-      specificMsg = "I couldn't find information verifying job placement guarantees on our website.";
-    }
-
+  if (!rawQuery) {
     return {
       success: true,
-      answer: specificMsg,
+      answer: "Hi! How can I help you today? You can ask me about our courses, programs, projects, instructors, pages, or admissions.",
       source: 'website',
-      confidence: 'unsupported',
-      needsContact: true,
-      results: [],
-      errorCode: 'NOT_FOUND',
+      confidence: 'supported',
+      needsContact: false,
+      resultType: 'general',
       contactInfo
     };
   }
 
   // ---------------------------------------------------------------------------
-  // STEP 2: MULTI-SOURCE WEBSITE SEARCH (DATABASE FIRST)
+  // STEP 1: SEARCH WEBSITE KNOWLEDGE (PAGES + COURSES + PROJECTS + INSTRUCTORS)
   // ---------------------------------------------------------------------------
-  let searchData;
+  let searchData: WebsiteSearchResults;
   try {
-    searchData = await directWebsiteSearch(rawQuery);
-  } catch (dbErr) {
-    console.error('Database query error during search:', dbErr);
+    searchData = await searchWebsiteKnowledge(rawQuery, history);
+  } catch (dbErr: any) {
+    console.error('[CHATBOT ERROR] Search failed:', dbErr.message);
     return {
       success: false,
-      answer: "I'm temporarily unable to access our course information. Please contact our support team.",
+      answer: "I'm temporarily experiencing difficulty accessing website data. Please contact our support team directly.",
       source: 'fallback',
       confidence: 'unsupported',
       needsContact: true,
       errorCode: 'DB_UNAVAILABLE',
+      resultType: 'general',
       contactInfo
     };
   }
 
-  const { courses: matchedCourses, projects: matchedProjects, instructors: matchedInstructors, pages: matchedPages } = searchData;
+  const {
+    matchedPages,
+    matchedCourses,
+    matchedProjects,
+    matchedInstructors
+  } = searchData;
 
   // ---------------------------------------------------------------------------
-  // STEP 3: DIRECT ANSWER GENERATION FOR KEYWORD & ENTITY SEARCHES
-  // ---------------------------------------------------------------------------
-
-  // Special Intent: Become an Instructor
-  if (normQuery.includes('become an instructor') || normQuery.includes('become instructor') || normQuery.includes('apply to teach') || (normQuery.includes('become') && normQuery.includes('instructor'))) {
-    return {
-      success: true,
-      answer: `To become an instructor at Edqoo:\n\n1. Visit our **/become-an-instructor** page.\n2. Submit your profile, teaching experience (minimum 3+ years in industry/academia), qualifications, and the courses you wish to teach.\n3. Our academic review board evaluates applications and arranges an onboarding discussion.`,
-      source: 'website',
-      confidence: 'supported',
-      needsContact: false,
-      results: [{
-        id: 'page-instructor',
-        title: 'Become an Instructor',
-        category: 'Teaching Opportunities',
-        url: '/become-an-instructor',
-        description: 'Join our faculty of industry experts and teach cutting-edge technology tracks.',
-        type: 'page'
-      }],
-      contactInfo
-    };
-  }
-
-  // Special Intent: Become a Partner
-  if (normQuery.includes('partner') || normQuery.includes('partnership') || normQuery.includes('collaboration')) {
-    return {
-      success: true,
-      answer: `Edqoo partners with academic institutions (colleges and universities) and corporate enterprises for:\n\n- **Institutions**: Curriculum integration, student upskilling bootcamps, and faculty development.\n- **Corporates**: Tailored team upskilling in Data & AI technologies.\n\nYou can submit a partnership proposal on our **/become-a-partner** page.`,
-      source: 'website',
-      confidence: 'supported',
-      needsContact: false,
-      results: [{
-        id: 'page-partner',
-        title: 'Become a Partner',
-        category: 'Academic & Corporate Partnerships',
-        url: '/become-a-partner',
-        description: 'Partner with Edqoo for curriculum integration, campus training, and workforce upskilling.',
-        type: 'page'
-      }],
-      contactInfo
-    };
-  }
-
-  // Special Intent: Hire From Us
-  if (normQuery.includes('hire') || normQuery.includes('recruiter') || normQuery.includes('placement')) {
-    return {
-      success: true,
-      answer: `Through our **Hire From Us** program, companies can recruit pre-vetted, job-ready talent in Data Science, AI/ML, Data Analytics, Python, and Power BI with zero hiring fees:\n\n1. Submit requirements on **/hire-from-us** (role, openings, skills, location, work mode).\n2. Our corporate relations team shortlists matched candidates with verified portfolios within 24-48 hours.\n3. Conduct direct technical interviews and onboarding.`,
-      source: 'website',
-      confidence: 'supported',
-      needsContact: false,
-      results: [{
-        id: 'page-hire',
-        title: 'Hire From Us',
-        category: 'Corporate Hiring',
-        url: '/hire-from-us',
-        description: 'Recruit job-ready talent in Data Science, AI, and Analytics with zero hiring fees.',
-        type: 'page'
-      }],
-      contactInfo
-    };
-  }
-
-  // Special Intent: Instructors / Faculty
-  if (normQuery.includes('instructor') || normQuery.includes('faculty') || normQuery.includes('who teaches') || normQuery.includes('teachers') || normQuery.includes('evelyn') || normQuery.includes('kovac') || normQuery.includes('priya') || normQuery.includes('arun')) {
-    return {
-      success: true,
-      answer: `Our programs are taught by experienced industry practitioners and researchers:\n\n` +
-        `- **Dr. Evelyn Vance** — Lead AI & Machine Learning Faculty (12+ yrs exp, Ph.D. in CS & AI)\n` +
-        `- **Michael Kovac** — Principal Data Scientist & Analytics Lead (10+ yrs exp in SQL & quantitative modeling)\n` +
-        `- **Dr. Priya Sundaram** — Senior Faculty & Business Intelligence Specialist (9+ yrs exp in Power BI & DAX)\n` +
-        `- **Arun Kumar** — Generative AI & Prompt Engineering Specialist\n\n` +
-        `All faculty focus on live coding, hands-on architectures, and project guidance.`,
-      source: 'database',
-      confidence: 'supported',
-      needsContact: false,
-      results: matchedInstructors,
-      contactInfo
-    };
-  }
-
-  // Special Intent: Projects
-  if (normQuery.includes('project') || normQuery.includes('capstone') || normQuery.includes('diwali') || normQuery.includes('netflix') || normQuery.includes('pneumonia') || normQuery.includes('kanoon') || normQuery.includes('suicide')) {
-    return {
-      success: true,
-      answer: `Our programs include **${DATA_SCIENCE_AI_PROJECTS.length} approved real-world capstone projects**:\n\n` +
-        DATA_SCIENCE_AI_PROJECTS.map((p, idx) => `${idx + 1}. **${p.title}** (${p.technologies.join(', ')})`).join('\n') +
-        `\n\nEach capstone produces a verified portfolio item for recruitment evaluations!`,
-      source: 'website',
-      confidence: 'supported',
-      needsContact: false,
-      results: matchedProjects.slice(0, 4),
-      contactInfo
-    };
-  }
-
-  // A. Course Matches Found
-  if (matchedCourses.length > 0) {
-    const isExactOrShortQuery = normQuery.split(' ').length <= 5 || 
-      normQuery.startsWith('do you have') || 
-      normQuery.startsWith('what courses') || 
-      normQuery.startsWith('show me') || 
-      normQuery.includes('python') || 
-      normQuery.includes('java') || 
-      normQuery.includes('html') || 
-      normQuery.includes('excel') || 
-      normQuery.includes('power bi') || 
-      normQuery.includes('sql') || 
-      normQuery.includes('digital marketing') || 
-      normQuery.includes('gst') || 
-      normQuery.includes('hr') || 
-      normQuery.includes('finance') || 
-      normQuery.includes('free');
-
-    if (isExactOrShortQuery) {
-      const count = matchedCourses.length;
-      let intro = `Yes! We have learning options available.\n\nI found **${count} matching option${count > 1 ? 's' : ''}**:`;
-
-      if (normQuery.includes('python')) {
-        intro = `Yes! We have Python-related learning options available.\n\nI found **${count} option${count > 1 ? 's' : ''}**:`;
-      } else if (normQuery.includes('free')) {
-        intro = `Yes! We offer **6 Free Learning courses** designed for practical foundational skill-building:`;
-      } else if (normQuery.includes('java')) {
-        intro = `Yes! We have Java learning options available:`;
-      } else if (normQuery.includes('data science')) {
-        intro = `Yes! We offer industry-aligned **Data Science and AI** programs:`;
-      }
-
-      return {
-        success: true,
-        answer: intro,
-        source: 'database',
-        confidence: 'supported',
-        needsContact: false,
-        results: matchedCourses,
-        contactInfo
-      };
-    }
-  }
-
-  // B. Projects Match
-  if (matchedProjects.length > 0 && (normQuery.includes('project') || normQuery.includes('capstone') || matchedCourses.length === 0)) {
-    return {
-      success: true,
-      answer: `Our programs include **${DATA_SCIENCE_AI_PROJECTS.length} approved real-world capstone projects**:\n\n` +
-        DATA_SCIENCE_AI_PROJECTS.map((p, idx) => `${idx + 1}. **${p.title}** (${p.technologies.join(', ')})`).join('\n') +
-        `\n\nEach capstone produces a verified portfolio item for recruitment evaluations!`,
-      source: 'website',
-      confidence: 'supported',
-      needsContact: false,
-      results: matchedProjects.slice(0, 4),
-      contactInfo
-    };
-  }
-
-  // C. Instructors Match
-  if (matchedInstructors.length > 0 && (normQuery.includes('instructor') || normQuery.includes('faculty') || normQuery.includes('who teaches') || normQuery.includes('evelyn') || normQuery.includes('kovac') || normQuery.includes('priya') || normQuery.includes('arun'))) {
-    return {
-      success: true,
-      answer: `Our programs are taught by experienced industry practitioners and researchers:\n\n` +
-        `- **Dr. Evelyn Vance** — Lead AI & Machine Learning Faculty (12+ yrs exp, Ph.D. in CS & AI)\n` +
-        `- **Michael Kovac** — Principal Data Scientist & Analytics Lead (10+ yrs exp in SQL & quantitative modeling)\n` +
-        `- **Dr. Priya Sundaram** — Senior Faculty & Business Intelligence Specialist (9+ yrs exp in Power BI & DAX)\n` +
-        `- **Arun Kumar** — Generative AI & Prompt Engineering Specialist\n\n` +
-        `All faculty focus on live coding, hands-on architectures, and project guidance.`,
-      source: 'database',
-      confidence: 'supported',
-      needsContact: false,
-      results: matchedInstructors,
-      contactInfo
-    };
-  }
-
-  // D. Static Pages Match
-  if (matchedPages.length > 0) {
-    if (normQuery.includes('hire')) {
-      return {
-        success: true,
-        answer: `Through our **Hire From Us** program, companies can recruit pre-vetted, job-ready talent in Data Science, AI/ML, Data Analytics, Python, and Power BI with zero hiring fees.\n\n` +
-          `1. Submit requirements on **/hire-from-us** (role, openings, skills, location, work mode).\n` +
-          `2. Our corporate relations team shortlists matched candidates with verified portfolios within 24-48 hours.\n` +
-          `3. Conduct direct technical interviews and onboarding.`,
-        source: 'website',
-        confidence: 'supported',
-        needsContact: false,
-        results: matchedPages,
-        contactInfo
-      };
-    }
-    if (normQuery.includes('become an instructor') || normQuery.includes('apply to teach')) {
-      return {
-        success: true,
-        answer: `To become an instructor at Edqoo:\n\n1. Visit our **/become-an-instructor** page.\n2. Submit your profile, teaching experience (minimum 3+ years in industry/academia), qualifications, and the courses you wish to teach.\n3. Our academic review board evaluates applications and arranges an onboarding discussion.`,
-        source: 'website',
-        confidence: 'supported',
-        needsContact: false,
-        results: matchedPages,
-        contactInfo
-      };
-    }
-    if (normQuery.includes('partner')) {
-      return {
-        success: true,
-        answer: `Edqoo partners with academic institutions (colleges and universities) and corporate enterprises for:\n\n- **Institutions**: Curriculum integration, student upskilling bootcamps, and faculty development.\n- **Corporates**: Tailored team upskilling in Data & AI technologies.\n\nYou can submit a partnership proposal on our **/become-a-partner** page.`,
-        source: 'website',
-        confidence: 'supported',
-        needsContact: false,
-        results: matchedPages,
-        contactInfo
-      };
-    }
-  }
-
-  // E. Privacy & Terms
-  if (normQuery.includes('privacy')) {
-    return {
-      success: true,
-      answer: `Our **Privacy Policy** ensures that personal data (contact details and learning metrics) is encrypted and protected. We do NOT sell or trade user information to third parties. For full details, visit our **/privacy-policy** page or email support@edqoo.com.`,
-      source: 'website',
-      confidence: 'supported',
-      needsContact: false,
-      results: [{ id: 'page-privacy', title: 'Privacy Policy', category: 'Policy', url: '/privacy-policy', type: 'page' }],
-      contactInfo
-    };
-  }
-
-  if (normQuery.includes('terms') || normQuery.includes('condition')) {
-    return {
-      success: true,
-      answer: `Our **Terms & Conditions** govern the use of our educational platform. Notably, course curriculums, projects, technologies, and learning materials may be updated periodically based on technological advances and industry requirements. Visit **/terms-and-conditions** for full legal terms.`,
-      source: 'website',
-      confidence: 'supported',
-      needsContact: false,
-      results: [{ id: 'page-terms', title: 'Terms & Conditions', category: 'Policy', url: '/terms-and-conditions', type: 'page' }],
-      contactInfo
-    };
-  }
-
-  // ---------------------------------------------------------------------------
-  // STEP 4: COMPLEX NATURAL LANGUAGE QUESTIONS -> RETRIEVE & ASK GEMINI
+  // STEP 2: GEMINI RAG SYNTHESIS (NATURAL LANGUAGE REFINEMENT)
   // ---------------------------------------------------------------------------
   const apiKey = (process.env.GEMINI_API_KEY || '').trim();
 
-  // If no Gemini API key is configured and no direct database matches, return State 2 (Not Found)
+  // If no Gemini key or skipped, return verified deterministic response immediately
   if (!apiKey || apiKey === 'YOUR_GEMINI_API_KEY_HERE') {
-    return {
-      success: true,
-      answer: "I couldn't find information about that on our website.",
-      source: 'website',
-      confidence: 'unsupported',
-      needsContact: true,
-      results: [],
-      errorCode: 'NOT_FOUND',
-      contactInfo
-    };
+    return generateDeterministicAnswer(rawQuery, searchData, history, contactInfo);
   }
 
   try {
     const ai = new GoogleGenAI({ apiKey });
 
-    // Collect all relevant context chunks
+    // Assemble verified context
     const allCoursesList = await getAllCourses();
-    const coursesCatalogSummary = allCoursesList.map((c: any) => 
-      `- Course: "${c.title}" | Category: ${c.category} | Skills: ${Array.isArray(c.skills) ? c.skills.join(', ') : c.skills} | Outcome: ${c.outcome || ''}`
-    ).join('\n');
 
-    const websiteContext = `
-[COMPANY]
-${STATIC_WEBSITE_KNOWLEDGE.company}
+    const courseCatalogSnippet = allCoursesList.map((c: any) => {
+      const skillsStr = safeArrayParse(c.skills).join(', ');
+      return `- Course: "${c.title}" | Slug: "${c.slug}" | Category: "${c.category}" | Duration: "${c.duration || 'Flexible'}" | Price: ${c.price ? '₹' + c.price : 'Free'} | Skills: ${skillsStr}`;
+    }).join('\n');
 
-[COURSES CATALOG]
-${coursesCatalogSummary}
+    const pagesSnippet = WEBSITE_PAGES_REGISTRY.map((p) => `- Page: "${p.title}" | URL: "${p.url}" | Description: "${p.description}"`).join('\n');
 
-[PROJECTS]
-${STATIC_WEBSITE_KNOWLEDGE.projects}
+    const retrievedContext = `
+[VERIFIED WEBSITE PAGES]
+${pagesSnippet}
 
-[HIRE FROM US]
-${STATIC_WEBSITE_KNOWLEDGE.hireFromUs}
+[VERIFIED COURSES IN DATABASE]
+${courseCatalogSnippet}
 
-[BECOME AN INSTRUCTOR]
-${STATIC_WEBSITE_KNOWLEDGE.becomeInstructor}
+[VERIFIED CAPSTONE PROJECTS]
+${WEBSITE_PAGES_REGISTRY.find(p => p.id === 'page-projects')?.contentSummary || ''}
 
-[BECOME A PARTNER]
-${STATIC_WEBSITE_KNOWLEDGE.becomePartner}
+[PRIVACY POLICY & TERMS]
+${WEBSITE_PAGES_REGISTRY.find(p => p.id === 'page-privacy')?.contentSummary || ''}
+${WEBSITE_PAGES_REGISTRY.find(p => p.id === 'page-terms')?.contentSummary || ''}
 
-[TERMS & CONDITIONS]
-${STATIC_WEBSITE_KNOWLEDGE.termsAndConditions}
-
-[PRIVACY POLICY]
-${STATIC_WEBSITE_KNOWLEDGE.privacyPolicy}
-`;
+[CONTACT SUPPORT INFO]
+- Phone: ${contactInfo.phone}
+- WhatsApp: ${contactInfo.phone}
+- Email: ${contactInfo.email}
+`.trim();
 
     const recentHistory = (history || []).slice(-6);
     const contents: Array<{ role: 'user' | 'model'; parts: Array<{ text: string }> }> = [];
@@ -850,82 +1312,78 @@ ${STATIC_WEBSITE_KNOWLEDGE.privacyPolicy}
       role: 'user',
       parts: [{
         text: `
-[APPROVED WEBSITE CONTEXT & DATABASE DATA]
-${websiteContext}
+[SUPPLIED VERIFIED WEBSITE CONTEXT]
+${retrievedContext}
 
 [USER QUESTION]
 ${rawQuery}
-`
+`.trim()
       }]
     });
 
     let geminiText = '';
-    try {
-      const response = await ai.models.generateContent({
-        model: 'gemini-2.5-flash',
-        contents,
-        config: {
-          systemInstruction: SYSTEM_INSTRUCTION,
-          temperature: 0.2,
-          maxOutputTokens: 600
-        }
-      });
-      geminiText = response.text?.trim() || '';
-    } catch (gErr: any) {
-      console.warn('Gemini 2.5 flash error, trying gemini-1.5-flash fallback:', gErr.message);
-      const fallbackResponse = await ai.models.generateContent({
-        model: 'gemini-1.5-flash',
-        contents,
-        config: {
-          systemInstruction: SYSTEM_INSTRUCTION,
-          temperature: 0.2,
-          maxOutputTokens: 600
-        }
-      });
-      geminiText = fallbackResponse.text?.trim() || '';
+
+    const candidateModels = ['gemini-2.0-flash', 'gemini-1.5-flash'];
+    for (const modelName of candidateModels) {
+      try {
+        const response = await ai.models.generateContent({
+          model: modelName,
+          contents,
+          config: {
+            systemInstruction: GEMINI_SYSTEM_INSTRUCTION,
+            temperature: 0.2,
+            maxOutputTokens: 600
+          }
+        });
+        geminiText = response.text?.trim() || '';
+        if (geminiText) break;
+      } catch {
+        // Try next candidate model
+      }
     }
 
     if (!geminiText) {
-      return {
-        success: true,
-        answer: "I couldn't find information about that on our website.",
-        source: 'website',
-        confidence: 'unsupported',
-        needsContact: true,
-        results: [],
-        errorCode: 'NOT_FOUND',
-        contactInfo
-      };
+      return generateDeterministicAnswer(rawQuery, searchData, history, contactInfo);
     }
 
     const lowerAns = geminiText.toLowerCase();
     const isUnknown = lowerAns.includes("couldn't find information") ||
                       lowerAns.includes("don't have that information") ||
-                      lowerAns.includes("do not have that information") ||
-                      lowerAns.includes("not available in the provided") ||
                       lowerAns.includes("not available on our website");
+
+    // Determine results to attach for UI cards
+    let resultsToAttach: SearchResultItem[] | undefined;
+    let resultType: ChatResponse['resultType'] = 'general';
+
+    if (matchedCourses.length > 0) {
+      resultsToAttach = matchedCourses;
+      resultType = 'courses';
+    } else if (matchedPages.length > 0) {
+      resultsToAttach = matchedPages;
+      resultType = 'general';
+    } else if (matchedProjects.length > 0) {
+      resultsToAttach = matchedProjects.slice(0, 4);
+      resultType = 'projects';
+    } else if (matchedInstructors.length > 0) {
+      resultsToAttach = matchedInstructors;
+      resultType = 'instructors';
+    }
 
     return {
       success: true,
       answer: geminiText,
       source: 'gemini',
       confidence: isUnknown ? 'unsupported' : 'supported',
-      needsContact: isUnknown,
-      results: matchedCourses.length > 0 ? matchedCourses : undefined,
+      needsContact: isUnknown || normQuery.includes('contact') || normQuery.includes('fee'),
+      results: resultsToAttach,
+      resultType,
       errorCode: isUnknown ? 'NOT_FOUND' : undefined,
       contactInfo
     };
 
   } catch (geminiError: any) {
-    console.error('Gemini API call failed:', geminiError.message);
-    return {
-      success: false,
-      answer: "I'm unable to process your question right now. Please contact our support team directly.",
-      source: 'fallback',
-      confidence: 'unsupported',
-      needsContact: true,
-      errorCode: 'AI_SERVICE_UNAVAILABLE',
-      contactInfo
-    };
+    console.error('[CHATBOT ERROR] Gemini processing error:', geminiError.message);
+    return generateDeterministicAnswer(rawQuery, searchData, history, contactInfo);
   }
 }
+

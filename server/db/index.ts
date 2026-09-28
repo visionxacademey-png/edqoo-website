@@ -1,8 +1,6 @@
 import { Pool, neonConfig } from '@neondatabase/serverless';
 import ws from 'ws';
 import dotenv from 'dotenv';
-import { courses as initialCourses } from '../../src/data/courses.js';
-import { instructors as initialInstructors } from '../../src/data/instructors.js';
 
 dotenv.config();
 
@@ -76,8 +74,8 @@ export interface MockSession {
 export const mockStore = {
   users: [] as MockUser[],
   sessions: [] as MockSession[],
-  courses: [...initialCourses],
-  instructors: [...initialInstructors],
+  courses: [] as any[],
+  instructors: [] as any[],
   enquiries: [] as any[],
   hiringEnquiries: [] as any[],
   instructorApplications: [] as any[],
@@ -338,6 +336,9 @@ export async function initDb() {
       ALTER TABLE courses ADD COLUMN IF NOT EXISTS career_readiness JSONB DEFAULT '[]'::jsonb;
       ALTER TABLE courses ADD COLUMN IF NOT EXISTS outcome TEXT;
       ALTER TABLE courses ADD COLUMN IF NOT EXISTS features JSONB DEFAULT '[]'::jsonb;
+      ALTER TABLE courses ADD COLUMN IF NOT EXISTS seo_title VARCHAR(255);
+      ALTER TABLE courses ADD COLUMN IF NOT EXISTS seo_description TEXT;
+      ALTER TABLE courses ADD COLUMN IF NOT EXISTS seo_keywords JSONB DEFAULT '[]'::jsonb;
 
       CREATE TABLE IF NOT EXISTS enquiries (
         id VARCHAR(100) PRIMARY KEY,
@@ -559,140 +560,101 @@ export async function initDb() {
       console.warn('User count query notice:', countErr.message);
     }
 
-    // 5. Safely sync course catalog (non-fatal, resilient to duplicate slugs or minor schema diffs)
+    // 5. Sync live database records into in-memory store for instant memory cache
     try {
-      for (const course of initialCourses) {
-        await pool.query(
-          `INSERT INTO courses (
-            id, slug, title, category, categories, short_description, description, image, price, original_price,
-            duration, live_hours, lessons, level, rating, students, status, featured,
-            skills, curriculum, modules, technology_stack, projects, career_readiness, outcome, features, requirements, who_is_it_for, created_at, updated_at
-          ) VALUES (
-            $1, $2, $3, $4, $5, $6, $7, $8, $9, $10,
-            $11, $12, $13, $14, $15, $16, $17, $18,
-            $19, $20, $21, $22, $23, $24, $25, $26, $27, $28, NOW(), NOW()
-          )
-          ON CONFLICT (id) DO UPDATE SET
-            slug = EXCLUDED.slug,
-            title = EXCLUDED.title,
-            category = EXCLUDED.category,
-            categories = EXCLUDED.categories,
-            short_description = EXCLUDED.short_description,
-            description = EXCLUDED.description,
-            image = EXCLUDED.image,
-            price = EXCLUDED.price,
-            original_price = EXCLUDED.original_price,
-            duration = EXCLUDED.duration,
-            live_hours = EXCLUDED.live_hours,
-            lessons = EXCLUDED.lessons,
-            level = EXCLUDED.level,
-            skills = EXCLUDED.skills,
-            curriculum = EXCLUDED.curriculum,
-            modules = EXCLUDED.modules,
-            technology_stack = EXCLUDED.technology_stack,
-            projects = EXCLUDED.projects,
-            career_readiness = EXCLUDED.career_readiness,
-            outcome = EXCLUDED.outcome,
-            features = EXCLUDED.features,
-            requirements = EXCLUDED.requirements,
-            who_is_it_for = EXCLUDED.who_is_it_for,
-            updated_at = NOW()`,
-          [
-            course.id,
-            course.slug,
-            course.title,
-            course.category,
-            JSON.stringify(course.categories || [course.category]),
-            course.shortDescription || null,
-            course.description,
-            course.image,
-            course.price,
-            course.originalPrice,
-            course.duration,
-            course.liveHours || null,
-            course.lessons,
-            course.level,
-            course.rating,
-            course.students,
-            course.status,
-            course.featured,
-            JSON.stringify(course.skills || []),
-            JSON.stringify(course.curriculum || []),
-            JSON.stringify(course.modules || []),
-            JSON.stringify(course.technologyStack || []),
-            JSON.stringify(course.projects || []),
-            JSON.stringify(course.careerReadiness || []),
-            course.outcome || null,
-            JSON.stringify(course.features || []),
-            JSON.stringify(course.requirements || []),
-            JSON.stringify(course.whoIsItFor || [])
-          ]
-        ).catch((courseErr) => {
-          console.warn(`Course sync notice for [${course.id}]:`, courseErr.message);
-        });
+      const liveCourses = await pool.query('SELECT * FROM courses ORDER BY created_at ASC');
+      if (liveCourses.rows.length > 0) {
+        mockStore.courses = liveCourses.rows.map((row: any) => ({
+          id: row.id,
+          slug: row.slug,
+          title: row.title,
+          category: row.category,
+          categories: typeof row.categories === 'string' ? JSON.parse(row.categories) : (row.categories || [row.category]),
+          shortDescription: row.short_description,
+          description: row.description || '',
+          image: row.image,
+          price: Number(row.price),
+          originalPrice: Number(row.original_price),
+          duration: row.duration,
+          liveHours: row.live_hours,
+          lessons: Number(row.lessons),
+          level: row.level,
+          rating: Number(row.rating),
+          students: Number(row.students),
+          status: row.status,
+          featured: Boolean(row.featured),
+          skills: typeof row.skills === 'string' ? JSON.parse(row.skills) : (row.skills || []),
+          curriculum: typeof row.curriculum === 'string' ? JSON.parse(row.curriculum) : (row.curriculum || []),
+          modules: typeof row.modules === 'string' ? JSON.parse(row.modules) : (row.modules || []),
+          technologyStack: typeof row.technology_stack === 'string' ? JSON.parse(row.technology_stack) : (row.technology_stack || []),
+          projects: typeof row.projects === 'string' ? JSON.parse(row.projects) : (row.projects || []),
+          careerReadiness: typeof row.career_readiness === 'string' ? JSON.parse(row.career_readiness) : (row.career_readiness || []),
+          outcome: row.outcome,
+          features: typeof row.features === 'string' ? JSON.parse(row.features) : (row.features || []),
+          requirements: typeof row.requirements === 'string' ? JSON.parse(row.requirements) : (row.requirements || []),
+          whoIsItFor: typeof row.who_is_it_for === 'string' ? JSON.parse(row.who_is_it_for) : (row.who_is_it_for || []),
+          seoTitle: row.seo_title,
+          seoDescription: row.seo_description,
+          seoKeywords: typeof row.seo_keywords === 'string' ? JSON.parse(row.seo_keywords) : (row.seo_keywords || []),
+          createdAt: row.created_at ? new Date(row.created_at).getTime() : Date.now(),
+          updatedAt: row.updated_at ? new Date(row.updated_at).getTime() : Date.now(),
+          imageUpdatedAt: row.updated_at ? new Date(row.updated_at).getTime() : Date.now()
+        }));
       }
-    } catch (syncErr: any) {
-      console.warn('[DB] Course catalog sync warning (non-fatal):', syncErr.message);
-    }
 
-    // 6. Safely sync instructor profiles (non-fatal)
-    try {
-      for (const inst of initialInstructors) {
-        await pool.query(
-          `INSERT INTO instructors (
-            id, name, designation, organization, image, profile_image, short_bio, detailed_bio,
-            qualifications, experience, expertise, certifications, courses, projects,
-            linkedin, email, teaching_experience, industry_experience, created_at, updated_at
-          ) VALUES (
-            $1, $2, $3, $4, $5, $6, $7, $8,
-            $9, $10, $11, $12, $13, $14,
-            $15, $16, $17, $18, NOW(), NOW()
-          )
-          ON CONFLICT (id) DO UPDATE SET
-            name = EXCLUDED.name,
-            designation = EXCLUDED.designation,
-            organization = EXCLUDED.organization,
-            image = EXCLUDED.image,
-            profile_image = EXCLUDED.profile_image,
-            short_bio = EXCLUDED.short_bio,
-            detailed_bio = EXCLUDED.detailed_bio,
-            qualifications = EXCLUDED.qualifications,
-            experience = EXCLUDED.experience,
-            expertise = EXCLUDED.expertise,
-            certifications = EXCLUDED.certifications,
-            courses = EXCLUDED.courses,
-            projects = EXCLUDED.projects,
-            linkedin = EXCLUDED.linkedin,
-            email = EXCLUDED.email,
-            teaching_experience = EXCLUDED.teaching_experience,
-            industry_experience = EXCLUDED.industry_experience,
-            updated_at = NOW()`,
-          [
-            inst.id,
-            inst.name,
-            inst.designation,
-            inst.organization,
-            inst.image,
-            inst.profileImage || inst.image,
-            inst.shortBio,
-            inst.detailedBio,
-            inst.qualifications,
-            inst.experience,
-            JSON.stringify(inst.expertise || []),
-            JSON.stringify(inst.certifications || []),
-            JSON.stringify(inst.courses || []),
-            JSON.stringify(inst.projects || []),
-            inst.linkedin || null,
-            inst.email || null,
-            inst.teachingExperience || null,
-            inst.industryExperience || null
-          ]
-        ).catch((instErr) => {
-          console.warn(`Instructor sync notice for [${inst.id}]:`, instErr.message);
-        });
+      const liveInstructors = await pool.query('SELECT * FROM instructors ORDER BY created_at ASC');
+      if (liveInstructors.rows.length > 0) {
+        mockStore.instructors = liveInstructors.rows.map((row: any) => ({
+          id: row.id,
+          name: row.name,
+          role: row.designation,
+          designation: row.designation,
+          organization: row.organization,
+          image: row.image,
+          profileImage: row.profile_image || row.image,
+          shortBio: row.short_bio,
+          detailedBio: row.detailed_bio,
+          qualifications: row.qualifications,
+          experience: row.experience,
+          expertise: typeof row.expertise === 'string' ? JSON.parse(row.expertise) : (row.expertise || []),
+          certifications: typeof row.certifications === 'string' ? JSON.parse(row.certifications) : (row.certifications || []),
+          courses: typeof row.courses === 'string' ? JSON.parse(row.courses) : (row.courses || []),
+          projects: typeof row.projects === 'string' ? JSON.parse(row.projects) : (row.projects || []),
+          linkedin: row.linkedin,
+          email: row.email,
+          teachingExperience: row.teaching_experience,
+          industryExperience: row.industry_experience,
+          updatedAt: row.updated_at ? new Date(row.updated_at).getTime() : Date.now(),
+          imageUpdatedAt: row.updated_at ? new Date(row.updated_at).getTime() : Date.now()
+        }));
       }
-    } catch (instSyncErr: any) {
-      console.warn('[DB] Instructor catalog sync warning (non-fatal):', instSyncErr.message);
+
+      const liveLeadership = await pool.query('SELECT * FROM leadership_members ORDER BY display_order ASC, created_at ASC');
+      if (liveLeadership.rows.length > 0) {
+        mockStore.leadershipMembers = liveLeadership.rows.map((row: any) => ({
+          id: row.id,
+          name: row.name,
+          profileImage: row.profile_image,
+          designation: row.designation,
+          organization: row.organization,
+          qualification: row.qualification,
+          experience: row.experience,
+          expertise: typeof row.expertise === 'string' ? JSON.parse(row.expertise) : (row.expertise || []),
+          shortBio: row.short_bio,
+          detailedBio: row.detailed_bio,
+          leadershipExperience: row.leadership_experience,
+          achievements: typeof row.achievements === 'string' ? JSON.parse(row.achievements) : (row.achievements || []),
+          publications: typeof row.publications === 'string' ? JSON.parse(row.publications) : (row.publications || []),
+          linkedin: row.linkedin,
+          website: row.website,
+          email: row.email,
+          displayOrder: row.display_order,
+          createdAt: row.created_at,
+          updatedAt: row.updated_at
+        }));
+      }
+    } catch (mockSyncErr: any) {
+      console.warn('[DB] Live memory store sync notice:', mockSyncErr.message);
     }
   } catch (err: any) {
     console.error('⚠️ [DB] NeonDB connection or critical migration error:', err.message);

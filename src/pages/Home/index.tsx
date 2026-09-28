@@ -17,23 +17,34 @@ import {
   Briefcase,
   Brain,
   BarChart3,
-  Cpu
+  Cpu,
+  Code2,
+  Sparkles
 } from 'lucide-react';
-import { courses, filterCoursesByCategory, normalizeCategoryName } from '../../data/courses';
+import {
+  filterCoursesByCategory,
+  normalizeCategoryName,
+  DATA_SCIENCE_AI_PROJECTS
+} from '../../data/courses';
+import { courseService } from '../../services/courseService';
+import type { Course } from '../../types';
 import { SEO } from '../../components/common/SEO';
 import { useEnquiry } from '../../context/EnquiryContext';
 import { KeyHighlights } from '../../components/common/KeyHighlights';
+import { Accordion } from '../../components/ui/Accordion';
+import { getCacheBustedImageUrl } from '../../utils/imageUrl';
+import { CourseSkeleton } from '../../components/ui/CourseSkeleton';
 
 // Hero slide definitions matching EDQOO visual identity
 const heroSlides = [
   {
     id: 'slide-1',
     launchBadge: 'Enterprise Technology Masterclasses & Live Hybrid Tracks',
-    accentLine: 'Learn Practical Tech.',
-    mainLine: 'Build Production Systems from Day 1',
-    pills: ['AI-Age Curriculum', 'Hands-on Cloud Labs', 'Real-World Projects'],
+    accentLine: 'Learn With Purpose.',
+    mainLine: 'Build With Confidence',
+    pills: ['AI-Age Curriculum', 'Hands-on Cloud Labs', 'Real-World Projects', 'Placement Assistance in India'],
     primaryCta: 'Explore All Programs',
-    primaryLink: '/courses',
+    primaryLink: '/programs',
     secondaryCta: 'Talk to Advisor',
     desktopImage: 'https://images.unsplash.com/photo-1522071820081-009f0129c71c?q=80&w=1600&auto=format&fit=crop',
     image: 'https://images.unsplash.com/photo-1522071820081-009f0129c71c?q=80&w=1600&auto=format&fit=crop',
@@ -46,9 +57,9 @@ const heroSlides = [
     launchBadge: 'Advanced Executive Program in Data Science and AI',
     accentLine: 'Engineer Real AI.',
     mainLine: 'Deploy Predictive Models & GenAI from Day 1',
-    pills: ['Python & PyTorch', 'LLMs & RAG Architectures', '1:1 Mentor Reviews'],
+    pills: ['Python & PyTorch', 'LLMs & RAG Architectures', '1:1 Mentor Reviews', 'Kerala & Pan-India Batches'],
     primaryCta: 'View Data Science and AI',
-    primaryLink: '/courses/advanced-executive-program-data-science-ai',
+    primaryLink: '/programs/data-science-and-ai',
     secondaryCta: 'Request Syllabus',
     desktopImage: 'https://images.unsplash.com/photo-1551288049-bebda4e38f71?q=80&w=1600&auto=format&fit=crop',
     image: 'https://images.unsplash.com/photo-1551288049-bebda4e38f71?q=80&w=1600&auto=format&fit=crop',
@@ -62,8 +73,8 @@ const heroSlides = [
     accentLine: 'Master Modern AI.',
     mainLine: 'Build Deep Neural Networks & Autonomous Agents',
     pills: ['Computer Vision', 'Transformers & NLP', 'MLOps Serving'],
-    primaryCta: 'View AI and Machine Learning Track',
-    primaryLink: '/courses/executive-professional-certificate-data-science-ai',
+    primaryCta: 'View AI & Machine Learning Track',
+    primaryLink: '/programs/ai-and-machine-learning',
     secondaryCta: 'Book Advisory Call',
     desktopImage: 'https://images.unsplash.com/photo-1531482615713-2afd69097998?q=80&w=1600&auto=format&fit=crop',
     image: 'https://images.unsplash.com/photo-1531482615713-2afd69097998?q=80&w=1600&auto=format&fit=crop',
@@ -75,10 +86,10 @@ const heroSlides = [
     id: 'slide-4',
     launchBadge: 'Tools and Upskills — Executive Fast-Tracks',
     accentLine: 'Executive Power Skills.',
-    mainLine: 'Master Python, SQL, Power BI & Prompt Engineering',
+    mainLine: 'Master Python, Power BI, Excel & Prompt Engineering',
     pills: ['Flexible Duration', 'Executive Certificate', 'Instant Workplace Impact'],
     primaryCta: 'Explore Tools & Upskills',
-    primaryLink: '/courses',
+    primaryLink: '/tools-and-upskills',
     secondaryCta: 'Enquire for Teams',
     desktopImage: 'https://images.unsplash.com/photo-1460925895917-afdab827c52f?q=80&w=1600&auto=format&fit=crop',
     image: 'https://images.unsplash.com/photo-1460925895917-afdab827c52f?q=80&w=1600&auto=format&fit=crop',
@@ -98,6 +109,54 @@ const categoryNav = [
   { id: 'Free Learning', label: 'Free Learning', icon: BookOpen }
 ];
 
+const homeFaqs = [
+  {
+    question: 'What is Edqoo?',
+    answer:
+      'Edqoo is an online learning platform focused on practical, industry-oriented education in Data Science, Artificial Intelligence, Python, Data Analytics and professional upskilling.'
+  },
+  {
+    question: 'What courses does Edqoo offer?',
+    answer:
+      'Edqoo offers comprehensive online courses in Data Science and AI, Python Programming, Artificial Intelligence and Machine Learning, Data Analytics with Power BI, and executive Tools & Upskills including Excel, Power BI, MS Office, and Prompt Engineering.'
+  },
+  {
+    question: 'Is Edqoo an online learning platform?',
+    answer:
+      'Yes, Edqoo is an online learning platform delivering live interactive sessions, hands-on cloud labs, real-world project portfolios, and dedicated 1-on-1 mentorship.'
+  },
+  {
+    question: 'What can I learn on Edqoo?',
+    answer:
+      'You can learn in-demand technology and data skills including Python programming, machine learning algorithms, deep learning neural networks, SQL querying, Power BI dashboards, advanced Excel modeling, and prompt engineering.'
+  },
+  {
+    question: 'Does Edqoo offer Data Science courses?',
+    answer:
+      'Yes, Edqoo offers practical Data Science courses covering Python, statistical foundations, exploratory data analysis, predictive modeling, machine learning, and hands-on capstone projects using real-world datasets.'
+  },
+  {
+    question: 'Does Edqoo offer Python courses?',
+    answer:
+      'Yes, Edqoo provides dedicated Python courses covering syntax fundamentals, data structures, object-oriented programming, automation, and data handling libraries like NumPy and Pandas.'
+  },
+  {
+    question: 'Does Edqoo offer AI and Machine Learning courses?',
+    answer:
+      'Yes, Edqoo offers specialized AI and Machine Learning courses covering supervised learning, deep neural networks, computer vision, natural language processing (NLP), Large Language Models (LLMs), and Generative AI.'
+  },
+  {
+    question: 'Who are Edqoo courses designed for?',
+    answer:
+      'Edqoo courses are designed for students, job seekers, software developers, data analysts, and career transitioners looking to build verified, hands-on competencies in data and technology.'
+  },
+  {
+    question: 'How can I contact Edqoo?',
+    answer:
+      'You can contact Edqoo by submitting an enquiry on our website, emailing support@edqoo.com, or calling +91 90744 50935.'
+  }
+];
+
 export const Home: React.FC = () => {
   const navigate = useNavigate();
   const { openEnquiryModal } = useEnquiry();
@@ -105,6 +164,9 @@ export const Home: React.FC = () => {
   const [isSlidePaused, setIsSlidePaused] = useState(false);
   const [selectedCategory, setSelectedCategory] = useState<string>('all');
   const [statsAnimated, setStatsAnimated] = useState(false);
+  const [programs, setPrograms] = useState<Course[]>([]);
+  const [programsLoading, setProgramsLoading] = useState(true);
+  const [programsError, setProgramsError] = useState<string | null>(null);
   const statsSectionRef = useRef<HTMLDivElement>(null);
   const touchStartX = useRef<number | null>(null);
 
@@ -153,13 +215,11 @@ export const Home: React.FC = () => {
   const handleTouchEnd = (e: React.TouchEvent) => {
     if (touchStartX.current === null) return;
     const touchEndX = e.changedTouches[0].clientX;
-    const diff = touchStartX.current - touchEndX;
-    if (Math.abs(diff) > 45) {
-      if (diff > 0) {
-        setActiveSlide((prev) => (prev + 1) % heroSlides.length);
-      } else {
-        setActiveSlide((prev) => (prev - 1 + heroSlides.length) % heroSlides.length);
-      }
+    const deltaX = touchStartX.current - touchEndX;
+    if (deltaX > 40) {
+      setActiveSlide((prev) => (prev + 1) % heroSlides.length);
+    } else if (deltaX < -40) {
+      setActiveSlide((prev) => (prev - 1 + heroSlides.length) % heroSlides.length);
     }
     touchStartX.current = null;
   };
@@ -172,33 +232,95 @@ export const Home: React.FC = () => {
     setActiveSlide((prev) => (prev - 1 + heroSlides.length) % heroSlides.length);
   };
 
+  const loadHomePrograms = (signal?: AbortSignal) => {
+    setProgramsLoading(true);
+    setProgramsError(null);
+    courseService
+      .getCourses({ signal })
+      .then((data) => {
+        if (Array.isArray(data)) {
+          setPrograms(data);
+          setProgramsError(null);
+        }
+      })
+      .catch((err) => {
+        if (err?.name !== 'CanceledError' && err?.name !== 'AbortError') {
+          console.error('Failed to load programs on homepage:', err);
+          setProgramsError(err?.message || 'Unable to load programs from the database.');
+        }
+      })
+      .finally(() => setProgramsLoading(false));
+  };
+
+  useEffect(() => {
+    const controller = new AbortController();
+    loadHomePrograms(controller.signal);
+    return () => {
+      controller.abort();
+    };
+  }, []);
+
   // Filter courses based on active category
-  const displayedCourses = filterCoursesByCategory(courses, selectedCategory);
+  const displayedPrograms = filterCoursesByCategory(programs, selectedCategory);
 
   const currentHero = heroSlides[activeSlide];
 
+  const accordionHomeFaqs = homeFaqs.map((f, i) => ({
+    id: `faq-home-${i + 1}`,
+    title: f.question,
+    content: <p className="text-xs leading-relaxed text-slate-600">{f.answer}</p>
+  }));
+
   return (
     <div className="space-y-0 text-left bg-white">
-      <SEO 
-        title="Edqoo | Your Skill Partner - Master Programs & Tools And Upskills" 
-        description="Accelerate your career with industry-aligned Master Programs in Data Science, AI, Python, Data Analytics, and Executive Upskilling tracks."
+      <SEO
+        title="Edqoo | Online Learning Platform for AI, Data Science & More"
+        description="Edqoo is an online learning platform offering practical courses in Data Science, Artificial Intelligence, Machine Learning, Python, Data Analytics and professional upskilling."
         canonical="/"
+        keywords={[
+          'Edqoo',
+          'edqoo',
+          'Edqoo online',
+          'Edqoo courses',
+          'Edqoo learning',
+          'Edqoo e-learning',
+          'Edqoo India',
+          'Edqoo courses India',
+          'Edqoo Data Science',
+          'Edqoo Python',
+          'Edqoo AI',
+          'online courses',
+          'online certification courses',
+          'data science course',
+          'data science and AI course',
+          'artificial intelligence course',
+          'machine learning course',
+          'python course',
+          'data analytics course',
+          'power BI course',
+          'excel course',
+          'prompt engineering course',
+          'professional upskilling',
+          'online learning platform'
+        ]}
+        includeWebsiteSchema={true}
+        includeOrgSchema={true}
+        faqs={homeFaqs}
       />
 
       {/* ========================================================================= */}
-      {/* 1A. DEDICATED MOBILE HERO SLIDER (SEPARATE PORTRAIT-FIRST PRESENTATION)   */}
+      {/* 1A. MOBILE HERO SLIDER                                                    */}
       {/* ========================================================================= */}
       <section
         className="flex md:hidden relative bg-white text-slate-900 overflow-hidden w-full max-w-full select-none min-h-[calc(100svh-64px)] flex-col justify-between border-b border-slate-200"
         onTouchStart={handleTouchStart}
         onTouchEnd={handleTouchEnd}
       >
-        {/* Mobile Portrait Hero Background Stage with Multi-Stop Readable Gradient */}
         <div className="absolute inset-0 w-full h-full pointer-events-none z-0 overflow-hidden">
           <AnimatePresence mode="wait">
             <motion.img
               key={currentHero.id}
-              src={currentHero.mobileImage}
+              src={getCacheBustedImageUrl(currentHero.mobileImage)}
               alt={currentHero.mainLine}
               initial={{ opacity: 0, scale: 1.05 }}
               animate={{ opacity: 1, scale: 1 }}
@@ -207,12 +329,10 @@ export const Home: React.FC = () => {
               className="absolute inset-0 w-full h-full object-cover object-center"
             />
           </AnimatePresence>
-          {/* Multi-stop gradient overlay tailored for mobile typography legibility */}
           <div className="absolute inset-0 bg-gradient-to-b from-slate-950/40 via-transparent to-transparent" />
           <div className="absolute inset-x-0 bottom-0 top-[28%] bg-gradient-to-t from-white via-white/95 to-transparent" />
         </div>
 
-        {/* Mobile Hero Content Container */}
         <div className="w-full relative z-10 px-5 pt-6 pb-4 flex-1 flex flex-col justify-end space-y-3.5 text-left">
           <AnimatePresence mode="wait">
             <motion.div
@@ -223,12 +343,10 @@ export const Home: React.FC = () => {
               transition={{ duration: 0.3, ease: 'easeOut' }}
               className="w-full space-y-3"
             >
-              {/* Launch Badge */}
               <div className="inline-flex items-center px-3 py-1 rounded-full bg-purple-50/95 border border-purple-200/90 text-purple-700 text-[11px] font-bold tracking-wide shadow-2xs backdrop-blur-xs max-w-full">
                 <span className="truncate">{currentHero.launchBadge}</span>
               </div>
 
-              {/* Mobile Headline Hierarchy */}
               <div className="space-y-1">
                 <span className="block text-purple-600 font-display font-extrabold text-xs sm:text-sm tracking-tight">
                   {currentHero.accentLine}
@@ -238,7 +356,10 @@ export const Home: React.FC = () => {
                 </h1>
               </div>
 
-              {/* Mobile Feature Pills */}
+              <p className="text-xs text-slate-600 leading-relaxed font-normal">
+                Edqoo is an online learning platform for building practical skills in Data Science, AI, Python, Data Analytics and other in-demand technologies.
+              </p>
+
               <div className="flex flex-wrap gap-1.5 pt-0.5">
                 {currentHero.pills.map((pill, idx) => (
                   <span
@@ -250,7 +371,6 @@ export const Home: React.FC = () => {
                 ))}
               </div>
 
-              {/* Mobile Action Buttons - Full-width / Easy Tap */}
               <div className="flex flex-col gap-2 pt-1 w-full">
                 <Link
                   to={currentHero.primaryLink}
@@ -262,7 +382,7 @@ export const Home: React.FC = () => {
                 <button
                   type="button"
                   onClick={() => openEnquiryModal()}
-                  className="btn-secondary w-full py-3 text-xs font-bold rounded-xl shadow-2xs text-center"
+                  className="btn-secondary w-full py-3 text-xs font-bold rounded-xl shadow-2xs text-center cursor-pointer"
                 >
                   {currentHero.secondaryCta}
                 </button>
@@ -271,7 +391,6 @@ export const Home: React.FC = () => {
           </AnimatePresence>
         </div>
 
-        {/* Mobile Bottom Highlight Strip & Slide Pagination */}
         <div className="relative z-20 bg-white/95 backdrop-blur-md border-t border-slate-200/90 px-5 py-3 w-full">
           <AnimatePresence mode="wait">
             <motion.div
@@ -290,7 +409,6 @@ export const Home: React.FC = () => {
             </motion.div>
           </AnimatePresence>
 
-          {/* Mobile Slider Controls */}
           <div className="flex items-center justify-between pt-1 border-t border-slate-100">
             <div className="flex items-center gap-1.5">
               {heroSlides.map((_, idx) => (
@@ -304,73 +422,57 @@ export const Home: React.FC = () => {
                 />
               ))}
             </div>
-            {/* <div className="flex items-center gap-1.5">
-              <button
-                onClick={prevSlide}
-                className="p-1.5 rounded-lg bg-slate-50 hover:bg-purple-50 text-slate-700 hover:text-purple-700 border border-slate-200 transition-colors shadow-2xs"
-                aria-label="Previous slide"
-              >
-                <ChevronLeft className="w-3.5 h-3.5" />
-              </button>
-              <button
-                onClick={nextSlide}
-                className="p-1.5 rounded-lg bg-slate-50 hover:bg-purple-50 text-slate-700 hover:text-purple-700 border border-slate-200 transition-colors shadow-2xs"
-                aria-label="Next slide"
-              >
-                <ChevronRight className="w-3.5 h-3.5" />
-              </button>
-            </div> */}
           </div>
         </div>
       </section>
 
       {/* ========================================================================= */}
-      {/* 1B. DESKTOP & TABLET HERO SLIDER SECTION (UNCHANGED)                      */}
+      {/* 1B. DESKTOP & TABLET HERO SLIDER SECTION (100% Viewport Height & Width)   */}
       {/* ========================================================================= */}
       <section
-        className="hidden md:flex relative bg-white text-slate-900 overflow-hidden pt-8 pb-0 sm:pt-14 sm:pb-0 border-b border-slate-200 select-none min-h-[520px] lg:min-h-[580px] flex-col justify-between"
+        className="hidden md:flex hero-slider relative bg-slate-900 text-slate-900 overflow-hidden w-full select-none flex-col justify-between border-b border-slate-200"
         onMouseEnter={() => setIsSlidePaused(true)}
         onMouseLeave={() => setIsSlidePaused(false)}
         onTouchStart={handleTouchStart}
         onTouchEnd={handleTouchEnd}
       >
-        {/* Right-aligned Photographic Banner with Left Seamless Fade Mask */}
-        <div className="absolute top-0 right-0 bottom-0 w-full lg:w-[62%] h-full pointer-events-none z-0 overflow-hidden">
+        {/* Full Viewport Background Image Slider */}
+        <div className="absolute inset-0 w-full h-full pointer-events-none z-0 overflow-hidden hero-slide">
           <AnimatePresence mode="wait">
             <motion.img
               key={currentHero.id}
-              src={currentHero.desktopImage || currentHero.image}
+              src={getCacheBustedImageUrl(currentHero.desktopImage || currentHero.image)}
               alt={currentHero.mainLine}
               initial={{ opacity: 0, scale: 1.03 }}
               animate={{ opacity: 1, scale: 1 }}
               exit={{ opacity: 0 }}
               transition={{ duration: 0.5, ease: 'easeOut' }}
-              className="absolute inset-0 w-full h-full object-cover object-center lg:object-right opacity-85 sm:opacity-95"
+              className="w-full h-full object-cover object-center"
+              loading="eager"
             />
           </AnimatePresence>
-          {/* Gradients */}
-          <div className="absolute inset-0 bg-gradient-to-t lg:bg-gradient-to-r from-white via-white/80 lg:via-white/40 to-transparent z-10" />
+          {/* Dual Multi-Stop Gradient Overlays for High Legibility & Premium Contrast */}
+          <div className="absolute inset-0 bg-gradient-to-r from-white/95 via-white/85 to-white/20 lg:from-white/95 lg:via-white/80 lg:to-transparent z-10" />
+          <div className="absolute inset-0 bg-gradient-to-t from-white/40 via-transparent to-transparent z-10" />
         </div>
 
-        {/* Content Container */}
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full relative z-20 py-6 sm:py-10">
+        {/* Vertically Centered Main Content Area */}
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full relative z-20 flex-1 flex flex-col justify-center py-4 sm:py-6">
           <AnimatePresence mode="wait">
             <motion.div
               key={currentHero.id}
-              initial={{ opacity: 0, y: 8 }}
+              initial={{ opacity: 0, y: 12 }}
               animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -8 }}
-              transition={{ duration: 0.3, ease: 'easeOut' }}
-              className="max-w-2xl space-y-4 sm:space-y-6"
+              exit={{ opacity: 0, y: -12 }}
+              transition={{ duration: 0.35, ease: 'easeOut' }}
+              className="max-w-2xl space-y-3.5 sm:space-y-4"
             >
-              {/* Launch Badge */}
-              <div className="inline-flex items-center px-3 py-1.5 rounded-full bg-purple-50 border border-purple-200 text-purple-700 text-xs font-bold tracking-wide shadow-2xs">
+              <div className="inline-flex items-center px-3 py-1.5 rounded-full bg-purple-50/95 border border-purple-200 text-purple-700 text-xs font-bold tracking-wide shadow-2xs backdrop-blur-xs">
                 <span>{currentHero.launchBadge}</span>
               </div>
 
-              {/* Main Headline */}
               <div className="space-y-1">
-                <span className="block text-purple-600 font-display font-extrabold text-lg sm:text-2xl lg:text-3xl tracking-tight">
+                <span className="block text-purple-600 font-display font-extrabold text-base sm:text-xl lg:text-2xl tracking-tight">
                   {currentHero.accentLine}
                 </span>
                 <h1 className="text-3xl sm:text-4xl lg:text-5xl font-display font-black text-slate-950 tracking-tight leading-[1.12]">
@@ -378,20 +480,22 @@ export const Home: React.FC = () => {
                 </h1>
               </div>
 
-              {/* Feature Pills */}
-              <div className="flex flex-wrap gap-2 pt-1">
+              <p className="text-xs sm:text-sm lg:text-base text-slate-700 leading-relaxed max-w-xl font-medium">
+                Edqoo is an online learning platform for building practical skills in Data Science, AI, Python, Data Analytics and other in-demand technologies.
+              </p>
+
+              <div className="flex flex-wrap gap-2 pt-0.5">
                 {currentHero.pills.map((pill, idx) => (
                   <span
                     key={idx}
-                    className="px-3 py-1 bg-slate-100/90 border border-slate-200/80 rounded-lg text-xs font-bold text-slate-700 backdrop-blur-xs"
+                    className="px-3 py-1 bg-white/90 border border-slate-200 rounded-lg text-xs font-bold text-slate-700 backdrop-blur-xs shadow-2xs"
                   >
                     {pill}
                   </span>
                 ))}
               </div>
 
-              {/* Action Buttons */}
-              <div className="flex flex-wrap items-center gap-3 pt-2 sm:pt-4">
+              <div className="flex flex-wrap items-center gap-3 pt-2 sm:pt-3">
                 <Link
                   to={currentHero.primaryLink}
                   className="btn-primary px-6 py-3 text-xs sm:text-sm font-bold rounded-xl shadow-md inline-flex items-center gap-2"
@@ -402,7 +506,7 @@ export const Home: React.FC = () => {
                 <button
                   type="button"
                   onClick={() => openEnquiryModal()}
-                  className="btn-secondary px-6 py-3 text-xs sm:text-sm font-bold rounded-xl shadow-2xs"
+                  className="btn-secondary px-6 py-3 text-xs sm:text-sm font-bold rounded-xl shadow-2xs cursor-pointer"
                 >
                   {currentHero.secondaryCta}
                 </button>
@@ -411,8 +515,8 @@ export const Home: React.FC = () => {
           </AnimatePresence>
         </div>
 
-        {/* Bottom Process Advisors / Outcome Highlight Strip */}
-        <div className="relative z-20 bg-white/95 backdrop-blur-md border-t border-slate-200 py-3 px-4 sm:px-6 lg:px-8">
+        {/* Pinned Bottom Bar: Trust highlight, slide indicators, and navigation buttons */}
+        <div className="relative z-20 bg-white/90 backdrop-blur-md border-t border-slate-200/80 py-3 px-4 sm:px-6 lg:px-8 flex-shrink-0">
           <div className="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-3 text-xs">
             <AnimatePresence mode="wait">
               <motion.div
@@ -421,17 +525,16 @@ export const Home: React.FC = () => {
                 animate={{ opacity: 1, x: 0 }}
                 exit={{ opacity: 0, x: 6 }}
                 transition={{ duration: 0.25 }}
-                className="flex items-center gap-2 text-slate-600 font-medium"
+                className="flex items-center gap-2 text-slate-700 font-medium"
               >
-                <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
-                <span className="font-bold text-slate-900">{currentHero.partnerLogo}:</span>
+                <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse flex-shrink-0" />
+                <span className="font-bold text-slate-950">{currentHero.partnerLogo}:</span>
                 <span className="truncate max-w-xs sm:max-w-md md:max-w-xl">
                   {currentHero.statHighlight}
                 </span>
               </motion.div>
             </AnimatePresence>
 
-            {/* Slider Navigation Dots & Controls */}
             <div className="flex items-center gap-2 flex-shrink-0">
               <div className="flex gap-1.5 mr-2">
                 {heroSlides.map((_, idx) => (
@@ -447,14 +550,14 @@ export const Home: React.FC = () => {
               </div>
               <button
                 onClick={prevSlide}
-                className="p-1.5 rounded-lg bg-white hover:bg-purple-50 text-slate-700 hover:text-purple-700 border border-slate-200 hover:border-purple-300 transition-colors shadow-2xs"
+                className="p-1.5 rounded-lg bg-white hover:bg-purple-50 text-slate-700 hover:text-purple-700 border border-slate-200 hover:border-purple-300 transition-colors shadow-2xs cursor-pointer"
                 aria-label="Previous slide"
               >
                 <ChevronLeft className="w-4 h-4" />
               </button>
               <button
                 onClick={nextSlide}
-                className="p-1.5 rounded-lg bg-white hover:bg-purple-50 text-slate-700 hover:text-purple-700 border border-slate-200 hover:border-purple-300 transition-colors shadow-2xs"
+                className="p-1.5 rounded-lg bg-white hover:bg-purple-50 text-slate-700 hover:text-purple-700 border border-slate-200 hover:border-purple-300 transition-colors shadow-2xs cursor-pointer"
                 aria-label="Next slide"
               >
                 <ChevronRight className="w-4 h-4" />
@@ -465,7 +568,7 @@ export const Home: React.FC = () => {
       </section>
 
       {/* ========================================================================= */}
-      {/* 2. TRUST & ENTERPRISE STANDARDS SECTION */}
+      {/* 2. TRUST & ENTERPRISE STANDARDS SECTION                                   */}
       {/* ========================================================================= */}
       <section className="bg-slate-50 border-b border-slate-200/80 py-6 sm:py-8">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -484,17 +587,13 @@ export const Home: React.FC = () => {
                 <CheckCircle className="w-4 h-4 text-emerald-600" />
                 100% Practical Labs
               </span>
-              {/* <span className="flex items-center gap-1.5 px-3 py-1.5 bg-white border border-slate-200 rounded-lg shadow-2xs">
-                <BadgeCheck className="w-4 h-4 text-purple-600" />
-                theccpeeps Certification
-              </span> */}
-              {/* <span className="flex items-center gap-1.5 px-3 py-1.5 bg-white border border-slate-200 rounded-lg shadow-2xs">
-                <GraduationCap className="w-4 h-4 text-purple-600" />
-                NIT Faculty & Practitioners
-              </span> */}
               <span className="flex items-center gap-1.5 px-3 py-1.5 bg-white border border-slate-200 rounded-lg shadow-2xs">
                 <Briefcase className="w-4 h-4 text-purple-600" />
                 3 Guaranteed Job Interviews*
+              </span>
+              <span className="flex items-center gap-1.5 px-3 py-1.5 bg-white border border-slate-200 rounded-lg shadow-2xs">
+                <Sparkles className="w-4 h-4 text-amber-500" />
+                India & Kerala Focus
               </span>
             </div>
           </div>
@@ -502,30 +601,32 @@ export const Home: React.FC = () => {
       </section>
 
       {/* ========================================================================= */}
-      {/* 3. KEY HIGHLIGHTS SECTION (Exactly 6 Highlights) */}
+      {/* 3. KEY HIGHLIGHTS SECTION: LEARN IN-DEMAND SKILLS                         */}
       {/* ========================================================================= */}
-      <KeyHighlights />
+      <KeyHighlights
+        title="Learn In-Demand Skills"
+        subtitle="Experience practical technology education with expert faculty, hands-on lab environments, and verified industry credentials in India."
+        badgeText="WHY CHOOSE EDQOO"
+      />
 
       {/* ========================================================================= */}
-      {/* 4. COURSES / PROGRAM TRACKS SECTION */}
+      {/* 4. EXPLORE OUR PROGRAMS SECTION                                           */}
       {/* ========================================================================= */}
-      <section id="programs" className="section-padding bg-white">
+      <section id="programs" className="section-padding bg-white border-b border-slate-200">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-8">
           
-          {/* Section Header */}
           <div className="text-center max-w-3xl mx-auto space-y-2">
             <span className="text-purple-600 text-xs font-extrabold tracking-widest uppercase block">
-              EXPLORE CURRICULUM
+              CURATED LEARNING PATHS
             </span>
             <h2 className="text-2xl sm:text-3xl lg:text-4xl font-display font-extrabold text-slate-950">
-              Featured Program Tracks & Courses
+              Explore Our Programs
             </h2>
             <p className="text-slate-500 text-xs sm:text-sm leading-relaxed">
-              Explore specialized program tracks in <strong>Data Science and AI</strong>, <strong>Data Analytics and AI</strong>, <strong>AI and Machine Learning</strong>, and intensive <strong>Tools and Upskills</strong>.
+              Explore career-oriented online courses in <strong>Data Science and AI</strong>, <strong>Python</strong>, <strong>AI and Machine Learning</strong>, <strong>Data Analytics and AI</strong>, and executive <strong>Tools & Upskills</strong>.
             </p>
           </div>
 
-          {/* 2-Column Grid: Left Category Sidebar + Right Course Cards */}
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-8 items-start">
             
             {/* Left Category Sidebar (Desktop) */}
@@ -555,17 +656,6 @@ export const Home: React.FC = () => {
                   );
                 })}
               </div>
-
-              {/* Sidebar Info Card */}
-              <div className="mt-4 p-3 bg-purple-50/80 border border-purple-200/70 rounded-xl space-y-1.5 text-left">
-                {/* <div className="flex items-center gap-1.5 text-purple-800 font-bold text-xs">
-                  <BadgeCheck className="w-4 h-4 text-purple-600" />
-                  <span>theccpeeps Certified</span>
-                </div> */}
-                {/* <p className="text-[11px] text-slate-600 leading-relaxed">
-                  All courses include NIT faculty mentoring, AI-powered LMS access, and placement interview readiness.
-                </p> */}
-              </div>
             </aside>
 
             {/* Horizontal scrollable pills filter (Mobile / Tablet) */}
@@ -593,14 +683,22 @@ export const Home: React.FC = () => {
             {/* Right Courses Cards Grid */}
             <div className="lg:col-span-9 space-y-6">
               
-              {/* Header / Results counter */}
-              <div className="flex items-center justify-between border-b border-slate-200 pb-3">
-                <span className="text-xs font-bold text-slate-500">
-                  Showing <strong className="text-slate-900">{displayedCourses.length}</strong> Programs in{' '}
-                  <span className="text-purple-600">
-                    {selectedCategory === 'all' ? 'All Categories' : selectedCategory}
+              <div className="flex items-center justify-between border-b border-slate-200 pb-3 min-h-[32px]">
+                {programsLoading ? (
+                  <span className="flex items-center gap-2 text-purple-600 font-bold text-xs">
+                    <Sparkles className="w-3.5 h-3.5 animate-spin" />
+                    <span>Loading programs...</span>
                   </span>
-                </span>
+                ) : programsError ? (
+                  <span className="text-xs font-bold text-rose-600">Unable to load programs</span>
+                ) : (
+                  <span className="text-xs font-bold text-slate-500">
+                    Showing <strong className="text-slate-900">{displayedPrograms.length}</strong> Programs in{' '}
+                    <span className="text-purple-600">
+                      {selectedCategory === 'all' ? 'All Categories' : selectedCategory}
+                    </span>
+                  </span>
+                )}
                 <Link
                   to="/courses"
                   className="text-xs font-bold text-purple-600 hover:text-purple-700 inline-flex items-center gap-1"
@@ -610,22 +708,38 @@ export const Home: React.FC = () => {
                 </Link>
               </div>
 
-              {/* Grid */}
-              <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-5">
-                {displayedCourses.map((course) => {
-                  const isTools = (course.categories || [course.category]).includes('Tools and Upskills');
-                  const isFree = (course.categories || [course.category]).some((c) => normalizeCategoryName(c) === 'Free Learning') || course.price === 0;
+              {programsLoading ? (
+                <CourseSkeleton count={6} />
+              ) : programsError ? (
+                <div className="py-10 px-4 text-center bg-white border border-rose-200 rounded-2xl space-y-3">
+                  <p className="text-xs text-rose-600 font-bold">Unable to load programs</p>
+                  <p className="text-[11px] text-slate-500">{programsError}</p>
+                  <button
+                    onClick={() => loadHomePrograms()}
+                    className="btn-primary px-4 py-2 text-xs font-bold rounded-lg inline-flex items-center gap-1.5 cursor-pointer"
+                  >
+                    <Sparkles className="w-3.5 h-3.5" />
+                    <span>Try Again</span>
+                  </button>
+                </div>
+              ) : displayedPrograms.length === 0 ? (
+                <div className="py-12 text-center text-slate-500 text-xs bg-slate-50 border border-slate-200 rounded-2xl">
+                  No courses available in this category.
+                </div>
+              ) : (
+                <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-5">
+                  {displayedPrograms.map((course) => {
+                    const isFree = (course.categories || [course.category]).some((c) => normalizeCategoryName(c) === 'Free Learning') || course.price === 0;
                   return (
                     <div
                       key={course.id}
                       onClick={() => navigate(`/courses/${course.slug}`)}
-                      className="premium-card cursor-pointer flex flex-col justify-between overflow-hidden group bg-white border border-slate-200 rounded-2xl shadow-2xs hover:border-purple-300 hover:shadow-md transition-all"
+                      className="cursor-pointer flex flex-col justify-between overflow-hidden group bg-white border border-slate-200 rounded-2xl shadow-2xs hover:border-purple-300 hover:shadow-md transition-all"
                     >
-                      {/* Course Image */}
                       <div className="relative aspect-[16/10] overflow-hidden bg-slate-100">
                         <img
-                          src={course.image}
-                          alt={course.title}
+                          src={getCacheBustedImageUrl(course.image, course.updatedAt || course.imageUpdatedAt)}
+                          alt={`${course.title} - Edqoo online course`}
                           className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                           loading="lazy"
                         />
@@ -660,7 +774,6 @@ export const Home: React.FC = () => {
                         ) : null}
                       </div>
 
-                      {/* Card Content Details */}
                       <div className="p-4 flex-1 flex flex-col justify-between space-y-3 text-left">
                         <div className="space-y-1.5">
                           <h3 className="font-display font-bold text-sm text-slate-950 group-hover:text-purple-600 transition-colors line-clamp-2">
@@ -673,9 +786,8 @@ export const Home: React.FC = () => {
                           </p>
                         </div>
 
-                        {/* Skills Tags */}
                         <div className="flex flex-wrap gap-1">
-                          {course.skills.slice(0, 3).map((skill) => (
+                          {(course.skills || []).slice(0, 3).map((skill) => (
                             <span
                               key={skill}
                               className="px-1.5 py-0.5 bg-purple-50/70 border border-purple-100 text-purple-800 text-[9px] font-semibold rounded"
@@ -683,37 +795,24 @@ export const Home: React.FC = () => {
                               {skill}
                             </span>
                           ))}
-                          {course.skills.length > 3 && (
+                          {(course.skills || []).length > 3 && (
                             <span className="px-1.5 py-0.5 bg-slate-50 text-slate-400 text-[9px] font-medium rounded">
-                              +{course.skills.length - 3}
+                              +{(course.skills || []).length - 3}
                             </span>
                           )}
                         </div>
 
-                        {/* Course Metadata (Duration, Live Hours, Rating) */}
                         <div className="flex items-center justify-between text-[11px] text-slate-500 font-semibold border-t border-slate-100 pt-2.5">
                           <span className="flex items-center gap-1 font-bold text-slate-700">
                             <Clock className="w-3.5 h-3.5 text-purple-600" />
                             {course.duration}
                           </span>
-                          {course.liveHours ? (
-                            <span className="flex items-center gap-1 text-purple-700 font-bold">
-                              <BookOpen className="w-3.5 h-3.5 text-purple-500" />
-                              {course.liveHours}
-                            </span>
-                          ) : (
-                            <span className="flex items-center gap-1">
-                              <BookOpen className="w-3.5 h-3.5 text-slate-400" />
-                              {isFree ? 'Free Learning' : isTools ? 'Executive' : 'Master Track'}
-                            </span>
-                          )}
                           <span className="flex items-center gap-1 text-amber-500 font-bold">
                             <Star className="w-3.5 h-3.5 fill-current" />
-                            {course.rating > 0 ? course.rating : '4.9'}
+                            {course.rating > 0 ? course.rating.toFixed(1) : '4.9'}
                           </span>
                         </div>
 
-                        {/* Action & Pricing Footer */}
                         <div className="pt-3 border-t border-slate-100 flex items-center justify-between gap-2">
                           <div className="flex items-center gap-1.5 w-full">
                             <button
@@ -726,19 +825,10 @@ export const Home: React.FC = () => {
                                   categories: course.categories
                                 });
                               }}
-                              className="btn-primary flex-1 py-1.5 text-[10px] font-bold rounded-lg inline-flex items-center justify-center gap-1 shadow-2xs"
+                              className="btn-primary flex-1 py-1.5 text-[10px] font-bold rounded-lg inline-flex items-center justify-center gap-1 shadow-2xs cursor-pointer"
                             >
-                              {isFree ? (
-                                <>
-                                  <BookOpen className="w-3 h-3" />
-                                  <span>Enquire Now</span>
-                                </>
-                              ) : (
-                                <>
-                                  <PhoneCall className="w-3 h-3" />
-                                  <span>Enquire Now</span>
-                                </>
-                              )}
+                              <PhoneCall className="w-3 h-3" />
+                              <span>Enquire Now</span>
                             </button>
                             <Link
                               to={`/courses/${course.slug}`}
@@ -755,6 +845,7 @@ export const Home: React.FC = () => {
                   );
                 })}
               </div>
+            )}
 
             </div>
           </div>
@@ -762,21 +853,105 @@ export const Home: React.FC = () => {
       </section>
 
       {/* ========================================================================= */}
-      {/* 5. ANIMATED STATISTICS SECTION */}
+      {/* 5. BUILD REAL-WORLD PROJECTS SHOWCASE SECTION                             */}
+      {/* ========================================================================= */}
+      <section className="section-padding bg-slate-50 border-b border-slate-200">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-8">
+          
+          <div className="text-center max-w-3xl mx-auto space-y-2">
+            <span className="text-purple-600 text-xs font-extrabold tracking-widest uppercase block">
+              PORTFOLIO-FIRST LEARNING
+            </span>
+            <h2 className="text-2xl sm:text-3xl lg:text-4xl font-display font-extrabold text-slate-950">
+              Build Real-World Projects
+            </h2>
+            <p className="text-slate-500 text-xs sm:text-sm leading-relaxed">
+              Every course emphasizes production implementation. Build high-impact capstone projects across Data Science, AI, Power BI, and NLP.
+            </p>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {DATA_SCIENCE_AI_PROJECTS.slice(0, 6).map((proj) => (
+              <div
+                key={proj.id}
+                className="bg-white border border-slate-200 rounded-2xl overflow-hidden shadow-2xs hover:shadow-md transition-all flex flex-col justify-between group"
+              >
+                <div className="relative aspect-[16/10] overflow-hidden bg-slate-100">
+                  <img
+                    src={proj.image || proj.imageUrl}
+                    alt={proj.imageAlt || proj.title}
+                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                    loading="lazy"
+                  />
+                  <span className="absolute top-3 left-3 px-2.5 py-1 bg-slate-950/80 backdrop-blur-xs text-white text-[10px] font-bold rounded-lg uppercase">
+                    {proj.category}
+                  </span>
+                </div>
+
+                <div className="p-5 flex-1 flex flex-col justify-between space-y-3">
+                  <div className="space-y-1.5">
+                    <h3 className="font-display font-bold text-base text-slate-900 leading-snug">
+                      {proj.title}
+                    </h3>
+                    <p className="text-xs text-slate-500 leading-relaxed line-clamp-3">
+                      {proj.description}
+                    </p>
+                  </div>
+
+                  <div className="flex flex-wrap gap-1 pt-2 border-t border-slate-100">
+                    {proj.technologies.map((tech, tIdx) => (
+                      <span
+                        key={tIdx}
+                        className="px-2 py-0.5 bg-purple-50 text-purple-700 text-[10px] font-semibold rounded-md border border-purple-100"
+                      >
+                        {tech}
+                      </span>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+
+          <div className="text-center pt-4">
+            <Link
+              to="/programs/data-science-and-ai"
+              className="btn-primary px-6 py-3 text-xs font-bold rounded-xl shadow-md inline-flex items-center gap-2"
+            >
+              <span>Explore All Capstone Projects</span>
+              <ArrowRight className="w-4 h-4" />
+            </Link>
+          </div>
+        </div>
+      </section>
+
+      {/* ========================================================================= */}
+      {/* 6. LEARN FROM INDUSTRY EXPERTS & STATISTICS                               */}
       {/* ========================================================================= */}
       <section
         ref={statsSectionRef}
-        className="bg-gradient-to-r from-purple-800 via-purple-600 to-purple-900 text-white py-12 sm:py-16 relative overflow-hidden"
+        className="bg-gradient-to-r from-purple-800 via-purple-700 to-indigo-900 text-white py-14 sm:py-18 relative overflow-hidden"
       >
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
-          <div className="grid grid-cols-2 lg:grid-cols-4 gap-6 sm:gap-8 text-center">
-            
-            {/* Stat 1 */}
-            <div className="space-y-1.5 p-4 rounded-xl bg-white/10 backdrop-blur-xs border border-white/15">
-              <div className="w-10 h-10 rounded-lg bg-white/10 flex items-center justify-center mx-auto text-white mb-2">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-8 relative z-10">
+          
+          <div className="text-center max-w-2xl mx-auto space-y-2">
+            <span className="text-purple-200 text-xs font-bold tracking-wider uppercase block">
+              WORLD-CLASS MENTORSHIP
+            </span>
+            <h2 className="text-2xl sm:text-3xl lg:text-4xl font-display font-extrabold text-white">
+              Learn From Industry Experts
+            </h2>
+            <p className="text-purple-100 text-xs sm:text-sm">
+              Our faculty members and mentors bring decades of engineering, AI research, and data architecture expertise to your learning journey.
+            </p>
+          </div>
+
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-6 sm:gap-8 text-center pt-4">
+            <div className="space-y-1.5 p-5 rounded-2xl bg-white/10 backdrop-blur-xs border border-white/15">
+              <div className="w-10 h-10 rounded-xl bg-white/15 flex items-center justify-center mx-auto text-white mb-2">
                 <Users className="w-5 h-5" />
               </div>
-              <span className="text-2xl sm:text-3xl lg:text-4xl font-display font-extrabold text-white block">
+              <span className="text-2xl sm:text-3xl lg:text-4xl font-display font-black text-white block">
                 {statsAnimated ? '2,500+' : '0'}
               </span>
               <span className="text-xs font-semibold text-purple-100 uppercase tracking-wider block">
@@ -784,12 +959,11 @@ export const Home: React.FC = () => {
               </span>
             </div>
 
-            {/* Stat 2 */}
-            <div className="space-y-1.5 p-4 rounded-xl bg-white/10 backdrop-blur-xs border border-white/15">
-              <div className="w-10 h-10 rounded-lg bg-white/10 flex items-center justify-center mx-auto text-white mb-2">
+            <div className="space-y-1.5 p-5 rounded-2xl bg-white/10 backdrop-blur-xs border border-white/15">
+              <div className="w-10 h-10 rounded-xl bg-white/15 flex items-center justify-center mx-auto text-white mb-2">
                 <Star className="w-5 h-5" />
               </div>
-              <span className="text-2xl sm:text-3xl lg:text-4xl font-display font-extrabold text-white block">
+              <span className="text-2xl sm:text-3xl lg:text-4xl font-display font-black text-white block">
                 {statsAnimated ? '4.9 / 5.0' : '0.0'}
               </span>
               <span className="text-xs font-semibold text-purple-100 uppercase tracking-wider block">
@@ -797,12 +971,11 @@ export const Home: React.FC = () => {
               </span>
             </div>
 
-            {/* Stat 3 */}
-            <div className="space-y-1.5 p-4 rounded-xl bg-white/10 backdrop-blur-xs border border-white/15">
-              <div className="w-10 h-10 rounded-lg bg-white/10 flex items-center justify-center mx-auto text-white mb-2">
+            <div className="space-y-1.5 p-5 rounded-2xl bg-white/10 backdrop-blur-xs border border-white/15">
+              <div className="w-10 h-10 rounded-xl bg-white/15 flex items-center justify-center mx-auto text-white mb-2">
                 <Briefcase className="w-5 h-5" />
               </div>
-              <span className="text-2xl sm:text-3xl lg:text-4xl font-display font-extrabold text-white block">
+              <span className="text-2xl sm:text-3xl lg:text-4xl font-display font-black text-white block">
                 {statsAnimated ? '3 Guaranteed' : '0'}
               </span>
               <span className="text-xs font-semibold text-purple-100 uppercase tracking-wider block">
@@ -810,140 +983,134 @@ export const Home: React.FC = () => {
               </span>
             </div>
 
-            {/* Stat 4 */}
-            <div className="space-y-1.5 p-4 rounded-xl bg-white/10 backdrop-blur-xs border border-white/15">
-              <div className="w-10 h-10 rounded-lg bg-white/10 flex items-center justify-center mx-auto text-white mb-2">
+            <div className="space-y-1.5 p-5 rounded-2xl bg-white/10 backdrop-blur-xs border border-white/15">
+              <div className="w-10 h-10 rounded-xl bg-white/15 flex items-center justify-center mx-auto text-white mb-2">
                 <Award className="w-5 h-5" />
               </div>
-              <span className="text-2xl sm:text-3xl lg:text-4xl font-display font-extrabold text-white block">
-                {statsAnimated ? '10 Programs' : '0'}
+              <span className="text-2xl sm:text-3xl lg:text-4xl font-display font-black text-white block">
+                {statsAnimated ? '100% Practical' : '0'}
               </span>
               <span className="text-xs font-semibold text-purple-100 uppercase tracking-wider block">
-                Master & Executive Tracks
+                Lab-Driven Curriculum
               </span>
             </div>
-
           </div>
+
+          <div className="text-center pt-2">
+            <Link
+              to="/instructors"
+              className="px-5 py-2.5 bg-white text-purple-900 hover:bg-purple-50 font-bold text-xs rounded-xl shadow-md transition-colors inline-flex items-center gap-1.5"
+            >
+              <span>Meet Our Faculty & Mentors</span>
+              <ArrowRight className="w-3.5 h-3.5" />
+            </Link>
+          </div>
+
         </div>
       </section>
 
       {/* ========================================================================= */}
-      {/* 6. "WHY CHOOSE US" / PEDAGOGY */}
+      {/* 7. TOOLS & UPSKILLS SECTION                                               */}
       {/* ========================================================================= */}
-      {/* <section className="bg-slate-50 border-b border-slate-200 py-16 sm:py-20">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center max-w-3xl mx-auto mb-12 space-y-2">
-            <span className="text-purple-600 text-xs font-extrabold tracking-widest uppercase block">
-              OUR PEDAGOGY
-            </span>
-            <h2 className="text-2xl sm:text-3xl lg:text-4xl font-display font-extrabold text-slate-950">
-              Discover What Makes Edqoo Unique
-            </h2>
-            <p className="text-slate-500 text-xs sm:text-sm leading-relaxed">
-              We focus on building functional ability through hands-on labs, NIT faculty mentoring, and verified industry credentials.
-            </p>
+      <section className="section-padding bg-white border-b border-slate-200">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-8">
+          <div className="flex flex-col md:flex-row items-center justify-between gap-4">
+            <div className="space-y-1 text-center md:text-left">
+              <span className="text-purple-600 text-xs font-bold tracking-widest uppercase block">
+                EXECUTIVE FAST-TRACKS
+              </span>
+              <h2 className="text-2xl sm:text-3xl font-display font-extrabold text-slate-950">
+                Tools & Upskills
+              </h2>
+              <p className="text-slate-500 text-xs sm:text-sm max-w-xl">
+                Master Python, Generative AI, Excel, Power BI, MS Office, and Prompt Engineering in focused, practical modules.
+              </p>
+            </div>
+            <Link
+              to="/tools-and-upskills"
+              className="btn-primary px-5 py-2.5 text-xs font-bold rounded-xl shadow-2xs inline-flex items-center gap-1.5"
+            >
+              <span>View Tools & Upskills</span>
+              <ArrowRight className="w-3.5 h-3.5" />
+            </Link>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
             {[
-              // {
-              //   title: 'NIT Faculty & Industry Practitioners',
-              //   icon: GraduationCap,
-              //   desc: 'Learn directly from NIT faculty and seasoned technology leaders who architect enterprise systems.'
-              // },
-              // {
-              //   title: 'theccpeeps Certification & Campus Immersion',
-              //   icon: Award,
-              //   desc: 'Gain verified industry credentials and participate in an exclusive 2-day campus immersion experience.'
-              // },
-              {
-                title: 'Career Placement & 24×7 Support',
-                icon: Briefcase,
-                desc: 'Access 3 guaranteed job interviews upon placement pool entry, backed by our dedicated learning management team.'
-              }
-            ].map((card, idx) => {
-              const IconComp = card.icon;
+              { name: 'Python', desc: 'Syntax & Automation', link: '/programs/python', icon: Code2 },
+              { name: 'Generative AI', desc: 'ChatGPT & Workflows', link: '/courses/generative-ai-chatgpt', icon: Sparkles },
+              { name: 'Excel', desc: 'Formulas & Models', link: '/courses/advance-executive-excel', icon: BarChart3 },
+              { name: 'Power BI', desc: 'KPI Dashboards', link: '/courses/advance-executive-power-bi', icon: BarChart3 },
+              { name: 'MS Office', desc: 'Productivity Suite', link: '/courses/advance-executive-ms-office', icon: Wrench },
+              { name: 'Prompt Eng.', desc: 'AI Engineering', link: '/courses/advance-executive-prompt-engineering', icon: Sparkles }
+            ].map((tool, idx) => {
+              const ToolIcon = tool.icon;
               return (
-                <div
+                <Link
                   key={idx}
-                  className="bg-white border border-slate-200 p-6 rounded-2xl shadow-2xs hover:border-purple-400 hover:shadow-md transition-all group text-left"
+                  to={tool.link}
+                  className="p-4 bg-slate-50 border border-slate-200 rounded-2xl hover:border-purple-300 hover:bg-purple-50/50 hover:shadow-xs transition-all text-center space-y-2 group block"
                 >
-                  <div className="w-12 h-12 rounded-xl bg-purple-50 border border-purple-200 flex items-center justify-center text-purple-600 mb-4 group-hover:scale-105 transition-transform">
-                    <IconComp className="w-6 h-6" />
+                  <div className="w-10 h-10 rounded-xl bg-white border border-slate-200 flex items-center justify-center mx-auto text-purple-600 group-hover:scale-105 transition-transform">
+                    <ToolIcon className="w-5 h-5" />
                   </div>
-                  <h3 className="font-display font-bold text-base text-slate-950 mb-2">
-                    {card.title}
-                  </h3>
-                  <p className="text-xs text-slate-500 leading-relaxed">
-                    {card.desc}
-                  </p>
-                </div>
+                  <div>
+                    <span className="font-display font-bold text-xs text-slate-900 block group-hover:text-purple-600 transition-colors">
+                      {tool.name}
+                    </span>
+                    <span className="text-[10px] text-slate-500 block">
+                      {tool.desc}
+                    </span>
+                  </div>
+                </Link>
               );
             })}
           </div>
         </div>
-      </section> */}
+      </section>
 
       {/* ========================================================================= */}
-      {/* 7. PROMOTIONAL LEAD BANNER */}
+      {/* 8. FREQUENTLY ASKED QUESTIONS SECTION (FAQ SEO)                           */}
       {/* ========================================================================= */}
-      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-        <div className="bg-gradient-to-r from-purple-800 via-purple-700 to-purple-900 text-white rounded-3xl p-8 sm:p-12 shadow-xl relative overflow-hidden grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
-          <div className="lg:col-span-8 space-y-3.5 text-left">
-            <span className="inline-block px-3 py-1 bg-white/20 border border-white/30 text-white text-[10px] font-bold uppercase tracking-wider rounded-md backdrop-blur-xs">
-              Career Advisory
+      <section className="section-padding bg-slate-50 border-b border-slate-200">
+        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 space-y-8">
+          
+          <div className="text-center space-y-2">
+            <span className="text-purple-600 text-xs font-bold tracking-widest uppercase block">
+              HAVE QUESTIONS?
             </span>
-            <h3 className="text-2xl sm:text-3xl font-display font-extrabold text-white">
-              Enquire Now Today — Accelerate Your Career
-            </h3>
-            <p className="text-purple-100 text-xs sm:text-sm leading-relaxed max-w-xl">
-              Connect with our learning advisors for a personalized track assessment, course roadmap, and customized corporate training options.
+            <h2 className="text-2xl sm:text-3xl lg:text-4xl font-display font-extrabold text-slate-950">
+              Frequently Asked Questions
+            </h2>
+            <p className="text-slate-500 text-xs sm:text-sm max-w-xl mx-auto">
+              Get answers to common queries regarding course structure, batch timings, hands-on projects, and placement assistance.
             </p>
-            <div className="flex flex-wrap gap-3 pt-2">
-              <button
-                type="button"
-                onClick={() => openEnquiryModal()}
-                className="btn-primary bg-white text-purple-800 border-white hover:bg-purple-50 hover:text-purple-900 px-6 py-2.5 text-xs font-bold rounded-xl shadow-md"
-              >
-                Request Free Advisory Session
-              </button>
-              <Link
-                to="/courses"
-                className="btn-secondary bg-transparent text-white border-white/40 hover:bg-white/15 px-6 py-2.5 text-xs font-bold rounded-xl"
-              >
-                Explore All Programs
-              </Link>
-            </div>
           </div>
 
-          <div className="lg:col-span-4 hidden lg:flex justify-end">
-            <div className="w-48 h-48 rounded-2xl overflow-hidden border-2 border-white/20 shadow-2xl">
-              <img
-                src="https://images.unsplash.com/photo-1573497019940-1c28c88b4f3e?q=80&w=400&auto=format&fit=crop"
-                alt="Advisory session"
-                className="w-full h-full object-cover"
-              />
-            </div>
+          <div className="bg-white border border-slate-200 p-6 rounded-2xl shadow-2xs">
+            <Accordion items={accordionHomeFaqs} />
           </div>
+
         </div>
       </section>
 
-    
-
       {/* ========================================================================= */}
-      {/* 9. FINAL CALL TO ACTION */}
+      {/* 9. START YOUR LEARNING JOURNEY (FINAL CALL TO ACTION)                      */}
       {/* ========================================================================= */}
       <section className="bg-gradient-to-b from-white via-purple-50/40 to-slate-50 text-slate-950 py-16 text-center border-t border-slate-200 relative">
         <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 space-y-5">
+          <span className="px-3 py-1 bg-purple-100 text-purple-800 text-xs font-bold rounded-full uppercase tracking-wider inline-block">
+            Take the Next Step
+          </span>
           <h2 className="text-2xl sm:text-3xl lg:text-4xl font-display font-extrabold text-slate-950">
-            Ready to Build Your Next Career Milestone?
+            Start Your Learning Journey
           </h2>
           <p className="text-slate-600 text-xs sm:text-sm leading-relaxed max-w-xl mx-auto font-normal">
-            Join ambitious learners building verified technological competencies across Master Programs and Executive Tools tracks. Speak with an advisor today.
+            Join ambitious learners building verified technological competencies across Data Science, Artificial Intelligence, Python, and Data Analytics.
           </p>
           <div className="flex justify-center gap-3.5 pt-2">
             <Link
-              to="/courses"
+              to="/programs"
               className="btn-primary px-8 py-3.5 text-xs sm:text-sm font-bold rounded-xl shadow-md"
             >
               Explore Programs
@@ -951,7 +1118,7 @@ export const Home: React.FC = () => {
             <button
               type="button"
               onClick={() => openEnquiryModal()}
-              className="btn-secondary px-8 py-3.5 text-xs sm:text-sm font-bold rounded-xl shadow-2xs"
+              className="btn-secondary px-8 py-3.5 text-xs sm:text-sm font-bold rounded-xl shadow-2xs cursor-pointer"
             >
               Speak to Advisor
             </button>

@@ -14,11 +14,11 @@ import {
   RefreshCw,
   Mail,
   Phone,
-  ChevronRight,
   ArrowRight,
   CheckCircle2
 } from 'lucide-react';
 import { SEO } from '../../components/common/SEO';
+import { Breadcrumbs } from '../../components/common/Breadcrumbs';
 import { useEnquiry } from '../../context/EnquiryContext';
 
 export const PrivacyPolicy: React.FC = () => {
@@ -52,8 +52,8 @@ export const PrivacyPolicy: React.FC = () => {
   return (
     <div className="bg-slate-50 min-h-screen text-slate-900 text-left">
       <SEO
-        title="Privacy Policy"
-        description="Learn how EDQOO collects, utilizes, safeguards, and respects your personal data and digital privacy across our educational platform."
+        title="Privacy Policy | Edqoo"
+        description="Learn how Edqoo collects, uses, protects, and manages your personal information across our courses, portal, and educational services."
         canonical="/privacy-policy"
       />
 
@@ -77,14 +77,8 @@ export const PrivacyPolicy: React.FC = () => {
         </div>
       </section>
 
-      {/* Breadcrumb Bar */}
-      <div className="border-b border-slate-200 bg-white">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-2.5 text-xs text-slate-500 flex items-center gap-2">
-          <Link to="/" className="hover:text-purple-600 transition-colors">Home</Link>
-          <ChevronRight className="w-3.5 h-3.5 text-slate-400" />
-          <span className="text-slate-900 font-semibold">Privacy Policy</span>
-        </div>
-      </div>
+      {/* Breadcrumbs */}
+      <Breadcrumbs items={[{ label: 'Privacy Policy' }]} />
 
       {/* Main Content Layout */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">

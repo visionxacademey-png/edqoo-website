@@ -9,7 +9,8 @@ import {
   Layers,
   CheckCircle2,
   AlertCircle,
-  Tag
+  Tag,
+  Upload
 } from 'lucide-react';
 import { courseService } from '../../services/courseService';
 import { COMMON_PROGRAM_FEATURES, PROGRAM_CATEGORIES } from '../../data/courses';
@@ -49,13 +50,19 @@ export const AdminCourseForm: React.FC = () => {
   const [originalPrice, setOriginalPrice] = useState<number>(69999);
   const [status, setStatus] = useState<'available' | 'coming-soon'>('available');
   const [featured, setFeatured] = useState(false);
-  const [image, setImage] = useState('https://images.unsplash.com/photo-1551288049-bebda4e38f71?q=80&w=800&auto=format&fit=crop');
+  const [image, setImage] = useState('');
   const [description, setDescription] = useState('');
   const [outcome, setOutcome] = useState('');
   const [features, setFeatures] = useState<string[]>(COMMON_PROGRAM_FEATURES);
   const [rating, setRating] = useState<number>(4.9);
   const [students, setStudents] = useState<number>(350);
   const [projects, setProjects] = useState<Array<string | ProjectItem>>([]);
+
+  // SEO Fields (Prompt Sections 30 & 31)
+  const [seoTitle, setSeoTitle] = useState('');
+  const [seoDescription, setSeoDescription] = useState('');
+  const [seoKeywords, setSeoKeywords] = useState<string[]>([]);
+  const [seoKeywordInput, setSeoKeywordInput] = useState('');
 
   // Dynamic Lists
   const [skills, setSkills] = useState<string[]>([
@@ -124,7 +131,25 @@ export const AdminCourseForm: React.FC = () => {
             if (course.projects) setProjects(course.projects);
             if (course.whoIsItFor) setWhoIsItFor(course.whoIsItFor);
             if (course.requirements) setRequirements(course.requirements);
-            if (course.modules && course.modules.length > 0) setModules(course.modules);
+            if (course.seoTitle) setSeoTitle(course.seoTitle);
+            if (course.seoDescription) setSeoDescription(course.seoDescription);
+            if (course.seoKeywords) setSeoKeywords(Array.isArray(course.seoKeywords) ? course.seoKeywords : [course.seoKeywords]);
+            if (course.modules && course.modules.length > 0) {
+              setModules(course.modules);
+            } else if (course.curriculum && course.curriculum.length > 0) {
+              const converted = course.curriculum.map((sec, idx) => ({
+                id: `mod-${idx + 1}`,
+                title: sec.title,
+                description: sec.description || '',
+                lessons: (sec.topics || []).map((t, tIdx) => ({
+                  id: `les-${idx + 1}-${tIdx + 1}`,
+                  title: t,
+                  duration: '60 mins',
+                  isPreview: idx === 0 && tIdx === 0
+                }))
+              }));
+              setModules(converted);
+            }
           } else {
             showToast('Course not found.', 'error');
           }
@@ -153,6 +178,20 @@ export const AdminCourseForm: React.FC = () => {
     } else {
       setCategories([...categories, cat]);
     }
+  };
+
+  // SEO Keyword Handlers
+  const handleAddSeoKeyword = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!seoKeywordInput.trim()) return;
+    if (!seoKeywords.includes(seoKeywordInput.trim())) {
+      setSeoKeywords([...seoKeywords, seoKeywordInput.trim()]);
+    }
+    setSeoKeywordInput('');
+  };
+
+  const handleRemoveSeoKeyword = (kwToRemove: string) => {
+    setSeoKeywords(seoKeywords.filter((k) => k !== kwToRemove));
   };
 
   // Skills handlers
@@ -249,6 +288,27 @@ export const AdminCourseForm: React.FC = () => {
     0
   );
 
+  const handleImageFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    if (file.size > 4 * 1024 * 1024) {
+      showToast('Image size exceeds 4MB limit.', 'error');
+      return;
+    }
+
+    console.log('IMAGE UPDATE STARTED', { fileName: file.name, fileSize: file.size });
+    const reader = new FileReader();
+    reader.onload = () => {
+      const dataUrl = reader.result as string;
+      console.log('IMAGE UPLOAD SUCCESS', { fileName: file.name, size: file.size });
+      console.log('NEW IMAGE URL:', dataUrl.substring(0, 50) + '...');
+      setImage(dataUrl);
+      showToast('Image selected and loaded into preview.');
+    };
+    reader.readAsDataURL(file);
+  };
+
   // Submit Handler
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -258,20 +318,28 @@ export const AdminCourseForm: React.FC = () => {
     }
 
     setLoading(true);
+    const trimmedImage = image.trim();
+    console.log('COURSE_FORM_SUBMIT', { isEditing, id, hasImage: Boolean(trimmedImage) });
+
+    const convertedCurriculum = modules.map((m) => ({
+      title: m.title.trim(),
+      description: m.description?.trim() || '',
+      topics: (m.lessons || []).map((l) => l.title.trim())
+    }));
 
     const payload: Partial<Course> = {
       title: title.trim(),
       slug: slugify(slug || title),
-      category: categories[0],
+      category: categories[0] || 'Tools and Upskills',
       categories,
       level,
       duration,
-      liveHours,
+      liveHours: liveHours ? liveHours.trim() : undefined,
       price: Number(price),
       originalPrice: Number(originalPrice) || Number(price),
       status,
       featured,
-      image,
+      ...(trimmedImage ? { image: trimmedImage } : {}),
       description: description.trim(),
       outcome: outcome.trim() || undefined,
       features: features.length > 0 ? features : COMMON_PROGRAM_FEATURES,
@@ -282,19 +350,31 @@ export const AdminCourseForm: React.FC = () => {
       projects: projects.length > 0 ? projects : undefined,
       whoIsItFor,
       requirements,
-      modules
+      modules,
+      curriculum: convertedCurriculum,
+      seoTitle: seoTitle.trim() || undefined,
+      seoDescription: seoDescription.trim() || undefined,
+      seoKeywords: seoKeywords.length > 0 ? seoKeywords : undefined
     };
 
     try {
       if (isEditing && id) {
         const res = await courseService.updateCourse(id, payload);
         if (res.success) {
+          if (res.course?.image) {
+            setImage(res.course.image);
+          }
+          console.log('[COURSE_FORM_SUCCESS]', { id, updatedImage: res.course?.image });
           showToast('Course updated successfully!');
           setTimeout(() => navigate('/admin/courses'), 1200);
         }
       } else {
         const res = await courseService.createCourse(payload);
         if (res.success) {
+          if (res.course?.image) {
+            setImage(res.course.image);
+          }
+          console.log('[COURSE_FORM_SUCCESS]', { id: res.course?.id, newImage: res.course?.image });
           showToast('Course created successfully!');
           setTimeout(() => navigate('/admin/courses'), 1200);
         }
@@ -596,27 +676,57 @@ export const AdminCourseForm: React.FC = () => {
           </div>
 
           <div className="space-y-4">
-            {/* Image URL with preview */}
+            {/* Image URL with file upload and live preview */}
             <div>
               <label className="text-xs font-bold text-slate-300 block mb-1">
-                Course Banner Image URL
+                Course Banner Image <span className="text-slate-500 font-normal">(File upload or Image URL)</span>
               </label>
-              <div className="flex gap-3">
-                <input
-                  type="url"
-                  placeholder="https://images.unsplash.com/..."
-                  value={image}
-                  onChange={(e) => setImage(e.target.value)}
-                  className="flex-1 px-3.5 py-2.5 bg-slate-950 border border-slate-800 rounded-xl text-xs text-white focus:outline-none focus:border-purple-500"
-                />
-                {image && (
-                  <img
-                    src={image}
-                    alt="Preview"
-                    className="w-12 h-10 rounded-lg object-cover border border-slate-700 flex-shrink-0"
-                    onError={(e) => ((e.target as HTMLElement).style.display = 'none')}
-                  />
-                )}
+              <div className="space-y-3">
+                <div className="flex flex-col sm:flex-row gap-3 items-start sm:items-center">
+                  <div className="flex-1 w-full flex gap-2">
+                    <input
+                      type="text"
+                      placeholder="https://images.unsplash.com/... or click Upload"
+                      value={image}
+                      onChange={(e) => {
+                        setImage(e.target.value);
+                        console.log('IMAGE UPDATE STARTED', { newUrl: e.target.value });
+                      }}
+                      className="flex-1 px-3.5 py-2.5 bg-slate-950 border border-slate-800 rounded-xl text-xs text-white focus:outline-none focus:border-purple-500 font-mono"
+                    />
+                    <label className="cursor-pointer px-3.5 py-2.5 bg-slate-800 hover:bg-slate-700 border border-slate-700 rounded-xl text-xs font-semibold text-slate-200 flex items-center gap-1.5 transition-colors shrink-0">
+                      <Upload className="w-3.5 h-3.5 text-purple-400" />
+                      <span>Upload</span>
+                      <input
+                        type="file"
+                        accept="image/*"
+                        onChange={handleImageFileChange}
+                        className="hidden"
+                      />
+                    </label>
+                  </div>
+                  {image && (
+                    <div className="flex items-center gap-2 p-1.5 bg-slate-950 border border-slate-800 rounded-xl shrink-0">
+                      <img
+                        src={image}
+                        alt="Preview"
+                        className="w-16 h-11 rounded-lg object-cover border border-slate-700 flex-shrink-0"
+                        onError={(e) => ((e.target as HTMLElement).style.display = 'none')}
+                      />
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setImage('');
+                          console.log('IMAGE REMOVED');
+                        }}
+                        className="p-1 hover:bg-slate-800 rounded text-slate-400 hover:text-red-400 text-xs px-2"
+                        title="Remove image"
+                      >
+                        ✕
+                      </button>
+                    </div>
+                  )}
+                </div>
               </div>
             </div>
 
@@ -923,6 +1033,113 @@ export const AdminCourseForm: React.FC = () => {
                 </div>
               </div>
             ))}
+          </div>
+        </div>
+
+        {/* SECTION 8: Search Engine Optimization (SEO) Controls */}
+        <div className="p-6 rounded-2xl bg-slate-900/90 border border-slate-800 space-y-4">
+          <div className="flex items-center justify-between pb-2 border-b border-slate-800">
+            <div className="flex items-center gap-2">
+              <span className="text-sm font-bold text-white uppercase tracking-wider">
+                8. Search Engine Optimization (SEO) Controls
+              </span>
+            </div>
+            <span className="text-[11px] text-purple-400 font-semibold">
+              Admins Only • Auto-fallback if empty
+            </span>
+          </div>
+
+          <div className="space-y-4">
+            {/* Custom SEO Title */}
+            <div>
+              <div className="flex justify-between items-center mb-1">
+                <label className="text-xs font-bold text-slate-300">
+                  Custom SEO Page Title
+                </label>
+                <span className={`text-[11px] font-mono ${seoTitle.length > 60 ? 'text-amber-400' : 'text-slate-400'}`}>
+                  {seoTitle.length}/60 chars (Recommended: 50–60)
+                </span>
+              </div>
+              <input
+                type="text"
+                placeholder={`Default: ${title ? `${title} | Online Course | Edqoo` : 'Course Title | Online Course | Edqoo'}`}
+                value={seoTitle}
+                onChange={(e) => setSeoTitle(e.target.value)}
+                className="w-full px-3.5 py-2.5 bg-slate-950 border border-slate-800 rounded-xl text-xs text-white placeholder-slate-500 focus:outline-none focus:border-purple-500"
+              />
+              <p className="text-[11px] text-slate-400 mt-1">
+                Leave empty to automatically generate from the course title.
+              </p>
+            </div>
+
+            {/* Custom SEO Meta Description */}
+            <div>
+              <div className="flex justify-between items-center mb-1">
+                <label className="text-xs font-bold text-slate-300">
+                  Custom Meta Description
+                </label>
+                <span className={`text-[11px] font-mono ${seoDescription.length > 160 ? 'text-amber-400' : 'text-slate-400'}`}>
+                  {seoDescription.length}/160 chars (Recommended: 140–160)
+                </span>
+              </div>
+              <textarea
+                rows={2}
+                placeholder={`Default: Learn ${title || 'this program'} through practical lessons, projects and industry-focused training with Edqoo.`}
+                value={seoDescription}
+                onChange={(e) => setSeoDescription(e.target.value)}
+                className="w-full px-3.5 py-2.5 bg-slate-950 border border-slate-800 rounded-xl text-xs text-white placeholder-slate-500 focus:outline-none focus:border-purple-500 leading-relaxed"
+              />
+              <p className="text-[11px] text-slate-400 mt-1">
+                Keep summary concise and informative for Google search result snippets.
+              </p>
+            </div>
+
+            {/* Target SEO Keywords */}
+            <div>
+              <label className="text-xs font-bold text-slate-300 block mb-1">
+                Target SEO Search Keywords
+              </label>
+              <div className="flex gap-2">
+                <input
+                  type="text"
+                  placeholder="e.g. data science course in Kerala, learn python online India, AI certification"
+                  value={seoKeywordInput}
+                  onChange={(e) => setSeoKeywordInput(e.target.value)}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter') {
+                      e.preventDefault();
+                      handleAddSeoKeyword(e);
+                    }
+                  }}
+                  className="flex-1 px-3.5 py-2 bg-slate-950 border border-slate-800 rounded-xl text-xs text-white placeholder-slate-500 focus:outline-none focus:border-purple-500"
+                />
+                <button
+                  type="button"
+                  onClick={handleAddSeoKeyword}
+                  className="px-3.5 py-2 rounded-xl bg-purple-600 hover:bg-purple-500 text-xs font-bold text-white transition-colors"
+                >
+                  Add Keyword
+                </button>
+              </div>
+
+              <div className="flex flex-wrap gap-2 pt-2">
+                {seoKeywords.map((kw) => (
+                  <span
+                    key={kw}
+                    className="px-2.5 py-1 rounded-lg bg-indigo-950/60 text-indigo-300 border border-indigo-800/80 text-xs font-bold flex items-center gap-1.5"
+                  >
+                    <span>{kw}</span>
+                    <button
+                      type="button"
+                      onClick={() => handleRemoveSeoKeyword(kw)}
+                      className="hover:text-red-400 text-indigo-400 transition-colors"
+                    >
+                      ✕
+                    </button>
+                  </span>
+                ))}
+              </div>
+            </div>
           </div>
         </div>
 

@@ -13,6 +13,7 @@ import {
   FileText
 } from 'lucide-react';
 import type { LeadershipCouncilMember } from '../../types';
+import { getCacheBustedImageUrl } from '../../utils/imageUrl';
 
 interface LeadershipModalProps {
   member: LeadershipCouncilMember | null;
@@ -22,9 +23,11 @@ interface LeadershipModalProps {
 export const LeadershipModal: React.FC<LeadershipModalProps> = ({ member, onClose }) => {
   if (!member) return null;
 
-  const photo =
-    member.profileImage ||
-    'https://images.unsplash.com/photo-1534528741775-53994a69daeb?q=80&w=400&auto=format&fit=crop';
+  const photo = getCacheBustedImageUrl(
+    member.profileImage,
+    member.updatedAt || member.imageUpdatedAt,
+    'https://images.unsplash.com/photo-1534528741775-53994a69daeb?q=80&w=400&auto=format&fit=crop'
+  );
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6 text-left">

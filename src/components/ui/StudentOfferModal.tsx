@@ -119,7 +119,7 @@ export const StudentOfferModal: React.FC = () => {
         setSubmitError(res.message || 'Something went wrong. Please try again.');
       }
     } catch (err: any) {
-      setSubmitError('Something went wrong. Please try again.');
+      setSubmitError(err?.message || 'Something went wrong. Please try again.');
     }
   };
 
@@ -210,7 +210,7 @@ export const StudentOfferModal: React.FC = () => {
                   <div className="pt-6 border-t border-white/10 space-y-2.5 text-xs text-purple-200 relative z-10">
                     <div className="flex items-center gap-2">
                       <CheckCircle2 className="w-4 h-4 text-emerald-400 flex-shrink-0" />
-                      <span>NIT Faculty Mentorship</span>
+                      <span>Faculty Mentorship</span>
                     </div>
                     <div className="flex items-center gap-2">
                       <CheckCircle2 className="w-4 h-4 text-emerald-400 flex-shrink-0" />

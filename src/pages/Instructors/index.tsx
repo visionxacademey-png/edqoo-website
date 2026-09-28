@@ -7,13 +7,14 @@ import {
   BookOpen,
   Search,
   ArrowRight,
-  ChevronRight,
   PhoneCall
 } from 'lucide-react';
 import { instructorService } from '../../services/instructorService';
 import type { Instructor } from '../../types';
 import { SEO } from '../../components/common/SEO';
+import { Breadcrumbs } from '../../components/common/Breadcrumbs';
 import { useEnquiry } from '../../context/EnquiryContext';
+import { getCacheBustedImageUrl } from '../../utils/imageUrl';
 
 export const Instructors: React.FC = () => {
   const [instructors, setInstructors] = useState<Instructor[]>([]);
@@ -63,9 +64,14 @@ export const Instructors: React.FC = () => {
   return (
     <div className="bg-slate-50 min-h-screen text-slate-900 text-left">
       <SEO
-        title="Meet Our Instructors & Faculty Mentors"
-        description="Learn from experienced faculty, industry practitioners, and technology professionals with deep real-world expertise."
+        title="Meet Our Instructors & Mentors | Edqoo Faculty"
+        description="Learn from experienced technology educators, industry practitioners, and AI researchers with deep real-world enterprise expertise on Edqoo."
         canonical="/instructors"
+        keywords="Edqoo instructors, data science mentors, AI trainers India, tech faculty Kerala, python mentors"
+        breadcrumbs={[
+          { name: 'Home', url: '/' },
+          { name: 'Instructors', url: '/instructors' }
+        ]}
       />
 
       {/* Hero Header */}
@@ -78,7 +84,7 @@ export const Instructors: React.FC = () => {
           </div>
 
           <h1 className="text-3xl sm:text-4xl lg:text-5xl font-display font-black text-slate-950 tracking-tight">
-            Meet Our Instructors
+            Meet Our Instructors & Faculty
           </h1>
 
           <p className="text-slate-600 text-sm sm:text-base max-w-2xl mx-auto leading-relaxed">
@@ -89,10 +95,8 @@ export const Instructors: React.FC = () => {
 
       {/* Breadcrumb Bar */}
       <div className="border-b border-slate-200 bg-white">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-2.5 text-xs text-slate-500 flex items-center gap-2">
-          <Link to="/" className="hover:text-purple-600 transition-colors">Home</Link>
-          <ChevronRight className="w-3.5 h-3.5 text-slate-400" />
-          <span className="text-slate-900 font-semibold">Instructors</span>
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-2.5">
+          <Breadcrumbs items={[{ name: 'Instructors', url: '/instructors' }]} />
         </div>
       </div>
 
@@ -171,7 +175,11 @@ export const Instructors: React.FC = () => {
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-8">
             {filteredInstructors.map((inst) => {
-              const photo = inst.profileImage || inst.image || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?q=80&w=400&auto=format&fit=crop';
+              const photo = getCacheBustedImageUrl(
+                inst.profileImage || inst.image,
+                inst.updatedAt || inst.imageUpdatedAt,
+                'https://images.unsplash.com/photo-1534528741775-53994a69daeb?q=80&w=400&auto=format&fit=crop'
+              );
               return (
                 <div
                   key={inst.id}

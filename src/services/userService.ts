@@ -6,7 +6,7 @@ export const userService = {
     try {
       const response = await api.get('/users/profile');
       return response.data;
-    } catch (error) {
+    } catch (_error) {
       console.warn('Backend unavailable, returning client mock profile.');
       const savedUser = localStorage.getItem('Edqoo_user');
       if (savedUser) return JSON.parse(savedUser);
@@ -18,7 +18,7 @@ export const userService = {
     try {
       const response = await api.put('/users/profile', { name, phone });
       return response.data;
-    } catch (error) {
+    } catch (_error) {
       console.warn('Backend unavailable, updating client profile locally.');
       const savedUser = localStorage.getItem('Edqoo_user');
       if (savedUser) {

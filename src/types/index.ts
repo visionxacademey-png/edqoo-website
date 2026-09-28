@@ -69,6 +69,15 @@ export interface Course {
   features: string[];
   requirements?: string[];
   whoIsItFor?: string[];
+  // SEO Specific Optional Fields
+  seoTitle?: string;
+  seoDescription?: string;
+  seoKeywords?: string[];
+  language?: string;
+  provider?: string;
+  createdAt?: string | number;
+  updatedAt?: string | number;
+  imageUpdatedAt?: string | number;
 }
 
 export interface Instructor {
@@ -91,6 +100,9 @@ export interface Instructor {
   email?: string;
   teachingExperience?: string;
   industryExperience?: string;
+  createdAt?: string | number;
+  updatedAt?: string | number;
+  imageUpdatedAt?: string | number;
 }
 
 export interface Testimonial {
@@ -112,6 +124,7 @@ export interface BlogPost {
   category: string;
   image: string;
   date: string;
+  updatedDate?: string;
   readTime: string;
   author: {
     name: string;
@@ -119,6 +132,9 @@ export interface BlogPost {
     role: string;
   };
   tags: string[];
+  seoTitle?: string;
+  seoDescription?: string;
+  metaKeywords?: string[];
 }
 
 export interface StatItem {
@@ -410,6 +426,7 @@ export interface LeadershipCouncilMember {
   email?: string;
   displayOrder?: number;
   createdAt?: string;
-  updatedAt?: string;
+  updatedAt?: string | number;
+  imageUpdatedAt?: string | number;
 }
 

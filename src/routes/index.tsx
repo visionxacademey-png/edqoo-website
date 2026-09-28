@@ -14,12 +14,15 @@ import { ProtectedRoute, PublicRoute, AdminRoute } from '../components/common/Ro
 const Home = React.lazy(() => import('../pages/Home').then(module => ({ default: module.Home })));
 const Courses = React.lazy(() => import('../pages/Courses').then(module => ({ default: module.Courses })));
 const CourseDetails = React.lazy(() => import('../pages/CourseDetails').then(module => ({ default: module.CourseDetails })));
+const ProgramCategory = React.lazy(() => import('../pages/ProgramCategory').then(module => ({ default: module.ProgramCategory })));
+const Blog = React.lazy(() => import('../pages/Blog').then(module => ({ default: module.Blog })));
 const About = React.lazy(() => import('../pages/About').then(module => ({ default: module.About })));
 const Contact = React.lazy(() => import('../pages/Contact').then(module => ({ default: module.Contact })));
 const TermsAndConditions = React.lazy(() => import('../pages/TermsAndConditions').then(module => ({ default: module.TermsAndConditions })));
 const PrivacyPolicy = React.lazy(() => import('../pages/PrivacyPolicy').then(module => ({ default: module.PrivacyPolicy })));
 const Instructors = React.lazy(() => import('../pages/Instructors').then(module => ({ default: module.Instructors })));
 const InstructorDetail = React.lazy(() => import('../pages/Instructors/InstructorDetail').then(module => ({ default: module.InstructorDetail })));
+const NotFound = React.lazy(() => import('../pages/NotFound').then(module => ({ default: module.NotFound })));
 
 // 4 New Professional Pages
 const HireFromUs = React.lazy(() => import('../pages/HireFromUs').then(module => ({ default: module.HireFromUs })));
@@ -66,10 +69,26 @@ export const AppRoutes: React.FC = () => {
       <Routes>
         {/* Public Website routes (Header + Footer) */}
         <Route element={<MainLayout />}>
+          {/* Canonical Homepage & duplicate home redirects */}
           <Route path="/" element={<Home />} />
+          <Route path="/home" element={<Navigate to="/" replace />} />
+          <Route path="/index" element={<Navigate to="/" replace />} />
+          <Route path="/index.html" element={<Navigate to="/" replace />} />
           <Route path="/courses" element={<Courses />} />
           <Route path="/courses/:slug" element={<CourseDetails />} />
           <Route path="/free-learning/:slug" element={<CourseDetails />} />
+          
+          {/* Dedicated Program Categories & Tools & Upskills */}
+          <Route path="/programs" element={<ProgramCategory />} />
+          <Route path="/programs/:categorySlug" element={<ProgramCategory />} />
+          <Route path="/tools-and-upskills" element={<ProgramCategory />} />
+          
+          {/* Educational Blog / Career Hub */}
+          <Route path="/blog" element={<Blog />} />
+          <Route path="/blog/:slug" element={<Blog />} />
+          <Route path="/resources" element={<Navigate to="/blog" replace />} />
+          <Route path="/resources/:slug" element={<Navigate to="/blog" replace />} />
+          
           <Route path="/instructors" element={<Instructors />} />
           <Route path="/instructors/:id" element={<InstructorDetail />} />
           <Route path="/about" element={<About />} />
@@ -83,14 +102,9 @@ export const AppRoutes: React.FC = () => {
           <Route path="/become-a-partner" element={<BecomePartner />} />
           <Route path="/leadership-council" element={<LeadershipCouncil />} />
           
-          {/* Resources / Blog fallbacks redirected to Courses */}
-          <Route path="/resources" element={<Navigate to="/courses" replace />} />
-          <Route path="/resources/*" element={<Navigate to="/courses" replace />} />
-          <Route path="/blog" element={<Navigate to="/courses" replace />} />
-          <Route path="/blog/*" element={<Navigate to="/courses" replace />} />
-          
-          {/* Categories index page defaults back to Courses listings */}
-          <Route path="/categories" element={<Navigate to="/courses" replace />} />
+          {/* Categories redirect to programs */}
+          <Route path="/categories" element={<Navigate to="/programs" replace />} />
+          <Route path="/categories/:slug" element={<Navigate to="/programs" replace />} />
           
           {/* Guest Only Routes (Login/Register/Recovery) */}
           <Route element={<PublicRoute />}>
@@ -98,6 +112,10 @@ export const AppRoutes: React.FC = () => {
             <Route path="/register" element={<Register />} />
             <Route path="/forgot-password" element={<ForgotPassword />} />
           </Route>
+          
+          {/* SEO-friendly 404 page */}
+          <Route path="/404" element={<NotFound />} />
+          <Route path="*" element={<NotFound />} />
         </Route>
 
         {/* Secure User Profile & Enquiry Dashboard Area */}
@@ -135,9 +153,6 @@ export const AppRoutes: React.FC = () => {
             <Route path="leads" element={<AdminLeads />} />
           </Route>
         </Route>
-
-        {/* Global Catch-all redirect to Home */}
-        <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
     </Suspense>
   );

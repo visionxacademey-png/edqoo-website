@@ -1,7 +1,7 @@
 import app from './app.js';
 import { initDb } from './db/index.js';
 
-const PORT = process.env.PORT || 5000;
+const PORT = process.env.PORT || 5001;
 
 process.on('uncaughtException', (err) => {
   console.error('🔥 [Server] Uncaught Exception:', err);
@@ -12,8 +12,8 @@ process.on('unhandledRejection', (reason, promise) => {
 });
 
 async function startServer() {
-  const server = app.listen(PORT, () => {
-    console.log(`🚀 [Server] Edqoo API Server is running on http://localhost:${PORT}`);
+  const server = app.listen(Number(PORT), '0.0.0.0', () => {
+    console.log(`🚀 [Server] Edqoo API Server is running on http://localhost:${PORT} (0.0.0.0:${PORT})`);
     console.log(`🔒 [Security] Protected Admin routes active at /api/admin/*`);
   });
 

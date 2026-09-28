@@ -46,7 +46,6 @@ export const instructors: Instructor[] = [
     certifications: ['Microsoft Certified: Data Analyst Associate', 'Google Cloud Certified Professional Data Engineer', 'PostgreSQL Certified Professional'],
     courses: [
       'Advance Executive in Python',
-      'Advance Executive in SQL',
       'Executive Professional Certificate in Data Science and AI'
     ],
     projects: [

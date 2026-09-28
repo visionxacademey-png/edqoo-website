@@ -14,6 +14,7 @@ import {
 } from 'lucide-react';
 import { instructorService } from '../../services/instructorService';
 import type { Instructor } from '../../types';
+import { getCacheBustedImageUrl } from '../../utils/imageUrl';
 
 export const AdminInstructors: React.FC = () => {
   const [instructors, setInstructors] = useState<Instructor[]>([]);
@@ -212,7 +213,11 @@ export const AdminInstructors: React.FC = () => {
               </thead>
               <tbody className="divide-y divide-slate-800/60 text-xs">
                 {filteredInstructors.map((inst) => {
-                  const photo = inst.profileImage || inst.image || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?q=80&w=150&auto=format&fit=crop';
+                  const photo = getCacheBustedImageUrl(
+                    inst.profileImage || inst.image,
+                    inst.updatedAt || inst.imageUpdatedAt,
+                    'https://images.unsplash.com/photo-1534528741775-53994a69daeb?q=80&w=150&auto=format&fit=crop'
+                  );
                   return (
                     <tr key={inst.id} className="hover:bg-slate-800/40 transition-colors">
                       {/* Photo & Name */}

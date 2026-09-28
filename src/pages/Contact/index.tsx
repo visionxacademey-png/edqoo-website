@@ -5,6 +5,7 @@ import * as zod from 'zod';
 import { Mail, Phone, MapPin, Send, CheckCircle2, HelpCircle } from 'lucide-react';
 import { Accordion } from '../../components/ui/Accordion';
 import { SEO } from '../../components/common/SEO';
+import { Breadcrumbs } from '../../components/common/Breadcrumbs';
 import { enquiryService } from '../../services/enquiryService';
 
 const contactSchema = zod.object({
@@ -44,54 +45,65 @@ export const Contact: React.FC = () => {
     setTimeout(() => setSubmitted(false), 6000);
   };
 
-  const faqItems = [
+  const rawContactFaqs = [
     {
-      id: 'faq-c1',
-      title: 'How does the course enquiry and admission process work?',
-      content: 'Once you submit an enquiry on our website, a senior academic counselor reviews your background, contacts you to discuss track suitability, explains batch schedules, and shares the comprehensive curriculum outline.'
+      question: 'How does the course enquiry and admission process work?',
+      answer: 'Once you submit an enquiry on our website, a senior academic counselor reviews your background, contacts you to discuss track suitability, explains batch schedules, and shares the comprehensive curriculum outline.'
     },
     {
-      id: 'faq-c2',
-      title: 'How are course fees and installment plans arranged?',
-      content: 'Course fees, early bird allowances, and flexible installment options are provided by our counseling team during your admission consultation.'
+      question: 'How are course fees and installment plans arranged?',
+      answer: 'Course fees, early bird allowances, and flexible installment options are provided by our counseling team during your admission consultation.'
     },
     {
-      id: 'faq-c3',
-      title: 'Can I request a 1-on-1 counseling callback or syllabus walkthrough?',
-      content: 'Yes. You can specify your preferred callback time (Morning, Afternoon, Evening) and mode (Phone Call, WhatsApp, Email) when submitting your enquiry.'
+      question: 'Can I request a 1-on-1 counseling callback or syllabus walkthrough?',
+      answer: 'Yes. You can specify your preferred callback time (Morning, Afternoon, Evening) and mode (Phone Call, WhatsApp, Email) when submitting your enquiry.'
     },
     {
-      id: 'faq-c4',
-      title: 'How can I apply to become an instructor or industry mentor?',
-      content: 'If you have over 5 years of production technology experience in cloud engineering, data systems, or cybersecurity operations and a passion for mentoring, email your profile to careers@edqoo.com.'
+      question: 'How can I apply to become an instructor or industry mentor?',
+      answer: 'If you have over 5 years of production technology experience in cloud engineering, data systems, or cybersecurity operations and a passion for mentoring, email your profile to careers@edqoo.com.'
     }
-  ].map((faq) => ({
-    id: faq.id,
-    title: faq.title,
-    content: <p className="text-xs leading-relaxed text-slate-600">{faq.content}</p>
+  ];
+
+  const faqItems = rawContactFaqs.map((faq, index) => ({
+    id: `faq-c${index + 1}`,
+    title: faq.question,
+    content: <p className="text-xs leading-relaxed text-slate-600">{faq.answer}</p>
   }));
 
   return (
     <div className="bg-slate-50 min-h-screen text-left">
       <SEO 
-        title="Contact Us & Admissions Support" 
-        description="Get in touch with EDQOO admissions counselors, request course information, or read through our enquiry FAQ directory."
+        title="Contact Edqoo | Get in Touch" 
+        description="Get in touch with Edqoo academic counselors for course enquiries, admissions, batch schedules, syllabus details, or corporate training partnerships."
         canonical="/contact"
+        keywords="Contact Edqoo, Edqoo admissions, course enquiry, tech education, Edqoo phone, Edqoo email"
+        breadcrumbs={[
+          { name: 'Home', url: '/' },
+          { name: 'Contact Edqoo', url: '/contact' }
+        ]}
+        faqs={rawContactFaqs}
       />
       {/* Contact Hero */}
-      <section className="bg-gradient-to-b from-purple-50/60 via-slate-50 to-white text-slate-950 py-16 text-center relative overflow-hidden border-b border-slate-200">
+      <section className="bg-gradient-to-b from-purple-50/70 via-slate-50 to-white text-slate-950 py-14 sm:py-16 text-center relative overflow-hidden border-b border-slate-200">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 space-y-3 relative z-10">
           <span className="text-xs font-bold text-purple-600 uppercase tracking-widest block">
-            Admissions & Support Desk
+            ADMISSIONS & SUPPORT DESK
           </span>
-          <h1 className="text-3xl sm:text-4xl font-display font-black text-slate-950">
-            How Can We Help You?
+          <h1 className="text-3xl sm:text-4xl lg:text-5xl font-display font-black text-slate-950">
+            Contact Edqoo Admissions
           </h1>
           <p className="text-slate-600 text-xs sm:text-sm max-w-xl mx-auto leading-relaxed">
             Reach out for curriculum questions, course fee details, batch timings, or corporate training inquiries.
           </p>
         </div>
       </section>
+
+      {/* Breadcrumb Bar */}
+      <div className="border-b border-slate-200 bg-white">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-2.5">
+          <Breadcrumbs items={[{ name: 'Contact Us', url: '/contact' }]} />
+        </div>
+      </div>
 
       {/* Main Form & Contact Info layout */}
       <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 grid grid-cols-1 lg:grid-cols-12 gap-8 items-start text-left">

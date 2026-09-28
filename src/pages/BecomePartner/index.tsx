@@ -13,10 +13,10 @@ import {
   CheckCircle2,
   ArrowRight,
   Send,
-  Loader2,
-  ChevronRight
+  Loader2
 } from 'lucide-react';
 import { SEO } from '../../components/common/SEO';
+import { Breadcrumbs } from '../../components/common/Breadcrumbs';
 import { partnerService } from '../../services/partnerService';
 import type { PartnerEnquiry } from '../../types';
 
@@ -156,9 +156,10 @@ export const BecomePartner: React.FC = () => {
   return (
     <div className="bg-slate-50 min-h-screen text-slate-900 text-left">
       <SEO
-        title="Become a Partner | Academic & Industry Collaboration"
-        description="Collaborate with Edqoo to create meaningful opportunities in technology education, industry engagement, talent development, and innovation."
+        title="Become a Partner | Academic & Corporate Alliances | Edqoo"
+        description="Collaborate with Edqoo on university upskilling, corporate training, talent hiring, and tech education initiatives across India and Kerala."
         canonical="/become-a-partner"
+        keywords={['corporate training partnerships', 'university tech partnerships India', 'college placement upskilling Kerala', 'tech education collaboration']}
       />
 
       {/* Hero Section */}
@@ -191,14 +192,8 @@ export const BecomePartner: React.FC = () => {
         </div>
       </section>
 
-      {/* Breadcrumb Bar */}
-      <div className="border-b border-slate-200 bg-white">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-2.5 text-xs text-slate-500 flex items-center gap-2">
-          <span>Home</span>
-          <ChevronRight className="w-3.5 h-3.5 text-slate-400" />
-          <span className="text-slate-900 font-semibold">Become a Partner</span>
-        </div>
-      </div>
+      {/* Breadcrumbs */}
+      <Breadcrumbs items={[{ label: 'Become a Partner' }]} />
 
       {/* Partnership Opportunities */}
       <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">

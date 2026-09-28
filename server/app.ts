@@ -1,7 +1,7 @@
 import express from 'express';
 import cors from 'cors';
 import dotenv from 'dotenv';
-import { ensureDbInitialized, getDbStatus } from './db/index.js';
+import { ensureDbInitialized, getDbStatus, query } from './db/index.js';
 import authRoutes from './routes/auth.js';
 import adminRoutes from './routes/admin.js';
 import coursesRoutes from './routes/courses.js';
@@ -12,6 +12,7 @@ import instructorApplicationsRoutes from './routes/instructorApplications.js';
 import partnersRoutes from './routes/partners.js';
 import leadershipRoutes from './routes/leadership.js';
 import chatRoutes from './routes/chat.js';
+import sitemapRoutes from './routes/sitemap.js';
 
 dotenv.config();
 
@@ -53,6 +54,38 @@ app.use(async (req, _res, next) => {
   next();
 });
 
+// Diagnostic Database Endpoint
+app.get(['/api/debug/database', '/debug/database'], async (_req, res) => {
+  try {
+    await ensureDbInitialized();
+    const timeRes = await query('SELECT NOW()');
+    const countRes = await query('SELECT COUNT(*) FROM courses');
+    const coursesCount = parseInt(countRes.rows[0].count, 10);
+    const sampleRes = await query('SELECT id, slug, title, category, status FROM courses ORDER BY created_at DESC LIMIT 10');
+    
+    console.log('[DB DEBUG]');
+    console.log(`Database host: ${getDbStatus().databaseHost}`);
+    console.log(`Database name: neondb`);
+    console.log(`Course count from DB: ${coursesCount}`);
+
+    return res.json({
+      databaseConnected: true,
+      courseCount: coursesCount,
+      databaseHost: getDbStatus().databaseHost,
+      dbTime: timeRes.rows[0].now,
+      sampleCourses: sampleRes.rows
+    });
+  } catch (err: any) {
+    console.error('🔥 [DB DEBUG] Diagnostic query failed:', err);
+    return res.status(500).json({
+      databaseConnected: false,
+      courseCount: 0,
+      error: err.message,
+      databaseHost: getDbStatus().databaseHost
+    });
+  }
+});
+
 // Health & Root Status Checks
 app.get(['/api/health', '/health', '/api', '/'], (_req, res) => {
   res.json({
@@ -74,6 +107,7 @@ app.use(['/api/instructor-applications', '/instructor-applications'], instructor
 app.use(['/api/partner-enquiries', '/partner-enquiries'], partnersRoutes);
 app.use(['/api/leadership', '/leadership'], leadershipRoutes);
 app.use(['/api/chat', '/chat'], chatRoutes);
+app.use(['/api', '/'], sitemapRoutes);
 
 // Global Error Handler
 app.use((err: any, _req: express.Request, res: express.Response, _next: express.NextFunction) => {
