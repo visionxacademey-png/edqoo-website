@@ -100,7 +100,7 @@ app.get(['/api/health', '/health', '/api', '/'], (_req, res) => {
 app.use(['/api/auth', '/auth'], authRoutes);
 app.use(['/api/admin', '/admin'], adminRoutes);
 app.use(['/api/courses', '/courses'], coursesRoutes);
-app.use(['/api/enquiries', '/enquiries'], enquiriesRoutes);
+app.use(['/api/enquiries', '/enquiries', '/api/contact', '/contact'], enquiriesRoutes);
 app.use(['/api/instructors', '/instructors'], instructorsRoutes);
 app.use(['/api/hiring-enquiries', '/hiring-enquiries'], hiringRoutes);
 app.use(['/api/instructor-applications', '/instructor-applications'], instructorApplicationsRoutes);

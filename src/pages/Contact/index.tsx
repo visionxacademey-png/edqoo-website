@@ -20,6 +20,7 @@ type ContactFormData = zod.infer<typeof contactSchema>;
 
 export const Contact: React.FC = () => {
   const [submitted, setSubmitted] = useState(false);
+  const [submitError, setSubmitError] = useState<string | null>(null);
 
   const {
     register,
@@ -31,18 +32,24 @@ export const Contact: React.FC = () => {
   });
 
   const onSubmit = async (data: ContactFormData) => {
-    // Save as general enquiry
-    await enquiryService.submitEnquiry({
-      name: data.name,
-      email: data.email,
-      phone: data.phone || '+91 90744 50935',
-      program: `Contact Inquiry: ${data.subject}`,
-      message: data.message
-    });
+    setSubmitError(null);
+    try {
+      // Save as general enquiry & send Resend email
+      await enquiryService.submitEnquiry({
+        name: data.name,
+        email: data.email,
+        phone: data.phone || '+91 90744 50935',
+        program: `Contact Inquiry: ${data.subject}`,
+        message: data.message
+      });
 
-    setSubmitted(true);
-    reset();
-    setTimeout(() => setSubmitted(false), 6000);
+      setSubmitted(true);
+      reset();
+      setTimeout(() => setSubmitted(false), 8000);
+    } catch (err: any) {
+      console.error('Contact form submission error:', err);
+      setSubmitError(err?.message || 'Unable to send your message right now. Please try again.');
+    }
   };
 
   const rawContactFaqs = [
@@ -120,6 +127,16 @@ export const Contact: React.FC = () => {
               <div>
                 <span className="font-bold block">Inquiry Received!</span>
                 <span>Our team will review your request and get in touch with you shortly.</span>
+              </div>
+            </div>
+          )}
+
+          {submitError && (
+            <div className="p-4 bg-rose-50 border border-rose-200 text-rose-800 text-xs rounded-xl flex items-start gap-2.5 font-medium animate-fadeIn">
+              <div className="w-2 h-2 rounded-full bg-rose-500 mt-1 flex-shrink-0" />
+              <div>
+                <span className="font-bold block">Unable to Send Inquiry</span>
+                <span>{submitError}</span>
               </div>
             </div>
           )}

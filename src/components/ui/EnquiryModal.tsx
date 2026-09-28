@@ -142,10 +142,10 @@ const StandardEnquiryModal: React.FC<StandardEnquiryModalProps> = ({
         setIsSuccess(true);
         reset();
       } else {
-        setApiError('Unable to process enquiry. Please try again.');
+        setApiError(response.message || 'Unable to process enquiry. Please try again.');
       }
-    } catch {
-      setApiError('An unexpected network error occurred. Please try again.');
+    } catch (err: any) {
+      setApiError(err?.message || 'An unexpected network error occurred. Please try again.');
     }
   };
 

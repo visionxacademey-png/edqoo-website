@@ -40,6 +40,7 @@ type PartnerFormData = zod.infer<typeof partnerFormSchema>;
 
 export const BecomePartner: React.FC = () => {
   const [submittedEnquiry, setSubmittedEnquiry] = useState<PartnerEnquiry | null>(null);
+  const [submitError, setSubmitError] = useState<string | null>(null);
 
   const {
     register,
@@ -55,6 +56,7 @@ export const BecomePartner: React.FC = () => {
   });
 
   const onSubmit = async (data: PartnerFormData) => {
+    setSubmitError(null);
     try {
       const res = await partnerService.submitPartnerRequest({
         organizationName: data.organizationName,
@@ -74,8 +76,9 @@ export const BecomePartner: React.FC = () => {
         setSubmittedEnquiry(res.enquiry);
       }
       reset();
-    } catch (err) {
+    } catch (err: any) {
       console.error('Failed to submit partnership request:', err);
+      setSubmitError(err?.message || 'Unable to submit partnership request right now. Please try again.');
     }
   };
 
@@ -345,6 +348,15 @@ export const BecomePartner: React.FC = () => {
               </div>
             ) : (
               <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
+                {submitError && (
+                  <div className="p-4 bg-rose-50 border border-rose-200 text-rose-800 text-xs rounded-xl flex items-start gap-2.5 font-medium animate-fadeIn">
+                    <div className="w-2 h-2 rounded-full bg-rose-500 mt-1 flex-shrink-0" />
+                    <div>
+                      <span className="font-bold block">Unable to Submit Partnership Request</span>
+                      <span>{submitError}</span>
+                    </div>
+                  </div>
+                )}
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
                   {/* Organization Name */}
                   <div className="space-y-1.5">

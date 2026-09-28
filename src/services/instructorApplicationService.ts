@@ -42,15 +42,10 @@ export const instructorApplicationService = {
         message: response.data?.message || 'Instructor application submitted successfully.',
         application: saved
       };
-    } catch {
-      console.warn('Backend instructor applications endpoint offline; saved to local storage.');
-      const current = getStoredApps();
-      saveStoredApps([newApp, ...current]);
-      return {
-        success: true,
-        message: 'Application submitted successfully! Our academic onboarding committee will review your profile.',
-        application: newApp
-      };
+    } catch (error: any) {
+      console.error('[INSTRUCTOR APPLICATION ERROR]', error);
+      const message = error.response?.data?.error || error.response?.data?.message || 'Unable to submit application right now. Please try again.';
+      throw new Error(message);
     }
   },
 

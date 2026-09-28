@@ -42,15 +42,10 @@ export const partnerService = {
         message: response.data?.message || 'Partnership request submitted successfully.',
         enquiry: saved
       };
-    } catch {
-      console.warn('Backend partner endpoint offline; saved enquiry to local storage.');
-      const current = getStoredPartners();
-      saveStoredPartners([newEnquiry, ...current]);
-      return {
-        success: true,
-        message: 'Thank you! Your partnership request has been submitted. Our team will connect with you.',
-        enquiry: newEnquiry
-      };
+    } catch (error: any) {
+      console.error('[PARTNER ENQUIRY ERROR]', error);
+      const message = error.response?.data?.error || error.response?.data?.message || 'Unable to submit partnership request right now. Please try again.';
+      throw new Error(message);
     }
   },
 

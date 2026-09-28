@@ -1,6 +1,7 @@
 import { Router, type Response } from 'express';
 import { query, isDbConnected, ensureDbInitialized, mockStore } from '../db/index.js';
 import { authenticateToken, requireAdmin, type AuthRequest } from '../middleware/auth.js';
+import { emailService } from '../services/emailService.js';
 import type { HiringEnquiry } from '../../src/types/index.js';
 
 const router = Router();
@@ -97,6 +98,32 @@ router.post('/', async (req, res: Response) => {
     } else {
       mockStore.hiringEnquiries.unshift(newEnquiry);
     }
+
+    // Centralized Resend Email Transmission
+    emailService.sendHiringEnquiryEmail({
+      companyName: newEnquiry.companyName,
+      contactPerson: newEnquiry.contactPerson,
+      email: newEnquiry.email,
+      phone: newEnquiry.phone,
+      jobRole: newEnquiry.jobRole,
+      openings: newEnquiry.openings,
+      requiredSkills: newEnquiry.requiredSkills,
+      experience: newEnquiry.experience,
+      location: newEnquiry.location,
+      workMode: newEnquiry.workMode,
+      additionalRequirements: newEnquiry.additionalRequirements,
+      submittedAt: newEnquiry.submittedAt
+    }).catch((err) => {
+      console.error('[EMAIL DISPATCH ERROR - HIRING ENQUIRY]', err);
+    });
+
+    // Optional user confirmation email
+    emailService.sendUserConfirmation({
+      to: newEnquiry.email,
+      name: newEnquiry.contactPerson,
+      subject: 'Corporate Hiring Requirement Received',
+      message: `We received your talent requirement for ${newEnquiry.jobRole} at ${newEnquiry.companyName}. Our corporate talent desk will connect with you.`
+    }).catch(() => {});
 
     return res.status(201).json({
       success: true,

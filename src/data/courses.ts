@@ -99,7 +99,6 @@ export const COMMON_PROGRAM_FEATURES: string[] = [
   'Placement Assistance',
   'Major Capstone Project',
   'Real-World Projects',
-  'Startup Incubation Support',
   'Top 2 Performers Rewarded'
 ];
 

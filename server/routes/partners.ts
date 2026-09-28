@@ -1,6 +1,7 @@
 import { Router, type Response } from 'express';
 import { query, isDbConnected, ensureDbInitialized, mockStore } from '../db/index.js';
 import { authenticateToken, requireAdmin, type AuthRequest } from '../middleware/auth.js';
+import { emailService } from '../services/emailService.js';
 import type { PartnerEnquiry } from '../../src/types/index.js';
 
 const router = Router();
@@ -97,6 +98,32 @@ router.post('/', async (req, res: Response) => {
     } else {
       mockStore.partnerEnquiries.unshift(newEnquiry);
     }
+
+    // Centralized Resend Email Transmission
+    emailService.sendPartnerEnquiryEmail({
+      organizationName: newEnquiry.organizationName,
+      contactPerson: newEnquiry.contactPerson,
+      designation: newEnquiry.designation,
+      email: newEnquiry.email,
+      phone: newEnquiry.phone,
+      organizationType: newEnquiry.organizationType,
+      partnershipArea: newEnquiry.partnershipArea,
+      website: newEnquiry.website,
+      location: newEnquiry.location,
+      proposal: newEnquiry.proposal,
+      additionalInformation: newEnquiry.additionalInformation,
+      submittedAt: newEnquiry.submittedAt
+    }).catch((err) => {
+      console.error('[EMAIL DISPATCH ERROR - PARTNER ENQUIRY]', err);
+    });
+
+    // Optional user confirmation email
+    emailService.sendUserConfirmation({
+      to: newEnquiry.email,
+      name: newEnquiry.contactPerson,
+      subject: 'Partnership & Institutional Collaboration Request',
+      message: `We received your partnership proposal for ${newEnquiry.organizationName} in ${newEnquiry.partnershipArea}. Our alliances team will connect with you.`
+    }).catch(() => {});
 
     return res.status(201).json({
       success: true,

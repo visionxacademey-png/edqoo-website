@@ -42,15 +42,10 @@ export const hiringService = {
         message: response.data?.message || 'Hiring requirement submitted successfully.',
         enquiry: saved
       };
-    } catch {
-      console.warn('Backend hiring endpoint offline; saved enquiry to local storage.');
-      const current = getStoredHiring();
-      saveStoredHiring([newEnquiry, ...current]);
-      return {
-        success: true,
-        message: 'Thank you! Your hiring requirement has been submitted. Our talent team will connect with you.',
-        enquiry: newEnquiry
-      };
+    } catch (error: any) {
+      console.error('[HIRING ENQUIRY ERROR]', error);
+      const message = error.response?.data?.error || error.response?.data?.message || 'Unable to submit hiring requirement right now. Please try again.';
+      throw new Error(message);
     }
   },
 

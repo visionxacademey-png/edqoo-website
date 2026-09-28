@@ -42,6 +42,7 @@ type InstructorFormData = zod.infer<typeof instructorFormSchema>;
 
 export const BecomeInstructor: React.FC = () => {
   const [submittedApp, setSubmittedApp] = useState<InstructorApplication | null>(null);
+  const [submitError, setSubmitError] = useState<string | null>(null);
   const [resumeFile, setResumeFile] = useState<{ name: string; dataUrl: string } | null>(null);
   const [fileError, setFileError] = useState<string | null>(null);
 
@@ -79,6 +80,7 @@ export const BecomeInstructor: React.FC = () => {
   };
 
   const onSubmit = async (data: InstructorFormData) => {
+    setSubmitError(null);
     try {
       const resumeValue = resumeFile ? `${resumeFile.name} [Attached Document]` : (data.resumeLink || undefined);
 
@@ -105,8 +107,9 @@ export const BecomeInstructor: React.FC = () => {
       }
       reset();
       setResumeFile(null);
-    } catch (err) {
+    } catch (err: any) {
       console.error('Failed to submit application:', err);
+      setSubmitError(err?.message || 'Unable to submit your application right now. Please try again.');
     }
   };
 
@@ -340,6 +343,15 @@ export const BecomeInstructor: React.FC = () => {
               </div>
             ) : (
               <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
+                {submitError && (
+                  <div className="p-4 bg-rose-50 border border-rose-200 text-rose-800 text-xs rounded-xl flex items-start gap-2.5 font-medium animate-fadeIn">
+                    <div className="w-2 h-2 rounded-full bg-rose-500 mt-1 flex-shrink-0" />
+                    <div>
+                      <span className="font-bold block">Unable to Submit Application</span>
+                      <span>{submitError}</span>
+                    </div>
+                  </div>
+                )}
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
                   {/* Full Name */}
                   <div className="space-y-1.5">

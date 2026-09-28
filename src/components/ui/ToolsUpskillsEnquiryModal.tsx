@@ -344,10 +344,10 @@ export const ToolsUpskillsEnquiryModal: React.FC<ToolsUpskillsEnquiryModalProps>
         // Move to Step 2 smoothly
         setCurrentStep(2);
       } else {
-        setApiError('Unable to save contact details. Please try again.');
+        setApiError(res?.message || 'Unable to save contact details. Please try again.');
       }
-    } catch {
-      setApiError('A network error occurred while connecting to the server. Please try again.');
+    } catch (err: any) {
+      setApiError(err?.message || 'A network error occurred while connecting to the server. Please try again.');
     }
   };
 
@@ -393,10 +393,10 @@ export const ToolsUpskillsEnquiryModal: React.FC<ToolsUpskillsEnquiryModalProps>
       if (res.success) {
         setIsSuccess(true);
       } else {
-        setApiError('Unable to finalize your enquiry. Please review the details and retry.');
+        setApiError(res.message || 'Unable to finalize your enquiry. Please review the details and retry.');
       }
-    } catch {
-      setApiError('A network error occurred while submitting your enquiry.');
+    } catch (err: any) {
+      setApiError(err?.message || 'A network error occurred while submitting your enquiry.');
     }
   };
 

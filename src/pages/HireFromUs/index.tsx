@@ -46,6 +46,7 @@ type HiringFormData = zod.infer<typeof hiringFormSchema>;
 
 export const HireFromUs: React.FC = () => {
   const [submittedEnquiry, setSubmittedEnquiry] = useState<HiringEnquiry | null>(null);
+  const [submitError, setSubmitError] = useState<string | null>(null);
   const { openEnquiryModal } = useEnquiry();
 
   const {
@@ -63,6 +64,7 @@ export const HireFromUs: React.FC = () => {
   });
 
   const onSubmit = async (data: HiringFormData) => {
+    setSubmitError(null);
     try {
       const res = await hiringService.submitHiringRequirement({
         companyName: data.companyName,
@@ -82,8 +84,9 @@ export const HireFromUs: React.FC = () => {
         setSubmittedEnquiry(res.enquiry);
       }
       reset();
-    } catch (err) {
+    } catch (err: any) {
       console.error('Failed to submit hiring enquiry:', err);
+      setSubmitError(err?.message || 'Unable to submit hiring requirement right now. Please try again.');
     }
   };
 
@@ -401,6 +404,15 @@ export const HireFromUs: React.FC = () => {
               </div>
             ) : (
               <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
+                {submitError && (
+                  <div className="p-4 bg-rose-50 border border-rose-200 text-rose-800 text-xs rounded-xl flex items-start gap-2.5 font-medium animate-fadeIn">
+                    <div className="w-2 h-2 rounded-full bg-rose-500 mt-1 flex-shrink-0" />
+                    <div>
+                      <span className="font-bold block">Unable to Submit Hiring Requirement</span>
+                      <span>{submitError}</span>
+                    </div>
+                  </div>
+                )}
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
                   {/* Company Name */}
                   <div className="space-y-1.5">

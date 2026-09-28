@@ -1,6 +1,7 @@
 import { Router, type Response } from 'express';
 import { query, isDbConnected, ensureDbInitialized, mockStore } from '../db/index.js';
 import { authenticateToken, requireAdmin, type AuthRequest } from '../middleware/auth.js';
+import { emailService } from '../services/emailService.js';
 import type { InstructorApplication } from '../../src/types/index.js';
 
 const router = Router();
@@ -114,6 +115,36 @@ router.post('/', async (req, res: Response) => {
     } else {
       mockStore.instructorApplications.unshift(newApplication);
     }
+
+    // Centralized Resend Email Transmission
+    emailService.sendInstructorApplicationEmail({
+      name: newApplication.name,
+      email: newApplication.email,
+      phone: newApplication.phone,
+      designation: newApplication.designation,
+      organization: newApplication.organization,
+      qualification: newApplication.qualification,
+      expertise: newApplication.expertise,
+      experience: newApplication.experience,
+      teachingExperience: newApplication.teachingExperience,
+      courses: newApplication.courses,
+      linkedin: newApplication.linkedin,
+      portfolio: newApplication.portfolio,
+      bio: newApplication.bio,
+      resume: newApplication.resume,
+      additionalInformation: newApplication.additionalInformation,
+      submittedAt: newApplication.submittedAt
+    }).catch((err) => {
+      console.error('[EMAIL DISPATCH ERROR - INSTRUCTOR APPLICATION]', err);
+    });
+
+    // Optional user confirmation email
+    emailService.sendUserConfirmation({
+      to: newApplication.email,
+      name: newApplication.name,
+      subject: 'Instructor & Faculty Application',
+      message: `We received your application for teaching: ${newApplication.courses}. Our academic committee will review your profile.`
+    }).catch(() => {});
 
     return res.status(201).json({
       success: true,

@@ -149,25 +149,19 @@ export const enquiryService = {
 
     try {
       const response = await api.post('/enquiries', newEnquiry);
-      // Also cache locally
+      const saved = response.data?.enquiry || newEnquiry;
       const current = getStoredEnquiries();
-      saveStoredEnquiries([response.data?.enquiry || newEnquiry, ...current]);
+      saveStoredEnquiries([saved, ...current.filter(e => e.id !== saved.id)]);
       
       return {
         success: true,
         message: 'Thank you for your enquiry. Our team will review your request and get in touch with you shortly.',
-        enquiry: response.data?.enquiry || newEnquiry
+        enquiry: saved
       };
-    } catch {
-      console.warn('Backend enquiry endpoint offline; saved lead to local storage.');
-      const current = getStoredEnquiries();
-      saveStoredEnquiries([newEnquiry, ...current]);
-
-      return {
-        success: true,
-        message: 'Thank you for your enquiry. Our team will review your request and get in touch with you shortly.',
-        enquiry: newEnquiry
-      };
+    } catch (error: any) {
+      console.error('[ENQUIRY SUBMISSION ERROR]', error);
+      const message = error.response?.data?.error || error.response?.data?.message || 'Unable to send your message right now. Please try again.';
+      throw new Error(message);
     }
   },
 
@@ -204,7 +198,6 @@ export const enquiryService = {
       const response = await api.post('/enquiries', newLead);
       const saved = response.data?.enquiry || newLead;
       const current = getStoredEnquiries();
-      // Replace if existing or add to front
       const filtered = current.filter(e => e.id !== saved.id);
       saveStoredEnquiries([saved, ...filtered]);
 
@@ -213,17 +206,10 @@ export const enquiryService = {
         message: 'Lead saved successfully',
         enquiry: saved
       };
-    } catch {
-      console.warn('Backend enquiry endpoint offline; saved Step 1 lead to local storage.');
-      const current = getStoredEnquiries();
-      const filtered = current.filter(e => e.id !== newLead.id);
-      saveStoredEnquiries([newLead, ...filtered]);
-
-      return {
-        success: true,
-        message: 'Lead saved to local storage',
-        enquiry: newLead
-      };
+    } catch (error: any) {
+      console.error('[STEP 1 LEAD SAVE ERROR]', error);
+      const message = error.response?.data?.error || error.response?.data?.message || 'Unable to save contact details. Please try again.';
+      throw new Error(message);
     }
   },
 
@@ -243,7 +229,6 @@ export const enquiryService = {
       const response = await api.patch(`/enquiries/${leadId}`, updatePayload);
       const updated = response.data?.enquiry;
 
-      // Update in local storage
       const all = getStoredEnquiries();
       const index = all.findIndex((e) => e.id === leadId);
       if (index !== -1) {
@@ -258,35 +243,10 @@ export const enquiryService = {
         message: 'Thank you for submitting your detailed enquiry! An advisor will connect with you shortly.',
         enquiry: updated || (index !== -1 ? all[index] : undefined)
       };
-    } catch {
-      console.warn('Backend update failed, updating local storage for lead:', leadId);
-      const all = getStoredEnquiries();
-      const index = all.findIndex((e) => e.id === leadId);
-      if (index !== -1) {
-        all[index] = { ...all[index], ...updatePayload };
-        saveStoredEnquiries(all);
-        return {
-          success: true,
-          message: 'Thank you for submitting your detailed enquiry! An advisor will connect with you shortly.',
-          enquiry: all[index]
-        };
-      } else {
-        const fallback: Enquiry = {
-          id: leadId,
-          name: detailedData.name || '',
-          email: detailedData.email || '',
-          phone: detailedData.phone || '',
-          program: detailedData.program || 'Tools and Upskills Track',
-          ...updatePayload,
-          submittedAt: new Date().toISOString()
-        } as Enquiry;
-        saveStoredEnquiries([fallback, ...all]);
-        return {
-          success: true,
-          message: 'Thank you for submitting your detailed enquiry! An advisor will connect with you shortly.',
-          enquiry: fallback
-        };
-      }
+    } catch (error: any) {
+      console.error('[STEP 2 COMPLETE ERROR]', error);
+      const message = error.response?.data?.error || error.response?.data?.message || 'Unable to complete enquiry submission. Please try again.';
+      throw new Error(message);
     }
   },
 
@@ -373,34 +333,12 @@ export const enquiryService = {
       return {
         success: true,
         message: 'Thank you! Your enquiry has been submitted successfully. Our team will contact you soon.',
-        enquiry: response.data.enquiry
+        enquiry: response.data?.enquiry
       };
     } catch (error: any) {
-      console.warn('Backend unavailable, storing Student Offer enquiry in local fallback store.', error);
-      const all = getStoredEnquiries();
-      const fallback: Enquiry = {
-        id: `enq-offer-${Date.now().toString(36)}-${Math.random().toString(36).substring(2, 6)}`,
-        name: payload.name,
-        email: payload.email,
-        phone: payload.phone,
-        program: payload.program,
-        category: payload.category,
-        source: payload.source,
-        enquiryType: 'STUDENT_OFFER',
-        collegeOrSchool: payload.collegeOrSchool,
-        collegeName: payload.collegeOrSchool,
-        profession: 'Student',
-        leadStatus: 'Completed',
-        status: 'Submitted',
-        details: payload.details,
-        submittedAt: new Date().toISOString()
-      };
-      saveStoredEnquiries([fallback, ...all]);
-      return {
-        success: true,
-        message: 'Thank you! Your enquiry has been submitted successfully. Our team will contact you soon.',
-        enquiry: fallback
-      };
+      console.error('[STUDENT OFFER SUBMISSION ERROR]', error);
+      const message = error.response?.data?.error || error.response?.data?.message || 'Unable to submit your student offer enquiry right now. Please try again.';
+      throw new Error(message);
     }
   }
 };

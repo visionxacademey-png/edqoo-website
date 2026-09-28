@@ -2,6 +2,7 @@ import { Router } from 'express';
 import bcrypt from 'bcryptjs';
 import { query, isDbConnected, ensureDbInitialized, mockStore, type MockUser } from '../db/index.js';
 import { authenticateToken, requireAdmin } from '../middleware/auth.js';
+import { emailService } from '../services/emailService.js';
 import type { Enquiry } from '../../src/types/index.js';
 
 const router = Router();
@@ -74,7 +75,8 @@ router.post('/', async (req, res) => {
     const sessionId = `sess-${Date.now().toString(36)}-${Math.random().toString(36).substring(2, 6)}`;
     let assignedUserId = userId || `usr-${Date.now().toString(36)}-${Math.random().toString(36).substring(2, 6)}`;
 
-    const finalEnquiryType = enquiryType || (category === 'Student Offer' || program?.includes('Student Offer') ? 'STUDENT_OFFER' : 'COURSE_ENQUIRY');
+    const isContactForm = (program && program.startsWith('Contact Inquiry:')) || category === 'Contact Desk' || enquiryType === 'CONTACT';
+    const finalEnquiryType = enquiryType || (isContactForm ? 'CONTACT' : (category === 'Student Offer' || program?.includes('Student Offer') ? 'STUDENT_OFFER' : 'COURSE_ENQUIRY'));
     const finalCollege = (collegeOrSchool || collegeName || '').trim();
 
     const newEnquiry: Enquiry = {
@@ -83,20 +85,20 @@ router.post('/', async (req, res) => {
       name: name.trim(),
       email: normalizedEmail,
       phone: phone.trim(),
-      program: program || (finalEnquiryType === 'STUDENT_OFFER' ? '60% Student Offer' : 'Tools and Upskills Track'),
+      program: program || (finalEnquiryType === 'STUDENT_OFFER' ? '60% Student Offer' : (isContactForm ? 'Contact Inquiry' : 'Tools and Upskills Track')),
       courseId: courseId || '',
-      category: category || (finalEnquiryType === 'STUDENT_OFFER' ? 'Student Offer' : 'Tools & Upskills'),
-      source: source || (finalEnquiryType === 'STUDENT_OFFER' ? 'Student Offer Popup' : 'Tools & Upskills Enquire Now'),
+      category: category || (finalEnquiryType === 'STUDENT_OFFER' ? 'Student Offer' : (isContactForm ? 'Contact Desk' : 'Tools & Upskills')),
+      source: source || (finalEnquiryType === 'STUDENT_OFFER' ? 'Student Offer Popup' : (isContactForm ? 'Contact Page' : 'Tools & Upskills Enquire Now')),
       enquiryType: finalEnquiryType,
       collegeOrSchool: finalCollege,
-      leadStatus: (leadStatus as any) || (finalEnquiryType === 'STUDENT_OFFER' ? 'Completed' : 'Incomplete'),
+      leadStatus: (leadStatus as any) || (isContactForm || finalEnquiryType === 'STUDENT_OFFER' ? 'Completed' : 'Incomplete'),
       experienceLevel: experienceLevel || 'Beginner',
       learningMode: learningMode || 'Online Live',
       location: location || '',
       preferredContactMethod: preferredContactMethod || 'WhatsApp',
       preferredCallbackTime: preferredCallbackTime || 'Flexible',
       message: message || '',
-      status: (status as any) || (leadStatus === 'Completed' || finalEnquiryType === 'STUDENT_OFFER' ? 'Submitted' : 'Incomplete'),
+      status: (status as any) || (isContactForm || leadStatus === 'Completed' || finalEnquiryType === 'STUDENT_OFFER' ? 'Submitted' : 'Incomplete'),
       notes: '',
       gender: gender || '',
       dateOfBirth: dateOfBirth || '',
@@ -300,6 +302,75 @@ router.post('/', async (req, res) => {
       }
     }
 
+    // CENTRALIZED EMAIL DISPATCH
+    // Only dispatch emails on completed submissions (not Step 1 incomplete leads)
+    if (newEnquiry.leadStatus === 'Completed' || newEnquiry.status === 'Submitted') {
+      if (isContactForm) {
+        const cleanSubject = (newEnquiry.program || 'General Inquiry').replace(/^Contact Inquiry:\s*/i, '');
+        emailService.sendContactFormEmail({
+          name: newEnquiry.name,
+          email: newEnquiry.email,
+          phone: newEnquiry.phone,
+          subject: cleanSubject,
+          message: newEnquiry.message || '',
+          submittedAt: newEnquiry.submittedAt
+        }).catch((err) => {
+          console.error('[EMAIL DISPATCH ERROR - CONTACT FORM]', err);
+        });
+
+        emailService.sendUserConfirmation({
+          to: newEnquiry.email,
+          name: newEnquiry.name,
+          subject: cleanSubject,
+          message: newEnquiry.message
+        }).catch(() => {});
+      } else if (newEnquiry.enquiryType === 'STUDENT_OFFER') {
+        emailService.sendStudentOfferEmail({
+          name: newEnquiry.name,
+          email: newEnquiry.email,
+          phone: newEnquiry.phone,
+          collegeOrSchool: newEnquiry.collegeOrSchool || newEnquiry.collegeName || '',
+          submittedAt: newEnquiry.submittedAt
+        }).catch((err) => {
+          console.error('[EMAIL DISPATCH ERROR - STUDENT OFFER]', err);
+        });
+
+        emailService.sendUserConfirmation({
+          to: newEnquiry.email,
+          name: newEnquiry.name,
+          subject: '60% Student Discount Offer Claimed',
+          message: `Your student discount enquiry for ${newEnquiry.collegeOrSchool || 'your college'} has been received.`
+        }).catch(() => {});
+      } else {
+        // Standard Course Enquiry
+        emailService.sendCourseEnquiryEmail({
+          name: newEnquiry.name,
+          email: newEnquiry.email,
+          phone: newEnquiry.phone,
+          program: newEnquiry.program,
+          courseId: newEnquiry.courseId,
+          category: newEnquiry.category,
+          source: newEnquiry.source,
+          experienceLevel: newEnquiry.experienceLevel,
+          learningMode: newEnquiry.learningMode,
+          location: newEnquiry.location,
+          preferredContactMethod: newEnquiry.preferredContactMethod,
+          preferredCallbackTime: newEnquiry.preferredCallbackTime,
+          message: newEnquiry.message,
+          submittedAt: newEnquiry.submittedAt
+        }).catch((err) => {
+          console.error('[EMAIL DISPATCH ERROR - COURSE ENQUIRY]', err);
+        });
+
+        emailService.sendUserConfirmation({
+          to: newEnquiry.email,
+          name: newEnquiry.name,
+          subject: `Enquiry for ${newEnquiry.program}`,
+          message: `Thank you for your enquiry regarding ${newEnquiry.program}. An academic counselor will connect with you shortly.`
+        }).catch(() => {});
+      }
+    }
+
     return res.status(201).json({ success: true, enquiry: newEnquiry });
   } catch (err: any) {
     console.error('Error submitting enquiry:', err);
@@ -388,6 +459,8 @@ const updateEnquiryHandler = async (req: any, res: any) => {
     const { id } = req.params;
     const updates = req.body;
 
+    let updatedEnquiry: Enquiry | null = null;
+
     if (isDbConnected()) {
       const result = await query(
         `UPDATE enquiries SET
@@ -461,8 +534,7 @@ const updateEnquiryHandler = async (req: any, res: any) => {
         return res.status(404).json({ error: 'Enquiry not found.' });
       }
 
-      const formatted = formatEnquiryRow(result.rows[0]);
-      return res.json({ success: true, enquiry: formatted });
+      updatedEnquiry = formatEnquiryRow(result.rows[0]);
     } else {
       const idx = mockStore.enquiries.findIndex(e => e.id === id);
       if (idx === -1) {
@@ -480,9 +552,53 @@ const updateEnquiryHandler = async (req: any, res: any) => {
         updatedAt: new Date().toISOString()
       };
       mockStore.enquiries[idx] = updated;
-
-      return res.json({ success: true, enquiry: updated });
+      updatedEnquiry = updated;
     }
+
+    // Step 2 completion email trigger: If lead transitioned to completed or received detailed profile
+    if (
+      updatedEnquiry &&
+      (updates.leadStatus === 'Completed' || updates.status === 'Submitted') &&
+      (updates.profession || updates.highestQualification || updates.collegeName || updates.organization || updates.pincode)
+    ) {
+      emailService.sendToolsUpskillsEnquiryEmail({
+        name: updatedEnquiry.name,
+        email: updatedEnquiry.email,
+        phone: updatedEnquiry.phone,
+        program: updatedEnquiry.program,
+        category: updatedEnquiry.category,
+        profession: updatedEnquiry.profession,
+        highestQualification: updatedEnquiry.highestQualification,
+        yearOfGraduation: updatedEnquiry.yearOfGraduation,
+        apaarAbcStatus: updatedEnquiry.apaarAbcStatus,
+        apaarId: updatedEnquiry.apaarId,
+        ktuId: updatedEnquiry.ktuId,
+        collegeState: updatedEnquiry.collegeState,
+        collegeName: updatedEnquiry.collegeName,
+        universityName: updatedEnquiry.universityName,
+        rollNumber: updatedEnquiry.rollNumber,
+        organization: updatedEnquiry.organization,
+        designation: updatedEnquiry.designation,
+        yearsOfExperience: updatedEnquiry.yearsOfExperience,
+        department: updatedEnquiry.department,
+        location: updatedEnquiry.location,
+        city: updatedEnquiry.city,
+        state: updatedEnquiry.state,
+        pincode: updatedEnquiry.pincode,
+        submittedAt: updatedEnquiry.submittedAt
+      }).catch((err) => {
+        console.error('[EMAIL DISPATCH ERROR - TOOLS & UPSKILLS STEP 2]', err);
+      });
+
+      emailService.sendUserConfirmation({
+        to: updatedEnquiry.email,
+        name: updatedEnquiry.name,
+        subject: `Registration for ${updatedEnquiry.program}`,
+        message: `Thank you for completing your detailed registration for ${updatedEnquiry.program}. An academic specialist will get in touch with you shortly.`
+      }).catch(() => {});
+    }
+
+    return res.json({ success: true, enquiry: updatedEnquiry });
   } catch (err: any) {
     return res.status(500).json({ error: err.message || 'Failed to update enquiry.' });
   }
