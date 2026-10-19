@@ -178,12 +178,10 @@ export const BecomeInstructor: React.FC = () => {
       />
 
       {/* Hero Section */}
-      <section className="bg-gradient-to-b from-purple-50/70 via-slate-50 to-white text-slate-950 py-16 sm:py-24 text-center relative overflow-hidden border-b border-slate-200">
-        <div className="absolute inset-0 bg-[radial-gradient(ellipse_80%_60%_at_50%_-20%,rgba(109,34,181,0.08),rgba(255,255,255,0))] pointer-events-none" />
-
+      <section className="bg-gradient-to-b from-[#F1E8FA]/40 via-[#F7F7F7] to-white text-slate-950 py-16 sm:py-24 text-center relative overflow-hidden border-b border-slate-200">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 space-y-5 relative z-10">
-          <div className="inline-flex items-center gap-2 px-3.5 py-1.5 bg-purple-100 border border-purple-200 text-purple-800 rounded-full text-xs font-bold uppercase tracking-wider">
-            <GraduationCap className="w-4 h-4 text-purple-600" />
+          <div className="inline-flex items-center gap-2 px-3.5 py-1.5 bg-[#F1E8FA] border border-[#E0CEF5] text-[#6D22B5] rounded-full text-xs font-bold uppercase tracking-wider">
+            <GraduationCap className="w-4 h-4 text-[#6D22B5]" />
             <span>Join Our Faculty Network</span>
           </div>
 
@@ -198,7 +196,7 @@ export const BecomeInstructor: React.FC = () => {
           <div className="pt-2">
             <button
               onClick={scrollToForm}
-              className="px-6 py-3 bg-purple-600 hover:bg-purple-700 text-white font-bold text-xs sm:text-sm rounded-xl shadow-md shadow-purple-600/20 transition-all inline-flex items-center gap-2"
+              className="btn-primary px-6 py-3 font-bold text-xs sm:text-sm rounded-xl shadow-md transition-all inline-flex items-center gap-2"
             >
               <span>Apply as an Instructor</span>
               <ArrowRight className="w-4 h-4" />
@@ -213,8 +211,8 @@ export const BecomeInstructor: React.FC = () => {
       {/* Who Can Apply Section */}
       <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
         <div className="text-center max-w-3xl mx-auto mb-12 space-y-2">
-          <span className="text-xs font-bold text-purple-600 uppercase tracking-widest">
-            Eligibility & Background
+          <span className="text-xs font-bold text-[#6D22B5] uppercase tracking-widest">
+            Eligibility &amp; Background
           </span>
           <h2 className="text-2xl sm:text-3xl font-display font-black text-slate-950">
             Who Can Apply?
@@ -230,10 +228,10 @@ export const BecomeInstructor: React.FC = () => {
             return (
               <div
                 key={idx}
-                className="bg-white border border-slate-200 rounded-2xl p-6 shadow-2xs hover:shadow-md transition-shadow flex flex-col justify-between"
+                className="bg-white border border-slate-200 rounded-2xl p-6 shadow-sm hover:shadow-md transition-shadow flex flex-col justify-between"
               >
                 <div className="space-y-3">
-                  <div className="w-10 h-10 rounded-xl bg-purple-50 border border-purple-200 flex items-center justify-center text-purple-600">
+                  <div className="w-10 h-10 rounded-xl bg-[#F1E8FA] border border-[#E0CEF5] flex items-center justify-center text-[#6D22B5]">
                     <Icon className="w-5 h-5" />
                   </div>
                   <h3 className="font-display font-bold text-slate-900 text-sm sm:text-base">
@@ -253,14 +251,14 @@ export const BecomeInstructor: React.FC = () => {
       <section className="bg-white border-y border-slate-200 py-16">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center max-w-3xl mx-auto mb-10 space-y-2">
-            <span className="text-xs font-bold text-purple-600 uppercase tracking-widest">
+            <span className="text-xs font-bold text-[#6D22B5] uppercase tracking-widest">
               Teaching Domains
             </span>
             <h2 className="text-2xl sm:text-3xl font-display font-black text-slate-950">
               Areas We Are Looking For
             </h2>
             <p className="text-xs sm:text-sm text-slate-600 leading-relaxed">
-              We regularly expand our instructor pool across our active master programs and tools & upskills tracks.
+              We regularly expand our instructor pool across our active master programs and tools &amp; upskills tracks.
             </p>
           </div>
 
@@ -268,9 +266,9 @@ export const BecomeInstructor: React.FC = () => {
             {focusDomains.map((domain, idx) => (
               <div
                 key={idx}
-                className="px-4 py-2 bg-slate-50 border border-slate-200 text-slate-800 text-xs font-semibold rounded-xl hover:border-purple-300 hover:bg-purple-50 transition-colors flex items-center gap-2"
+                className="px-4 py-2 bg-slate-50 border border-slate-200 text-slate-800 text-xs font-semibold rounded-xl hover:border-[#6D22B5] hover:bg-[#F1E8FA] transition-colors flex items-center gap-2"
               >
-                <Code2 className="w-3.5 h-3.5 text-purple-600" />
+                <Code2 className="w-3.5 h-3.5 text-[#6D22B5]" />
                 <span>{domain}</span>
               </div>
             ))}
@@ -280,9 +278,9 @@ export const BecomeInstructor: React.FC = () => {
 
       {/* Instructor Expectations */}
       <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
-        <div className="max-w-4xl mx-auto bg-white border border-slate-200 rounded-2xl p-6 sm:p-10 shadow-2xs space-y-6">
+        <div className="max-w-4xl mx-auto bg-white border border-slate-200 rounded-2xl p-6 sm:p-10 shadow-sm space-y-6">
           <div className="space-y-2 border-b border-slate-100 pb-4">
-            <span className="text-xs font-bold text-purple-600 uppercase tracking-widest">
+            <span className="text-xs font-bold text-[#6D22B5] uppercase tracking-widest">
               Faculty Standards
             </span>
             <h2 className="text-xl sm:text-2xl font-display font-black text-slate-950">
@@ -296,7 +294,7 @@ export const BecomeInstructor: React.FC = () => {
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             {instructorExpectations.map((exp, idx) => (
               <div key={idx} className="flex items-start gap-3 p-3 bg-slate-50 rounded-xl border border-slate-100">
-                <CheckCircle2 className="w-4 h-4 text-purple-600 mt-0.5 flex-shrink-0" />
+                <CheckCircle2 className="w-4 h-4 text-[#6D22B5] mt-0.5 flex-shrink-0" />
                 <span className="text-xs text-slate-700 leading-relaxed font-medium">{exp}</span>
               </div>
             ))}
@@ -307,10 +305,10 @@ export const BecomeInstructor: React.FC = () => {
       {/* Application Form Section */}
       <section id="instructor-form" className="bg-slate-100/70 border-t border-slate-200 py-16">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="bg-white border border-slate-200 rounded-2xl p-6 sm:p-10 shadow-2xs space-y-8">
+          <div className="bg-white border border-slate-200 rounded-2xl p-6 sm:p-10 shadow-sm space-y-8">
             <div className="text-center space-y-2 border-b border-slate-100 pb-6">
-              <div className="inline-flex items-center gap-1.5 px-3 py-1 bg-purple-50 text-purple-700 rounded-lg text-xs font-bold">
-                <FileText className="w-3.5 h-3.5 text-purple-600" />
+              <div className="inline-flex items-center gap-1.5 px-3 py-1 bg-[#F1E8FA] text-[#381061] border border-[#E0CEF5] rounded-lg text-xs font-bold">
+                <FileText className="w-3.5 h-3.5 text-[#6D22B5]" />
                 <span>Faculty Application</span>
               </div>
               <h2 className="text-2xl sm:text-3xl font-display font-black text-slate-950">
@@ -322,20 +320,20 @@ export const BecomeInstructor: React.FC = () => {
             </div>
 
             {submittedApp ? (
-              <div className="p-8 rounded-2xl bg-emerald-50 border border-emerald-200 text-center space-y-4">
-                <div className="w-12 h-12 rounded-full bg-emerald-100 border border-emerald-300 flex items-center justify-center text-emerald-600 mx-auto">
+              <div className="p-8 rounded-2xl bg-[#F1E8FA] border border-[#E0CEF5] text-center space-y-4">
+                <div className="w-12 h-12 rounded-full bg-white border border-[#E0CEF5] flex items-center justify-center text-[#6D22B5] mx-auto">
                   <CheckCircle2 className="w-6 h-6" />
                 </div>
-                <h3 className="text-lg font-display font-black text-emerald-950">
+                <h3 className="text-lg font-display font-black text-[#1B3200]">
                   Application Submitted Successfully
                 </h3>
-                <p className="text-xs text-emerald-800 max-w-md mx-auto leading-relaxed">
+                <p className="text-xs text-[#381061] max-w-md mx-auto leading-relaxed">
                   Thank you, <strong className="font-bold">{submittedApp.name}</strong>. Your instructor application has been submitted for review. Our academic coordinator will contact you at <span className="underline">{submittedApp.email}</span>.
                 </p>
                 <div className="pt-2">
                   <button
                     onClick={() => setSubmittedApp(null)}
-                    className="px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs rounded-lg transition-colors shadow-2xs"
+                    className="btn-primary px-4 py-2 font-bold text-xs rounded-lg transition-colors shadow-sm"
                   >
                     Submit Another Application
                   </button>
@@ -363,7 +361,7 @@ export const BecomeInstructor: React.FC = () => {
                       type="text"
                       placeholder="e.g. Dr. Rajesh Sharma"
                       {...register('name')}
-                      className={`w-full px-3.5 py-2.5 text-xs bg-slate-50 border rounded-lg focus:outline-none focus:bg-white focus:border-purple-600 text-slate-900 transition-colors ${
+                      className={`w-full px-3.5 py-2.5 text-xs bg-slate-50 border rounded-lg focus:outline-none focus:bg-white focus:border-[#6D22B5] focus:ring-1 focus:ring-[#6D22B5] text-slate-900 transition-colors ${
                         errors.name ? 'border-red-400' : 'border-slate-200'
                       }`}
                     />
@@ -382,7 +380,7 @@ export const BecomeInstructor: React.FC = () => {
                       type="email"
                       placeholder="rajesh.sharma@example.com"
                       {...register('email')}
-                      className={`w-full px-3.5 py-2.5 text-xs bg-slate-50 border rounded-lg focus:outline-none focus:bg-white focus:border-purple-600 text-slate-900 transition-colors ${
+                      className={`w-full px-3.5 py-2.5 text-xs bg-slate-50 border rounded-lg focus:outline-none focus:bg-white focus:border-[#6D22B5] focus:ring-1 focus:ring-[#6D22B5] text-slate-900 transition-colors ${
                         errors.email ? 'border-red-400' : 'border-slate-200'
                       }`}
                     />
@@ -401,7 +399,7 @@ export const BecomeInstructor: React.FC = () => {
                       type="tel"
                       placeholder="+91 90744 50935"
                       {...register('phone')}
-                      className={`w-full px-3.5 py-2.5 text-xs bg-slate-50 border rounded-lg focus:outline-none focus:bg-white focus:border-purple-600 text-slate-900 transition-colors ${
+                      className={`w-full px-3.5 py-2.5 text-xs bg-slate-50 border rounded-lg focus:outline-none focus:bg-white focus:border-[#6D22B5] focus:ring-1 focus:ring-[#6D22B5] text-slate-900 transition-colors ${
                         errors.phone ? 'border-red-400' : 'border-slate-200'
                       }`}
                     />
@@ -420,7 +418,7 @@ export const BecomeInstructor: React.FC = () => {
                       type="text"
                       placeholder="e.g. Lead Data Scientist, Professor, Principal Engineer"
                       {...register('designation')}
-                      className={`w-full px-3.5 py-2.5 text-xs bg-slate-50 border rounded-lg focus:outline-none focus:bg-white focus:border-purple-600 text-slate-900 transition-colors ${
+                      className={`w-full px-3.5 py-2.5 text-xs bg-slate-50 border rounded-lg focus:outline-none focus:bg-white focus:border-[#6D22B5] focus:ring-1 focus:ring-[#6D22B5] text-slate-900 transition-colors ${
                         errors.designation ? 'border-red-400' : 'border-slate-200'
                       }`}
                     />
@@ -439,7 +437,7 @@ export const BecomeInstructor: React.FC = () => {
                       type="text"
                       placeholder="e.g. Tech Corp / National Institute of Technology"
                       {...register('organization')}
-                      className={`w-full px-3.5 py-2.5 text-xs bg-slate-50 border rounded-lg focus:outline-none focus:bg-white focus:border-purple-600 text-slate-900 transition-colors ${
+                      className={`w-full px-3.5 py-2.5 text-xs bg-slate-50 border rounded-lg focus:outline-none focus:bg-white focus:border-[#6D22B5] focus:ring-1 focus:ring-[#6D22B5] text-slate-900 transition-colors ${
                         errors.organization ? 'border-red-400' : 'border-slate-200'
                       }`}
                     />
@@ -458,7 +456,7 @@ export const BecomeInstructor: React.FC = () => {
                       type="text"
                       placeholder="e.g. Ph.D. in Computer Science, M.Tech, M.S. Data Science"
                       {...register('qualification')}
-                      className={`w-full px-3.5 py-2.5 text-xs bg-slate-50 border rounded-lg focus:outline-none focus:bg-white focus:border-purple-600 text-slate-900 transition-colors ${
+                      className={`w-full px-3.5 py-2.5 text-xs bg-slate-50 border rounded-lg focus:outline-none focus:bg-white focus:border-[#6D22B5] focus:ring-1 focus:ring-[#6D22B5] text-slate-900 transition-colors ${
                         errors.qualification ? 'border-red-400' : 'border-slate-200'
                       }`}
                     />
@@ -477,7 +475,7 @@ export const BecomeInstructor: React.FC = () => {
                       type="text"
                       placeholder="e.g. Machine Learning, LLMs, Power BI, Python"
                       {...register('expertise')}
-                      className={`w-full px-3.5 py-2.5 text-xs bg-slate-50 border rounded-lg focus:outline-none focus:bg-white focus:border-purple-600 text-slate-900 transition-colors ${
+                      className={`w-full px-3.5 py-2.5 text-xs bg-slate-50 border rounded-lg focus:outline-none focus:bg-white focus:border-[#6D22B5] focus:ring-1 focus:ring-[#6D22B5] text-slate-900 transition-colors ${
                         errors.expertise ? 'border-red-400' : 'border-slate-200'
                       }`}
                     />
@@ -494,7 +492,7 @@ export const BecomeInstructor: React.FC = () => {
                     </label>
                     <select
                       {...register('experience')}
-                      className="w-full px-3.5 py-2.5 text-xs bg-slate-50 border border-slate-200 rounded-lg focus:outline-none focus:bg-white focus:border-purple-600 text-slate-900"
+                      className="w-full px-3.5 py-2.5 text-xs bg-slate-50 border border-slate-200 rounded-lg focus:outline-none focus:bg-white focus:border-[#6D22B5] focus:ring-1 focus:ring-[#6D22B5] text-slate-900"
                     >
                       <option value="2-4 Years">2–4 Years</option>
                       <option value="5-8 Years">5–8 Years</option>
@@ -512,7 +510,7 @@ export const BecomeInstructor: React.FC = () => {
                       type="url"
                       placeholder="https://linkedin.com/in/username"
                       {...register('linkedin')}
-                      className="w-full px-3.5 py-2.5 text-xs bg-slate-50 border border-slate-200 rounded-lg focus:outline-none focus:bg-white focus:border-purple-600 text-slate-900"
+                      className="w-full px-3.5 py-2.5 text-xs bg-slate-50 border border-slate-200 rounded-lg focus:outline-none focus:bg-white focus:border-[#6D22B5] focus:ring-1 focus:ring-[#6D22B5] text-slate-900"
                     />
                   </div>
 
@@ -525,7 +523,7 @@ export const BecomeInstructor: React.FC = () => {
                       type="url"
                       placeholder="https://yourportfolio.com or github.com/username"
                       {...register('portfolio')}
-                      className="w-full px-3.5 py-2.5 text-xs bg-slate-50 border border-slate-200 rounded-lg focus:outline-none focus:bg-white focus:border-purple-600 text-slate-900"
+                      className="w-full px-3.5 py-2.5 text-xs bg-slate-50 border border-slate-200 rounded-lg focus:outline-none focus:bg-white focus:border-[#6D22B5] focus:ring-1 focus:ring-[#6D22B5] text-slate-900"
                     />
                   </div>
 
@@ -539,7 +537,7 @@ export const BecomeInstructor: React.FC = () => {
                       type="text"
                       placeholder="e.g. Data Science with Python, Deep Learning, Power BI, SQL, Prompt Engineering"
                       {...register('courses')}
-                      className={`w-full px-3.5 py-2.5 text-xs bg-slate-50 border rounded-lg focus:outline-none focus:bg-white focus:border-purple-600 text-slate-900 transition-colors ${
+                      className={`w-full px-3.5 py-2.5 text-xs bg-slate-50 border rounded-lg focus:outline-none focus:bg-white focus:border-[#6D22B5] focus:ring-1 focus:ring-[#6D22B5] text-slate-900 transition-colors ${
                         errors.courses ? 'border-red-400' : 'border-slate-200'
                       }`}
                     />
@@ -556,7 +554,7 @@ export const BecomeInstructor: React.FC = () => {
                     </label>
                     <select
                       {...register('teachingExperience')}
-                      className="w-full px-3.5 py-2.5 text-xs bg-slate-50 border border-slate-200 rounded-lg focus:outline-none focus:bg-white focus:border-purple-600 text-slate-900"
+                      className="w-full px-3.5 py-2.5 text-xs bg-slate-50 border border-slate-200 rounded-lg focus:outline-none focus:bg-white focus:border-[#6D22B5] focus:ring-1 focus:ring-[#6D22B5] text-slate-900"
                     >
                       <option value="None (Interested to start)">No formal teaching (Interested in mentoring)</option>
                       <option value="1-3 Years">1–3 Years (College / Bootcamps / Corporate)</option>
@@ -575,7 +573,7 @@ export const BecomeInstructor: React.FC = () => {
                       rows={3}
                       placeholder="Summarize your professional experience, domain specializations, and teaching philosophy..."
                       {...register('bio')}
-                      className={`w-full px-3.5 py-2.5 text-xs bg-slate-50 border rounded-lg focus:outline-none focus:bg-white focus:border-purple-600 text-slate-900 transition-colors ${
+                      className={`w-full px-3.5 py-2.5 text-xs bg-slate-50 border rounded-lg focus:outline-none focus:bg-white focus:border-[#6D22B5] focus:ring-1 focus:ring-[#6D22B5] text-slate-900 transition-colors ${
                         errors.bio ? 'border-red-400' : 'border-slate-200'
                       }`}
                     />
@@ -587,7 +585,7 @@ export const BecomeInstructor: React.FC = () => {
                   {/* Resume Upload / Link */}
                   <div className="space-y-2 sm:col-span-2 p-4 bg-slate-50 border border-slate-200 rounded-xl">
                     <label className="text-xs font-bold text-slate-800 flex items-center gap-1">
-                      <Upload className="w-3.5 h-3.5 text-purple-600" />
+                      <Upload className="w-3.5 h-3.5 text-[#6D22B5]" />
                       <span>Resume Upload (PDF / Word) or Public Resume Link</span>
                     </label>
                     
@@ -597,10 +595,10 @@ export const BecomeInstructor: React.FC = () => {
                           type="file"
                           accept=".pdf,.doc,.docx"
                           onChange={handleFileUpload}
-                          className="text-xs text-slate-600 file:mr-2.5 file:py-1.5 file:px-3 file:rounded-lg file:border-0 file:text-xs file:font-semibold file:bg-purple-50 file:text-purple-700 hover:file:bg-purple-100"
+                          className="text-xs text-slate-600 file:mr-2.5 file:py-1.5 file:px-3 file:rounded-lg file:border-0 file:text-xs file:font-semibold file:bg-[#F1E8FA] file:text-[#381061] hover:file:bg-[#d8f0c5]"
                         />
                         {resumeFile && (
-                          <div className="text-[11px] text-emerald-600 font-bold mt-1 flex items-center gap-1">
+                          <div className="text-[11px] text-[#6D22B5] font-bold mt-1 flex items-center gap-1">
                             <CheckCircle2 className="w-3 h-3" />
                             <span>Attached: {resumeFile.name}</span>
                           </div>
@@ -615,7 +613,7 @@ export const BecomeInstructor: React.FC = () => {
                           type="url"
                           placeholder="Or paste Google Drive / Dropbox link..."
                           {...register('resumeLink')}
-                          className="w-full px-3 py-2 text-xs bg-white border border-slate-200 rounded-lg focus:outline-none focus:border-purple-600 text-slate-900"
+                          className="w-full px-3 py-2 text-xs bg-white border border-slate-200 rounded-lg focus:outline-none focus:border-[#6D22B5] focus:ring-1 focus:ring-[#6D22B5] text-slate-900"
                         />
                       </div>
                     </div>
@@ -630,7 +628,7 @@ export const BecomeInstructor: React.FC = () => {
                       rows={2}
                       placeholder="Availability (Weekend/Weekday batches), preferred mode of delivery, or research achievements..."
                       {...register('additionalInformation')}
-                      className="w-full px-3.5 py-2.5 text-xs bg-slate-50 border border-slate-200 rounded-lg focus:outline-none focus:bg-white focus:border-purple-600 text-slate-900"
+                      className="w-full px-3.5 py-2.5 text-xs bg-slate-50 border border-slate-200 rounded-lg focus:outline-none focus:bg-white focus:border-[#6D22B5] focus:ring-1 focus:ring-[#6D22B5] text-slate-900"
                     />
                   </div>
                 </div>
@@ -639,11 +637,11 @@ export const BecomeInstructor: React.FC = () => {
                   <button
                     type="submit"
                     disabled={isSubmitting}
-                    className="w-full sm:w-auto px-8 py-3 bg-purple-600 hover:bg-purple-700 text-white font-bold text-xs sm:text-sm rounded-xl transition-all shadow-md shadow-purple-600/20 flex items-center justify-center gap-2 disabled:opacity-50"
+                    className="btn-primary w-full sm:w-auto px-8 py-3 font-bold text-xs sm:text-sm rounded-xl transition-all shadow-md flex items-center justify-center gap-2 disabled:opacity-50"
                   >
                     {isSubmitting ? (
                       <>
-                        <Loader2 className="w-4 h-4 animate-spin" />
+                        <Loader2 className="w-4 h-4 animate-spin text-black" />
                         <span>Submitting Application...</span>
                       </>
                     ) : (

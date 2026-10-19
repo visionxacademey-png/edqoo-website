@@ -6,17 +6,20 @@
  * - Leaves base64 data: URIs and blob: URIs intact without mutating them.
  */
 
+export const DEFAULT_ENGLISH_COURSE_FALLBACK =
+  'https://images.unsplash.com/photo-1546410531-bb4caa6b424d?q=80&w=800&auto=format&fit=crop';
+
 export function getCacheBustedImageUrl(
   url?: string | null,
   version?: string | number | null,
-  fallback: string = ''
+  fallback: string = DEFAULT_ENGLISH_COURSE_FALLBACK
 ): string {
   if (!url || typeof url !== 'string') {
     return fallback;
   }
 
   const trimmed = url.trim();
-  if (!trimmed) {
+  if (!trimmed || trimmed === '/englishclass.png') {
     return fallback;
   }
 

@@ -1,5 +1,5 @@
 import app from './app.js';
-import { initDb } from './db/index.js';
+import { ensureDbInitialized } from './db/index.js';
 
 const PORT = process.env.PORT || 5001;
 
@@ -18,7 +18,7 @@ async function startServer() {
   });
 
   // Initialize DB connection in background without blocking port binding
-  initDb().catch((err) => {
+  ensureDbInitialized().catch((err) => {
     console.error('⚠️ [DB] Background database init note:', err.message);
   });
 

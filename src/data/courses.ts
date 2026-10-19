@@ -200,6 +200,15 @@ export function normalizeCategoryName(cat: string | null | undefined): string {
     return 'Free Learning';
   }
 
+  if (
+    lower === 'spoken tutorial' ||
+    lower === 'spoken-tutorial' ||
+    lower === 'spoken english' ||
+    lower === 'spoken-english'
+  ) {
+    return 'Spoken English';
+  }
+
   return trimmed;
 }
 
@@ -1458,7 +1467,7 @@ export const courses: Course[] = [
     lessons: 15,
     level: 'Beginner to Intermediate',
     rating: 4.91,
-    students: 1420,
+    students: 5678,
     status: 'available',
     featured: true,
     skills: [
@@ -2309,23 +2318,117 @@ export const courses: Course[] = [
   }
 ];
 
+export const COURSES: Course[] = courses;
+
 // =============================================================================
 // HELPER FUNCTIONS FOR FILTERING & DISCOVERY
 // =============================================================================
 
 /**
+ * Determines whether a course belongs to English Mirror / Spoken Tutorial.
+ */
+export function isEnglishMirrorCourse(
+  course?: Partial<Course> | { category?: string; categories?: string[]; slug?: string; id?: string; title?: string } | null
+): boolean {
+  if (!course) return false;
+
+  const rawCat = (course.category || '').toLowerCase().trim();
+  if (
+    rawCat === 'english mirror' ||
+    rawCat.includes('english mirror') ||
+    rawCat === 'spoken english' ||
+    rawCat === 'spoken tutorial' ||
+    rawCat.includes('spoken tutorial')
+  ) {
+    return true;
+  }
+
+  const categories = course.categories || [];
+  if (
+    Array.isArray(categories) &&
+    categories.some((cat: string) => {
+      const lower = (cat || '').toLowerCase().trim();
+      return (
+        lower === 'english mirror' ||
+        lower.includes('english mirror') ||
+        lower === 'spoken english' ||
+        lower === 'spoken tutorial' ||
+        lower.includes('spoken tutorial')
+      );
+    })
+  ) {
+    return true;
+  }
+
+  const slug = (course.slug || course.id || '').toLowerCase().trim();
+  if (
+    slug.startsWith('1-to-1-live-spoken-english') ||
+    slug.startsWith('1-to-1-communicative-english') ||
+    slug.startsWith('standard-plan-telephonic') ||
+    slug.startsWith('kids-1-to-1-english') ||
+    slug.startsWith('ielts-') ||
+    slug.startsWith('elite-corporate-transformation') ||
+    slug.startsWith('targeted-interview-prep') ||
+    slug.startsWith('spoken-english-') ||
+    slug.startsWith('em-') ||
+    slug.includes('spoken-tutorial') ||
+    slug.includes('english-mirror')
+  ) {
+    return true;
+  }
+
+  return false;
+}
+
+/**
+ * Reorders a course list so that standard courses come first,
+ * and English Mirror / Spoken Tutorial courses are placed at the end.
+ * Preserves relative ordering within each group and does not mutate the input array.
+ */
+export function orderCoursesWithEnglishMirrorLast(courseList?: Course[] | null): Course[] {
+  if (!Array.isArray(courseList) || courseList.length === 0) {
+    return [];
+  }
+
+  const normalCourses: Course[] = [];
+  const englishMirrorCourses: Course[] = [];
+
+  for (const course of courseList) {
+    if (isEnglishMirrorCourse(course)) {
+      englishMirrorCourses.push(course);
+    } else {
+      normalCourses.push(course);
+    }
+  }
+
+  return [...normalCourses, ...englishMirrorCourses];
+}
+
+/**
  * Filter courses by category tab.
- * 'all' or 'All Categories' returns unique courses.
+ * 'all' or 'All Categories' returns unique courses with English Mirror courses placed last.
  * Specific category returns courses whose `categories` includes that category name.
  */
 export function filterCoursesByCategory(courseList: Course[], category: string): Course[] {
   if (!category || category === 'all' || category === 'All Categories') {
-    return courseList;
+    return orderCoursesWithEnglishMirrorLast(courseList);
+  }
+  const rawTarget = category.toLowerCase().trim();
+  if (
+    rawTarget === 'spoken english' ||
+    rawTarget === 'spoken tutorial' ||
+    rawTarget === 'cat-spoken-tutorial' ||
+    rawTarget === 'spoken-tutorial' ||
+    rawTarget === 'spoken-english' ||
+    rawTarget === 'english mirror' ||
+    rawTarget === 'cat-english-mirror' ||
+    rawTarget === 'english-mirror'
+  ) {
+    return courseList.filter(isEnglishMirrorCourse);
   }
   const normalizedTarget = normalizeCategoryName(category).toLowerCase();
-  const rawTarget = category.toLowerCase().trim();
 
-  return courseList.filter((c) => {
+  const matching = courseList.filter((c) => {
     const rawCategories = c.categories || [c.category];
     return rawCategories.some((cat) => {
       const norm = normalizeCategoryName(cat).toLowerCase();
@@ -2333,6 +2436,12 @@ export function filterCoursesByCategory(courseList: Course[], category: string):
       return norm === normalizedTarget || raw === rawTarget || raw === normalizedTarget || norm === rawTarget;
     });
   });
+
+  if (normalizedTarget !== 'english mirror' && normalizedTarget !== 'spoken tutorial' && normalizedTarget !== 'spoken english') {
+    return orderCoursesWithEnglishMirrorLast(matching);
+  }
+
+  return matching;
 }
 
 /**

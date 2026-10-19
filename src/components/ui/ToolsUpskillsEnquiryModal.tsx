@@ -421,25 +421,25 @@ export const ToolsUpskillsEnquiryModal: React.FC<ToolsUpskillsEnquiryModalProps>
             transition={{ duration: 0.25, ease: 'easeOut' }}
             className={`relative w-full ${
               currentStep === 1 ? 'max-w-md' : 'max-w-3xl'
-            } bg-white rounded-2xl shadow-2xl border border-slate-200 overflow-hidden z-10 my-6 max-h-[92vh] flex flex-col transition-all duration-300`}
+            } bg-white rounded-2xl shadow-2xl border border-[#E5E5E5] overflow-hidden z-10 my-6 max-h-[92vh] flex flex-col transition-all duration-300`}
           >
             {/* Header */}
-            <div className="bg-gradient-to-r from-purple-800 via-purple-700 to-indigo-900 text-white px-5 sm:px-6 py-4 sm:py-5 flex items-center justify-between flex-shrink-0 border-b border-purple-900/40">
+            <div className="bg-white text-slate-900 px-5 sm:px-6 py-4 sm:py-5 flex items-center justify-between flex-shrink-0 border-b border-slate-200">
               <div className="space-y-1 text-left flex-1 min-w-0 pr-3">
-                <div className="flex items-center gap-2 text-purple-200 text-xs font-bold uppercase tracking-wider">
-                  <span className="inline-flex items-center bg-purple-900/60 px-2 py-0.5 rounded-md border border-purple-500/30 text-[10px]">
+                <div className="flex items-center gap-2 text-[#6D22B5] text-xs font-bold uppercase tracking-wider">
+                  <span className="inline-flex items-center bg-[#F1E8FA] px-2 py-0.5 rounded-md border border-[#E0CEF5] text-[10px] text-[#6D22B5]">
                     Tools &amp; Upskills Track
                   </span>
-                  <span className="text-[11px] text-purple-200 font-semibold hidden sm:inline">
+                  <span className="text-[11px] text-slate-500 font-semibold hidden sm:inline">
                     {currentStep === 1 ? 'Step 1 of 2' : 'Step 2 of 2'}
                   </span>
                 </div>
 
-                <h3 className="text-lg sm:text-xl font-display font-bold text-white truncate">
+                <h3 className="text-lg sm:text-xl font-display font-bold text-slate-950 truncate">
                   Enquire Now: {programTitle || 'Tools & Upskills Program'}
                 </h3>
 
-                <p className="text-xs text-purple-100/90 leading-snug">
+                <p className="text-xs text-slate-500 leading-snug">
                   {currentStep === 1
                     ? "Step 1: Let's get your contact details"
                     : 'Step 2: Tell us a little more about yourself'}
@@ -448,7 +448,7 @@ export const ToolsUpskillsEnquiryModal: React.FC<ToolsUpskillsEnquiryModalProps>
 
               <button
                 onClick={handleModalClose}
-                className="p-1.5 rounded-xl text-purple-200 hover:text-white hover:bg-white/10 transition-colors flex-shrink-0"
+                className="p-1.5 rounded-xl text-slate-400 hover:text-slate-800 hover:bg-slate-100 transition-colors flex-shrink-0 cursor-pointer"
                 aria-label="Close modal"
               >
                 <X className="w-5 h-5" />
@@ -461,13 +461,13 @@ export const ToolsUpskillsEnquiryModal: React.FC<ToolsUpskillsEnquiryModalProps>
                 <span
                   className={`w-5 h-5 rounded-full flex items-center justify-center text-[10px] font-bold ${
                     currentStep === 1
-                      ? 'bg-purple-700 text-white shadow-sm'
-                      : 'bg-emerald-600 text-white'
+                      ? 'bg-[#000000] text-[#6D22B5] shadow-sm'
+                      : 'bg-[#6D22B5] text-white font-bold'
                   }`}
                 >
                   {currentStep === 2 ? '✓' : '1'}
                 </span>
-                <span className={currentStep === 1 ? 'text-purple-900 font-bold' : 'text-slate-600'}>
+                <span className={currentStep === 1 ? 'text-black font-bold' : 'text-slate-600'}>
                   Contact Details
                 </span>
               </div>
@@ -478,14 +478,14 @@ export const ToolsUpskillsEnquiryModal: React.FC<ToolsUpskillsEnquiryModalProps>
                 <span
                   className={`w-5 h-5 rounded-full flex items-center justify-center text-[10px] font-bold ${
                     currentStep === 2
-                      ? 'bg-purple-700 text-white shadow-sm'
+                      ? 'bg-[#000000] text-[#6D22B5] shadow-sm'
                       : 'bg-slate-300 text-slate-600'
                   }`}
                 >
                   2
                 </span>
-                <span className={currentStep === 2 ? 'text-purple-900 font-bold' : 'text-slate-500'}>
-                  Educational & Professional
+                <span className={currentStep === 2 ? 'text-black font-bold' : 'text-slate-500'}>
+                  Educational &amp; Professional
                 </span>
               </div>
             </div>
@@ -495,15 +495,15 @@ export const ToolsUpskillsEnquiryModal: React.FC<ToolsUpskillsEnquiryModalProps>
               {isSuccess ? (
                 /* Success View */
                 <div className="py-8 text-center space-y-4">
-                  <div className="w-16 h-16 bg-emerald-50 text-emerald-600 rounded-full flex items-center justify-center mx-auto shadow-inner border border-emerald-200">
-                    <CheckCircle2 className="w-10 h-10 text-emerald-600" />
+                  <div className="w-16 h-16 bg-[#F1E8FA] text-[#6D22B5] rounded-full flex items-center justify-center mx-auto shadow-inner border border-[#E0CEF5]">
+                    <CheckCircle2 className="w-10 h-10 text-[#6D22B5]" />
                   </div>
                   <div className="space-y-2">
                     <h4 className="text-xl font-display font-bold text-slate-900">
                       Enquiry Submitted Successfully!
                     </h4>
                     <p className="text-xs sm:text-sm text-slate-600 max-w-md mx-auto leading-relaxed">
-                      Thank you for submitting your detailed enquiry for <strong className="text-purple-800">{programTitle}</strong>. Our academic team has recorded your details and an advisor will contact you shortly.
+                      Thank you for submitting your detailed enquiry for <strong className="text-black">{programTitle}</strong>. Our academic team has recorded your details and an advisor will contact you shortly.
                     </p>
                   </div>
                   <div className="pt-3">
@@ -511,7 +511,7 @@ export const ToolsUpskillsEnquiryModal: React.FC<ToolsUpskillsEnquiryModalProps>
                       onClick={handleModalClose}
                       className="btn-primary px-6 py-2.5 text-xs font-bold rounded-xl shadow-md"
                     >
-                      Close & Return to Program
+                      Close &amp; Return to Program
                     </button>
                   </div>
                 </div>
@@ -526,12 +526,12 @@ export const ToolsUpskillsEnquiryModal: React.FC<ToolsUpskillsEnquiryModalProps>
                   )}
 
                   {/* Course Badge */}
-                  <div className="p-3 rounded-xl bg-purple-50/80 border border-purple-100 flex items-center gap-3">
-                    <div className="p-2 rounded-lg bg-purple-600 text-white">
+                  <div className="p-3 rounded-xl bg-[#F1E8FA] border border-[#E0CEF5] flex items-center gap-3">
+                    <div className="p-2 rounded-lg bg-[#000000] text-[#6D22B5]">
                       <BookOpen className="w-4 h-4" />
                     </div>
                     <div className="min-w-0">
-                      <div className="text-[10px] font-bold text-purple-700 uppercase tracking-wider">
+                      <div className="text-[10px] font-bold text-[#6D22B5] uppercase tracking-wider">
                         Selected Program
                       </div>
                       <div className="text-xs font-bold text-slate-900 truncate">
@@ -551,7 +551,7 @@ export const ToolsUpskillsEnquiryModal: React.FC<ToolsUpskillsEnquiryModalProps>
                         placeholder="Enter your full name"
                         {...registerStep1('name')}
                         className={`w-full pl-9 pr-3 py-2.5 bg-slate-50 border rounded-xl text-xs text-slate-900 focus:outline-none focus:bg-white transition-all ${
-                          errorsStep1.name ? 'border-red-400 focus:border-red-500' : 'border-slate-200 focus:border-purple-600'
+                          errorsStep1.name ? 'border-red-400 focus:border-red-500' : 'border-slate-200 focus:border-[#6D22B5]'
                         }`}
                       />
                       <User className="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
@@ -572,7 +572,7 @@ export const ToolsUpskillsEnquiryModal: React.FC<ToolsUpskillsEnquiryModalProps>
                         placeholder="Enter your active email address"
                         {...registerStep1('email')}
                         className={`w-full pl-9 pr-3 py-2.5 bg-slate-50 border rounded-xl text-xs text-slate-900 focus:outline-none focus:bg-white transition-all ${
-                          errorsStep1.email ? 'border-red-400 focus:border-red-500' : 'border-slate-200 focus:border-purple-600'
+                          errorsStep1.email ? 'border-red-400 focus:border-red-500' : 'border-slate-200 focus:border-[#6D22B5]'
                         }`}
                       />
                       <Mail className="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
@@ -593,7 +593,7 @@ export const ToolsUpskillsEnquiryModal: React.FC<ToolsUpskillsEnquiryModalProps>
                         placeholder="e.g. +91 90744 50935"
                         {...registerStep1('phone')}
                         className={`w-full pl-9 pr-3 py-2.5 bg-slate-50 border rounded-xl text-xs text-slate-900 focus:outline-none focus:bg-white transition-all ${
-                          errorsStep1.phone ? 'border-red-400 focus:border-red-500' : 'border-slate-200 focus:border-purple-600'
+                          errorsStep1.phone ? 'border-red-400 focus:border-red-500' : 'border-slate-200 focus:border-[#6D22B5]'
                         }`}
                       />
                       <Phone className="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
@@ -651,7 +651,7 @@ export const ToolsUpskillsEnquiryModal: React.FC<ToolsUpskillsEnquiryModalProps>
                   {/* SECTION 1 — PERSONAL DETAILS */}
                   <div className="space-y-3.5">
                     <div className="flex items-center gap-2 pb-1.5 border-b border-slate-200">
-                      <User className="w-4 h-4 text-purple-700" />
+                      <User className="w-4 h-4 text-[#6D22B5]" />
                       <h4 className="text-xs font-bold text-slate-900 uppercase tracking-wider">
                         Section 1 — Personal Details
                       </h4>
@@ -667,7 +667,7 @@ export const ToolsUpskillsEnquiryModal: React.FC<ToolsUpskillsEnquiryModalProps>
                         <input
                           type="text"
                           {...registerStep2('name')}
-                          className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-xs text-slate-900 focus:outline-none focus:bg-white focus:border-purple-600"
+                          className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-xs text-slate-900 focus:outline-none focus:bg-white focus:border-[#6D22B5]"
                         />
                         {errorsStep2.name && (
                           <span className="text-[10px] text-red-500 font-medium">{errorsStep2.name.message}</span>
@@ -682,7 +682,7 @@ export const ToolsUpskillsEnquiryModal: React.FC<ToolsUpskillsEnquiryModalProps>
                         <input
                           type="tel"
                           {...registerStep2('phone')}
-                          className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-xs text-slate-900 focus:outline-none focus:bg-white focus:border-purple-600"
+                          className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-xs text-slate-900 focus:outline-none focus:bg-white focus:border-[#6D22B5]"
                         />
                         {errorsStep2.phone && (
                           <span className="text-[10px] text-red-500 font-medium">{errorsStep2.phone.message}</span>
@@ -697,7 +697,7 @@ export const ToolsUpskillsEnquiryModal: React.FC<ToolsUpskillsEnquiryModalProps>
                         <input
                           type="email"
                           {...registerStep2('email')}
-                          className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-xs text-slate-900 focus:outline-none focus:bg-white focus:border-purple-600"
+                          className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-xs text-slate-900 focus:outline-none focus:bg-white focus:border-[#6D22B5]"
                         />
                         {errorsStep2.email && (
                           <span className="text-[10px] text-red-500 font-medium">{errorsStep2.email.message}</span>
@@ -717,7 +717,7 @@ export const ToolsUpskillsEnquiryModal: React.FC<ToolsUpskillsEnquiryModalProps>
                           placeholder="e.g. 682001"
                           {...registerStep2('pincode')}
                           className={`w-full px-3 py-2 bg-slate-50 border rounded-lg text-xs text-slate-900 focus:outline-none focus:bg-white transition-all ${
-                            errorsStep2.pincode ? 'border-red-400 focus:border-red-500' : 'border-slate-200 focus:border-purple-600'
+                            errorsStep2.pincode ? 'border-red-400 focus:border-red-500' : 'border-slate-200 focus:border-[#6D22B5]'
                           }`}
                         />
                         {errorsStep2.pincode && (
@@ -732,7 +732,7 @@ export const ToolsUpskillsEnquiryModal: React.FC<ToolsUpskillsEnquiryModalProps>
                         </label>
                         <select
                           {...registerStep2('state')}
-                          className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-xs text-slate-900 focus:outline-none focus:bg-white focus:border-purple-600"
+                          className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-xs text-slate-900 focus:outline-none focus:bg-white focus:border-[#6D22B5]"
                         >
                           {INDIAN_STATES.map((st) => (
                             <option key={st} value={st}>
@@ -755,7 +755,7 @@ export const ToolsUpskillsEnquiryModal: React.FC<ToolsUpskillsEnquiryModalProps>
                           placeholder="e.g. Kochi / Trivandrum"
                           {...registerStep2('city')}
                           className={`w-full px-3 py-2 bg-slate-50 border rounded-lg text-xs text-slate-900 focus:outline-none focus:bg-white transition-all ${
-                            errorsStep2.city ? 'border-red-400 focus:border-red-500' : 'border-slate-200 focus:border-purple-600'
+                            errorsStep2.city ? 'border-red-400 focus:border-red-500' : 'border-slate-200 focus:border-[#6D22B5]'
                           }`}
                         />
                         {errorsStep2.city && (
@@ -768,7 +768,7 @@ export const ToolsUpskillsEnquiryModal: React.FC<ToolsUpskillsEnquiryModalProps>
                   {/* SECTION 2 — PROFESSIONAL / EDUCATIONAL STATUS */}
                   <div className="space-y-3.5 pt-2">
                     <div className="flex items-center gap-2 pb-1.5 border-b border-slate-200">
-                      <GraduationCap className="w-4 h-4 text-purple-700" />
+                      <GraduationCap className="w-4 h-4 text-[#6D22B5]" />
                       <h4 className="text-xs font-bold text-slate-900 uppercase tracking-wider">
                         Section 2 — Professional / Educational Status
                       </h4>
@@ -781,7 +781,7 @@ export const ToolsUpskillsEnquiryModal: React.FC<ToolsUpskillsEnquiryModalProps>
                       </label>
                       <select
                         {...registerStep2('profession')}
-                        className="w-full px-3 py-2.5 bg-slate-50 border border-slate-200 rounded-lg text-xs text-slate-900 font-medium focus:outline-none focus:bg-white focus:border-purple-600"
+                        className="w-full px-3 py-2.5 bg-slate-50 border border-slate-200 rounded-lg text-xs text-slate-900 font-medium focus:outline-none focus:bg-white focus:border-[#6D22B5]"
                       >
                         <option value="Student">Student</option>
                         <option value="Working Professional">Working Professional</option>
@@ -806,7 +806,7 @@ export const ToolsUpskillsEnquiryModal: React.FC<ToolsUpskillsEnquiryModalProps>
                             <select
                               {...registerStep2('highestQualification')}
                               className={`w-full px-3 py-2 bg-white border rounded-lg text-xs text-slate-900 focus:outline-none transition-all ${
-                                errorsStep2.highestQualification ? 'border-red-400 focus:border-red-500' : 'border-slate-200 focus:border-purple-600'
+                                errorsStep2.highestQualification ? 'border-red-400 focus:border-red-500' : 'border-slate-200 focus:border-[#6D22B5]'
                               }`}
                             >
                               <option value="Select">Select Qualification</option>
@@ -834,7 +834,7 @@ export const ToolsUpskillsEnquiryModal: React.FC<ToolsUpskillsEnquiryModalProps>
                             <select
                               {...registerStep2('yearOfGraduation')}
                               className={`w-full px-3 py-2 bg-white border rounded-lg text-xs text-slate-900 focus:outline-none transition-all ${
-                                errorsStep2.yearOfGraduation ? 'border-red-400 focus:border-red-500' : 'border-slate-200 focus:border-purple-600'
+                                errorsStep2.yearOfGraduation ? 'border-red-400 focus:border-red-500' : 'border-slate-200 focus:border-[#6D22B5]'
                               }`}
                             >
                               <option value="Select">Select Year</option>
@@ -867,10 +867,9 @@ export const ToolsUpskillsEnquiryModal: React.FC<ToolsUpskillsEnquiryModalProps>
                             <select
                               {...registerStep2('apaarAbcStatus')}
                               className={`w-full px-3 py-2 bg-white border rounded-lg text-xs text-slate-900 focus:outline-none transition-all ${
-                                errorsStep2.apaarAbcStatus ? 'border-red-400 focus:border-red-500' : 'border-slate-200 focus:border-purple-600'
+                                errorsStep2.apaarAbcStatus ? 'border-red-400 focus:border-red-500' : 'border-slate-200 focus:border-[#6D22B5]'
                               }`}
                             >
-                              
                               <option value="I have APAAR/ABC ID">I have APAAR/ABC ID</option>
                               <option value="I don't have APAAR/ABC ID">I don't have APAAR/ABC ID</option>
                               <option value="Do not need APAAR/ABC ID">Do not need APAAR/ABC ID</option>
@@ -889,16 +888,16 @@ export const ToolsUpskillsEnquiryModal: React.FC<ToolsUpskillsEnquiryModalProps>
                               exit={{ opacity: 0, y: -4 }}
                               className="space-y-1"
                             >
-                              <label className="text-[11px] font-bold text-purple-800 uppercase tracking-wider block flex items-center gap-1">
-                                <IdCard className="w-3.5 h-3.5 text-purple-700" />
+                              <label className="text-[11px] font-bold text-[#6D22B5] uppercase tracking-wider block flex items-center gap-1">
+                                <IdCard className="w-3.5 h-3.5 text-[#6D22B5]" />
                                 <span>APAAR / ABC ID <span className="text-red-500">*</span></span>
                               </label>
                               <input
                                 type="text"
                                 placeholder="e.g. 12-digit APAAR ID / ABC ID"
                                 {...registerStep2('apaarId')}
-                                className={`w-full px-3 py-2 bg-purple-50/50 border rounded-lg text-xs text-slate-900 font-medium focus:outline-none transition-all ${
-                                  errorsStep2.apaarId ? 'border-red-400 focus:border-red-500' : 'border-purple-300 focus:border-purple-600'
+                                className={`w-full px-3 py-2 bg-[#F1E8FA] border rounded-lg text-xs text-slate-900 font-medium focus:outline-none transition-all ${
+                                  errorsStep2.apaarId ? 'border-red-400 focus:border-red-500' : 'border-[#E0CEF5] focus:border-[#6D22B5]'
                                 }`}
                               />
                               {errorsStep2.apaarId && (
@@ -915,16 +914,16 @@ export const ToolsUpskillsEnquiryModal: React.FC<ToolsUpskillsEnquiryModalProps>
                               exit={{ opacity: 0, y: -4 }}
                               className="space-y-1"
                             >
-                              <label className="text-[11px] font-bold text-purple-800 uppercase tracking-wider block flex items-center gap-1">
-                                <IdCard className="w-3.5 h-3.5 text-purple-700" />
+                              <label className="text-[11px] font-bold text-[#6D22B5] uppercase tracking-wider block flex items-center gap-1">
+                                <IdCard className="w-3.5 h-3.5 text-[#6D22B5]" />
                                 <span>KTU ID <span className="text-red-500">*</span></span>
                               </label>
                               <input
                                 type="text"
                                 placeholder="e.g. TKM21CS045 / KTU Reg No."
                                 {...registerStep2('ktuId')}
-                                className={`w-full px-3 py-2 bg-purple-50/50 border rounded-lg text-xs text-slate-900 font-medium focus:outline-none transition-all ${
-                                  errorsStep2.ktuId ? 'border-red-400 focus:border-red-500' : 'border-purple-300 focus:border-purple-600'
+                                className={`w-full px-3 py-2 bg-[#F1E8FA] border rounded-lg text-xs text-slate-900 font-medium focus:outline-none transition-all ${
+                                  errorsStep2.ktuId ? 'border-red-400 focus:border-red-500' : 'border-[#E0CEF5] focus:border-[#6D22B5]'
                                 }`}
                               />
                               {errorsStep2.ktuId && (
@@ -942,7 +941,7 @@ export const ToolsUpskillsEnquiryModal: React.FC<ToolsUpskillsEnquiryModalProps>
                             </label>
                             <select
                               {...registerStep2('collegeState')}
-                              className="w-full px-3 py-2 bg-white border border-slate-200 rounded-lg text-xs text-slate-900 focus:outline-none focus:border-purple-600"
+                              className="w-full px-3 py-2 bg-white border border-slate-200 rounded-lg text-xs text-slate-900 focus:outline-none focus:border-[#6D22B5]"
                             >
                               {INDIAN_STATES.map((st) => (
                                 <option key={st} value={st}>
@@ -961,7 +960,7 @@ export const ToolsUpskillsEnquiryModal: React.FC<ToolsUpskillsEnquiryModalProps>
                               placeholder="e.g. TKM College of Engineering / Model Engg College"
                               {...registerStep2('collegeName')}
                               className={`w-full px-3 py-2 bg-white border rounded-lg text-xs text-slate-900 focus:outline-none transition-all ${
-                                errorsStep2.collegeName ? 'border-red-400 focus:border-red-500' : 'border-slate-200 focus:border-purple-600'
+                                errorsStep2.collegeName ? 'border-red-400 focus:border-red-500' : 'border-slate-200 focus:border-[#6D22B5]'
                               }`}
                             />
                             {errorsStep2.collegeName && (
@@ -981,7 +980,7 @@ export const ToolsUpskillsEnquiryModal: React.FC<ToolsUpskillsEnquiryModalProps>
                               placeholder="Select or enter University"
                               {...registerStep2('universityName')}
                               className={`w-full px-3 py-2 bg-white border rounded-lg text-xs text-slate-900 focus:outline-none transition-all ${
-                                errorsStep2.universityName ? 'border-red-400 focus:border-red-500' : 'border-slate-200 focus:border-purple-600'
+                                errorsStep2.universityName ? 'border-red-400 focus:border-red-500' : 'border-slate-200 focus:border-[#6D22B5]'
                               }`}
                             />
                             <datalist id="university-list">
@@ -1002,7 +1001,7 @@ export const ToolsUpskillsEnquiryModal: React.FC<ToolsUpskillsEnquiryModalProps>
                               type="text"
                               placeholder="e.g. 21CS045 (Optional)"
                               {...registerStep2('rollNumber')}
-                              className="w-full px-3 py-2 bg-white border border-slate-200 rounded-lg text-xs text-slate-900 focus:outline-none focus:border-purple-600"
+                              className="w-full px-3 py-2 bg-white border border-slate-200 rounded-lg text-xs text-slate-900 focus:outline-none focus:border-[#6D22B5]"
                             />
                           </div>
                         </div>
@@ -1015,7 +1014,7 @@ export const ToolsUpskillsEnquiryModal: React.FC<ToolsUpskillsEnquiryModalProps>
                             </label>
                             <select
                               {...registerStep2('highestAcademicLevel')}
-                              className="w-full px-3 py-2 bg-white border border-slate-200 rounded-lg text-xs text-slate-900 focus:outline-none focus:border-purple-600"
+                              className="w-full px-3 py-2 bg-white border border-slate-200 rounded-lg text-xs text-slate-900 focus:outline-none focus:border-[#6D22B5]"
                             >
                               <option value="High School">High School</option>
                               <option value="Undergraduate">Undergraduate</option>
@@ -1030,7 +1029,7 @@ export const ToolsUpskillsEnquiryModal: React.FC<ToolsUpskillsEnquiryModalProps>
                             </label>
                             <select
                               {...registerStep2('academicArea')}
-                              className="w-full px-3 py-2 bg-white border border-slate-200 rounded-lg text-xs text-slate-900 focus:outline-none focus:border-purple-600"
+                              className="w-full px-3 py-2 bg-white border border-slate-200 rounded-lg text-xs text-slate-900 focus:outline-none focus:border-[#6D22B5]"
                             >
                               <option value="Computer Science & IT">Computer Science & IT</option>
                               <option value="Electronics & Communication">Electronics & Communication</option>
@@ -1050,7 +1049,7 @@ export const ToolsUpskillsEnquiryModal: React.FC<ToolsUpskillsEnquiryModalProps>
                             </label>
                             <select
                               {...registerStep2('studyYear')}
-                              className="w-full px-3 py-2 bg-white border border-slate-200 rounded-lg text-xs text-slate-900 focus:outline-none focus:border-purple-600"
+                              className="w-full px-3 py-2 bg-white border border-slate-200 rounded-lg text-xs text-slate-900 focus:outline-none focus:border-[#6D22B5]"
                             >
                               <option value="1st Year">1st Year</option>
                               <option value="2nd Year">2nd Year</option>
@@ -1077,7 +1076,7 @@ export const ToolsUpskillsEnquiryModal: React.FC<ToolsUpskillsEnquiryModalProps>
                               placeholder="e.g. Infosys / TCS / Freelance"
                               {...registerStep2('organization')}
                               className={`w-full px-3 py-2 bg-white border rounded-lg text-xs text-slate-900 focus:outline-none transition-all ${
-                                errorsStep2.organization ? 'border-red-400 focus:border-red-500' : 'border-slate-200 focus:border-purple-600'
+                                errorsStep2.organization ? 'border-red-400 focus:border-red-500' : 'border-slate-200 focus:border-[#6D22B5]'
                               }`}
                             />
                             {errorsStep2.organization && (
@@ -1094,7 +1093,7 @@ export const ToolsUpskillsEnquiryModal: React.FC<ToolsUpskillsEnquiryModalProps>
                               placeholder="e.g. Software Engineer / Data Analyst"
                               {...registerStep2('designation')}
                               className={`w-full px-3 py-2 bg-white border rounded-lg text-xs text-slate-900 focus:outline-none transition-all ${
-                                errorsStep2.designation ? 'border-red-400 focus:border-red-500' : 'border-slate-200 focus:border-purple-600'
+                                errorsStep2.designation ? 'border-red-400 focus:border-red-500' : 'border-slate-200 focus:border-[#6D22B5]'
                               }`}
                             />
                             {errorsStep2.designation && (
@@ -1110,7 +1109,7 @@ export const ToolsUpskillsEnquiryModal: React.FC<ToolsUpskillsEnquiryModalProps>
                             </label>
                             <select
                               {...registerStep2('yearsOfExperience')}
-                              className="w-full px-3 py-2 bg-white border border-slate-200 rounded-lg text-xs text-slate-900 focus:outline-none focus:border-purple-600"
+                              className="w-full px-3 py-2 bg-white border border-slate-200 rounded-lg text-xs text-slate-900 focus:outline-none focus:border-[#6D22B5]"
                             >
                               <option value="< 1 Year">&lt; 1 Year</option>
                               <option value="1-3 Years">1–3 Years</option>
@@ -1126,7 +1125,7 @@ export const ToolsUpskillsEnquiryModal: React.FC<ToolsUpskillsEnquiryModalProps>
                             </label>
                             <select
                               {...registerStep2('highestQualification')}
-                              className="w-full px-3 py-2 bg-white border border-slate-200 rounded-lg text-xs text-slate-900 focus:outline-none focus:border-purple-600"
+                              className="w-full px-3 py-2 bg-white border border-slate-200 rounded-lg text-xs text-slate-900 focus:outline-none focus:border-[#6D22B5]"
                             >
                               <option value="Engineering B.Tech">Engineering B.Tech</option>
                               <option value="Bachelor's degree">Bachelor's degree</option>
@@ -1153,7 +1152,7 @@ export const ToolsUpskillsEnquiryModal: React.FC<ToolsUpskillsEnquiryModalProps>
                               placeholder="e.g. Government Engineering College"
                               {...registerStep2('organization')}
                               className={`w-full px-3 py-2 bg-white border rounded-lg text-xs text-slate-900 focus:outline-none transition-all ${
-                                errorsStep2.organization ? 'border-red-400 focus:border-red-500' : 'border-slate-200 focus:border-purple-600'
+                                errorsStep2.organization ? 'border-red-400 focus:border-red-500' : 'border-slate-200 focus:border-[#6D22B5]'
                               }`}
                             />
                             {errorsStep2.organization && (
@@ -1169,7 +1168,7 @@ export const ToolsUpskillsEnquiryModal: React.FC<ToolsUpskillsEnquiryModalProps>
                               type="text"
                               placeholder="e.g. Computer Science / AI & Data Science"
                               {...registerStep2('department')}
-                              className="w-full px-3 py-2 bg-white border border-slate-200 rounded-lg text-xs text-slate-900 focus:outline-none focus:border-purple-600"
+                              className="w-full px-3 py-2 bg-white border border-slate-200 rounded-lg text-xs text-slate-900 focus:outline-none focus:border-[#6D22B5]"
                             />
                           </div>
                         </div>
@@ -1187,7 +1186,7 @@ export const ToolsUpskillsEnquiryModal: React.FC<ToolsUpskillsEnquiryModalProps>
                             type="text"
                             placeholder="e.g. Freelancer / Entrepreneur / Career Break"
                             {...registerStep2('otherProfessionDetails')}
-                            className="w-full px-3 py-2 bg-white border border-slate-200 rounded-lg text-xs text-slate-900 focus:outline-none focus:border-purple-600"
+                            className="w-full px-3 py-2 bg-white border border-slate-200 rounded-lg text-xs text-slate-900 focus:outline-none focus:border-[#6D22B5]"
                           />
                         </div>
                       </div>

@@ -53,13 +53,13 @@ export const Resources: React.FC = () => {
       />
 
       {/* Hero Header */}
-      <section className="bg-gradient-to-b from-purple-50/70 via-slate-50 to-white text-slate-950 py-12 sm:py-16 border-b border-slate-200 text-center relative overflow-hidden">
+      <section className="bg-gradient-to-b from-[#F1E8FA]/40 via-[#F7F7F7] to-white text-slate-950 py-12 sm:py-16 border-b border-slate-200 text-center relative overflow-hidden">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 space-y-4 relative z-10">
-          <span className="px-3.5 py-1.5 bg-purple-100 border border-purple-200 text-purple-800 rounded-full text-xs font-bold uppercase tracking-wider inline-block">
-            Edqoo Knowledge & Learning Hub
+          <span className="px-3.5 py-1.5 bg-[#F1E8FA] border border-[#E0CEF5] text-[#6D22B5] rounded-full text-xs font-bold uppercase tracking-wider inline-block">
+            Edqoo Knowledge &amp; Learning Hub
           </span>
           <h1 className="text-3xl sm:text-4xl lg:text-5xl font-display font-black text-slate-950">
-            Educational Guides, Roadmaps & Tech Insights
+            Educational Guides, Roadmaps &amp; Tech Insights
           </h1>
           <p className="text-slate-600 text-sm sm:text-base max-w-2xl mx-auto leading-relaxed">
             In-depth roadmaps, practical code examples, and career strategies covering Data Science, AI, Python, Machine Learning, and Data Analytics.
@@ -84,7 +84,7 @@ export const Resources: React.FC = () => {
                 onClick={() => setSelectedCategory(cat)}
                 className={`px-3.5 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer ${
                   selectedCategory === cat
-                    ? 'bg-purple-600 text-white shadow-xs'
+                    ? 'bg-[#6D22B5] text-white shadow-sm'
                     : 'bg-white border border-slate-200 text-slate-700 hover:bg-slate-100'
                 }`}
               >
@@ -99,7 +99,7 @@ export const Resources: React.FC = () => {
               placeholder="Search articles & roadmaps..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full pl-9 pr-3.5 py-2 bg-white border border-slate-200 text-xs rounded-xl focus:outline-none focus:border-purple-600 shadow-2xs"
+              className="w-full pl-9 pr-3.5 py-2 bg-white border border-slate-200 text-xs rounded-xl focus:outline-none focus:border-[#6D22B5] focus:ring-1 focus:ring-[#6D22B5] shadow-sm"
             />
             <Search className="w-3.5 h-3.5 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
           </div>
@@ -107,7 +107,7 @@ export const Resources: React.FC = () => {
 
         {/* Featured Post Card */}
         {featuredPost && (
-          <div className="bg-white border border-slate-200 rounded-2xl overflow-hidden shadow-2xs hover:shadow-md transition-shadow grid grid-cols-1 md:grid-cols-12 group">
+          <div className="bg-white border border-slate-200 rounded-2xl overflow-hidden shadow-sm hover:shadow-md transition-shadow grid grid-cols-1 md:grid-cols-12 group">
             <div className="md:col-span-7 bg-slate-100 aspect-[16/10] md:aspect-auto overflow-hidden">
               <img
                 src={featuredPost.image}
@@ -118,10 +118,10 @@ export const Resources: React.FC = () => {
             </div>
             <div className="md:col-span-5 p-6 sm:p-8 flex flex-col justify-between text-left space-y-6">
               <div className="space-y-3">
-                <span className="inline-block px-2.5 py-1 bg-purple-100 border border-purple-200 text-purple-800 text-[10px] font-bold rounded uppercase tracking-wider">
+                <span className="inline-block px-2.5 py-1 bg-[#F1E8FA] border border-[#E0CEF5] text-[#6D22B5] text-[10px] font-bold rounded uppercase tracking-wider">
                   {featuredPost.category}
                 </span>
-                <h2 className="text-xl sm:text-2xl font-display font-extrabold text-slate-900 group-hover:text-purple-600 transition-colors leading-tight">
+                <h2 className="text-xl sm:text-2xl font-display font-extrabold text-slate-900 group-hover:text-[#6D22B5] transition-colors leading-tight">
                   <Link to={`/blog/${featuredPost.slug}`}>{featuredPost.title}</Link>
                 </h2>
                 <p className="text-slate-500 text-xs sm:text-sm leading-relaxed line-clamp-3">
@@ -149,7 +149,7 @@ export const Resources: React.FC = () => {
             {gridPosts.map((post) => (
               <div
                 key={post.id}
-                className="bg-white border border-slate-200 rounded-2xl overflow-hidden flex flex-col justify-between shadow-2xs hover:shadow-md hover:border-purple-300 transition-all text-left group"
+                className="bg-white border border-slate-200 rounded-2xl overflow-hidden flex flex-col justify-between shadow-sm hover:shadow-md hover:border-[#6D22B5]/40 transition-all text-left group"
               >
                 <div className="aspect-[16/10] overflow-hidden bg-slate-100">
                   <img
@@ -162,10 +162,10 @@ export const Resources: React.FC = () => {
 
                 <div className="p-6 flex-1 flex flex-col justify-between space-y-4">
                   <div className="space-y-2">
-                    <span className="text-[10px] font-bold text-purple-600 uppercase tracking-wider block">
+                    <span className="text-[10px] font-bold text-[#6D22B5] uppercase tracking-wider block">
                       {post.category}
                     </span>
-                    <h3 className="font-display font-bold text-sm sm:text-base text-slate-900 group-hover:text-purple-600 transition-colors line-clamp-2">
+                    <h3 className="font-display font-bold text-sm sm:text-base text-slate-900 group-hover:text-[#6D22B5] transition-colors line-clamp-2">
                       <Link to={`/blog/${post.slug}`}>{post.title}</Link>
                     </h3>
                     <p className="text-slate-500 text-xs leading-relaxed line-clamp-3">
@@ -193,7 +193,7 @@ export const Resources: React.FC = () => {
                 setSearchTerm('');
                 setSelectedCategory('all');
               }}
-              className="btn-primary px-4 py-2 text-xs font-bold rounded-lg shadow-2xs"
+              className="btn-primary px-4 py-2 text-xs font-bold rounded-lg shadow-sm"
             >
               Reset Filters
             </button>
@@ -216,7 +216,7 @@ export const ResourceDetails: React.FC = () => {
         <h2 className="text-xl font-bold text-slate-800 font-display">Article Not Found</h2>
         <p className="text-xs text-slate-500">The requested article may have been moved or updated.</p>
         <Link to="/blog" className="btn-primary px-5 py-2.5 text-xs font-semibold rounded-lg shadow">
-          Back to Blog & Resources
+          Back to Blog &amp; Resources
         </Link>
       </div>
     );
@@ -257,7 +257,7 @@ export const ResourceDetails: React.FC = () => {
         {/* Back Link */}
         <Link
           to="/blog"
-          className="inline-flex items-center gap-1.5 text-xs font-semibold text-slate-500 hover:text-purple-600 transition-colors"
+          className="inline-flex items-center gap-1.5 text-xs font-semibold text-slate-500 hover:text-[#6D22B5] transition-colors"
         >
           <ArrowLeft className="w-4 h-4" />
           <span>Back to All Articles</span>
@@ -265,7 +265,7 @@ export const ResourceDetails: React.FC = () => {
 
         {/* Article Meta Header */}
         <div className="space-y-4">
-          <span className="px-3 py-1 bg-purple-100 border border-purple-200 text-purple-800 text-[11px] font-bold rounded-md uppercase tracking-wider inline-block">
+          <span className="px-3 py-1 bg-[#F1E8FA] border border-[#E0CEF5] text-[#6D22B5] text-[11px] font-bold rounded-md uppercase tracking-wider inline-block">
             {post.category}
           </span>
 
@@ -281,7 +281,7 @@ export const ResourceDetails: React.FC = () => {
             {post.updatedDate && (
               <>
                 <span>•</span>
-                <span className="text-purple-700 font-semibold">
+                <span className="text-[#6D22B5] font-semibold">
                   Updated: {post.updatedDate}
                 </span>
               </>
@@ -305,7 +305,7 @@ export const ResourceDetails: React.FC = () => {
         </div>
 
         {/* Content Body with Markdown Rendering */}
-        <div className="prose prose-slate max-w-none text-slate-700 text-sm sm:text-base leading-relaxed space-y-4 bg-white p-6 sm:p-10 rounded-2xl border border-slate-200 shadow-2xs">
+        <div className="prose prose-slate max-w-none text-slate-700 text-sm sm:text-base leading-relaxed space-y-4 bg-white p-6 sm:p-10 rounded-2xl border border-slate-200 shadow-sm">
           {post.content.split('\n\n').map((paragraph: string, index: number) => {
             const trimmed = paragraph.trim();
             if (trimmed.startsWith('# ')) {
@@ -341,7 +341,7 @@ export const ResourceDetails: React.FC = () => {
             }
             if (trimmed.startsWith('`')) {
               return (
-                <pre key={index} className="p-4 bg-slate-900 text-purple-300 rounded-xl font-mono text-xs overflow-x-auto my-4 border border-slate-800">
+                <pre key={index} className="p-4 bg-[#050505] text-[#6D22B5] rounded-xl font-mono text-xs overflow-x-auto my-4 border border-white/10">
                   {trimmed.replace(/`/g, '')}
                 </pre>
               );
@@ -355,21 +355,21 @@ export const ResourceDetails: React.FC = () => {
         </div>
 
         {/* Contextual Course Upskill Banner */}
-        <div className="bg-gradient-to-r from-purple-900 to-indigo-900 text-white p-6 sm:p-8 rounded-2xl shadow-md flex flex-col sm:flex-row items-center justify-between gap-6">
+        <div className="bg-[#050505] border border-white/10 text-white p-6 sm:p-8 rounded-2xl shadow-md flex flex-col sm:flex-row items-center justify-between gap-6">
           <div className="space-y-2 text-center sm:text-left">
-            <span className="px-2.5 py-1 bg-purple-800 text-purple-200 text-[10px] font-bold rounded uppercase tracking-wider inline-block">
+            <span className="px-2.5 py-1 bg-[#F1E8FA] text-[#381061] border border-[#E0CEF5] text-[10px] font-bold rounded uppercase tracking-wider inline-block">
               Practical Learning
             </span>
-            <h3 className="text-lg sm:text-xl font-display font-bold">
-              Ready to build real skills in Data Science & AI?
+            <h3 className="text-lg sm:text-xl font-display font-bold text-white">
+              Ready to build real skills in Data Science &amp; AI?
             </h3>
-            <p className="text-xs text-purple-200 max-w-lg">
+            <p className="text-xs text-slate-400 max-w-lg">
               Enroll in Edqoo's accredited live programs with 1-on-1 mentorship, industry capstone projects, and placement assistance.
             </p>
           </div>
           <Link
             to="/programs/data-science-and-ai"
-            className="px-5 py-2.5 bg-white hover:bg-purple-50 text-purple-900 font-bold text-xs rounded-xl shadow-sm transition-colors whitespace-nowrap inline-flex items-center gap-1.5"
+            className="btn-primary px-5 py-2.5 font-bold text-xs rounded-xl shadow-sm whitespace-nowrap inline-flex items-center gap-1.5"
           >
             <span>Explore Programs</span>
             <ArrowRight className="w-3.5 h-3.5" />
@@ -377,17 +377,17 @@ export const ResourceDetails: React.FC = () => {
         </div>
 
         {/* Author info block */}
-        <div className="border border-slate-200 bg-white p-6 rounded-2xl shadow-2xs flex items-center gap-4">
+        <div className="border border-slate-200 bg-white p-6 rounded-2xl shadow-sm flex items-center gap-4">
           <img
             src={post.author.avatar}
             alt={post.author.name}
-            className="w-14 h-14 rounded-full object-cover border-2 border-purple-200"
+            className="w-14 h-14 rounded-full object-cover border-2 border-slate-200"
           />
           <div>
             <span className="text-sm font-bold text-slate-900 block font-display">{post.author.name}</span>
-            <span className="text-xs text-purple-700 font-medium block">{post.author.role}</span>
+            <span className="text-xs text-[#6D22B5] font-medium block">{post.author.role}</span>
             <span className="text-[11px] text-slate-500 block mt-1">
-              Edqoo Academic Editorial & Mentorship Board
+              Edqoo Academic Editorial &amp; Mentorship Board
             </span>
           </div>
         </div>
@@ -396,19 +396,19 @@ export const ResourceDetails: React.FC = () => {
         {relatedPosts.length > 0 && (
           <div className="space-y-4 pt-6 border-t border-slate-200">
             <h2 className="text-xl font-display font-bold text-slate-900">
-              Related Articles & Tutorials
+              Related Articles &amp; Tutorials
             </h2>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               {relatedPosts.map((rel) => (
                 <Link
                   key={rel.id}
                   to={`/blog/${rel.slug}`}
-                  className="bg-white border border-slate-200 rounded-xl p-4 hover:border-purple-300 hover:shadow-xs transition-all space-y-2 block group"
+                  className="bg-white border border-slate-200 rounded-xl p-4 hover:border-[#6D22B5]/40 hover:shadow-xs transition-all space-y-2 block group"
                 >
-                  <span className="text-[10px] font-bold text-purple-600 uppercase block">
+                  <span className="text-[10px] font-bold text-[#6D22B5] uppercase block">
                     {rel.category}
                   </span>
-                  <h3 className="font-display font-bold text-xs text-slate-900 group-hover:text-purple-600 transition-colors line-clamp-2">
+                  <h3 className="font-display font-bold text-xs text-slate-900 group-hover:text-[#6D22B5] transition-colors line-clamp-2">
                     {rel.title}
                   </h3>
                   <span className="text-[10px] text-slate-400 block">{rel.readTime}</span>

@@ -186,8 +186,8 @@ export const AdminLeadershipForm: React.FC = () => {
   if (loading) {
     return (
       <div className="py-24 flex flex-col items-center justify-center space-y-3">
-        <Loader2 className="w-8 h-8 text-purple-400 animate-spin" />
-        <span className="text-xs text-slate-400 font-semibold">Loading Member Information...</span>
+        <Loader2 className="w-8 h-8 text-[#6D22B5] animate-spin" />
+        <span className="text-xs text-neutral-400 font-semibold">Loading Member Information...</span>
       </div>
     );
   }
@@ -213,11 +213,11 @@ export const AdminLeadershipForm: React.FC = () => {
       )}
 
       {/* Header Bar */}
-      <div className="flex items-center justify-between pb-3 border-b border-slate-800/80">
+      <div className="flex items-center justify-between pb-3 border-b border-neutral-800">
         <div className="flex items-center gap-3">
           <Link
             to="/admin/leadership"
-            className="p-2 bg-slate-900 hover:bg-slate-800 border border-slate-800 rounded-xl text-slate-400 hover:text-white transition-colors"
+            className="p-2 bg-neutral-900 hover:bg-neutral-800 border border-neutral-800 rounded-xl text-neutral-400 hover:text-white transition-colors"
           >
             <ArrowLeft className="w-4 h-4" />
           </Link>
@@ -225,7 +225,7 @@ export const AdminLeadershipForm: React.FC = () => {
             <h1 className="text-xl sm:text-2xl font-black text-white font-display">
               {isEditing ? `Edit Council Member: ${formData.name}` : 'Add New Leadership Council Member'}
             </h1>
-            <p className="text-xs text-slate-400">
+            <p className="text-xs text-neutral-400">
               Configure profile portrait, credentials, academic roles, and career biography.
             </p>
           </div>
@@ -235,21 +235,21 @@ export const AdminLeadershipForm: React.FC = () => {
       {/* Main Form */}
       <form onSubmit={handleSubmit} className="space-y-6">
         {/* Profile Image & Essential Details */}
-        <div className="bg-slate-900/60 border border-slate-800/80 rounded-2xl p-6 space-y-5">
-          <h3 className="text-xs font-bold uppercase tracking-wider text-purple-400">
+        <div className="bg-neutral-900/90 border border-neutral-800 rounded-2xl p-6 space-y-5">
+          <h3 className="text-xs font-bold uppercase tracking-wider text-[#6D22B5]">
             Profile Portrait & Primary Identity
           </h3>
 
           <div className="grid grid-cols-1 sm:grid-cols-12 gap-5 items-start">
             {/* Image Preview & Upload */}
-            <div className="sm:col-span-4 flex flex-col items-center text-center space-y-3 p-4 bg-slate-950/70 border border-slate-800 rounded-xl">
+            <div className="sm:col-span-4 flex flex-col items-center text-center space-y-3 p-4 bg-black border border-neutral-800 rounded-xl">
               <img
                 src={formData.profileImage || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?q=80&w=300&auto=format&fit=crop'}
                 alt="Profile Preview"
-                className="w-28 h-28 rounded-2xl object-cover border-2 border-purple-600/40 shadow-md"
+                className="w-28 h-28 rounded-2xl object-cover border-2 border-[#6D22B5]/40 shadow-md"
               />
               <div className="w-full space-y-2">
-                <label className="px-3 py-1.5 bg-purple-900/40 hover:bg-purple-800/60 text-purple-300 border border-purple-700/50 rounded-lg text-xs font-semibold cursor-pointer flex items-center justify-center gap-1.5 transition-colors">
+                <label className="px-3 py-1.5 bg-[#F1E8FA]/15 hover:bg-[#F1E8FA]/25 text-[#6D22B5] border border-[#6D22B5]/30 rounded-lg text-xs font-semibold cursor-pointer flex items-center justify-center gap-1.5 transition-colors">
                   <Upload className="w-3.5 h-3.5" />
                   <span>Upload Photo</span>
                   <input type="file" accept="image/*" onChange={handleImageFileChange} className="hidden" />
@@ -259,7 +259,7 @@ export const AdminLeadershipForm: React.FC = () => {
                   placeholder="Or paste image URL..."
                   value={formData.profileImage}
                   onChange={(e) => setFormData({ ...formData, profileImage: e.target.value })}
-                  className="w-full px-2.5 py-1.5 bg-slate-900 border border-slate-800 rounded-lg text-[11px] text-slate-300 focus:outline-none focus:border-purple-600"
+                  className="w-full px-2.5 py-1.5 bg-neutral-900 border border-neutral-800 rounded-lg text-[11px] text-neutral-300 focus:outline-none focus:border-[#6D22B5] focus:ring-1 focus:ring-[#6D22B5]"
                 />
               </div>
             </div>
@@ -268,7 +268,7 @@ export const AdminLeadershipForm: React.FC = () => {
             <div className="sm:col-span-8 space-y-4">
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div className="space-y-1.5 sm:col-span-2">
-                  <label className="text-xs font-bold text-slate-300">
+                  <label className="text-xs font-bold text-neutral-300">
                     Full Name <span className="text-red-400">*</span>
                   </label>
                   <input
@@ -277,12 +277,12 @@ export const AdminLeadershipForm: React.FC = () => {
                     placeholder="e.g. Dr. Rajesh Sharma"
                     value={formData.name}
                     onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                    className="w-full px-3.5 py-2 text-xs bg-slate-950 border border-slate-800 rounded-xl text-white focus:outline-none focus:border-purple-600"
+                    className="w-full px-3.5 py-2 text-xs bg-black border border-neutral-800 rounded-xl text-white focus:outline-none focus:border-[#6D22B5] focus:ring-1 focus:ring-[#6D22B5]"
                   />
                 </div>
 
                 <div className="space-y-1.5">
-                  <label className="text-xs font-bold text-slate-300">
+                  <label className="text-xs font-bold text-neutral-300">
                     Designation / Title <span className="text-red-400">*</span>
                   </label>
                   <input
@@ -291,12 +291,12 @@ export const AdminLeadershipForm: React.FC = () => {
                     placeholder="e.g. Dean of Academics / Chief AI Advisor"
                     value={formData.designation}
                     onChange={(e) => setFormData({ ...formData, designation: e.target.value })}
-                    className="w-full px-3.5 py-2 text-xs bg-slate-950 border border-slate-800 rounded-xl text-white focus:outline-none focus:border-purple-600"
+                    className="w-full px-3.5 py-2 text-xs bg-black border border-neutral-800 rounded-xl text-white focus:outline-none focus:border-[#6D22B5] focus:ring-1 focus:ring-[#6D22B5]"
                   />
                 </div>
 
                 <div className="space-y-1.5">
-                  <label className="text-xs font-bold text-slate-300">
+                  <label className="text-xs font-bold text-neutral-300">
                     Organization / Institution <span className="text-red-400">*</span>
                   </label>
                   <input
@@ -305,12 +305,12 @@ export const AdminLeadershipForm: React.FC = () => {
                     placeholder="e.g. National Institute of Technology / Tech Corp"
                     value={formData.organization}
                     onChange={(e) => setFormData({ ...formData, organization: e.target.value })}
-                    className="w-full px-3.5 py-2 text-xs bg-slate-950 border border-slate-800 rounded-xl text-white focus:outline-none focus:border-purple-600"
+                    className="w-full px-3.5 py-2 text-xs bg-black border border-neutral-800 rounded-xl text-white focus:outline-none focus:border-[#6D22B5] focus:ring-1 focus:ring-[#6D22B5]"
                   />
                 </div>
 
                 <div className="space-y-1.5">
-                  <label className="text-xs font-bold text-slate-300">
+                  <label className="text-xs font-bold text-neutral-300">
                     Educational Qualifications
                   </label>
                   <input
@@ -318,12 +318,12 @@ export const AdminLeadershipForm: React.FC = () => {
                     placeholder="e.g. Ph.D. in Computer Science, M.Tech (IIT)"
                     value={formData.qualification}
                     onChange={(e) => setFormData({ ...formData, qualification: e.target.value })}
-                    className="w-full px-3.5 py-2 text-xs bg-slate-950 border border-slate-800 rounded-xl text-white focus:outline-none focus:border-purple-600"
+                    className="w-full px-3.5 py-2 text-xs bg-black border border-neutral-800 rounded-xl text-white focus:outline-none focus:border-[#6D22B5] focus:ring-1 focus:ring-[#6D22B5]"
                   />
                 </div>
 
                 <div className="space-y-1.5">
-                  <label className="text-xs font-bold text-slate-300">
+                  <label className="text-xs font-bold text-neutral-300">
                     Years of Experience
                   </label>
                   <input
@@ -331,21 +331,21 @@ export const AdminLeadershipForm: React.FC = () => {
                     placeholder="e.g. 18+ Years in AI Research & Academic Leadership"
                     value={formData.experience}
                     onChange={(e) => setFormData({ ...formData, experience: e.target.value })}
-                    className="w-full px-3.5 py-2 text-xs bg-slate-950 border border-slate-800 rounded-xl text-white focus:outline-none focus:border-purple-600"
+                    className="w-full px-3.5 py-2 text-xs bg-black border border-neutral-800 rounded-xl text-white focus:outline-none focus:border-[#6D22B5] focus:ring-1 focus:ring-[#6D22B5]"
                   />
                 </div>
 
                 <div className="space-y-1.5">
-                  <label className="text-xs font-bold text-slate-300">
+                  <label className="text-xs font-bold text-neutral-300">
                     Display Priority Order
                   </label>
                   <input
                     type="number"
                     value={formData.displayOrder}
                     onChange={(e) => setFormData({ ...formData, displayOrder: parseInt(e.target.value) || 0 })}
-                    className="w-full px-3.5 py-2 text-xs bg-slate-950 border border-slate-800 rounded-xl text-white focus:outline-none focus:border-purple-600 font-mono"
+                    className="w-full px-3.5 py-2 text-xs bg-black border border-neutral-800 rounded-xl text-white focus:outline-none focus:border-[#6D22B5] focus:ring-1 focus:ring-[#6D22B5] font-mono"
                   />
-                  <span className="text-[10px] text-slate-500">Lower numbers appear first on the website (e.g. 1, 2, 3)</span>
+                  <span className="text-[10px] text-neutral-500">Lower numbers appear first on the website (e.g. 1, 2, 3)</span>
                 </div>
               </div>
             </div>
@@ -353,8 +353,8 @@ export const AdminLeadershipForm: React.FC = () => {
         </div>
 
         {/* Expertise Tags */}
-        <div className="bg-slate-900/60 border border-slate-800/80 rounded-2xl p-6 space-y-4">
-          <h3 className="text-xs font-bold uppercase tracking-wider text-purple-400">
+        <div className="bg-neutral-900/90 border border-neutral-800 rounded-2xl p-6 space-y-4">
+          <h3 className="text-xs font-bold uppercase tracking-wider text-[#6D22B5]">
             Areas of Expertise
           </h3>
 
@@ -365,12 +365,12 @@ export const AdminLeadershipForm: React.FC = () => {
               value={expertiseInput}
               onChange={(e) => setExpertiseInput(e.target.value)}
               onKeyDown={handleAddExpertise}
-              className="flex-1 px-3.5 py-2 text-xs bg-slate-950 border border-slate-800 rounded-xl text-white focus:outline-none focus:border-purple-600"
+              className="flex-1 px-3.5 py-2 text-xs bg-black border border-neutral-800 rounded-xl text-white focus:outline-none focus:border-[#6D22B5] focus:ring-1 focus:ring-[#6D22B5]"
             />
             <button
               type="button"
               onClick={handleAddExpertise}
-              className="px-4 py-2 bg-purple-600 hover:bg-purple-500 text-white font-bold text-xs rounded-xl flex items-center gap-1"
+              className="px-4 py-2 bg-[#6D22B5] hover:bg-[#4B1680] text-white font-bold text-xs rounded-xl flex items-center gap-1 transition-colors"
             >
               <Plus className="w-3.5 h-3.5" />
               <span>Add</span>
@@ -381,13 +381,13 @@ export const AdminLeadershipForm: React.FC = () => {
             {formData.expertise.map((skill, idx) => (
               <span
                 key={idx}
-                className="px-3 py-1 bg-slate-950 text-purple-300 border border-slate-800 text-xs font-semibold rounded-lg inline-flex items-center gap-1.5"
+                className="px-3 py-1 bg-black text-[#6D22B5] border border-[#6D22B5]/30 text-xs font-semibold rounded-lg inline-flex items-center gap-1.5"
               >
                 <span>{skill}</span>
                 <button
                   type="button"
                   onClick={() => handleRemoveExpertise(skill)}
-                  className="hover:text-red-400"
+                  className="hover:text-red-400 text-neutral-400"
                 >
                   <X className="w-3 h-3" />
                 </button>
@@ -397,13 +397,13 @@ export const AdminLeadershipForm: React.FC = () => {
         </div>
 
         {/* Biographies */}
-        <div className="bg-slate-900/60 border border-slate-800/80 rounded-2xl p-6 space-y-4">
-          <h3 className="text-xs font-bold uppercase tracking-wider text-purple-400">
+        <div className="bg-neutral-900/90 border border-neutral-800 rounded-2xl p-6 space-y-4">
+          <h3 className="text-xs font-bold uppercase tracking-wider text-[#6D22B5]">
             Biographies & Executive Leadership Profile
           </h3>
 
           <div className="space-y-1.5">
-            <label className="text-xs font-bold text-slate-300">
+            <label className="text-xs font-bold text-neutral-300">
               Short Professional Bio (Displayed on cards) <span className="text-red-400">*</span>
             </label>
             <textarea
@@ -412,12 +412,12 @@ export const AdminLeadershipForm: React.FC = () => {
               placeholder="Brief 2-3 sentence overview of their position and strategic contributions..."
               value={formData.shortBio}
               onChange={(e) => setFormData({ ...formData, shortBio: e.target.value })}
-              className="w-full px-3.5 py-2.5 text-xs bg-slate-950 border border-slate-800 rounded-xl text-white focus:outline-none focus:border-purple-600 leading-relaxed"
+              className="w-full px-3.5 py-2.5 text-xs bg-black border border-neutral-800 rounded-xl text-white focus:outline-none focus:border-[#6D22B5] focus:ring-1 focus:ring-[#6D22B5] leading-relaxed"
             />
           </div>
 
           <div className="space-y-1.5">
-            <label className="text-xs font-bold text-slate-300">
+            <label className="text-xs font-bold text-neutral-300">
               Detailed Biography / Professional Summary (Displayed in modal)
             </label>
             <textarea
@@ -425,12 +425,12 @@ export const AdminLeadershipForm: React.FC = () => {
               placeholder="Comprehensive summary of career milestones, research, and advisory roles..."
               value={formData.detailedBio}
               onChange={(e) => setFormData({ ...formData, detailedBio: e.target.value })}
-              className="w-full px-3.5 py-2.5 text-xs bg-slate-950 border border-slate-800 rounded-xl text-white focus:outline-none focus:border-purple-600 leading-relaxed"
+              className="w-full px-3.5 py-2.5 text-xs bg-black border border-neutral-800 rounded-xl text-white focus:outline-none focus:border-[#6D22B5] focus:ring-1 focus:ring-[#6D22B5] leading-relaxed"
             />
           </div>
 
           <div className="space-y-1.5">
-            <label className="text-xs font-bold text-slate-300">
+            <label className="text-xs font-bold text-neutral-300">
               Leadership & Governance Experience
             </label>
             <textarea
@@ -438,13 +438,13 @@ export const AdminLeadershipForm: React.FC = () => {
               placeholder="Details on board memberships, dean positions, academic councils, or industry advisory committees..."
               value={formData.leadershipExperience}
               onChange={(e) => setFormData({ ...formData, leadershipExperience: e.target.value })}
-              className="w-full px-3.5 py-2.5 text-xs bg-slate-950 border border-slate-800 rounded-xl text-white focus:outline-none focus:border-purple-600 leading-relaxed"
+              className="w-full px-3.5 py-2.5 text-xs bg-black border border-neutral-800 rounded-xl text-white focus:outline-none focus:border-[#6D22B5] focus:ring-1 focus:ring-[#6D22B5] leading-relaxed"
             />
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div className="space-y-1.5">
-              <label className="text-xs font-bold text-slate-300">
+              <label className="text-xs font-bold text-neutral-300">
                 Industry Contributions & Achievements (1 per line)
               </label>
               <textarea
@@ -452,12 +452,12 @@ export const AdminLeadershipForm: React.FC = () => {
                 placeholder="Fellow of National AI Initiative&#10;Keynote Speaker at IEEE Conference&#10;Author of 30+ peer-reviewed papers"
                 value={formData.achievementsText}
                 onChange={(e) => setFormData({ ...formData, achievementsText: e.target.value })}
-                className="w-full px-3.5 py-2 text-xs bg-slate-950 border border-slate-800 rounded-xl text-white focus:outline-none focus:border-purple-600 font-sans"
+                className="w-full px-3.5 py-2 text-xs bg-black border border-neutral-800 rounded-xl text-white focus:outline-none focus:border-[#6D22B5] focus:ring-1 focus:ring-[#6D22B5] font-sans"
               />
             </div>
 
             <div className="space-y-1.5">
-              <label className="text-xs font-bold text-slate-300">
+              <label className="text-xs font-bold text-neutral-300">
                 Publications & Research Papers (1 per line)
               </label>
               <textarea
@@ -465,66 +465,66 @@ export const AdminLeadershipForm: React.FC = () => {
                 placeholder="Neural Network Optimizations in Edge Computing (2024)&#10;Scalable Machine Learning for Healthcare (2023)"
                 value={formData.publicationsText}
                 onChange={(e) => setFormData({ ...formData, publicationsText: e.target.value })}
-                className="w-full px-3.5 py-2 text-xs bg-slate-950 border border-slate-800 rounded-xl text-white focus:outline-none focus:border-purple-600 font-sans"
+                className="w-full px-3.5 py-2 text-xs bg-black border border-neutral-800 rounded-xl text-white focus:outline-none focus:border-[#6D22B5] focus:ring-1 focus:ring-[#6D22B5] font-sans"
               />
             </div>
           </div>
         </div>
 
         {/* Contact & Professional Links */}
-        <div className="bg-slate-900/60 border border-slate-800/80 rounded-2xl p-6 space-y-4">
-          <h3 className="text-xs font-bold uppercase tracking-wider text-purple-400">
+        <div className="bg-neutral-900/90 border border-neutral-800 rounded-2xl p-6 space-y-4">
+          <h3 className="text-xs font-bold uppercase tracking-wider text-[#6D22B5]">
             Professional & Social Links
           </h3>
 
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
             <div className="space-y-1.5">
-              <label className="text-xs font-bold text-slate-300">LinkedIn Profile URL</label>
+              <label className="text-xs font-bold text-neutral-300">LinkedIn Profile URL</label>
               <input
                 type="url"
                 placeholder="https://linkedin.com/in/username"
                 value={formData.linkedin}
                 onChange={(e) => setFormData({ ...formData, linkedin: e.target.value })}
-                className="w-full px-3.5 py-2 text-xs bg-slate-950 border border-slate-800 rounded-xl text-white focus:outline-none focus:border-purple-600"
+                className="w-full px-3.5 py-2 text-xs bg-black border border-neutral-800 rounded-xl text-white focus:outline-none focus:border-[#6D22B5] focus:ring-1 focus:ring-[#6D22B5]"
               />
             </div>
 
             <div className="space-y-1.5">
-              <label className="text-xs font-bold text-slate-300">Personal / Academic Website</label>
+              <label className="text-xs font-bold text-neutral-300">Personal / Academic Website</label>
               <input
                 type="url"
                 placeholder="https://faculty.institution.edu/~name"
                 value={formData.website}
                 onChange={(e) => setFormData({ ...formData, website: e.target.value })}
-                className="w-full px-3.5 py-2 text-xs bg-slate-950 border border-slate-800 rounded-xl text-white focus:outline-none focus:border-purple-600"
+                className="w-full px-3.5 py-2 text-xs bg-black border border-neutral-800 rounded-xl text-white focus:outline-none focus:border-[#6D22B5] focus:ring-1 focus:ring-[#6D22B5]"
               />
             </div>
 
             <div className="space-y-1.5">
-              <label className="text-xs font-bold text-slate-300">Official Contact Email</label>
+              <label className="text-xs font-bold text-neutral-300">Official Contact Email</label>
               <input
                 type="email"
                 placeholder="council.member@institution.edu"
                 value={formData.email}
                 onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                className="w-full px-3.5 py-2 text-xs bg-slate-950 border border-slate-800 rounded-xl text-white focus:outline-none focus:border-purple-600"
+                className="w-full px-3.5 py-2 text-xs bg-black border border-neutral-800 rounded-xl text-white focus:outline-none focus:border-[#6D22B5] focus:ring-1 focus:ring-[#6D22B5]"
               />
             </div>
           </div>
         </div>
 
         {/* Form Actions */}
-        <div className="flex items-center justify-end gap-3 pt-4 border-t border-slate-800">
+        <div className="flex items-center justify-end gap-3 pt-4 border-t border-neutral-800">
           <Link
             to="/admin/leadership"
-            className="px-5 py-2.5 bg-slate-800 hover:bg-slate-700 text-slate-300 font-semibold text-xs rounded-xl transition-colors"
+            className="px-5 py-2.5 bg-neutral-900 hover:bg-neutral-800 border border-neutral-800 text-neutral-300 font-semibold text-xs rounded-xl transition-colors"
           >
             Cancel
           </Link>
           <button
             type="submit"
             disabled={saving}
-            className="px-6 py-2.5 bg-purple-600 hover:bg-purple-500 text-white font-bold text-xs rounded-xl shadow-md shadow-purple-600/30 flex items-center gap-2 transition-all disabled:opacity-50"
+            className="px-6 py-2.5 bg-[#6D22B5] hover:bg-[#4B1680] text-white font-bold text-xs rounded-xl shadow-md shadow-[#6D22B5]/20 flex items-center gap-2 transition-all disabled:opacity-50"
           >
             {saving ? (
               <>

@@ -58,12 +58,11 @@ export const PrivacyPolicy: React.FC = () => {
       />
 
       {/* Hero Header */}
-      <section className="bg-gradient-to-b from-purple-50/70 via-slate-50 to-white text-slate-950 py-14 sm:py-18 text-center relative overflow-hidden border-b border-slate-200">
-        <div className="absolute inset-0 bg-[radial-gradient(ellipse_80%_60%_at_50%_-20%,rgba(109,34,181,0.08),rgba(255,255,255,0))] pointer-events-none" />
+      <section className="bg-gradient-to-b from-[#F1E8FA]/40 via-[#F7F7F7] to-white text-slate-950 py-14 sm:py-18 text-center relative overflow-hidden border-b border-slate-200">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 space-y-4 relative z-10">
-          <div className="inline-flex items-center gap-2 px-3 py-1 bg-purple-100 border border-purple-200 text-purple-800 rounded-full text-xs font-bold uppercase tracking-wider">
+          <div className="inline-flex items-center gap-2 px-3 py-1 bg-[#F1E8FA] border border-[#E0CEF5] text-[#6D22B5] rounded-full text-xs font-bold uppercase tracking-wider">
             <Shield className="w-3.5 h-3.5" />
-            <span>Data Protection & Privacy</span>
+            <span>Data Protection &amp; Privacy</span>
           </div>
           <h1 className="text-3xl sm:text-4xl lg:text-5xl font-display font-black text-slate-950 tracking-tight">
             Privacy Policy
@@ -86,7 +85,7 @@ export const PrivacyPolicy: React.FC = () => {
 
           {/* Left Sidebar Table of Contents (Desktop Sticky) */}
           <aside className="hidden lg:block lg:col-span-4 sticky top-24 space-y-4">
-            <div className="bg-white border border-slate-200 rounded-2xl p-5 shadow-2xs">
+            <div className="bg-white border border-slate-200 rounded-2xl p-5 shadow-sm">
               <h3 className="text-xs font-bold uppercase tracking-wider text-slate-400 mb-3 px-2">
                 Policy Sections
               </h3>
@@ -100,11 +99,11 @@ export const PrivacyPolicy: React.FC = () => {
                       onClick={() => scrollToSection(sec.id)}
                       className={`w-full flex items-center gap-2.5 px-3 py-2 text-xs font-semibold rounded-lg transition-all text-left ${
                         isActive
-                          ? 'bg-purple-50 text-purple-700 font-bold border-l-2 border-purple-600 pl-2.5'
+                          ? 'bg-[#F1E8FA] text-[#381061] font-bold border-l-2 border-[#6D22B5] pl-2.5'
                           : 'text-slate-600 hover:text-slate-900 hover:bg-slate-50'
                       }`}
                     >
-                      <Icon className={`w-4 h-4 flex-shrink-0 ${isActive ? 'text-purple-600' : 'text-slate-400'}`} />
+                      <Icon className={`w-4 h-4 flex-shrink-0 ${isActive ? 'text-[#6D22B5]' : 'text-slate-400'}`} />
                       <span className="truncate">{sec.label}</span>
                     </button>
                   );
@@ -113,23 +112,23 @@ export const PrivacyPolicy: React.FC = () => {
             </div>
 
             {/* Privacy Promise Callout */}
-            <div className="bg-purple-50 border border-purple-200 rounded-2xl p-5 space-y-3">
-              <div className="flex items-center gap-2 text-purple-900 font-bold text-xs font-display">
-                <CheckCircle2 className="w-4 h-4 text-purple-600" />
+            <div className="bg-[#F1E8FA] border border-[#E0CEF5] rounded-2xl p-5 space-y-3">
+              <div className="flex items-center gap-2 text-[#1B3200] font-bold text-xs font-display">
+                <CheckCircle2 className="w-4 h-4 text-[#6D22B5]" />
                 <span>Our Privacy Commitment</span>
               </div>
-              <p className="text-xs text-purple-900/80 leading-relaxed">
+              <p className="text-xs text-[#381061] leading-relaxed">
                 We never sell your personal data. We collect only what is necessary to deliver quality educational counseling, secure account access, and tailored learning materials.
               </p>
             </div>
           </aside>
 
           {/* Right Document Body (8 cols) */}
-          <main className="lg:col-span-8 bg-white border border-slate-200 rounded-2xl p-6 sm:p-10 shadow-2xs space-y-10">
+          <main className="lg:col-span-8 bg-white border border-slate-200 rounded-2xl p-6 sm:p-10 shadow-sm space-y-10">
 
             {/* Section 1: Information We Collect */}
             <section id="info-collect" className="space-y-4 pt-2">
-              <div className="flex items-center gap-2 text-purple-600 font-bold text-xs uppercase tracking-wider">
+              <div className="flex items-center gap-2 text-[#6D22B5] font-bold text-xs uppercase tracking-wider">
                 <Database className="w-4 h-4" />
                 <span>Section 1</span>
               </div>
@@ -198,7 +197,7 @@ export const PrivacyPolicy: React.FC = () => {
 
             {/* Section 2: How We Use Information */}
             <section id="how-we-use" className="space-y-4">
-              <div className="flex items-center gap-2 text-purple-600 font-bold text-xs uppercase tracking-wider">
+              <div className="flex items-center gap-2 text-[#6D22B5] font-bold text-xs uppercase tracking-wider">
                 <Eye className="w-4 h-4" />
                 <span>Section 2</span>
               </div>
@@ -221,7 +220,7 @@ export const PrivacyPolicy: React.FC = () => {
                   'Complying with applicable legal and audit requirements'
                 ].map((item, idx) => (
                   <li key={idx} className="flex items-start gap-2 bg-slate-50 p-2.5 rounded-lg border border-slate-200/60">
-                    <CheckCircle2 className="w-4 h-4 text-purple-600 flex-shrink-0 mt-0.5" />
+                    <CheckCircle2 className="w-4 h-4 text-[#6D22B5] flex-shrink-0 mt-0.5" />
                     <span>{item}</span>
                   </li>
                 ))}
@@ -232,7 +231,7 @@ export const PrivacyPolicy: React.FC = () => {
 
             {/* Section 3: Cookies */}
             <section id="cookies" className="space-y-3">
-              <div className="flex items-center gap-2 text-purple-600 font-bold text-xs uppercase tracking-wider">
+              <div className="flex items-center gap-2 text-[#6D22B5] font-bold text-xs uppercase tracking-wider">
                 <Cookie className="w-4 h-4" />
                 <span>Section 3</span>
               </div>
@@ -251,7 +250,7 @@ export const PrivacyPolicy: React.FC = () => {
 
             {/* Section 4: Data Security */}
             <section id="data-security" className="space-y-3">
-              <div className="flex items-center gap-2 text-purple-600 font-bold text-xs uppercase tracking-wider">
+              <div className="flex items-center gap-2 text-[#6D22B5] font-bold text-xs uppercase tracking-wider">
                 <Lock className="w-4 h-4" />
                 <span>Section 4</span>
               </div>
@@ -270,7 +269,7 @@ export const PrivacyPolicy: React.FC = () => {
 
             {/* Section 5: Data Sharing */}
             <section id="data-sharing" className="space-y-3">
-              <div className="flex items-center gap-2 text-purple-600 font-bold text-xs uppercase tracking-wider">
+              <div className="flex items-center gap-2 text-[#6D22B5] font-bold text-xs uppercase tracking-wider">
                 <Share2 className="w-4 h-4" />
                 <span>Section 5</span>
               </div>
@@ -289,7 +288,7 @@ export const PrivacyPolicy: React.FC = () => {
 
             {/* Section 6: Third-Party Services */}
             <section id="third-party" className="space-y-3">
-              <div className="flex items-center gap-2 text-purple-600 font-bold text-xs uppercase tracking-wider">
+              <div className="flex items-center gap-2 text-[#6D22B5] font-bold text-xs uppercase tracking-wider">
                 <Server className="w-4 h-4" />
                 <span>Section 6</span>
               </div>
@@ -308,7 +307,7 @@ export const PrivacyPolicy: React.FC = () => {
 
             {/* Section 7: Data Retention */}
             <section id="data-retention" className="space-y-3">
-              <div className="flex items-center gap-2 text-purple-600 font-bold text-xs uppercase tracking-wider">
+              <div className="flex items-center gap-2 text-[#6D22B5] font-bold text-xs uppercase tracking-wider">
                 <Clock className="w-4 h-4" />
                 <span>Section 7</span>
               </div>
@@ -324,7 +323,7 @@ export const PrivacyPolicy: React.FC = () => {
 
             {/* Section 8: User Rights */}
             <section id="user-rights" className="space-y-3">
-              <div className="flex items-center gap-2 text-purple-600 font-bold text-xs uppercase tracking-wider">
+              <div className="flex items-center gap-2 text-[#6D22B5] font-bold text-xs uppercase tracking-wider">
                 <UserCheck className="w-4 h-4" />
                 <span>Section 8</span>
               </div>
@@ -341,7 +340,7 @@ export const PrivacyPolicy: React.FC = () => {
                 <li><strong className="text-slate-900">Opt-out:</strong> The right to opt-out of promotional communications at any time.</li>
               </ul>
               <p className="text-xs sm:text-sm text-slate-600 leading-relaxed">
-                To exercise any of these rights, please contact our support team at <a href="mailto:support@edqoo.com" className="text-purple-700 font-semibold hover:underline">support@edqoo.com</a>.
+                To exercise any of these rights, please contact our support team at <a href="mailto:support@edqoo.com" className="text-[#6D22B5] font-semibold hover:underline">support@edqoo.com</a>.
               </p>
             </section>
 
@@ -349,7 +348,7 @@ export const PrivacyPolicy: React.FC = () => {
 
             {/* Section 9: Children's Privacy */}
             <section id="children-privacy" className="space-y-3">
-              <div className="flex items-center gap-2 text-purple-600 font-bold text-xs uppercase tracking-wider">
+              <div className="flex items-center gap-2 text-[#6D22B5] font-bold text-xs uppercase tracking-wider">
                 <AlertCircle className="w-4 h-4" />
                 <span>Section 9</span>
               </div>
@@ -365,7 +364,7 @@ export const PrivacyPolicy: React.FC = () => {
 
             {/* Section 10: Policy Updates */}
             <section id="policy-updates" className="space-y-3">
-              <div className="flex items-center gap-2 text-purple-600 font-bold text-xs uppercase tracking-wider">
+              <div className="flex items-center gap-2 text-[#6D22B5] font-bold text-xs uppercase tracking-wider">
                 <RefreshCw className="w-4 h-4" />
                 <span>Section 10</span>
               </div>
@@ -381,7 +380,7 @@ export const PrivacyPolicy: React.FC = () => {
 
             {/* Section 11: Contact */}
             <section id="contact" className="space-y-4">
-              <div className="flex items-center gap-2 text-purple-600 font-bold text-xs uppercase tracking-wider">
+              <div className="flex items-center gap-2 text-[#6D22B5] font-bold text-xs uppercase tracking-wider">
                 <Mail className="w-4 h-4" />
                 <span>Section 11</span>
               </div>
@@ -395,17 +394,17 @@ export const PrivacyPolicy: React.FC = () => {
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-2">
                 <div className="p-4 bg-slate-50 border border-slate-200 rounded-xl space-y-1">
                   <div className="flex items-center gap-2 text-slate-900 font-bold text-xs">
-                    <Mail className="w-4 h-4 text-purple-600" />
+                    <Mail className="w-4 h-4 text-[#6D22B5]" />
                     <span>Privacy &amp; Support Email</span>
                   </div>
-                  <a href="mailto:support@edqoo.com" className="text-xs text-purple-700 font-semibold hover:underline block">
+                  <a href="mailto:support@edqoo.com" className="text-xs text-[#6D22B5] font-semibold hover:underline block">
                     support@edqoo.com
                   </a>
                 </div>
 
                 <div className="p-4 bg-slate-50 border border-slate-200 rounded-xl space-y-1">
                   <div className="flex items-center gap-2 text-slate-900 font-bold text-xs">
-                    <Phone className="w-4 h-4 text-purple-600" />
+                    <Phone className="w-4 h-4 text-[#6D22B5]" />
                     <span>Admissions Helpline</span>
                   </div>
                   <span className="text-xs text-slate-700 font-semibold block">
@@ -417,7 +416,7 @@ export const PrivacyPolicy: React.FC = () => {
               <div className="pt-2 flex flex-wrap gap-3">
                 <Link
                   to="/contact"
-                  className="px-4 py-2 bg-purple-600 hover:bg-purple-700 text-white font-bold text-xs rounded-lg transition-colors inline-flex items-center gap-1.5 shadow-2xs"
+                  className="btn-primary px-4 py-2 font-bold text-xs rounded-lg transition-colors inline-flex items-center gap-1.5 shadow-sm"
                 >
                   <span>Go to Support Desk</span>
                   <ArrowRight className="w-3.5 h-3.5" />
@@ -425,7 +424,7 @@ export const PrivacyPolicy: React.FC = () => {
                 <button
                   type="button"
                   onClick={() => openEnquiryModal()}
-                  className="px-4 py-2 bg-purple-50 hover:bg-purple-100 text-purple-700 border border-purple-200 font-bold text-xs rounded-lg transition-colors inline-flex items-center gap-1.5"
+                  className="px-4 py-2 bg-[#F1E8FA] hover:bg-[#d8f0c5] text-[#381061] border border-[#E0CEF5] font-bold text-xs rounded-lg transition-colors inline-flex items-center gap-1.5"
                 >
                   <span>Request Information</span>
                 </button>

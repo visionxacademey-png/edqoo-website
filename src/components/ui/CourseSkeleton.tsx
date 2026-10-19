@@ -42,9 +42,9 @@ export const CourseSkeleton: React.FC<CourseSkeletonProps> = ({ count = 6, class
 
             {/* Skill tags skeleton */}
             <div className="flex flex-wrap gap-1.5 pt-1">
-              <div className="h-4 w-16 bg-purple-100/70 rounded" />
-              <div className="h-4 w-14 bg-purple-100/70 rounded" />
-              <div className="h-4 w-12 bg-purple-100/70 rounded" />
+              <div className="h-4 w-16 bg-[#F1E8FA] rounded" />
+              <div className="h-4 w-14 bg-[#F1E8FA] rounded" />
+              <div className="h-4 w-12 bg-[#F1E8FA] rounded" />
             </div>
 
             {/* Meta info bar (Duration, Live hours, Rating) */}
@@ -56,7 +56,7 @@ export const CourseSkeleton: React.FC<CourseSkeletonProps> = ({ count = 6, class
 
             {/* Bottom Actions skeleton */}
             <div className="flex items-center gap-2 pt-2 border-t border-slate-100">
-              <div className="h-8 flex-1 bg-purple-200/60 rounded-lg" />
+              <div className="h-8 flex-1 bg-[#F1E8FA] rounded-lg" />
               <div className="h-8 w-20 bg-slate-200 rounded-lg" />
             </div>
           </div>

@@ -42,7 +42,7 @@ export const LeadershipModal: React.FC<LeadershipModalProps> = ({ member, onClos
         {/* Header Bar */}
         <div className="sticky top-0 bg-white/95 backdrop-blur-md border-b border-slate-200 px-6 py-4 flex items-center justify-between z-20">
           <div className="flex items-center gap-2">
-            <span className="w-2.5 h-2.5 rounded-full bg-purple-600" />
+            <span className="w-2.5 h-2.5 rounded-full bg-[#6D22B5]" />
             <span className="text-xs font-bold text-slate-500 uppercase tracking-wider">
               Leadership Council Member
             </span>
@@ -63,13 +63,13 @@ export const LeadershipModal: React.FC<LeadershipModalProps> = ({ member, onClos
             <img
               src={photo}
               alt={member.name}
-              className="w-24 h-24 sm:w-28 sm:h-28 rounded-2xl object-cover border-2 border-purple-100 shadow-sm flex-shrink-0"
+              className="w-24 h-24 sm:w-28 sm:h-28 rounded-2xl object-cover border-2 border-slate-200 shadow-sm flex-shrink-0"
             />
             <div className="text-center sm:text-left space-y-1.5 flex-1">
               <h2 className="text-xl sm:text-2xl font-display font-black text-slate-950">
                 {member.name}
               </h2>
-              <p className="text-xs sm:text-sm font-bold text-purple-700">
+              <p className="text-xs sm:text-sm font-bold text-[#6D22B5]">
                 {member.designation}
               </p>
               <div className="flex items-center justify-center sm:justify-start gap-1.5 text-xs text-slate-600">
@@ -84,7 +84,7 @@ export const LeadershipModal: React.FC<LeadershipModalProps> = ({ member, onClos
                     href={member.linkedin}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="inline-flex items-center gap-1 text-xs font-semibold text-purple-600 hover:text-purple-800 transition-colors"
+                    className="inline-flex items-center gap-1 text-xs font-semibold text-[#6D22B5] hover:text-[#386200] transition-colors"
                   >
                     <ExternalLink className="w-3.5 h-3.5" />
                     <span>LinkedIn Profile</span>
@@ -134,7 +134,7 @@ export const LeadershipModal: React.FC<LeadershipModalProps> = ({ member, onClos
                 {member.expertise.map((item, idx) => (
                   <span
                     key={idx}
-                    className="px-2.5 py-1 bg-purple-50 text-purple-800 text-xs font-semibold rounded-lg border border-purple-100"
+                    className="px-2.5 py-1 bg-[#F1E8FA] text-[#381061] text-xs font-semibold rounded-lg border border-[#E0CEF5]"
                   >
                     {item}
                   </span>
@@ -147,7 +147,7 @@ export const LeadershipModal: React.FC<LeadershipModalProps> = ({ member, onClos
           {member.qualification && (
             <div className="space-y-2">
               <h3 className="text-xs font-bold uppercase tracking-wider text-slate-400 flex items-center gap-1.5">
-                <GraduationCap className="w-3.5 h-3.5 text-purple-600" />
+                <GraduationCap className="w-3.5 h-3.5 text-[#6D22B5]" />
                 <span>Educational Qualifications</span>
               </h3>
               <p className="text-xs sm:text-sm text-slate-700 bg-slate-50 p-3 rounded-xl border border-slate-100">
@@ -160,7 +160,7 @@ export const LeadershipModal: React.FC<LeadershipModalProps> = ({ member, onClos
           {member.experience && (
             <div className="space-y-2">
               <h3 className="text-xs font-bold uppercase tracking-wider text-slate-400 flex items-center gap-1.5">
-                <Briefcase className="w-3.5 h-3.5 text-purple-600" />
+                <Briefcase className="w-3.5 h-3.5 text-[#6D22B5]" />
                 <span>Professional Experience</span>
               </h3>
               <p className="text-xs sm:text-sm text-slate-700 bg-slate-50 p-3 rounded-xl border border-slate-100">
@@ -173,7 +173,7 @@ export const LeadershipModal: React.FC<LeadershipModalProps> = ({ member, onClos
           {member.leadershipExperience && (
             <div className="space-y-2">
               <h3 className="text-xs font-bold uppercase tracking-wider text-slate-400 flex items-center gap-1.5">
-                <ShieldCheck className="w-3.5 h-3.5 text-purple-600" />
+                <ShieldCheck className="w-3.5 h-3.5 text-[#6D22B5]" />
                 <span>Leadership Experience</span>
               </h3>
               <p className="text-xs sm:text-sm text-slate-700 bg-slate-50 p-3 rounded-xl border border-slate-100">
@@ -186,13 +186,13 @@ export const LeadershipModal: React.FC<LeadershipModalProps> = ({ member, onClos
           {member.achievements && member.achievements.length > 0 && (
             <div className="space-y-2">
               <h3 className="text-xs font-bold uppercase tracking-wider text-slate-400 flex items-center gap-1.5">
-                <Award className="w-3.5 h-3.5 text-purple-600" />
+                <Award className="w-3.5 h-3.5 text-[#6D22B5]" />
                 <span>Industry Contributions &amp; Achievements</span>
               </h3>
               <ul className="space-y-2 text-xs text-slate-700">
                 {member.achievements.map((item, idx) => (
                   <li key={idx} className="flex items-start gap-2 bg-slate-50 p-2.5 rounded-lg border border-slate-100">
-                    <span className="w-1.5 h-1.5 rounded-full bg-purple-600 mt-1.5 flex-shrink-0" />
+                    <span className="w-1.5 h-1.5 rounded-full bg-[#6D22B5] mt-1.5 flex-shrink-0" />
                     <span className="leading-relaxed">{item}</span>
                   </li>
                 ))}
@@ -204,13 +204,13 @@ export const LeadershipModal: React.FC<LeadershipModalProps> = ({ member, onClos
           {member.publications && member.publications.length > 0 && (
             <div className="space-y-2">
               <h3 className="text-xs font-bold uppercase tracking-wider text-slate-400 flex items-center gap-1.5">
-                <FileText className="w-3.5 h-3.5 text-purple-600" />
+                <FileText className="w-3.5 h-3.5 text-[#6D22B5]" />
                 <span>Publications &amp; Research</span>
               </h3>
               <ul className="space-y-2 text-xs text-slate-700">
                 {member.publications.map((pub, idx) => (
                   <li key={idx} className="flex items-start gap-2 bg-slate-50 p-2.5 rounded-lg border border-slate-100">
-                    <BookOpen className="w-3.5 h-3.5 text-purple-600 mt-0.5 flex-shrink-0" />
+                    <BookOpen className="w-3.5 h-3.5 text-[#6D22B5] mt-0.5 flex-shrink-0" />
                     <span className="leading-relaxed">{pub}</span>
                   </li>
                 ))}

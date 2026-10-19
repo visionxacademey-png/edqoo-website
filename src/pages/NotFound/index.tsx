@@ -45,7 +45,7 @@ export const NotFound: React.FC = () => {
       <div className="max-w-2xl w-full mx-auto text-center space-y-8">
         {/* 404 Badge & Numbers */}
         <div className="space-y-3">
-          <span className="px-3 py-1 bg-purple-100 text-purple-800 text-xs font-bold rounded-full uppercase tracking-wider inline-block">
+          <span className="px-3 py-1 bg-[#F1E8FA] border border-[#E0CEF5] text-[#6D22B5] text-xs font-bold rounded-full uppercase tracking-wider inline-block">
             Error 404
           </span>
           <h1 className="text-5xl sm:text-7xl font-display font-black text-slate-900 tracking-tight">
@@ -64,13 +64,13 @@ export const NotFound: React.FC = () => {
               placeholder="Search courses (e.g. Python, AI, Power BI)..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full pl-9 pr-4 py-2.5 bg-white border border-slate-200 text-xs text-slate-900 rounded-xl focus:outline-none focus:border-purple-600 shadow-2xs"
+              className="w-full pl-9 pr-4 py-2.5 bg-white border border-slate-200 text-xs text-slate-900 rounded-xl focus:outline-none focus:border-[#6D22B5] focus:ring-1 focus:ring-[#6D22B5] shadow-2xs"
             />
             <Search className="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
           </div>
           <button
             type="submit"
-            className="btn-primary px-4 py-2.5 text-xs font-bold rounded-xl shadow-2xs"
+            className="btn-primary px-4 py-2.5 text-xs font-bold rounded-xl shadow-xs"
           >
             Search
           </button>
@@ -88,13 +88,13 @@ export const NotFound: React.FC = () => {
                 <Link
                   key={idx}
                   to={item.path}
-                  className="p-3 rounded-xl border border-slate-100 hover:border-purple-300 hover:bg-purple-50/50 flex items-center justify-between group transition-colors"
+                  className="p-3 rounded-xl border border-slate-100 hover:border-[#6D22B5] hover:bg-[#F1E8FA]/30 flex items-center justify-between group transition-colors"
                 >
-                  <div className="flex items-center gap-2.5 text-xs font-semibold text-slate-800 group-hover:text-purple-700">
-                    <IconComp className="w-4 h-4 text-purple-600" />
+                  <div className="flex items-center gap-2.5 text-xs font-semibold text-slate-800 group-hover:text-black">
+                    <IconComp className="w-4 h-4 text-[#6D22B5]" />
                     <span>{item.title}</span>
                   </div>
-                  <ArrowRight className="w-3.5 h-3.5 text-slate-300 group-hover:text-purple-600 transition-colors" />
+                  <ArrowRight className="w-3.5 h-3.5 text-slate-300 group-hover:text-[#6D22B5] transition-colors" />
                 </Link>
               );
             })}
@@ -105,21 +105,21 @@ export const NotFound: React.FC = () => {
         <div className="flex flex-wrap items-center justify-center gap-3">
           <Link
             to="/"
-            className="btn-primary px-5 py-2.5 text-xs font-bold rounded-xl shadow-2xs inline-flex items-center gap-1.5"
+            className="btn-primary px-5 py-2.5 text-xs font-bold rounded-xl shadow-xs inline-flex items-center gap-1.5"
           >
             <Home className="w-4 h-4" />
             <span>Return to Homepage</span>
           </Link>
           <Link
             to="/courses"
-            className="px-5 py-2.5 bg-white border border-slate-200 hover:bg-slate-100 text-slate-800 text-xs font-bold rounded-xl shadow-2xs transition-colors inline-flex items-center gap-1.5"
+            className="px-5 py-2.5 bg-white border border-slate-200 hover:bg-slate-100 text-slate-800 text-xs font-bold rounded-xl shadow-xs transition-colors inline-flex items-center gap-1.5"
           >
-            <BookOpen className="w-4 h-4 text-purple-600" />
+            <BookOpen className="w-4 h-4 text-black" />
             <span>Browse All Courses</span>
           </Link>
           <button
             onClick={() => openEnquiryModal('404 Callback Request')}
-            className="px-5 py-2.5 bg-purple-50 text-purple-700 border border-purple-200 hover:bg-purple-100 text-xs font-bold rounded-xl transition-colors inline-flex items-center gap-1.5 cursor-pointer"
+            className="px-5 py-2.5 bg-[#F1E8FA] text-[#6D22B5] border border-[#E0CEF5] hover:bg-[#E0CEF5] text-xs font-bold rounded-xl transition-colors inline-flex items-center gap-1.5 cursor-pointer shadow-xs"
           >
             <PhoneCall className="w-4 h-4" />
             <span>Talk to Advisor</span>

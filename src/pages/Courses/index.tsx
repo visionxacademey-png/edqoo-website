@@ -1,38 +1,37 @@
 import React, { useState, useMemo, useEffect } from 'react';
-import { Link, useSearchParams, useNavigate } from 'react-router-dom';
+import { useSearchParams } from 'react-router-dom';
 import {
   Search,
-  Star,
-  Clock,
-  BookOpen,
-  ArrowRight,
   Layers,
   RefreshCw,
-  AlertCircle,
-  PhoneCall,
-  Brain,
-  BarChart3,
-  Cpu,
-  Wrench,
-  Shield
+  AlertCircle
 } from 'lucide-react';
-import { filterCoursesByCategory, searchCourses, normalizeCategoryName } from '../../data/courses';
+import {
+  filterCoursesByCategory,
+  searchCourses,
+  orderCoursesWithEnglishMirrorLast,
+  isEnglishMirrorCourse
+} from '../../data/courses';
 import { courseService } from '../../services/courseService';
-import type { Course } from '../../types';
+import { categoryService } from '../../services/categoryService';
+import { getCategoryIcon } from '../../utils/categoryIcons';
+import type { Course, Category } from '../../types';
 import { SEO } from '../../components/common/SEO';
 import { Breadcrumbs } from '../../components/common/Breadcrumbs';
 import { useEnquiry } from '../../context/EnquiryContext';
-import { getCacheBustedImageUrl } from '../../utils/imageUrl';
 import { CourseSkeleton } from '../../components/ui/CourseSkeleton';
+import { CourseCard } from '../../components/common/CourseCard';
+import { LanguageTrackCard, PROGRAM_TRACK_LANGUAGES } from '../../components/common/LanguageTrackCard';
 
 export const Courses: React.FC = () => {
-  const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
   const initialSearch = searchParams.get('search') || '';
   const initialCategory = searchParams.get('category') || 'all';
 
   const { openEnquiryModal } = useEnquiry();
   const [courseList, setCourseList] = useState<Course[]>([]);
+  const [categories, setCategories] = useState<Category[]>([]);
+  const [categoriesLoading, setCategoriesLoading] = useState<boolean>(true);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
   const [searchTerm, setSearchTerm] = useState(initialSearch);
@@ -50,13 +49,11 @@ export const Courses: React.FC = () => {
   }, [searchParams]);
 
   const loadCourses = (signal?: AbortSignal) => {
-    console.log('[COURSE DEBUG] loadCourses() called');
     setLoading(true);
     setError(null);
     courseService
       .getCourses({ signal })
       .then((data) => {
-        console.log('[COURSE DEBUG] setCourses with count:', Array.isArray(data) ? data.length : typeof data);
         if (Array.isArray(data)) {
           setCourseList(data);
           setError(null);
@@ -73,9 +70,29 @@ export const Courses: React.FC = () => {
       });
   };
 
+  const loadCategories = (signal?: AbortSignal) => {
+    setCategoriesLoading(true);
+    categoryService
+      .getCategories(signal)
+      .then((data) => {
+        if (Array.isArray(data)) {
+          setCategories(data);
+        }
+      })
+      .catch((err) => {
+        if (err?.name !== 'CanceledError' && err?.name !== 'AbortError') {
+          console.warn('[COURSES] Failed to load categories:', err);
+        }
+      })
+      .finally(() => {
+        setCategoriesLoading(false);
+      });
+  };
+
   useEffect(() => {
     const controller = new AbortController();
     loadCourses(controller.signal);
+    loadCategories(controller.signal);
     return () => {
       controller.abort();
     };
@@ -89,13 +106,58 @@ export const Courses: React.FC = () => {
     setSearchParams({});
   };
 
+  const isEnglishChosen = useMemo(() => {
+    return (
+      selectedCategory === 'English Mirror' ||
+      selectedCategory === 'cat-english-mirror' ||
+      selectedCategory === 'english-mirror' ||
+      selectedCategory === 'Spoken Tutorial' ||
+      selectedCategory === 'cat-spoken-tutorial' ||
+      selectedCategory === 'spoken-tutorial' ||
+      selectedCategory === 'Spoken English' ||
+      selectedCategory === 'spoken-english'
+    );
+  }, [selectedCategory]);
+
   // Filter & Sort computation
   const filteredCourses = useMemo(() => {
     let result = [...courseList];
 
-    // 1. Category Filter
+    // 1. Category Filter using DB category relationship
     if (selectedCategory && selectedCategory !== 'all' && selectedCategory !== 'All Categories') {
-      result = filterCoursesByCategory(result, selectedCategory);
+      const isEnglishSelected =
+        selectedCategory === 'cat-spoken-tutorial' ||
+        selectedCategory === 'spoken-tutorial' ||
+        selectedCategory === 'cat-english-mirror' ||
+        selectedCategory === 'english-mirror' ||
+        selectedCategory === 'spoken-english' ||
+        selectedCategory.toLowerCase() === 'spoken english' ||
+        selectedCategory.toLowerCase() === 'spoken tutorial' ||
+        selectedCategory.toLowerCase() === 'english mirror';
+
+      if (isEnglishSelected) {
+        result = result.filter(isEnglishMirrorCourse);
+      } else {
+        const matchedCat = categories.find(
+          (c) => c.id === selectedCategory || c.slug === selectedCategory || c.name.toLowerCase() === selectedCategory.toLowerCase()
+        );
+        if (matchedCat) {
+          result = result.filter((course) => {
+            if (course.categoryId && course.categoryId === matchedCat.id) return true;
+            if (Array.isArray(course.categoryIds) && course.categoryIds.includes(matchedCat.id)) return true;
+            if (course.category && course.category.trim().toLowerCase() === matchedCat.name.trim().toLowerCase()) return true;
+            if (
+              Array.isArray(course.categories) &&
+              course.categories.some((cat) => cat.trim().toLowerCase() === matchedCat.name.trim().toLowerCase())
+            ) {
+              return true;
+            }
+            return false;
+          });
+        } else {
+          result = filterCoursesByCategory(result, selectedCategory);
+        }
+      }
     }
 
     // 2. Search Keyword
@@ -114,32 +176,75 @@ export const Courses: React.FC = () => {
     result.sort((a, b) => {
       const aRating = Number(a.rating) || 0;
       const bRating = Number(b.rating) || 0;
-      const aPrice = Number(a.price) || 0;
-      const bPrice = Number(b.price) || 0;
       const aStudents = Number(a.students) || 0;
       const bStudents = Number(b.students) || 0;
 
       if (sortBy === 'rating') return bRating - aRating;
-      if (sortBy === 'price-low') return aPrice - bPrice;
-      if (sortBy === 'price-high') return bPrice - aPrice;
       return bStudents - aStudents; // Default: popular
     });
 
-    return result;
-  }, [courseList, searchTerm, selectedCategory, selectedLevel, sortBy]);
+    // 5. Partition: Normal Edqoo Courses FIRST, English Mirror courses ALWAYS LAST
+    if (selectedCategory === 'all' || selectedCategory === 'All Categories' || !selectedCategory) {
+      return orderCoursesWithEnglishMirrorLast(result);
+    }
 
-  const categoryTabs = [
-    { id: 'all', label: 'All Categories', icon: Layers },
-    { id: 'Data Science and AI', label: 'Data Science and AI', icon: Brain },
-    { id: 'Data Analytics and AI', label: 'Data Analytics and AI', icon: BarChart3 },
-    { id: 'AI and Machine Learning', label: 'AI and Machine Learning', icon: Cpu },
-    { id: 'Tools and Upskills', label: 'Tools and Upskills', icon: Wrench },
-    { id: 'Free Learning', label: 'Free Learning', icon: BookOpen },
-    { id: 'Cybersecurity', label: 'Cybersecurity', icon: Shield }
-  ];
+    if (!isEnglishChosen) {
+      return orderCoursesWithEnglishMirrorLast(result);
+    }
+
+    return result;
+  }, [courseList, searchTerm, selectedCategory, selectedLevel, sortBy, categories]);
+
+  const standardCourses = useMemo(() => {
+    return filteredCourses.filter((c) => !isEnglishMirrorCourse(c));
+  }, [filteredCourses]);
+
+  const hasEnglishInCourses = useMemo(() => {
+    if (isEnglishChosen) return true;
+    if (selectedCategory === 'all' || selectedCategory === 'All Categories' || !selectedCategory) return true;
+    return filteredCourses.some(isEnglishMirrorCourse);
+  }, [isEnglishChosen, selectedCategory, filteredCourses]);
+
+  const totalCourseCount = isEnglishChosen
+    ? PROGRAM_TRACK_LANGUAGES.length
+    : standardCourses.length + (hasEnglishInCourses ? PROGRAM_TRACK_LANGUAGES.length : 0);
+
+  const categoryTabs = useMemo(() => {
+    const allTab = { id: 'all', slug: 'all', label: 'All Categories', icon: 'layers', isPartner: false, badge: undefined as string | undefined };
+    const parentCategories = categories.filter((c) => !c.parentId && !c.parentSlug);
+    const seen = new Set<string>();
+    const tabs = [allTab];
+
+    for (const c of parentCategories) {
+      const isEnglish =
+        c.name.toLowerCase().includes('spoken tutorial') ||
+        c.name.toLowerCase().includes('spoken english') ||
+        c.name.toLowerCase().includes('english mirror') ||
+        c.slug === 'spoken-tutorial' ||
+        c.slug === 'spoken-english' ||
+        c.slug === 'english-mirror' ||
+        c.id === 'cat-spoken-tutorial' ||
+        c.id === 'cat-english-mirror';
+      const label = isEnglish ? 'Spoken English' : c.name;
+      const key = label.toLowerCase().trim();
+      if (seen.has(key)) continue;
+      seen.add(key);
+
+      tabs.push({
+        id: c.id,
+        slug: isEnglish ? 'spoken-tutorial' : c.slug,
+        label,
+        icon: isEnglish ? 'message-circle' : (c.icon || 'layers'),
+        isPartner: isEnglish ? false : Boolean(c.isPartner || c.badge === 'PARTNER'),
+        badge: isEnglish ? undefined : c.badge
+      });
+    }
+
+    return tabs;
+  }, [categories]);
 
   return (
-    <div className="bg-slate-50 min-h-screen py-8 text-left">
+    <div className="bg-white min-h-screen py-8 text-left">
       <SEO 
         title="Edqoo Courses | Learn AI, Data Science, Python & More" 
         description="Explore Edqoo's online certification courses in Data Science, AI, Python, Machine Learning, Data Analytics, and professional workplace tools. Learn with real projects."
@@ -157,11 +262,11 @@ export const Courses: React.FC = () => {
 
         {/* Page Header */}
         <div className="space-y-2">
-          <span className="text-xs font-bold text-purple-600 uppercase tracking-widest block">
-            PROGRAM TRACKS & COURSES
+          <span className="text-xs font-bold text-[#6D22B5] uppercase tracking-widest block">
+            PROGRAM TRACKS &amp; COURSES
           </span>
           <h1 className="text-2xl sm:text-3xl lg:text-4xl font-display font-extrabold text-slate-900">
-            Explore All Programs & Upskilling Tracks
+            Explore All Programs &amp; Upskilling Tracks
           </h1>
           <p className="text-slate-500 text-xs sm:text-sm max-w-2xl">
             Discover comprehensive career tracks across <strong>Data Science and AI</strong>, <strong>Data Analytics and AI</strong>, <strong>AI and Machine Learning</strong>, executive <strong>Tools and Upskills</strong>, and <strong>Free Learning</strong> programs. Submit an enquiry to connect with our admissions counseling team.
@@ -170,24 +275,54 @@ export const Courses: React.FC = () => {
 
         {/* Quick Category Switcher Tabs */}
         <div className="flex flex-wrap gap-2.5 border-b border-slate-200 pb-4 overflow-x-auto scrollbar-none">
-          {categoryTabs.map((tab) => {
-            const IconComponent = tab.icon;
-            const isActive = selectedCategory === tab.id || (tab.id === 'all' && selectedCategory === 'All Categories');
-            return (
-              <button
-                key={tab.id}
-                onClick={() => setSelectedCategory(tab.id)}
-                className={`px-4 py-2.5 text-xs font-bold rounded-xl flex items-center gap-2 transition-all cursor-pointer whitespace-nowrap ${
-                  isActive
-                    ? 'bg-purple-600 text-white shadow-sm'
-                    : 'bg-white border border-slate-200 text-slate-700 hover:bg-slate-100'
-                }`}
-              >
-                <IconComponent className="w-3.5 h-3.5" />
-                <span>{tab.label}</span>
-              </button>
-            );
-          })}
+          {categoriesLoading ? (
+            <div className="flex gap-2">
+              {[1, 2, 3, 4, 5].map((i) => (
+                <div key={i} className="h-9 w-28 bg-slate-100 animate-pulse rounded-xl" />
+              ))}
+            </div>
+          ) : (
+            categoryTabs.map((tab) => {
+              const isEnglishTab =
+                tab.id === 'cat-spoken-tutorial' ||
+                tab.slug === 'spoken-tutorial' ||
+                tab.slug === 'spoken-english' ||
+                tab.label === 'Spoken English';
+              const isEnglishSelected =
+                selectedCategory === 'cat-spoken-tutorial' ||
+                selectedCategory === 'spoken-tutorial' ||
+                selectedCategory === 'spoken-english' ||
+                selectedCategory === 'Spoken English' ||
+                selectedCategory === 'Spoken Tutorial';
+              const isActive = isEnglishTab
+                ? isEnglishSelected
+                : selectedCategory === tab.id || (tab.id === 'all' && selectedCategory === 'All Categories');
+              const isPartner = isEnglishTab ? false : tab.isPartner;
+              return (
+                <button
+                  key={tab.id}
+                  onClick={() => setSelectedCategory(tab.id)}
+                  className={`px-4 py-2.5 text-xs font-bold rounded-xl flex items-center gap-2 transition-all cursor-pointer whitespace-nowrap border ${
+                    isActive
+                      ? 'bg-[#6D22B5] text-white border-[#6D22B5] shadow-sm'
+                      : isPartner
+                      ? 'bg-white text-[#6D22B5] border-[#6D22B5] hover:bg-purple-50'
+                      : 'bg-white border-slate-200 text-slate-800 hover:bg-purple-50 hover:text-[#6D22B5] hover:border-purple-200'
+                  }`}
+                >
+                  {getCategoryIcon(tab.icon, `w-3.5 h-3.5 ${isActive ? 'text-white' : 'text-[#6D22B5]'}`)}
+                  <span>{tab.label}</span>
+                  {isPartner && (
+                    <span className={`text-[8px] px-1 py-0.2 rounded font-extrabold uppercase ${
+                      isActive ? 'bg-white text-[#6D22B5]' : 'bg-[#6D22B5] text-white'
+                    }`}>
+                      {tab.badge || 'Partner'}
+                    </span>
+                  )}
+                </button>
+              );
+            })
+          )}
         </div>
 
         {/* Filters and List panel */}
@@ -197,12 +332,12 @@ export const Courses: React.FC = () => {
           <aside className="lg:col-span-3 bg-white border border-slate-200 p-5 rounded-2xl shadow-2xs space-y-5 sticky top-20">
             <div className="flex items-center justify-between border-b border-slate-200 pb-3">
               <h3 className="font-display font-bold text-sm text-slate-900 flex items-center gap-1.5">
-                <Layers className="w-4 h-4 text-purple-600" />
+                <Layers className="w-4 h-4 text-[#6D22B5]" />
                 Filter Catalog
               </h3>
               <button
                 onClick={handleClearFilters}
-                className="text-[11px] font-bold text-purple-600 hover:text-purple-800 transition-colors flex items-center gap-1 cursor-pointer"
+                className="text-[11px] font-bold text-[#6D22B5] hover:text-[#381061] transition-colors flex items-center gap-1 cursor-pointer"
               >
                 <RefreshCw className="w-3 h-3" />
                 Reset
@@ -221,7 +356,7 @@ export const Courses: React.FC = () => {
                   placeholder="e.g. Python, Data Science, AI, Power BI, Java, HR..."
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
-                  className="w-full pl-8 pr-3 py-2 bg-slate-50 border border-slate-200 text-xs text-slate-900 rounded-lg focus:outline-none focus:bg-white focus:border-purple-600"
+                  className="w-full pl-8 pr-3 py-2 bg-slate-50 border border-slate-200 text-xs text-slate-900 rounded-lg focus:outline-none focus:bg-white focus:border-[#6D22B5] focus:ring-2 focus:ring-[#6D22B5]/10"
                 />
                 <Search className="w-3.5 h-3.5 text-slate-400 absolute left-2.5 top-1/2 -translate-y-1/2" />
               </div>
@@ -236,15 +371,13 @@ export const Courses: React.FC = () => {
                 id="category-select"
                 value={selectedCategory}
                 onChange={(e) => setSelectedCategory(e.target.value)}
-                className="w-full px-3 py-2 bg-slate-50 border border-slate-200 text-xs text-slate-900 rounded-lg focus:outline-none focus:bg-white focus:border-purple-600"
+                className="w-full px-3 py-2 bg-slate-50 border border-slate-200 text-xs text-slate-900 rounded-lg focus:outline-none focus:bg-white focus:border-[#6D22B5] focus:ring-2 focus:ring-[#6D22B5]/10"
               >
-                <option value="all">All Categories</option>
-                <option value="Data Science and AI">Data Science and AI</option>
-                <option value="Data Analytics and AI">Data Analytics and AI</option>
-                <option value="AI and Machine Learning">AI and Machine Learning</option>
-                <option value="Tools and Upskills">Tools and Upskills</option>
-                <option value="Free Learning">Free Learning</option>
-                <option value="Cybersecurity">Cybersecurity</option>
+                {categoryTabs.map((tab) => (
+                  <option key={tab.id} value={tab.id}>
+                    {tab.label}
+                  </option>
+                ))}
               </select>
             </div>
 
@@ -257,7 +390,7 @@ export const Courses: React.FC = () => {
                 id="level-select"
                 value={selectedLevel}
                 onChange={(e) => setSelectedLevel(e.target.value)}
-                className="w-full px-3 py-2 bg-slate-50 border border-slate-200 text-xs text-slate-900 rounded-lg focus:outline-none focus:bg-white focus:border-purple-600"
+                className="w-full px-3 py-2 bg-slate-50 border border-slate-200 text-xs text-slate-900 rounded-lg focus:outline-none focus:bg-white focus:border-[#6D22B5] focus:ring-2 focus:ring-[#6D22B5]/10"
               >
                 <option value="all">All Levels</option>
                 <option value="beginner">Beginner Friendly</option>
@@ -275,12 +408,10 @@ export const Courses: React.FC = () => {
                 id="sort-select"
                 value={sortBy}
                 onChange={(e) => setSortBy(e.target.value)}
-                className="w-full px-3 py-2 bg-slate-50 border border-slate-200 text-xs text-slate-900 rounded-lg focus:outline-none focus:bg-white focus:border-purple-600"
+                className="w-full px-3 py-2 bg-slate-50 border border-slate-200 text-xs text-slate-900 rounded-lg focus:outline-none focus:bg-white focus:border-[#6D22B5] focus:ring-2 focus:ring-[#6D22B5]/10"
               >
                 <option value="popular">Most Popular</option>
                 <option value="rating">Highest Rated</option>
-                <option value="price-low">Fee: Low to High</option>
-                <option value="price-high">Fee: High to Low</option>
               </select>
             </div>
           </aside>
@@ -289,7 +420,7 @@ export const Courses: React.FC = () => {
           <main className="lg:col-span-9 space-y-6">
             <div className="flex items-center justify-between text-xs text-slate-500 font-semibold border-b border-slate-200 pb-3 min-h-[32px]">
               {loading ? (
-                <span className="flex items-center gap-2 text-purple-600 font-bold">
+                <span className="flex items-center gap-2 text-[#6D22B5] font-bold">
                   <RefreshCw className="w-3.5 h-3.5 animate-spin" />
                   <span>Loading courses...</span>
                 </span>
@@ -297,8 +428,8 @@ export const Courses: React.FC = () => {
                 <span className="text-rose-600 font-bold">Unable to load courses</span>
               ) : (
                 <span>
-                  Showing <strong>{filteredCourses.length}</strong> programs in{' '}
-                  <strong className="text-purple-600">{selectedCategory === 'all' ? 'All Categories' : selectedCategory}</strong>
+                  Showing <strong>{totalCourseCount}</strong> {isEnglishChosen ? 'language options' : 'programs'} in{' '}
+                  <strong className="text-[#6D22B5]">{isEnglishChosen ? 'Spoken English' : selectedCategory === 'all' ? 'All Categories' : selectedCategory}</strong>
                 </span>
               )}
               {searchTerm && !loading && <span>Search: "{searchTerm}"</span>}
@@ -323,7 +454,13 @@ export const Courses: React.FC = () => {
                   <span>Try Again</span>
                 </button>
               </div>
-            ) : filteredCourses.length === 0 ? (
+            ) : isEnglishChosen ? (
+              <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-5 sm:gap-6">
+                {PROGRAM_TRACK_LANGUAGES.map((lang) => (
+                  <LanguageTrackCard key={lang.id} language={lang} />
+                ))}
+              </div>
+            ) : standardCourses.length === 0 && !hasEnglishInCourses ? (
               <div className="bg-white border border-slate-200 p-12 rounded-2xl shadow-2xs text-center max-w-lg mx-auto space-y-4">
                 <AlertCircle className="w-10 h-10 text-slate-400 mx-auto" />
                 <h3 className="font-display font-bold text-slate-900 text-base">No courses available</h3>
@@ -339,137 +476,20 @@ export const Courses: React.FC = () => {
               </div>
             ) : (
               <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-5">
-                {filteredCourses.map((course) => {
-                  const isFree = (course.categories || [course.category]).some((c) => normalizeCategoryName(c) === 'Free Learning') || course.price === 0;
-                  return (
-                    <div
-                      key={course.id}
-                      onClick={() => navigate(`/courses/${course.slug}`)}
-                      className="premium-card cursor-pointer flex flex-col justify-between overflow-hidden group bg-white border border-slate-200 rounded-2xl shadow-2xs hover:border-purple-300 hover:shadow-md transition-all"
-                    >
-                      <div className="relative aspect-[16/10] overflow-hidden bg-slate-100">
-                        <img
-                          src={getCacheBustedImageUrl(course.image, course.updatedAt || course.imageUpdatedAt)}
-                          alt={course.title}
-                          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-                          loading="lazy"
-                        />
-                        <div className="absolute top-3 left-3 flex flex-wrap gap-1 max-w-[70%]">
-                          {(course.categories || [course.category]).map((rawCat) => {
-                            const cat = normalizeCategoryName(rawCat);
-                            return (
-                              <span
-                                key={cat}
-                                className={`px-2 py-0.5 text-[10px] font-bold rounded-md uppercase tracking-wider backdrop-blur-xs border ${
-                                  cat === 'Free Learning'
-                                    ? 'bg-emerald-50/90 border-emerald-300 text-emerald-800'
-                                    : cat === 'Tools and Upskills'
-                                    ? 'bg-emerald-50/90 border-emerald-300 text-emerald-800'
-                                    : 'bg-purple-50/90 border-purple-300 text-purple-800'
-                                }`}
-                              >
-                                {cat}
-                              </span>
-                            );
-                          })}
-                        </div>
-                        
-                        {isFree ? (
-                          <span className="absolute top-3 right-3 px-2 py-0.5 bg-emerald-600 text-white text-[10px] font-extrabold rounded-md shadow-sm uppercase tracking-wider">
-                            FREE
-                          </span>
-                        ) : course.liveHours ? (
-                          <span className="absolute top-3 right-3 px-2 py-0.5 bg-slate-900 text-white text-[10px] font-extrabold rounded-md shadow-sm">
-                            {course.liveHours} Live
-                          </span>
-                        ) : null}
-                      </div>
+                {standardCourses.map((course) => (
+                  <CourseCard
+                    key={course.id}
+                    course={course}
+                    selectedCategory={selectedCategory}
+                    onEnquire={(title, details) => openEnquiryModal(title, details)}
+                  />
+                ))}
 
-                      <div className="p-4 flex-1 flex flex-col justify-between space-y-3">
-                        <div className="space-y-1.5">
-                          <h3 className="font-display font-bold text-sm text-slate-900 group-hover:text-purple-600 transition-colors line-clamp-2">
-                            <Link to={`/courses/${course.slug}`} onClick={(e) => e.stopPropagation()}>
-                              {course.title}
-                            </Link>
-                          </h3>
-                          <p className="text-slate-500 text-[11px] leading-relaxed line-clamp-2">
-                            {course.shortDescription || course.description}
-                          </p>
-                        </div>
-
-                        {/* Skill badges */}
-                        <div className="flex flex-wrap gap-1">
-                          {(course.skills || []).slice(0, 3).map((skill) => (
-                            <span key={skill} className="px-1.5 py-0.5 bg-purple-50 text-purple-800 text-[9px] font-semibold rounded">
-                              {skill}
-                            </span>
-                          ))}
-                          {(course.skills || []).length > 3 && (
-                            <span className="px-1.5 py-0.5 bg-slate-50 text-slate-400 text-[9px] font-medium rounded">
-                              +{(course.skills || []).length - 3}
-                            </span>
-                          )}
-                        </div>
-
-                        {/* Metadata (Duration, Live Hours, Rating) */}
-                        <div className="flex items-center justify-between text-[11px] text-slate-500 font-semibold border-t border-slate-100 pt-2.5">
-                          <span className="flex items-center gap-1 font-bold text-slate-700">
-                            <Clock className="w-3.5 h-3.5 text-purple-600" />
-                            {course.duration}
-                          </span>
-                          {course.liveHours && (
-                            <span className="flex items-center gap-1 text-purple-700 font-bold">
-                              <BookOpen className="w-3.5 h-3.5 text-purple-500" />
-                              {course.liveHours}
-                            </span>
-                          )}
-                          <span className="flex items-center gap-1 text-amber-500 font-bold">
-                            <Star className="w-3.5 h-3.5 fill-current" />
-                            {course.rating > 0 ? course.rating : '4.9'}
-                          </span>
-                        </div>
-
-                        {/* Pricing & Actions */}
-                        <div className="flex items-center justify-between pt-2.5 border-t border-slate-100 gap-2">
-                          <div className="flex items-center gap-1.5 w-full">
-                            <button
-                              type="button"
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                openEnquiryModal(course.title, {
-                                  category: isFree ? 'Free Learning' : selectedCategory === 'Tools and Upskills' ? 'Tools and Upskills' : course.category,
-                                  courseId: course.id,
-                                  categories: course.categories
-                                });
-                              }}
-                              className="btn-primary flex-1 py-1.5 text-[10px] font-bold rounded-lg inline-flex items-center justify-center gap-1 shadow-2xs"
-                            >
-                              {isFree ? (
-                                <>
-                                  <BookOpen className="w-3 h-3" />
-                                  <span>Enquire Now</span>
-                                </>
-                              ) : (
-                                <>
-                                  <PhoneCall className="w-3 h-3" />
-                                  <span>Enquire Now</span>
-                                </>
-                              )}
-                            </button>
-                            <Link
-                              to={`/courses/${course.slug}`}
-                              onClick={(e) => e.stopPropagation()}
-                              className="px-2.5 py-1.5 text-[10px] font-bold text-slate-600 hover:text-purple-600 rounded-lg hover:bg-purple-50 border border-slate-200 transition-colors inline-flex items-center gap-1"
-                            >
-                              <span>Details</span>
-                              <ArrowRight className="w-3 h-3" />
-                            </Link>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                  );
-                })}
+                {/* Replace individual Spoken English course cards with the 5 language options */}
+                {hasEnglishInCourses &&
+                  PROGRAM_TRACK_LANGUAGES.map((lang) => (
+                    <LanguageTrackCard key={lang.id} language={lang} />
+                  ))}
               </div>
             )}
           </main>

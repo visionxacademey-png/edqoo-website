@@ -91,12 +91,12 @@ export const Contact: React.FC = () => {
         faqs={rawContactFaqs}
       />
       {/* Contact Hero */}
-      <section className="bg-gradient-to-b from-purple-50/70 via-slate-50 to-white text-slate-950 py-14 sm:py-16 text-center relative overflow-hidden border-b border-slate-200">
+      <section className="bg-gradient-to-b from-[#F1E8FA]/40 via-[#F7F7F7] to-white text-slate-950 py-14 sm:py-16 text-center relative overflow-hidden border-b border-slate-200">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 space-y-3 relative z-10">
-          <span className="text-xs font-bold text-purple-600 uppercase tracking-widest block">
+          <span className="inline-block text-[11px] font-bold text-[#6D22B5] bg-[#F1E8FA] border border-[#E0CEF5] px-3 py-1 rounded-full uppercase tracking-widest">
             ADMISSIONS & SUPPORT DESK
           </span>
-          <h1 className="text-3xl sm:text-4xl lg:text-5xl font-display font-black text-slate-950">
+          <h1 className="text-3xl sm:text-4xl lg:text-5xl font-display font-black text-slate-950 tracking-tight">
             Contact Edqoo Admissions
           </h1>
           <p className="text-slate-600 text-xs sm:text-sm max-w-xl mx-auto leading-relaxed">
@@ -116,16 +116,16 @@ export const Contact: React.FC = () => {
       <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 grid grid-cols-1 lg:grid-cols-12 gap-8 items-start text-left">
         
         {/* Form Panel (7 cols) */}
-        <div className="lg:col-span-7 bg-white border border-slate-200 p-6 sm:p-8 rounded-2xl shadow-2xs space-y-6">
+        <div className="lg:col-span-7 bg-white border border-slate-200 p-6 sm:p-8 rounded-2xl shadow-sm space-y-6">
           <h2 className="text-lg font-display font-bold text-slate-950 border-b border-slate-200 pb-3">
             Send Us an Inquiry
           </h2>
 
           {submitted && (
-            <div className="p-4 bg-purple-50 border border-purple-200 text-purple-900 text-xs rounded-xl flex items-start gap-2.5 font-medium animate-fadeIn">
-              <CheckCircle2 className="w-5 h-5 text-purple-600 flex-shrink-0" />
+            <div className="p-4 bg-[#F1E8FA] border border-[#E0CEF5] text-[#381061] text-xs rounded-xl flex items-start gap-2.5 font-medium animate-fadeIn">
+              <CheckCircle2 className="w-5 h-5 text-[#6D22B5] flex-shrink-0" />
               <div>
-                <span className="font-bold block">Inquiry Received!</span>
+                <span className="font-bold block text-[#1B3200]">Inquiry Received!</span>
                 <span>Our team will review your request and get in touch with you shortly.</span>
               </div>
             </div>
@@ -154,7 +154,7 @@ export const Contact: React.FC = () => {
                   placeholder="e.g. John Doe"
                   {...register('name')}
                   className={`w-full px-3 py-2 bg-slate-50 border rounded-lg text-xs text-slate-900 focus:outline-none focus:bg-white transition-all ${
-                    errors.name ? 'border-red-400 focus:border-red-500' : 'border-slate-300 focus:border-purple-600'
+                    errors.name ? 'border-red-400 focus:border-red-500' : 'border-slate-300 focus:border-[#6D22B5] focus:ring-1 focus:ring-[#6D22B5]'
                   }`}
                 />
                 {errors.name && <span className="text-[10px] text-red-500 font-medium">{errors.name.message}</span>}
@@ -171,7 +171,7 @@ export const Contact: React.FC = () => {
                   placeholder="e.g. john@example.com"
                   {...register('email')}
                   className={`w-full px-3 py-2 bg-slate-50 border rounded-lg text-xs text-slate-900 focus:outline-none focus:bg-white transition-all ${
-                    errors.email ? 'border-red-400 focus:border-red-500' : 'border-slate-300 focus:border-purple-600'
+                    errors.email ? 'border-red-400 focus:border-red-500' : 'border-slate-300 focus:border-[#6D22B5] focus:ring-1 focus:ring-[#6D22B5]'
                   }`}
                 />
                 {errors.email && <span className="text-[10px] text-red-500 font-medium">{errors.email.message}</span>}
@@ -189,7 +189,7 @@ export const Contact: React.FC = () => {
                   id="contact-phone"
                   placeholder="e.g. +91 90744 50935"
                   {...register('phone')}
-                  className="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-lg text-xs text-slate-900 focus:outline-none focus:bg-white focus:border-purple-600"
+                  className="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-lg text-xs text-slate-900 focus:outline-none focus:bg-white focus:border-[#6D22B5] focus:ring-1 focus:ring-[#6D22B5]"
                 />
               </div>
 
@@ -204,7 +204,7 @@ export const Contact: React.FC = () => {
                   placeholder="e.g. Cybersecurity Batch Schedule, Corporate Rates"
                   {...register('subject')}
                   className={`w-full px-3 py-2 bg-slate-50 border rounded-lg text-xs text-slate-900 focus:outline-none focus:bg-white transition-all ${
-                    errors.subject ? 'border-red-400 focus:border-red-500' : 'border-slate-300 focus:border-purple-600'
+                    errors.subject ? 'border-red-400 focus:border-red-500' : 'border-slate-300 focus:border-[#6D22B5] focus:ring-1 focus:ring-[#6D22B5]'
                   }`}
                 />
                 {errors.subject && <span className="text-[10px] text-red-500 font-medium">{errors.subject.message}</span>}
@@ -222,7 +222,7 @@ export const Contact: React.FC = () => {
                 placeholder="Describe your inquiry, background, or question in detail..."
                 {...register('message')}
                 className={`w-full px-3 py-2 bg-slate-50 border rounded-lg text-xs text-slate-900 focus:outline-none focus:bg-white transition-all ${
-                  errors.message ? 'border-red-400 focus:border-red-500' : 'border-slate-300 focus:border-purple-600'
+                  errors.message ? 'border-red-400 focus:border-red-500' : 'border-slate-300 focus:border-[#6D22B5] focus:ring-1 focus:ring-[#6D22B5]'
                 }`}
               />
               {errors.message && <span className="text-[10px] text-red-500 font-medium">{errors.message.message}</span>}
@@ -242,22 +242,22 @@ export const Contact: React.FC = () => {
         {/* Info & FAQ Panel (5 cols) */}
         <div className="lg:col-span-5 space-y-6">
           {/* Quick Contacts details */}
-          <div className="bg-white border border-slate-200 p-6 rounded-2xl shadow-2xs space-y-4">
+          <div className="bg-white border border-slate-200 p-6 rounded-2xl shadow-sm space-y-4">
             <h3 className="font-display font-bold text-base text-slate-950 border-b border-slate-200 pb-2">
               Admissions & Contact Office
             </h3>
             
             <div className="space-y-4 text-xs text-slate-600">
               <div className="flex items-start gap-3">
-                <Mail className="w-4.5 h-4.5 text-purple-600 mt-0.5 flex-shrink-0" />
+                <Mail className="w-4.5 h-4.5 text-[#6D22B5] mt-0.5 flex-shrink-0" />
                 <div>
                   <span className="font-bold text-slate-900 block">General Admissions</span>
-                  <a href="mailto:support@edqoo.com" className="text-purple-600 hover:underline">support@edqoo.com</a>
+                  <a href="mailto:support@edqoo.com" className="text-[#6D22B5] hover:underline font-semibold">support@edqoo.com</a>
                 </div>
               </div>
 
               <div className="flex items-start gap-3">
-                <Phone className="w-4.5 h-4.5 text-purple-600 mt-0.5 flex-shrink-0" />
+                <Phone className="w-4.5 h-4.5 text-[#6D22B5] mt-0.5 flex-shrink-0" />
                 <div>
                   <span className="font-bold text-slate-900 block">Phone Inquiries</span>
                   <span className="text-slate-600 font-semibold">+91 90744 50935</span>
@@ -265,7 +265,7 @@ export const Contact: React.FC = () => {
               </div>
 
               <div className="flex items-start gap-3">
-                <MapPin className="w-4.5 h-4.5 text-purple-600 mt-0.5 flex-shrink-0" />
+                <MapPin className="w-4.5 h-4.5 text-[#6D22B5] mt-0.5 flex-shrink-0" />
                 <div>
                   <span className="font-bold text-slate-900 block">Corporate Office</span>
                   <span className="text-slate-500">Edqoo Technologies, 3rd floor, Indus Avenue, Pushpa Junction, Chalappuram, Kozhikode, Kerala 673002</span>

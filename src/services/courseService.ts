@@ -1,5 +1,5 @@
 import api from './api';
-import { normalizeCourseCategories } from '../data/courses';
+import { normalizeCourseCategories, orderCoursesWithEnglishMirrorLast } from '../data/courses';
 import type { Course } from '../types';
 
 // Slug alias map for backwards compatibility of legacy links
@@ -10,7 +10,25 @@ const SLUG_ALIASES: Record<string, string> = {
   'master-program-data-analytics-ai': 'executive-professional-certificate-data-science-ai',
   'python-training-program': 'python-programming',
   'power-bi': 'advance-executive-power-bi',
-  'excel': 'advance-executive-excel'
+  'excel': 'advance-executive-excel',
+  'standard-plan-telephonic-sessions': 'standard-plan-telephonic-calling-sessions',
+  'fluency-builder-plan': 'standard-plan-telephonic-calling-sessions',
+  'little-mirrors': 'kids-1-to-1-english-fluency-program',
+  'little-hearts': 'kids-1-to-1-english-fluency-program',
+  'ielts-expert-training-modules': 'ielts-intensive-1-to-1-crash-training',
+  'ielts-intensive': 'ielts-intensive-1-to-1-crash-training',
+  '1-to-1-ielts-intensive': 'ielts-intensive-1-to-1-crash-training',
+  '1:1-ielts-intensive': 'ielts-intensive-1-to-1-crash-training',
+  'ielts-intensive-crash-training': 'ielts-intensive-1-to-1-crash-training',
+  '1-to-1-executive-interview-preparation-track': 'targeted-interview-prep-masterclass',
+  '1:1-executive-interview-preparation-track': 'targeted-interview-prep-masterclass',
+  '1-1-executive-interview-preparation-track': 'targeted-interview-prep-masterclass',
+  'executive-interview-preparation-track': 'targeted-interview-prep-masterclass',
+  'executive-interview-prep-track': 'targeted-interview-prep-masterclass',
+  'corporate-english-fluency-builder': 'elite-corporate-transformation-track',
+  '1-to-1-communicative-english-mastery': '1-to-1-live-spoken-english',
+  '1:1-communicative-english-mastery': '1-to-1-live-spoken-english',
+  '1-1-communicative-english-mastery': '1-to-1-live-spoken-english'
 };
 
 export const courseService = {
@@ -49,7 +67,8 @@ export const courseService = {
         console.log('4. Extracted courses:', rawData);
         console.log('5. Course count:', rawData.length);
         console.log('====================================');
-        return rawData.map(normalizeCourseCategories);
+        const normalized = rawData.map(normalizeCourseCategories);
+        return orderCoursesWithEnglishMirrorLast(normalized);
       } catch (error: any) {
         if (error.name === 'CanceledError' || error.name === 'AbortError') {
           console.log('[COURSES] Request was canceled/aborted.');

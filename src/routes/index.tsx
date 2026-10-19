@@ -30,6 +30,11 @@ const BecomeInstructor = React.lazy(() => import('../pages/BecomeInstructor').th
 const BecomePartner = React.lazy(() => import('../pages/BecomePartner').then(module => ({ default: module.BecomePartner })));
 const LeadershipCouncil = React.lazy(() => import('../pages/LeadershipCouncil').then(module => ({ default: module.LeadershipCouncil })));
 
+// Spoken Tutorial & English Mirror Partner Routes
+const SpokenTutorial = React.lazy(() => import('../pages/SpokenTutorial').then(module => ({ default: module.SpokenTutorial })));
+const EnglishMirror = React.lazy(() => import('../pages/EnglishMirror').then(module => ({ default: module.EnglishMirror })));
+const EnglishMirrorPolicies = React.lazy(() => import('../pages/EnglishMirror/Policies').then(module => ({ default: module.EnglishMirrorPolicies })));
+
 // Auth Pages
 const Login = React.lazy(() => import('../pages/Login').then(module => ({ default: module.Login })));
 const Register = React.lazy(() => import('../pages/Register').then(module => ({ default: module.Register })));
@@ -43,6 +48,7 @@ const AdminLeadManagement = React.lazy(() => import('../pages/Dashboard/Dashboar
 
 // Admin Console Pages
 const AdminOverview = React.lazy(() => import('../pages/Admin/AdminOverview').then(module => ({ default: module.AdminOverview })));
+const AdminCategories = React.lazy(() => import('../pages/Admin/AdminCategories').then(module => ({ default: module.AdminCategories })));
 const AdminUsers = React.lazy(() => import('../pages/Admin/AdminUsers').then(module => ({ default: module.AdminUsers })));
 const AdminCourses = React.lazy(() => import('../pages/Admin/AdminCourses').then(module => ({ default: module.AdminCourses })));
 const AdminCourseForm = React.lazy(() => import('../pages/Admin/AdminCourseForm').then(module => ({ default: module.AdminCourseForm })));
@@ -58,8 +64,8 @@ const AdminLeadershipForm = React.lazy(() => import('../pages/Admin/AdminLeaders
 // Reusable Loading Skeleton for Suspense Fallbacks
 const SuspenseLoader = () => (
   <div className="min-h-[50vh] flex flex-col items-center justify-center">
-    <Loader2 className="w-8 h-8 text-purple-600 animate-spin mb-2" />
-    <span className="text-xs text-slate-400 font-semibold uppercase">Loading Page...</span>
+    <Loader2 className="w-8 h-8 text-[#6D22B5] animate-spin mb-2" />
+    <span className="text-xs text-neutral-400 font-semibold uppercase">Loading Page...</span>
   </div>
 );
 
@@ -102,6 +108,16 @@ export const AppRoutes: React.FC = () => {
           <Route path="/become-a-partner" element={<BecomePartner />} />
           <Route path="/leadership-council" element={<LeadershipCouncil />} />
           
+          {/* Spoken Tutorial & English Mirror Partner Routes */}
+          <Route path="/spoken-tutorial" element={<SpokenTutorial />} />
+          <Route path="/spoken-tutorial/:slug" element={<SpokenTutorial />} />
+          <Route path="/english-mirror" element={<EnglishMirror />} />
+          <Route path="/english-mirror/policies" element={<EnglishMirrorPolicies />} />
+          <Route path="/english-mirror/:slug" element={<EnglishMirror />} />
+          <Route path="/englishmirror" element={<Navigate to="/spoken-tutorial" replace />} />
+          <Route path="/programs/spoken-tutorial" element={<SpokenTutorial />} />
+          <Route path="/programs/spoken-tutorial/:slug" element={<SpokenTutorial />} />
+          
           {/* Categories redirect to programs */}
           <Route path="/categories" element={<Navigate to="/programs" replace />} />
           <Route path="/categories/:slug" element={<Navigate to="/programs" replace />} />
@@ -137,6 +153,7 @@ export const AppRoutes: React.FC = () => {
         <Route element={<AdminRoute />}>
           <Route path="/admin" element={<AdminLayout />}>
             <Route index element={<AdminOverview />} />
+            <Route path="categories" element={<AdminCategories />} />
             <Route path="users" element={<AdminUsers />} />
             <Route path="courses" element={<AdminCourses />} />
             <Route path="courses/new" element={<AdminCourseForm />} />

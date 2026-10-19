@@ -70,14 +70,14 @@ export const ForgotPassword: React.FC = () => {
 
         {success ? (
           <div className="space-y-4 text-center">
-            <div className="p-4 bg-purple-50 border border-purple-200 text-purple-900 rounded-xl space-y-2 text-xs">
-              <CheckCircle2 className="w-6 h-6 text-purple-600 mx-auto" />
+            <div className="p-4 bg-[#F1E8FA] border border-[#E0CEF5] text-[#6D22B5] rounded-xl space-y-2 text-xs">
+              <CheckCircle2 className="w-6 h-6 text-[#6D22B5] mx-auto" />
               <p className="font-bold">Password reset link dispatched!</p>
-              <p className="text-slate-600">Check your inbox for step-by-step instructions.</p>
+              <p className="text-slate-700">Check your inbox for step-by-step instructions.</p>
             </div>
             <Link
               to="/login"
-              className="btn-primary w-full py-2.5 text-xs font-bold rounded-xl flex items-center justify-center gap-1.5"
+              className="btn-primary w-full py-2.5 text-xs font-bold rounded-xl flex items-center justify-center gap-1.5 shadow-sm"
             >
               <ArrowLeft className="w-4 h-4" />
               Return to Login
@@ -96,7 +96,7 @@ export const ForgotPassword: React.FC = () => {
                   placeholder="e.g. name@example.com"
                   {...register('email')}
                   className={`w-full pl-9 pr-3 py-2.5 bg-slate-50 border rounded-lg text-xs text-slate-900 focus:outline-none focus:bg-white transition-all ${
-                    errors.email ? 'border-red-400 focus:border-red-500' : 'border-slate-300 focus:border-purple-600'
+                    errors.email ? 'border-red-400 focus:border-red-500' : 'border-slate-300 focus:border-[#6D22B5] focus:ring-1 focus:ring-[#6D22B5]'
                   }`}
                 />
                 <Mail className="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
@@ -115,7 +115,7 @@ export const ForgotPassword: React.FC = () => {
         )}
 
         <div className="border-t border-slate-100 pt-4 text-center">
-          <Link to="/login" className="inline-flex items-center gap-1 text-xs font-semibold text-purple-600 hover:text-purple-800">
+          <Link to="/login" className="inline-flex items-center gap-1 text-xs font-semibold text-[#6D22B5] hover:text-black">
             <ArrowLeft className="w-3.5 h-3.5" />
             <span>Back to Login</span>
           </Link>

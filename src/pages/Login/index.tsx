@@ -95,7 +95,7 @@ export const Login: React.FC = () => {
                 placeholder="e.g. name@example.com"
                 {...register('email')}
                 className={`w-full pl-9 pr-3 py-2.5 bg-slate-50 border rounded-lg text-xs text-slate-900 focus:outline-none focus:bg-white transition-all ${
-                  errors.email ? 'border-red-400 focus:border-red-500' : 'border-slate-300 focus:border-purple-600'
+                  errors.email ? 'border-red-400 focus:border-red-500' : 'border-slate-300 focus:border-[#6D22B5] focus:ring-1 focus:ring-[#6D22B5]'
                 }`}
               />
               <Mail className="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
@@ -109,7 +109,7 @@ export const Login: React.FC = () => {
               <label htmlFor="login-password" className="text-[10px] font-bold text-slate-700 uppercase tracking-wider">
                 Password
               </label>
-              <Link to="/forgot-password" className="text-[10px] font-semibold text-purple-600 hover:text-purple-800">
+              <Link to="/forgot-password" className="text-[10px] font-semibold text-[#6D22B5] hover:text-black">
                 Forgot Password?
               </Link>
             </div>
@@ -120,7 +120,7 @@ export const Login: React.FC = () => {
                 placeholder="••••••••"
                 {...register('password')}
                 className={`w-full pl-9 pr-10 py-2.5 bg-slate-50 border rounded-lg text-xs text-slate-900 focus:outline-none focus:bg-white transition-all ${
-                  errors.password ? 'border-red-400 focus:border-red-500' : 'border-slate-300 focus:border-purple-600'
+                  errors.password ? 'border-red-400 focus:border-red-500' : 'border-slate-300 focus:border-[#6D22B5] focus:ring-1 focus:ring-[#6D22B5]'
                 }`}
               />
               <Key className="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
@@ -142,7 +142,7 @@ export const Login: React.FC = () => {
               type="checkbox"
               id="remember-me"
               {...register('rememberMe')}
-              className="w-4 h-4 border-slate-300 rounded text-purple-600 focus:ring-purple-500"
+              className="w-4 h-4 border-slate-300 rounded text-[#6D22B5] focus:ring-[#6D22B5] accent-[#6D22B5]"
             />
             <label htmlFor="remember-me" className="ml-2 text-xs text-slate-600 select-none">
               Remember me on this device
@@ -171,7 +171,7 @@ export const Login: React.FC = () => {
         <div className="border-t border-slate-100 pt-4 text-center">
           <p className="text-xs text-slate-500">
             Don't have an account yet?{' '}
-            <Link to="/register" className="font-bold text-purple-600 hover:text-purple-800">
+            <Link to="/register" className="font-bold text-[#6D22B5] hover:text-black">
               Sign Up
             </Link>
           </p>

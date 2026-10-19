@@ -15,7 +15,24 @@ const SLUG_ALIASES: Record<string, string> = {
   'master-program-data-analytics-ai': 'executive-professional-certificate-data-science-ai',
   'python-training-program': 'python-programming',
   'power-bi': 'advance-executive-power-bi',
-  'excel': 'advance-executive-excel'
+  'excel': 'advance-executive-excel',
+  'standard-plan-telephonic-sessions': 'standard-plan-telephonic-calling-sessions',
+  'fluency-builder-plan': 'standard-plan-telephonic-calling-sessions',
+  'little-mirrors': 'kids-1-to-1-english-fluency-program',
+  'ielts-expert-training-modules': 'ielts-intensive-1-to-1-crash-training',
+  'ielts-intensive': 'ielts-intensive-1-to-1-crash-training',
+  '1-to-1-ielts-intensive': 'ielts-intensive-1-to-1-crash-training',
+  '1:1-ielts-intensive': 'ielts-intensive-1-to-1-crash-training',
+  'ielts-intensive-crash-training': 'ielts-intensive-1-to-1-crash-training',
+  '1-to-1-executive-interview-preparation-track': 'targeted-interview-prep-masterclass',
+  '1:1-executive-interview-preparation-track': 'targeted-interview-prep-masterclass',
+  '1-1-executive-interview-preparation-track': 'targeted-interview-prep-masterclass',
+  'executive-interview-preparation-track': 'targeted-interview-prep-masterclass',
+  'executive-interview-prep-track': 'targeted-interview-prep-masterclass',
+  '1-to-1-communicative-english-mastery': '1-to-1-live-spoken-english',
+  '1:1-communicative-english-mastery': '1-to-1-live-spoken-english',
+  '1-1-communicative-english-mastery': '1-to-1-live-spoken-english',
+  'corporate-english-fluency-builder': 'elite-corporate-transformation-track'
 };
 
 // Helper to generate a clean URL slug from title
@@ -107,6 +124,19 @@ function normalizeCategoryName(cat: string | null | undefined): string {
   }
 
   if (
+    lower === 'english mirror' ||
+    lower === 'english-mirror' ||
+    lower === 'english_mirror' ||
+    lower === 'english' ||
+    lower === 'spoken english' ||
+    lower === 'spoken-english' ||
+    lower === 'englishclass' ||
+    lower.includes('english mirror')
+  ) {
+    return 'English Mirror';
+  }
+
+  if (
     lower === 'free learning' ||
     lower === 'free-learning' ||
     lower === 'free' ||
@@ -139,9 +169,13 @@ function formatCourseRow(row: any): Course {
     title: row.title,
     category: normalizedCategory,
     categories: normalizedCategories.length > 0 ? normalizedCategories : [normalizedCategory],
+    categoryId: row.category_id || undefined,
+    categoryIds: safeJsonParse<string[]>(row.category_ids, []),
     shortDescription: row.short_description || undefined,
     description: row.description || '',
     image: row.image,
+    heroImage: row.hero_image || undefined,
+    previewVideo: row.preview_video || undefined,
     price: Number(row.price) || 0,
     originalPrice: Number(row.original_price) || 0,
     duration: row.duration,
@@ -151,6 +185,7 @@ function formatCourseRow(row: any): Course {
     rating: Number(row.rating) || 4.9,
     students: Number(row.students) || 0,
     status: row.status || 'available',
+    isActive: row.is_active !== false && row.status !== 'inactive',
     featured: Boolean(row.featured),
     skills: safeJsonParse<string[]>(row.skills, []),
     curriculum: safeJsonParse<any[]>(row.curriculum, []),
@@ -159,9 +194,16 @@ function formatCourseRow(row: any): Course {
     projects: safeJsonParse<string[]>(row.projects, []),
     careerReadiness: safeJsonParse<string[]>(row.career_readiness, []),
     outcome: row.outcome || undefined,
-    features: safeJsonParse<string[]>(row.features, []),
+    features: safeJsonParse<any[]>(row.features, []),
+    supportingText: row.supporting_text || undefined,
+    highlightText: row.highlight_text || undefined,
     requirements: safeJsonParse<string[]>(row.requirements, []),
     whoIsItFor: safeJsonParse<string[]>(row.who_is_it_for, []),
+    faqs: safeJsonParse<Array<{ question: string; answer: string }>>(row.faqs, []),
+    admissionsInfo: row.admissions_info || undefined,
+    certifications: safeJsonParse<string[]>(row.certifications, []),
+    programHighlights: safeJsonParse<string[]>(row.program_highlights, []),
+    badges: safeJsonParse<string[]>(row.badges, []),
     seoTitle: row.seo_title || undefined,
     seoDescription: row.seo_description || undefined,
     seoKeywords: safeJsonParse<string[]>(row.seo_keywords, []),
@@ -175,7 +217,7 @@ function formatCourseRow(row: any): Course {
 router.get('/', async (req, res) => {
   try {
     await ensureDbInitialized();
-    const { category, level, status, search, featured } = req.query;
+    const { category, categoryId, level, status, search, featured } = req.query;
 
     res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate');
     res.setHeader('Pragma', 'no-cache');
@@ -185,13 +227,38 @@ router.get('/', async (req, res) => {
     const params: any[] = [];
     const whereClauses: string[] = [];
 
-    if (category && category !== 'all' && category !== 'All Categories') {
-      const normCat = normalizeCategoryName(category as string) || (category as string);
-      params.push(normCat);
-      const idx1 = params.length;
-      params.push(`%${normCat}%`);
-      const idx2 = params.length;
-      whereClauses.push(`(LOWER(category) = LOWER($${idx1}) OR categories::text ILIKE $${idx2})`);
+    const targetCategory = categoryId || category;
+    if (targetCategory && targetCategory !== 'all' && targetCategory !== 'All Categories') {
+      const isEnglishTarget =
+        targetCategory === 'cat-spoken-tutorial' ||
+        targetCategory === 'spoken-tutorial' ||
+        targetCategory === 'spoken-english' ||
+        targetCategory === 'cat-english-mirror' ||
+        targetCategory === 'english-mirror' ||
+        (typeof targetCategory === 'string' && (
+          targetCategory.toLowerCase().includes('spoken tutorial') ||
+          targetCategory.toLowerCase().includes('spoken english') ||
+          targetCategory.toLowerCase().includes('english mirror')
+        ));
+
+      if (isEnglishTarget) {
+        whereClauses.push(
+          `(category ILIKE '%spoken%' OR category ILIKE '%english%' OR categories::text ILIKE '%spoken%' OR categories::text ILIKE '%english%' OR category_id = 'cat-spoken-tutorial' OR category_ids::text ILIKE '%cat-spoken-tutorial%' OR slug LIKE '1-to-1-%' OR slug LIKE 'standard-plan%' OR slug LIKE 'kids-1-%' OR slug LIKE 'ielts-%' OR slug LIKE 'elite-corporate%' OR slug LIKE 'targeted-interview%')`
+        );
+      } else {
+        const normCat = normalizeCategoryName(targetCategory as string) || (targetCategory as string);
+        params.push(normCat);
+        const idx1 = params.length;
+        params.push(`%${normCat}%`);
+        const idx2 = params.length;
+        params.push(targetCategory as string);
+        const idx3 = params.length;
+        params.push(`%${targetCategory as string}%`);
+        const idx4 = params.length;
+        whereClauses.push(
+          `(LOWER(category) = LOWER($${idx1}) OR categories::text ILIKE $${idx2} OR category_id = $${idx3} OR category_ids::text ILIKE $${idx4} OR slug = $${idx3})`
+        );
+      }
     }
 
     if (level && level !== 'all') {
@@ -202,6 +269,8 @@ router.get('/', async (req, res) => {
     if (status && status !== 'all') {
       params.push(status);
       whereClauses.push(`status = $${params.length}`);
+    } else {
+      whereClauses.push(`status != 'inactive'`);
     }
 
     if (featured === 'true') {
@@ -279,6 +348,46 @@ router.get('/', async (req, res) => {
         .filter((m) => m.score >= 450)
         .sort((a, b) => b.score - a.score)
         .map((m) => m.course);
+    }
+
+    // Partition so that English Mirror courses are placed after all normal Edqoo courses
+    if (!category || category === 'all' || category === 'All Categories') {
+      const isEnglishMirrorCourseServer = (c: Course) => {
+        const rawCat = (c.category || '').toLowerCase().trim();
+        if (
+          rawCat === 'english mirror' ||
+          rawCat.includes('english mirror') ||
+          rawCat === 'spoken english' ||
+          rawCat.includes('spoken english') ||
+          rawCat === 'spoken tutorial' ||
+          rawCat.includes('spoken tutorial')
+        ) return true;
+        const categories = c.categories || [];
+        if (
+          Array.isArray(categories) &&
+          categories.some((cat: string) => {
+            const lower = (cat || '').toLowerCase().trim();
+            return lower.includes('english mirror') || lower.includes('spoken english') || lower.includes('spoken tutorial');
+          })
+        ) return true;
+        if (c.slug && (
+          c.slug.startsWith('1-to-1-live-spoken-english') ||
+          c.slug.startsWith('1-to-1-communicative-english') ||
+          c.slug.startsWith('standard-plan-telephonic') ||
+          c.slug.startsWith('kids-1-to-1-english') ||
+          c.slug.startsWith('ielts-') ||
+          c.slug.startsWith('elite-corporate-transformation') ||
+          c.slug.startsWith('targeted-interview-prep') ||
+          c.slug.startsWith('spoken-english-') ||
+          c.slug.includes('spoken-tutorial') ||
+          c.slug.includes('english-mirror')
+        )) return true;
+        return false;
+      };
+
+      const normalCourses = courses.filter((c) => !isEnglishMirrorCourseServer(c));
+      const englishMirrorCourses = courses.filter((c) => isEnglishMirrorCourseServer(c));
+      courses = [...normalCourses, ...englishMirrorCourses];
     }
 
     console.log(`[COURSES] Query executed successfully. Returned ${courses.length} courses from Neon DB.`);

@@ -173,8 +173,8 @@ export const AdminInstructorForm: React.FC = () => {
   if (loading) {
     return (
       <div className="py-24 text-center space-y-3">
-        <div className="w-8 h-8 border-3 border-purple-600 border-t-transparent rounded-full animate-spin mx-auto" />
-        <span className="text-xs text-slate-400 font-semibold uppercase tracking-wider">
+        <div className="w-8 h-8 border-2 border-[#6D22B5] border-t-transparent rounded-full animate-spin mx-auto" />
+        <span className="text-xs text-neutral-400 font-semibold uppercase tracking-wider">
           Loading Instructor Form...
         </span>
       </div>
@@ -203,11 +203,11 @@ export const AdminInstructorForm: React.FC = () => {
       )}
 
       {/* Top Header */}
-      <div className="flex items-center justify-between gap-4 pb-3 border-b border-slate-800/80">
+      <div className="flex items-center justify-between gap-4 pb-3 border-b border-neutral-800">
         <div className="flex items-center gap-3">
           <Link
             to="/admin/instructors"
-            className="p-2 rounded-xl bg-slate-900 border border-slate-800 text-slate-400 hover:text-white transition-colors"
+            className="p-2 rounded-xl bg-neutral-900 border border-neutral-800 text-neutral-400 hover:text-white transition-colors"
           >
             <ArrowLeft className="w-4 h-4" />
           </Link>
@@ -215,7 +215,7 @@ export const AdminInstructorForm: React.FC = () => {
             <h1 className="text-xl sm:text-2xl font-black text-white font-display">
               {isEditMode ? 'Edit Instructor Profile' : 'Add New Instructor'}
             </h1>
-            <p className="text-xs text-slate-400">
+            <p className="text-xs text-neutral-400">
               {isEditMode
                 ? 'Update faculty credentials, bio, and assigned courses.'
                 : 'Create a new dynamic instructor profile for the website.'}
@@ -228,15 +228,15 @@ export const AdminInstructorForm: React.FC = () => {
       <form onSubmit={handleSubmit} className="space-y-6">
         
         {/* Section 1: Basic Information */}
-        <div className="bg-slate-900 border border-slate-800 rounded-2xl p-6 space-y-4">
-          <h3 className="text-sm font-bold text-white font-display flex items-center gap-2 pb-2 border-b border-slate-800">
-            <GraduationCap className="w-4 h-4 text-purple-400" />
+        <div className="bg-neutral-900/90 border border-neutral-800 rounded-2xl p-6 space-y-4">
+          <h3 className="text-sm font-bold text-white font-display flex items-center gap-2 pb-2 border-b border-neutral-800">
+            <GraduationCap className="w-4 h-4 text-[#6D22B5]" />
             Basic Profile &amp; Role Details
           </h3>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
-              <label className="text-xs font-bold text-slate-300 block mb-1">
+              <label className="text-xs font-bold text-neutral-300 block mb-1">
                 Full Name *
               </label>
               <input
@@ -245,12 +245,12 @@ export const AdminInstructorForm: React.FC = () => {
                 placeholder="e.g. Dr. Evelyn Vance"
                 value={formData.name}
                 onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                className="w-full bg-slate-950 border border-slate-800 rounded-xl py-2 px-3.5 text-xs text-slate-200 placeholder-slate-500 focus:outline-none focus:border-purple-600"
+                className="w-full bg-black border border-neutral-800 rounded-xl py-2 px-3.5 text-xs text-neutral-200 placeholder-neutral-500 focus:outline-none focus:border-[#6D22B5] focus:ring-1 focus:ring-[#6D22B5]"
               />
             </div>
 
             <div>
-              <label className="text-xs font-bold text-slate-300 block mb-1">
+              <label className="text-xs font-bold text-neutral-300 block mb-1">
                 Designation / Title *
               </label>
               <input
@@ -259,12 +259,12 @@ export const AdminInstructorForm: React.FC = () => {
                 placeholder="e.g. Lead AI & Machine Learning Faculty"
                 value={formData.designation}
                 onChange={(e) => setFormData({ ...formData, designation: e.target.value })}
-                className="w-full bg-slate-950 border border-slate-800 rounded-xl py-2 px-3.5 text-xs text-slate-200 placeholder-slate-500 focus:outline-none focus:border-purple-600"
+                className="w-full bg-black border border-neutral-800 rounded-xl py-2 px-3.5 text-xs text-neutral-200 placeholder-neutral-500 focus:outline-none focus:border-[#6D22B5] focus:ring-1 focus:ring-[#6D22B5]"
               />
             </div>
 
             <div>
-              <label className="text-xs font-bold text-slate-300 block mb-1">
+              <label className="text-xs font-bold text-neutral-300 block mb-1">
                 Organization / Company *
               </label>
               <input
@@ -273,12 +273,12 @@ export const AdminInstructorForm: React.FC = () => {
                 placeholder="e.g. Edqoo & Tech Research Institute"
                 value={formData.organization}
                 onChange={(e) => setFormData({ ...formData, organization: e.target.value })}
-                className="w-full bg-slate-950 border border-slate-800 rounded-xl py-2 px-3.5 text-xs text-slate-200 placeholder-slate-500 focus:outline-none focus:border-purple-600"
+                className="w-full bg-black border border-neutral-800 rounded-xl py-2 px-3.5 text-xs text-neutral-200 placeholder-neutral-500 focus:outline-none focus:border-[#6D22B5] focus:ring-1 focus:ring-[#6D22B5]"
               />
             </div>
 
             <div>
-              <label className="text-xs font-bold text-slate-300 block mb-1">
+              <label className="text-xs font-bold text-neutral-300 block mb-1">
                 Years of Experience
               </label>
               <input
@@ -286,14 +286,14 @@ export const AdminInstructorForm: React.FC = () => {
                 placeholder="e.g. 12+ Years"
                 value={formData.experience}
                 onChange={(e) => setFormData({ ...formData, experience: e.target.value })}
-                className="w-full bg-slate-950 border border-slate-800 rounded-xl py-2 px-3.5 text-xs text-slate-200 placeholder-slate-500 focus:outline-none focus:border-purple-600"
+                className="w-full bg-black border border-neutral-800 rounded-xl py-2 px-3.5 text-xs text-neutral-200 placeholder-neutral-500 focus:outline-none focus:border-[#6D22B5] focus:ring-1 focus:ring-[#6D22B5]"
               />
             </div>
           </div>
 
           <div>
-            <label className="text-xs font-bold text-slate-300 block mb-1">
-              Profile Photo <span className="text-slate-500 font-normal">(File upload or Image URL)</span>
+            <label className="text-xs font-bold text-neutral-300 block mb-1">
+              Profile Photo <span className="text-neutral-500 font-normal">(File upload or Image URL)</span>
             </label>
             <div className="flex flex-col sm:flex-row gap-3 items-start sm:items-center">
               <div className="flex-1 w-full flex gap-2">
@@ -305,10 +305,10 @@ export const AdminInstructorForm: React.FC = () => {
                     setFormData({ ...formData, profileImage: e.target.value });
                     console.log('IMAGE UPDATE STARTED', { newUrl: e.target.value });
                   }}
-                  className="flex-1 bg-slate-950 border border-slate-800 rounded-xl py-2 px-3.5 text-xs text-slate-200 placeholder-slate-500 focus:outline-none focus:border-purple-600 font-mono"
+                  className="flex-1 bg-black border border-neutral-800 rounded-xl py-2 px-3.5 text-xs text-neutral-200 placeholder-neutral-500 focus:outline-none focus:border-[#6D22B5] focus:ring-1 focus:ring-[#6D22B5] font-mono"
                 />
-                <label className="cursor-pointer px-3.5 py-2 bg-slate-800 hover:bg-slate-700 border border-slate-700 rounded-xl text-xs font-semibold text-slate-200 flex items-center gap-1.5 transition-colors shrink-0">
-                  <Upload className="w-3.5 h-3.5 text-purple-400" />
+                <label className="cursor-pointer px-3.5 py-2 bg-neutral-800 hover:bg-neutral-700 border border-neutral-700 rounded-xl text-xs font-semibold text-neutral-200 flex items-center gap-1.5 transition-colors shrink-0">
+                  <Upload className="w-3.5 h-3.5 text-[#6D22B5]" />
                   <span>Upload</span>
                   <input
                     type="file"
@@ -319,11 +319,11 @@ export const AdminInstructorForm: React.FC = () => {
                 </label>
               </div>
               {formData.profileImage && (
-                <div className="flex items-center gap-2 p-1 bg-slate-950 border border-slate-800 rounded-xl shrink-0">
+                <div className="flex items-center gap-2 p-1 bg-black border border-neutral-800 rounded-xl shrink-0">
                   <img
                     src={formData.profileImage}
                     alt="Preview"
-                    className="w-10 h-10 rounded-lg object-cover border border-slate-700 flex-shrink-0"
+                    className="w-10 h-10 rounded-lg object-cover border border-neutral-700 flex-shrink-0"
                     onError={(e) => ((e.target as HTMLElement).style.display = 'none')}
                   />
                   <button
@@ -332,7 +332,7 @@ export const AdminInstructorForm: React.FC = () => {
                       setFormData({ ...formData, profileImage: '' });
                       console.log('IMAGE REMOVED');
                     }}
-                    className="p-1 hover:bg-slate-800 rounded text-slate-400 hover:text-red-400 text-xs px-2"
+                    className="p-1 hover:bg-neutral-800 rounded text-neutral-400 hover:text-red-400 text-xs px-2"
                     title="Remove image"
                   >
                     ✕
@@ -344,14 +344,14 @@ export const AdminInstructorForm: React.FC = () => {
         </div>
 
         {/* Section 2: Biographies & Qualifications */}
-        <div className="bg-slate-900 border border-slate-800 rounded-2xl p-6 space-y-4">
-          <h3 className="text-sm font-bold text-white font-display flex items-center gap-2 pb-2 border-b border-slate-800">
-            <Award className="w-4 h-4 text-purple-400" />
+        <div className="bg-neutral-900/90 border border-neutral-800 rounded-2xl p-6 space-y-4">
+          <h3 className="text-sm font-bold text-white font-display flex items-center gap-2 pb-2 border-b border-neutral-800">
+            <Award className="w-4 h-4 text-[#6D22B5]" />
             Qualifications &amp; Biography
           </h3>
 
           <div>
-            <label className="text-xs font-bold text-slate-300 block mb-1">
+            <label className="text-xs font-bold text-neutral-300 block mb-1">
               Educational Qualifications
             </label>
             <input
@@ -359,12 +359,12 @@ export const AdminInstructorForm: React.FC = () => {
               placeholder="e.g. Ph.D. in Computer Science, M.S. in Data Engineering"
               value={formData.qualifications}
               onChange={(e) => setFormData({ ...formData, qualifications: e.target.value })}
-              className="w-full bg-slate-950 border border-slate-800 rounded-xl py-2 px-3.5 text-xs text-slate-200 placeholder-slate-500 focus:outline-none focus:border-purple-600"
+              className="w-full bg-black border border-neutral-800 rounded-xl py-2 px-3.5 text-xs text-neutral-200 placeholder-neutral-500 focus:outline-none focus:border-[#6D22B5] focus:ring-1 focus:ring-[#6D22B5]"
             />
           </div>
 
           <div>
-            <label className="text-xs font-bold text-slate-300 block mb-1">
+            <label className="text-xs font-bold text-neutral-300 block mb-1">
               Short Professional Bio (for cards)
             </label>
             <textarea
@@ -372,12 +372,12 @@ export const AdminInstructorForm: React.FC = () => {
               placeholder="Brief 1-2 sentence introduction displayed on instructor cards..."
               value={formData.shortBio}
               onChange={(e) => setFormData({ ...formData, shortBio: e.target.value })}
-              className="w-full bg-slate-950 border border-slate-800 rounded-xl py-2 px-3.5 text-xs text-slate-200 placeholder-slate-500 focus:outline-none focus:border-purple-600"
+              className="w-full bg-black border border-neutral-800 rounded-xl py-2 px-3.5 text-xs text-neutral-200 placeholder-neutral-500 focus:outline-none focus:border-[#6D22B5] focus:ring-1 focus:ring-[#6D22B5]"
             />
           </div>
 
           <div>
-            <label className="text-xs font-bold text-slate-300 block mb-1">
+            <label className="text-xs font-bold text-neutral-300 block mb-1">
               Detailed Professional Bio (for detail page)
             </label>
             <textarea
@@ -385,13 +385,13 @@ export const AdminInstructorForm: React.FC = () => {
               placeholder="Complete professional summary, background, research areas, and career achievements..."
               value={formData.detailedBio}
               onChange={(e) => setFormData({ ...formData, detailedBio: e.target.value })}
-              className="w-full bg-slate-950 border border-slate-800 rounded-xl py-2 px-3.5 text-xs text-slate-200 placeholder-slate-500 focus:outline-none focus:border-purple-600"
+              className="w-full bg-black border border-neutral-800 rounded-xl py-2 px-3.5 text-xs text-neutral-200 placeholder-neutral-500 focus:outline-none focus:border-[#6D22B5] focus:ring-1 focus:ring-[#6D22B5]"
             />
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
-              <label className="text-xs font-bold text-slate-300 block mb-1">
+              <label className="text-xs font-bold text-neutral-300 block mb-1">
                 Industry Experience Highlights
               </label>
               <textarea
@@ -399,12 +399,12 @@ export const AdminInstructorForm: React.FC = () => {
                 placeholder="e.g. 5+ years as Principal AI Architect at enterprise software labs."
                 value={formData.industryExperience}
                 onChange={(e) => setFormData({ ...formData, industryExperience: e.target.value })}
-                className="w-full bg-slate-950 border border-slate-800 rounded-xl py-2 px-3.5 text-xs text-slate-200 placeholder-slate-500 focus:outline-none focus:border-purple-600"
+                className="w-full bg-black border border-neutral-800 rounded-xl py-2 px-3.5 text-xs text-neutral-200 placeholder-neutral-500 focus:outline-none focus:border-[#6D22B5] focus:ring-1 focus:ring-[#6D22B5]"
               />
             </div>
 
             <div>
-              <label className="text-xs font-bold text-slate-300 block mb-1">
+              <label className="text-xs font-bold text-neutral-300 block mb-1">
                 Teaching &amp; Mentorship Background
               </label>
               <textarea
@@ -412,22 +412,22 @@ export const AdminInstructorForm: React.FC = () => {
                 placeholder="e.g. 7+ years leading post-graduate executive cohorts."
                 value={formData.teachingExperience}
                 onChange={(e) => setFormData({ ...formData, teachingExperience: e.target.value })}
-                className="w-full bg-slate-950 border border-slate-800 rounded-xl py-2 px-3.5 text-xs text-slate-200 placeholder-slate-500 focus:outline-none focus:border-purple-600"
+                className="w-full bg-black border border-neutral-800 rounded-xl py-2 px-3.5 text-xs text-neutral-200 placeholder-neutral-500 focus:outline-none focus:border-[#6D22B5] focus:ring-1 focus:ring-[#6D22B5]"
               />
             </div>
           </div>
         </div>
 
         {/* Section 3: Skills, Courses & Projects */}
-        <div className="bg-slate-900 border border-slate-800 rounded-2xl p-6 space-y-4">
-          <h3 className="text-sm font-bold text-white font-display flex items-center gap-2 pb-2 border-b border-slate-800">
-            <BookOpen className="w-4 h-4 text-purple-400" />
+        <div className="bg-neutral-900/90 border border-neutral-800 rounded-2xl p-6 space-y-4">
+          <h3 className="text-sm font-bold text-white font-display flex items-center gap-2 pb-2 border-b border-neutral-800">
+            <BookOpen className="w-4 h-4 text-[#6D22B5]" />
             Curriculum &amp; Technical Expertise
           </h3>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
-              <label className="text-xs font-bold text-slate-300 block mb-1">
+              <label className="text-xs font-bold text-neutral-300 block mb-1">
                 Areas of Expertise (comma-separated)
               </label>
               <input
@@ -435,12 +435,12 @@ export const AdminInstructorForm: React.FC = () => {
                 placeholder="Data Science, Machine Learning, Python, PyTorch"
                 value={formData.expertise}
                 onChange={(e) => setFormData({ ...formData, expertise: e.target.value })}
-                className="w-full bg-slate-950 border border-slate-800 rounded-xl py-2 px-3.5 text-xs text-slate-200 placeholder-slate-500 focus:outline-none focus:border-purple-600"
+                className="w-full bg-black border border-neutral-800 rounded-xl py-2 px-3.5 text-xs text-neutral-200 placeholder-neutral-500 focus:outline-none focus:border-[#6D22B5] focus:ring-1 focus:ring-[#6D22B5]"
               />
             </div>
 
             <div>
-              <label className="text-xs font-bold text-slate-300 block mb-1">
+              <label className="text-xs font-bold text-neutral-300 block mb-1">
                 Certifications (comma-separated)
               </label>
               <input
@@ -448,13 +448,13 @@ export const AdminInstructorForm: React.FC = () => {
                 placeholder="AWS Certified ML, TensorFlow Developer, Microsoft PL-300"
                 value={formData.certifications}
                 onChange={(e) => setFormData({ ...formData, certifications: e.target.value })}
-                className="w-full bg-slate-950 border border-slate-800 rounded-xl py-2 px-3.5 text-xs text-slate-200 placeholder-slate-500 focus:outline-none focus:border-purple-600"
+                className="w-full bg-black border border-neutral-800 rounded-xl py-2 px-3.5 text-xs text-neutral-200 placeholder-neutral-500 focus:outline-none focus:border-[#6D22B5] focus:ring-1 focus:ring-[#6D22B5]"
               />
             </div>
           </div>
 
           <div>
-            <label className="text-xs font-bold text-slate-300 block mb-1">
+            <label className="text-xs font-bold text-neutral-300 block mb-1">
               Courses / Programs Taught (one per line)
             </label>
             <textarea
@@ -462,12 +462,12 @@ export const AdminInstructorForm: React.FC = () => {
               placeholder="Advance Executive in Data Science and AI&#10;Advance Executive in AI and Machine Learning&#10;Advance Executive with Python"
               value={formData.courses}
               onChange={(e) => setFormData({ ...formData, courses: e.target.value })}
-              className="w-full bg-slate-950 border border-slate-800 rounded-xl py-2 px-3.5 text-xs text-slate-200 placeholder-slate-500 focus:outline-none focus:border-purple-600"
+              className="w-full bg-black border border-neutral-800 rounded-xl py-2 px-3.5 text-xs text-neutral-200 placeholder-neutral-500 focus:outline-none focus:border-[#6D22B5] focus:ring-1 focus:ring-[#6D22B5]"
             />
           </div>
 
           <div>
-            <label className="text-xs font-bold text-slate-300 block mb-1">
+            <label className="text-xs font-bold text-neutral-300 block mb-1">
               Key Projects / Research / Publications (one per line)
             </label>
             <textarea
@@ -475,21 +475,21 @@ export const AdminInstructorForm: React.FC = () => {
               placeholder="Automated Multi-Modal Medical Imaging Diagnostic Pipeline&#10;High-Throughput NLP Sentiment Engine&#10;Distributed Training Infrastructure"
               value={formData.projects}
               onChange={(e) => setFormData({ ...formData, projects: e.target.value })}
-              className="w-full bg-slate-950 border border-slate-800 rounded-xl py-2 px-3.5 text-xs text-slate-200 placeholder-slate-500 focus:outline-none focus:border-purple-600"
+              className="w-full bg-black border border-neutral-800 rounded-xl py-2 px-3.5 text-xs text-neutral-200 placeholder-neutral-500 focus:outline-none focus:border-[#6D22B5] focus:ring-1 focus:ring-[#6D22B5]"
             />
           </div>
         </div>
 
         {/* Section 4: Contact & Social Links */}
-        <div className="bg-slate-900 border border-slate-800 rounded-2xl p-6 space-y-4">
-          <h3 className="text-sm font-bold text-white font-display flex items-center gap-2 pb-2 border-b border-slate-800">
-            <Mail className="w-4 h-4 text-purple-400" />
+        <div className="bg-neutral-900/90 border border-neutral-800 rounded-2xl p-6 space-y-4">
+          <h3 className="text-sm font-bold text-white font-display flex items-center gap-2 pb-2 border-b border-neutral-800">
+            <Mail className="w-4 h-4 text-[#6D22B5]" />
             Social &amp; Contact Links
           </h3>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
-              <label className="text-xs font-bold text-slate-300 block mb-1">
+              <label className="text-xs font-bold text-neutral-300 block mb-1">
                 LinkedIn Profile URL
               </label>
               <input
@@ -497,12 +497,12 @@ export const AdminInstructorForm: React.FC = () => {
                 placeholder="https://linkedin.com/in/username"
                 value={formData.linkedin}
                 onChange={(e) => setFormData({ ...formData, linkedin: e.target.value })}
-                className="w-full bg-slate-950 border border-slate-800 rounded-xl py-2 px-3.5 text-xs text-slate-200 placeholder-slate-500 focus:outline-none focus:border-purple-600"
+                className="w-full bg-black border border-neutral-800 rounded-xl py-2 px-3.5 text-xs text-neutral-200 placeholder-neutral-500 focus:outline-none focus:border-[#6D22B5] focus:ring-1 focus:ring-[#6D22B5]"
               />
             </div>
 
             <div>
-              <label className="text-xs font-bold text-slate-300 block mb-1">
+              <label className="text-xs font-bold text-neutral-300 block mb-1">
                 Faculty Email Address
               </label>
               <input
@@ -510,17 +510,17 @@ export const AdminInstructorForm: React.FC = () => {
                 placeholder="e.g. evelyn.vance@edqoo.com"
                 value={formData.email}
                 onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                className="w-full bg-slate-950 border border-slate-800 rounded-xl py-2 px-3.5 text-xs text-slate-200 placeholder-slate-500 focus:outline-none focus:border-purple-600"
+                className="w-full bg-black border border-neutral-800 rounded-xl py-2 px-3.5 text-xs text-neutral-200 placeholder-neutral-500 focus:outline-none focus:border-[#6D22B5] focus:ring-1 focus:ring-[#6D22B5]"
               />
             </div>
           </div>
         </div>
 
         {/* Bottom Actions */}
-        <div className="flex items-center justify-end gap-3 pt-4 border-t border-slate-800">
+        <div className="flex items-center justify-end gap-3 pt-4 border-t border-neutral-800">
           <Link
             to="/admin/instructors"
-            className="px-4 py-2 rounded-xl bg-slate-900 hover:bg-slate-800 text-slate-300 text-xs font-bold transition-colors border border-slate-800"
+            className="px-4 py-2 rounded-xl bg-neutral-900 hover:bg-neutral-800 text-neutral-300 text-xs font-bold transition-colors border border-neutral-800"
           >
             Cancel
           </Link>
@@ -528,7 +528,7 @@ export const AdminInstructorForm: React.FC = () => {
           <button
             type="submit"
             disabled={submitting}
-            className="px-5 py-2 rounded-xl bg-purple-600 hover:bg-purple-700 text-white text-xs font-bold transition-colors shadow-lg shadow-purple-900/30 flex items-center gap-1.5 disabled:opacity-50"
+            className="px-5 py-2 rounded-xl bg-[#6D22B5] hover:bg-[#4B1680] text-white text-xs font-bold transition-colors shadow-md shadow-[#6D22B5]/20 flex items-center gap-1.5 disabled:opacity-50"
           >
             <Save className="w-4 h-4" />
             <span>{submitting ? 'Saving Profile...' : isEditMode ? 'Save Changes' : 'Create Instructor Profile'}</span>

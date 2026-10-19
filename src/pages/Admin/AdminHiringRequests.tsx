@@ -104,15 +104,15 @@ export const AdminHiringRequests: React.FC = () => {
       case 'Under Review':
         return 'bg-amber-950/70 text-amber-400 border-amber-800';
       case 'Contacted':
-        return 'bg-purple-950/70 text-purple-400 border-purple-800';
+        return 'bg-indigo-950/70 text-indigo-300 border-indigo-800';
       case 'Shortlisted':
         return 'bg-cyan-950/70 text-cyan-400 border-cyan-800';
       case 'Accepted':
-        return 'bg-emerald-950/70 text-emerald-400 border-emerald-800';
+        return 'bg-[#F1E8FA]/10 text-[#6D22B5] border-[#6D22B5]/40';
       case 'Rejected':
         return 'bg-red-950/70 text-red-400 border-red-800';
       default:
-        return 'bg-slate-800 text-slate-300 border-slate-700';
+        return 'bg-neutral-800 text-neutral-300 border-neutral-700';
     }
   };
 
@@ -123,12 +123,12 @@ export const AdminHiringRequests: React.FC = () => {
         <div
           className={`fixed bottom-5 right-5 z-50 px-4 py-3 rounded-xl shadow-xl flex items-center gap-2.5 text-xs font-bold border transition-all ${
             toast.type === 'success'
-              ? 'bg-emerald-950 text-emerald-300 border-emerald-800'
+              ? 'bg-neutral-900 text-[#6D22B5] border-[#6D22B5]/40'
               : 'bg-red-950 text-red-300 border-red-800'
           }`}
         >
           {toast.type === 'success' ? (
-            <CheckCircle2 className="w-4 h-4 text-emerald-400" />
+            <CheckCircle2 className="w-4 h-4 text-[#6D22B5]" />
           ) : (
             <AlertCircle className="w-4 h-4 text-red-400" />
           )}
@@ -137,17 +137,17 @@ export const AdminHiringRequests: React.FC = () => {
       )}
 
       {/* Top Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-2 border-b border-slate-800/80">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-2 border-b border-neutral-800">
         <div>
           <div className="flex items-center gap-2.5">
-            <div className="p-2 rounded-xl bg-purple-900/40 border border-purple-700/50 text-purple-400">
+            <div className="p-2 rounded-xl bg-[#F1E8FA]/10 border border-[#6D22B5]/30 text-[#6D22B5]">
               <Building2 className="w-5 h-5" />
             </div>
             <div>
               <h1 className="text-xl sm:text-2xl font-black text-white font-display">
                 Corporate Hiring Requests
               </h1>
-              <p className="text-xs text-slate-400 mt-0.5">
+              <p className="text-xs text-neutral-400 mt-0.5">
                 Manage talent requirements submitted by employers and companies.
               </p>
             </div>
@@ -158,7 +158,7 @@ export const AdminHiringRequests: React.FC = () => {
           <button
             onClick={fetchRequests}
             disabled={loading}
-            className="px-3 py-2 bg-slate-900 hover:bg-slate-800 border border-slate-800 text-slate-300 rounded-xl text-xs font-semibold flex items-center gap-1.5 transition-colors disabled:opacity-50"
+            className="px-3 py-2 bg-black hover:bg-neutral-900 border border-neutral-800 text-neutral-300 rounded-xl text-xs font-semibold flex items-center gap-1.5 transition-colors disabled:opacity-50"
           >
             <RefreshCw className={`w-3.5 h-3.5 ${loading ? 'animate-spin' : ''}`} />
             <span>Refresh</span>
@@ -174,16 +174,16 @@ export const AdminHiringRequests: React.FC = () => {
             placeholder="Search by company, contact person, email, job role, or skills..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            className="w-full bg-slate-900 border border-slate-800 rounded-xl py-2 pl-9 pr-4 text-xs text-slate-200 placeholder-slate-500 focus:outline-none focus:border-purple-600 transition-colors"
+            className="w-full bg-black border border-neutral-800 rounded-xl py-2 pl-9 pr-4 text-xs text-neutral-200 placeholder-neutral-500 focus:outline-none focus:border-[#6D22B5] focus:ring-1 focus:ring-[#6D22B5] transition-colors"
           />
-          <Search className="w-3.5 h-3.5 text-slate-500 absolute left-3 top-1/2 -translate-y-1/2" />
+          <Search className="w-3.5 h-3.5 text-neutral-500 absolute left-3 top-1/2 -translate-y-1/2" />
         </div>
 
         <div className="sm:col-span-4">
           <select
             value={selectedStatus}
             onChange={(e) => setSelectedStatus(e.target.value)}
-            className="w-full bg-slate-900 border border-slate-800 rounded-xl py-2 px-3 text-xs text-slate-200 focus:outline-none focus:border-purple-600"
+            className="w-full bg-black border border-neutral-800 rounded-xl py-2 px-3 text-xs text-neutral-200 focus:outline-none focus:border-[#6D22B5] focus:ring-1 focus:ring-[#6D22B5]"
           >
             <option value="all">All Statuses ({requests.length})</option>
             <option value="new">New</option>
@@ -197,10 +197,10 @@ export const AdminHiringRequests: React.FC = () => {
       </div>
 
       {/* Table & Content */}
-      <div className="bg-slate-900 border border-slate-800 rounded-2xl overflow-hidden shadow-xl">
+      <div className="bg-neutral-900/90 border border-neutral-800 rounded-2xl overflow-hidden shadow-xl">
         <div className="overflow-x-auto">
           <table className="w-full text-left text-xs">
-            <thead className="bg-slate-950/80 text-slate-400 font-bold uppercase tracking-wider text-[10px] border-b border-slate-800">
+            <thead className="bg-black/90 text-neutral-400 font-bold uppercase tracking-wider text-[10px] border-b border-neutral-800">
               <tr>
                 <th className="py-3 px-4">Company &amp; Contact</th>
                 <th className="py-3 px-4">Role &amp; Openings</th>
@@ -211,45 +211,45 @@ export const AdminHiringRequests: React.FC = () => {
                 <th className="py-3 px-4 text-right">Actions</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-slate-800 text-slate-300">
+            <tbody className="divide-y divide-neutral-800 text-neutral-300">
               {loading ? (
                 <tr>
-                  <td colSpan={7} className="py-12 text-center text-slate-500">
-                    <RefreshCw className="w-6 h-6 animate-spin mx-auto mb-2 text-purple-400" />
+                  <td colSpan={7} className="py-12 text-center text-neutral-500">
+                    <RefreshCw className="w-6 h-6 animate-spin mx-auto mb-2 text-[#6D22B5]" />
                     <span>Loading hiring requests...</span>
                   </td>
                 </tr>
               ) : filteredRequests.length === 0 ? (
                 <tr>
-                  <td colSpan={7} className="py-12 text-center text-slate-500">
+                  <td colSpan={7} className="py-12 text-center text-neutral-500">
                     No hiring requests found matching criteria.
                   </td>
                 </tr>
               ) : (
                 filteredRequests.map((req) => (
-                  <tr key={req.id} className="hover:bg-slate-800/50 transition-colors">
+                  <tr key={req.id} className="hover:bg-black/40 transition-colors">
                     <td className="py-3.5 px-4">
                       <div className="font-bold text-white text-xs">{req.companyName}</div>
-                      <div className="text-[11px] text-slate-400 flex items-center gap-1 mt-0.5">
+                      <div className="text-[11px] text-neutral-400 flex items-center gap-1 mt-0.5">
                         <span>{req.contactPerson}</span>
                         <span>•</span>
-                        <a href={`mailto:${req.email}`} className="text-purple-400 hover:underline">{req.email}</a>
+                        <a href={`mailto:${req.email}`} className="text-[#6D22B5] hover:underline">{req.email}</a>
                       </div>
-                      <div className="text-[10px] text-slate-500">{req.phone}</div>
+                      <div className="text-[10px] text-neutral-500">{req.phone}</div>
                     </td>
 
                     <td className="py-3.5 px-4">
-                      <div className="font-bold text-purple-300">{req.jobRole}</div>
-                      <div className="text-[11px] text-slate-400">{req.openings} ({req.experience})</div>
+                      <div className="font-bold text-white">{req.jobRole}</div>
+                      <div className="text-[11px] text-neutral-400">{req.openings} ({req.experience})</div>
                     </td>
 
-                    <td className="py-3.5 px-4 max-w-xs truncate text-[11px] text-slate-400">
+                    <td className="py-3.5 px-4 max-w-xs truncate text-[11px] text-neutral-400">
                       {req.requiredSkills}
                     </td>
 
                     <td className="py-3.5 px-4">
-                      <div className="text-slate-300">{req.location || 'Not Specified'}</div>
-                      <span className="text-[10px] px-1.5 py-0.5 rounded bg-slate-800 border border-slate-700 text-slate-400 font-semibold inline-block mt-0.5">
+                      <div className="text-neutral-300">{req.location || 'Not Specified'}</div>
+                      <span className="text-[10px] px-1.5 py-0.5 rounded bg-black border border-neutral-800 text-neutral-400 font-semibold inline-block mt-0.5">
                         {req.workMode}
                       </span>
                     </td>
@@ -260,7 +260,7 @@ export const AdminHiringRequests: React.FC = () => {
                       </span>
                     </td>
 
-                    <td className="py-3.5 px-4 text-slate-400 text-[11px] whitespace-nowrap">
+                    <td className="py-3.5 px-4 text-neutral-400 text-[11px] whitespace-nowrap">
                       {new Date(req.submittedAt).toLocaleDateString()}
                     </td>
 
@@ -268,14 +268,14 @@ export const AdminHiringRequests: React.FC = () => {
                       <div className="flex items-center justify-end gap-1.5">
                         <button
                           onClick={() => handleOpenModal(req)}
-                          className="p-1.5 rounded-lg bg-slate-800 hover:bg-purple-600 hover:text-white text-slate-300 transition-colors"
+                          className="p-1.5 rounded-lg bg-neutral-800 hover:bg-[#6D22B5] hover:text-white text-neutral-300 transition-colors"
                           title="View & Edit Status"
                         >
                           <Edit className="w-3.5 h-3.5" />
                         </button>
                         <button
                           onClick={() => handleDelete(req.id, req.companyName)}
-                          className="p-1.5 rounded-lg bg-slate-800 hover:bg-red-600 hover:text-white text-slate-400 transition-colors"
+                          className="p-1.5 rounded-lg bg-neutral-800 hover:bg-red-600 hover:text-white text-neutral-400 transition-colors"
                           title="Delete Request"
                         >
                           <Trash2 className="w-3.5 h-3.5" />
@@ -292,85 +292,85 @@ export const AdminHiringRequests: React.FC = () => {
 
       {/* Details & Status Edit Modal */}
       {activeRequest && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-xs">
-          <div className="bg-slate-900 border border-slate-800 rounded-2xl w-full max-w-xl max-h-[90vh] overflow-y-auto p-6 space-y-6 shadow-2xl text-left">
-            <div className="flex items-center justify-between pb-3 border-b border-slate-800">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-xs">
+          <div className="bg-[#0B0B0B] border border-neutral-800 rounded-2xl w-full max-w-xl max-h-[90vh] overflow-y-auto p-6 space-y-6 shadow-2xl text-left">
+            <div className="flex items-center justify-between pb-3 border-b border-neutral-800">
               <div className="flex items-center gap-2">
-                <Building2 className="w-5 h-5 text-purple-400" />
+                <Building2 className="w-5 h-5 text-[#6D22B5]" />
                 <h3 className="text-base font-black text-white font-display">
                   Hiring Requirement Details
                 </h3>
               </div>
               <button
                 onClick={() => setActiveRequest(null)}
-                className="p-1 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800"
+                className="p-1 rounded-lg text-neutral-400 hover:text-white hover:bg-neutral-800"
               >
                 <X className="w-5 h-5" />
               </button>
             </div>
 
             <div className="space-y-4 text-xs">
-              <div className="grid grid-cols-2 gap-4 bg-slate-950/60 p-4 rounded-xl border border-slate-800/80">
+              <div className="grid grid-cols-2 gap-4 bg-black/60 p-4 rounded-xl border border-neutral-800">
                 <div>
-                  <span className="text-[10px] text-slate-500 uppercase font-bold block">Company</span>
+                  <span className="text-[10px] text-neutral-500 uppercase font-bold block">Company</span>
                   <span className="text-sm font-bold text-white block">{activeRequest.companyName}</span>
                 </div>
                 <div>
-                  <span className="text-[10px] text-slate-500 uppercase font-bold block">Contact Person</span>
+                  <span className="text-[10px] text-neutral-500 uppercase font-bold block">Contact Person</span>
                   <span className="text-sm font-bold text-white block">{activeRequest.contactPerson}</span>
                 </div>
                 <div>
-                  <span className="text-[10px] text-slate-500 uppercase font-bold block">Email</span>
-                  <a href={`mailto:${activeRequest.email}`} className="text-purple-400 hover:underline">{activeRequest.email}</a>
+                  <span className="text-[10px] text-neutral-500 uppercase font-bold block">Email</span>
+                  <a href={`mailto:${activeRequest.email}`} className="text-[#6D22B5] hover:underline">{activeRequest.email}</a>
                 </div>
                 <div>
-                  <span className="text-[10px] text-slate-500 uppercase font-bold block">Phone</span>
-                  <span className="text-slate-300">{activeRequest.phone}</span>
+                  <span className="text-[10px] text-neutral-500 uppercase font-bold block">Phone</span>
+                  <span className="text-neutral-300">{activeRequest.phone}</span>
                 </div>
               </div>
 
-              <div className="grid grid-cols-2 gap-4 bg-slate-950/60 p-4 rounded-xl border border-slate-800/80">
+              <div className="grid grid-cols-2 gap-4 bg-black/60 p-4 rounded-xl border border-neutral-800">
                 <div>
-                  <span className="text-[10px] text-slate-500 uppercase font-bold block">Role</span>
-                  <span className="font-bold text-purple-300">{activeRequest.jobRole}</span>
+                  <span className="text-[10px] text-neutral-500 uppercase font-bold block">Role</span>
+                  <span className="font-bold text-[#6D22B5]">{activeRequest.jobRole}</span>
                 </div>
                 <div>
-                  <span className="text-[10px] text-slate-500 uppercase font-bold block">Openings</span>
-                  <span className="text-slate-300">{activeRequest.openings}</span>
+                  <span className="text-[10px] text-neutral-500 uppercase font-bold block">Openings</span>
+                  <span className="text-neutral-300">{activeRequest.openings}</span>
                 </div>
                 <div>
-                  <span className="text-[10px] text-slate-500 uppercase font-bold block">Experience</span>
-                  <span className="text-slate-300">{activeRequest.experience}</span>
+                  <span className="text-[10px] text-neutral-500 uppercase font-bold block">Experience</span>
+                  <span className="text-neutral-300">{activeRequest.experience}</span>
                 </div>
                 <div>
-                  <span className="text-[10px] text-slate-500 uppercase font-bold block">Work Mode &amp; Location</span>
-                  <span className="text-slate-300">{activeRequest.workMode} • {activeRequest.location}</span>
+                  <span className="text-[10px] text-neutral-500 uppercase font-bold block">Work Mode &amp; Location</span>
+                  <span className="text-neutral-300">{activeRequest.workMode} • {activeRequest.location}</span>
                 </div>
               </div>
 
-              <div className="bg-slate-950/60 p-4 rounded-xl border border-slate-800/80 space-y-1">
-                <span className="text-[10px] text-slate-500 uppercase font-bold block">Required Skills</span>
-                <p className="text-slate-300 leading-relaxed">{activeRequest.requiredSkills}</p>
+              <div className="bg-black/60 p-4 rounded-xl border border-neutral-800 space-y-1">
+                <span className="text-[10px] text-neutral-500 uppercase font-bold block">Required Skills</span>
+                <p className="text-neutral-300 leading-relaxed">{activeRequest.requiredSkills}</p>
               </div>
 
               {activeRequest.additionalRequirements && (
-                <div className="bg-slate-950/60 p-4 rounded-xl border border-slate-800/80 space-y-1">
-                  <span className="text-[10px] text-slate-500 uppercase font-bold block">Additional Requirements</span>
-                  <p className="text-slate-300 leading-relaxed">{activeRequest.additionalRequirements}</p>
+                <div className="bg-black/60 p-4 rounded-xl border border-neutral-800 space-y-1">
+                  <span className="text-[10px] text-neutral-500 uppercase font-bold block">Additional Requirements</span>
+                  <p className="text-neutral-300 leading-relaxed">{activeRequest.additionalRequirements}</p>
                 </div>
               )}
 
               {/* Status Update Form */}
-              <form onSubmit={handleSaveStatus} className="pt-4 border-t border-slate-800 space-y-4">
+              <form onSubmit={handleSaveStatus} className="pt-4 border-t border-neutral-800 space-y-4">
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div>
-                    <label className="text-xs font-bold text-slate-300 block mb-1">
+                    <label className="text-xs font-bold text-neutral-300 block mb-1">
                       Change Status
                     </label>
                     <select
                       value={statusInput}
                       onChange={(e) => setStatusInput(e.target.value as HiringRequestStatus)}
-                      className="w-full bg-slate-950 border border-slate-700 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-purple-500"
+                      className="w-full bg-black border border-neutral-800 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-[#6D22B5] focus:ring-1 focus:ring-[#6D22B5]"
                     >
                       <option value="New">New</option>
                       <option value="Under Review">Under Review</option>
@@ -383,7 +383,7 @@ export const AdminHiringRequests: React.FC = () => {
                   </div>
 
                   <div>
-                    <label className="text-xs font-bold text-slate-300 block mb-1">
+                    <label className="text-xs font-bold text-neutral-300 block mb-1">
                       Internal Admin Notes
                     </label>
                     <textarea
@@ -391,7 +391,7 @@ export const AdminHiringRequests: React.FC = () => {
                       value={noteInput}
                       onChange={(e) => setNoteInput(e.target.value)}
                       placeholder="Add candidate matching notes, interview updates, or HR contact logs..."
-                      className="w-full bg-slate-950 border border-slate-700 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-purple-500"
+                      className="w-full bg-black border border-neutral-800 rounded-xl px-3 py-2 text-xs text-white placeholder-neutral-500 focus:outline-none focus:border-[#6D22B5] focus:ring-1 focus:ring-[#6D22B5]"
                     />
                   </div>
                 </div>
@@ -400,13 +400,13 @@ export const AdminHiringRequests: React.FC = () => {
                   <button
                     type="button"
                     onClick={() => setActiveRequest(null)}
-                    className="px-4 py-2 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-xl font-semibold text-xs"
+                    className="px-4 py-2 bg-neutral-800 hover:bg-neutral-700 text-neutral-300 rounded-xl font-semibold text-xs"
                   >
                     Cancel
                   </button>
                   <button
                     type="submit"
-                    className="px-5 py-2 bg-purple-600 hover:bg-purple-700 text-white rounded-xl font-bold text-xs flex items-center gap-1.5 shadow-md"
+                    className="px-5 py-2 bg-[#6D22B5] hover:bg-[#4B1680] text-white rounded-xl font-bold text-xs flex items-center gap-1.5 shadow-md shadow-[#6D22B5]/20 transition-all"
                   >
                     <Save className="w-3.5 h-3.5" />
                     <span>Save Changes</span>

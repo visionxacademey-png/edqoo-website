@@ -20,9 +20,9 @@ export const ProjectCardItem: React.FC<ProjectCardItemProps> = ({
     `${projectItem.title} - ${projectItem.category || 'Data Science & AI'} Project`;
 
   return (
-    <div className="group bg-white border border-slate-200 rounded-2xl overflow-hidden shadow-2xs hover:shadow-lg hover:border-purple-300 transition-all duration-300 flex flex-col justify-between text-left">
+    <div className="group bg-white border border-[#E5E5E5] rounded-2xl overflow-hidden shadow-2xs hover:shadow-lg hover:border-[#6D22B5] transition-all duration-300 flex flex-col justify-between text-left">
       {/* 16:9 Project Visual Container */}
-      <div className="relative w-full aspect-video bg-slate-100 overflow-hidden border-b border-slate-100 flex-shrink-0">
+      <div className="relative w-full aspect-video bg-slate-100 overflow-hidden border-b border-[#E5E5E5] flex-shrink-0">
         {displayImage && !hasError ? (
           <>
             {!isLoaded && (
@@ -45,15 +45,15 @@ export const ProjectCardItem: React.FC<ProjectCardItemProps> = ({
           </>
         ) : (
           /* Project-Specific Themed Fallback Placeholder */
-          <div className="w-full h-full bg-gradient-to-br from-slate-50 via-purple-50/50 to-slate-100 flex flex-col items-center justify-center p-4 text-center select-none relative overflow-hidden">
-            <div className="absolute -right-6 -bottom-6 w-24 h-24 bg-purple-200/30 rounded-full blur-xl pointer-events-none" />
-            <div className="w-11 h-11 rounded-xl bg-white shadow-xs border border-purple-100 flex items-center justify-center mb-2 group-hover:scale-110 transition-transform duration-300">
-              <FolderGit2 className="w-5 h-5 text-purple-600" />
+          <div className="w-full h-full bg-gradient-to-br from-[#F7F7F7] via-[#F1E8FA] to-[#F1F1F1] flex flex-col items-center justify-center p-4 text-center select-none relative overflow-hidden">
+            <div className="absolute -right-6 -bottom-6 w-24 h-24 bg-[#6D22B5]/20 rounded-full blur-xl pointer-events-none" />
+            <div className="w-11 h-11 rounded-xl bg-white shadow-xs border border-[#E0CEF5] flex items-center justify-center mb-2 group-hover:scale-110 transition-transform duration-300">
+              <FolderGit2 className="w-5 h-5 text-[#6D22B5]" />
             </div>
-            <span className="text-xs font-bold text-slate-800 tracking-wide line-clamp-1 px-2">
+            <span className="text-xs font-bold text-slate-900 tracking-wide line-clamp-1 px-2">
               {projectItem.title}
             </span>
-            <span className="text-[10px] font-semibold text-purple-600 uppercase tracking-wider mt-0.5">
+            <span className="text-[10px] font-semibold text-[#6D22B5] uppercase tracking-wider mt-0.5">
               {projectItem.category || 'Capstone Project'}
             </span>
           </div>
@@ -90,7 +90,7 @@ export const ProjectCardItem: React.FC<ProjectCardItemProps> = ({
           </div>
 
           {/* Project Title */}
-          <h3 className="font-display font-bold text-base sm:text-lg text-slate-950 leading-snug group-hover:text-purple-700 transition-colors">
+          <h3 className="font-display font-bold text-base sm:text-lg text-slate-950 leading-snug group-hover:text-[#6D22B5] transition-colors">
             {projectItem.title}
           </h3>
 
@@ -102,7 +102,7 @@ export const ProjectCardItem: React.FC<ProjectCardItemProps> = ({
 
         {/* Technology Tags */}
         {projectItem.technologies && projectItem.technologies.length > 0 && (
-          <div className="pt-3 border-t border-slate-100 space-y-1.5">
+          <div className="pt-3 border-t border-[#E5E5E5] space-y-1.5">
             <span className="text-[10px] font-extrabold uppercase tracking-wider text-slate-400 block">
               Technologies:
             </span>

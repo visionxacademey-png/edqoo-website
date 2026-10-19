@@ -128,7 +128,7 @@ export const Register: React.FC = () => {
           {/* Field: Name */}
           <div className="space-y-1">
             <label htmlFor="reg-name" className="text-[10px] font-bold text-slate-700 uppercase tracking-wider block">
-              Full Name <span className="text-purple-600">*</span>
+              Full Name <span className="text-[#6D22B5]">*</span>
             </label>
             <div className="relative">
               <input
@@ -137,7 +137,7 @@ export const Register: React.FC = () => {
                 placeholder="e.g. Alex Morgan"
                 {...register('name')}
                 className={`w-full pl-9 pr-3 py-2 bg-slate-50 border rounded-lg text-xs text-slate-900 focus:outline-none focus:bg-white transition-all ${
-                  errors.name ? 'border-red-400 focus:border-red-500' : 'border-slate-300 focus:border-purple-600'
+                  errors.name ? 'border-red-400 focus:border-red-500' : 'border-slate-300 focus:border-[#6D22B5] focus:ring-1 focus:ring-[#6D22B5]'
                 }`}
               />
               <User className="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
@@ -148,7 +148,7 @@ export const Register: React.FC = () => {
           {/* Field: Email */}
           <div className="space-y-1">
             <label htmlFor="reg-email" className="text-[10px] font-bold text-slate-700 uppercase tracking-wider block">
-              Email Address <span className="text-purple-600">*</span>
+              Email Address <span className="text-[#6D22B5]">*</span>
             </label>
             <div className="relative">
               <input
@@ -157,7 +157,7 @@ export const Register: React.FC = () => {
                 placeholder="e.g. name@example.com"
                 {...register('email')}
                 className={`w-full pl-9 pr-3 py-2 bg-slate-50 border rounded-lg text-xs text-slate-900 focus:outline-none focus:bg-white transition-all ${
-                  errors.email ? 'border-red-400 focus:border-red-500' : 'border-slate-300 focus:border-purple-600'
+                  errors.email ? 'border-red-400 focus:border-red-500' : 'border-slate-300 focus:border-[#6D22B5] focus:ring-1 focus:ring-[#6D22B5]'
                 }`}
               />
               <Mail className="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
@@ -177,7 +177,7 @@ export const Register: React.FC = () => {
                 placeholder="e.g. +91 90744 50935"
                 {...register('phone')}
                 className={`w-full pl-9 pr-3 py-2 bg-slate-50 border rounded-lg text-xs text-slate-900 focus:outline-none focus:bg-white transition-all ${
-                  errors.phone ? 'border-red-400 focus:border-red-500' : 'border-slate-300 focus:border-purple-600'
+                  errors.phone ? 'border-red-400 focus:border-red-500' : 'border-slate-300 focus:border-[#6D22B5] focus:ring-1 focus:ring-[#6D22B5]'
                 }`}
               />
               <Phone className="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
@@ -197,7 +197,7 @@ export const Register: React.FC = () => {
                 placeholder="••••••••"
                 {...register('password')}
                 className={`w-full pl-9 pr-10 py-2 bg-slate-50 border rounded-lg text-xs text-slate-900 focus:outline-none focus:bg-white transition-all ${
-                  errors.password ? 'border-red-400 focus:border-red-500' : 'border-slate-300 focus:border-purple-600'
+                  errors.password ? 'border-red-400 focus:border-red-500' : 'border-slate-300 focus:border-[#6D22B5] focus:ring-1 focus:ring-[#6D22B5]'
                 }`}
               />
               <Key className="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
@@ -225,7 +225,7 @@ export const Register: React.FC = () => {
                 placeholder="••••••••"
                 {...register('confirmPassword')}
                 className={`w-full pl-9 pr-10 py-2 bg-slate-50 border rounded-lg text-xs text-slate-900 focus:outline-none focus:bg-white transition-all ${
-                  errors.confirmPassword ? 'border-red-400 focus:border-red-500' : 'border-slate-300 focus:border-purple-600'
+                  errors.confirmPassword ? 'border-red-400 focus:border-red-500' : 'border-slate-300 focus:border-[#6D22B5] focus:ring-1 focus:ring-[#6D22B5]'
                 }`}
               />
               <Key className="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
@@ -248,10 +248,10 @@ export const Register: React.FC = () => {
                 type="checkbox"
                 id="agree-terms"
                 {...register('agreeTerms')}
-                className="w-4 h-4 mt-0.5 border-slate-300 rounded text-purple-600 focus:ring-purple-500"
+                className="w-4 h-4 mt-0.5 border-slate-300 rounded text-[#6D22B5] focus:ring-[#6D22B5] accent-[#6D22B5]"
               />
               <label htmlFor="agree-terms" className="ml-2 text-xs text-slate-600 select-none leading-relaxed">
-                I agree to the <span className="font-semibold text-purple-600">Terms of Service</span> and <span className="font-semibold text-purple-600">Privacy Policy</span>.
+                I agree to the <span className="font-semibold text-[#6D22B5]">Terms of Service</span> and <span className="font-semibold text-[#6D22B5]">Privacy Policy</span>.
               </label>
             </div>
             {errors.agreeTerms && <span className="text-[10px] text-red-500 font-medium block">{errors.agreeTerms.message}</span>}
@@ -279,7 +279,7 @@ export const Register: React.FC = () => {
         <div className="border-t border-slate-100 pt-4 text-center">
           <p className="text-xs text-slate-500">
             Already have an account?{' '}
-            <Link to="/login" className="font-bold text-purple-600 hover:text-purple-800">
+            <Link to="/login" className="font-bold text-[#6D22B5] hover:text-black">
               Sign In
             </Link>
           </p>

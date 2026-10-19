@@ -13,8 +13,9 @@ import {
   Upload
 } from 'lucide-react';
 import { courseService } from '../../services/courseService';
-import { COMMON_PROGRAM_FEATURES, PROGRAM_CATEGORIES } from '../../data/courses';
-import type { Course, Module, Lesson, ProjectItem } from '../../types';
+import { categoryService } from '../../services/categoryService';
+import { COMMON_PROGRAM_FEATURES } from '../../data/courses';
+import type { Course, Module, Lesson, ProjectItem, Category } from '../../types';
 
 // Slugify helper
 function slugify(text: string): string {
@@ -37,6 +38,7 @@ export const AdminCourseForm: React.FC = () => {
   const [loading, setLoading] = useState(false);
   const [fetching, setFetching] = useState(isEditing);
   const [toast, setToast] = useState<{ text: string; type: 'success' | 'error' } | null>(null);
+  const [dbCategories, setDbCategories] = useState<Category[]>([]);
 
   // Form State
   const [title, setTitle] = useState('');
@@ -124,7 +126,13 @@ export const AdminCourseForm: React.FC = () => {
             setImage(course.image);
             setDescription(course.description);
             if (course.outcome) setOutcome(course.outcome);
-            if (course.features && course.features.length > 0) setFeatures(course.features);
+            if (course.features && course.features.length > 0) {
+              setFeatures(
+                course.features.map((f) =>
+                  typeof f === 'object' && f !== null ? ((f as any).title || JSON.stringify(f)) : String(f)
+                )
+              );
+            }
             setRating(course.rating);
             setStudents(course.students);
             if (course.skills) setSkills(course.skills);
@@ -155,11 +163,26 @@ export const AdminCourseForm: React.FC = () => {
           }
         })
         .catch((err) => {
-          showToast(err.message || 'Failed to fetch course details.', 'error');
+          console.error('Failed to load course details:', err);
+          showToast('Failed to load course details from database.', 'error');
         })
         .finally(() => setFetching(false));
     }
-  }, [id, isEditing]);
+  }, [isEditing, id]);
+
+  // Load categories from database
+  useEffect(() => {
+    categoryService
+      .getAllCategories()
+      .then((data) => {
+        if (Array.isArray(data) && data.length > 0) {
+          setDbCategories(data);
+        }
+      })
+      .catch((err) => {
+        console.warn('Failed to load categories in course form:', err);
+      });
+  }, []);
 
   // Title change auto-updates slug if not manually altered
   const handleTitleChange = (val: string) => {
@@ -389,8 +412,8 @@ export const AdminCourseForm: React.FC = () => {
   if (fetching) {
     return (
       <div className="min-h-[50vh] flex flex-col items-center justify-center space-y-3">
-        <div className="w-8 h-8 border-2 border-purple-500 border-t-transparent rounded-full animate-spin" />
-        <span className="text-xs font-semibold text-slate-400">Loading course curriculum...</span>
+        <div className="w-8 h-8 border-2 border-[#6D22B5] border-t-transparent rounded-full animate-spin" />
+        <span className="text-xs font-semibold text-neutral-400">Loading course curriculum...</span>
       </div>
     );
   }
@@ -414,18 +437,18 @@ export const AdminCourseForm: React.FC = () => {
             )}
             <span>{toast.text}</span>
           </div>
-          <button onClick={() => setToast(null)} className="text-slate-400 hover:text-white">
+          <button onClick={() => setToast(null)} className="text-neutral-400 hover:text-white">
             ✕
           </button>
         </div>
       )}
 
       {/* Header */}
-      <div className="flex items-center justify-between pb-3 border-b border-slate-800">
+      <div className="flex items-center justify-between pb-3 border-b border-neutral-800">
         <div className="flex items-center gap-3">
           <Link
             to="/admin/courses"
-            className="p-2 rounded-xl bg-slate-900 hover:bg-slate-800 border border-slate-700 text-slate-400 hover:text-white transition-colors"
+            className="p-2 rounded-xl bg-neutral-900 hover:bg-neutral-800 border border-neutral-700 text-neutral-400 hover:text-white transition-colors"
           >
             <ArrowLeft className="w-4 h-4" />
           </Link>
@@ -433,7 +456,7 @@ export const AdminCourseForm: React.FC = () => {
             <h2 className="text-xl font-black text-white font-display tracking-tight">
               {isEditing ? 'Edit Course Program' : 'Create New Program Track'}
             </h2>
-            <p className="text-xs text-slate-400">
+            <p className="text-xs text-neutral-400">
               Configure curriculum, pricing structure, syllabus modules, and target prerequisites.
             </p>
           </div>
@@ -443,7 +466,7 @@ export const AdminCourseForm: React.FC = () => {
           type="button"
           onClick={handleSubmit}
           disabled={loading}
-          className="px-4 py-2 rounded-xl bg-purple-600 hover:bg-purple-500 text-xs font-bold text-white flex items-center gap-2 transition-all shadow-md shadow-purple-600/30 disabled:opacity-50"
+          className="px-4 py-2 rounded-xl bg-[#6D22B5] hover:bg-[#853FD5] text-xs font-bold text-black flex items-center gap-2 transition-all shadow-md shadow-[#6D22B5]/20 disabled:opacity-50"
         >
           <Save className="w-4 h-4" />
           <span>{loading ? 'Saving...' : isEditing ? 'Update Course' : 'Publish Course'}</span>
@@ -452,9 +475,9 @@ export const AdminCourseForm: React.FC = () => {
 
       <form onSubmit={handleSubmit} className="space-y-8">
         {/* SECTION 1: Basic Information */}
-        <div className="p-6 rounded-2xl bg-slate-900/90 border border-slate-800 space-y-4">
-          <div className="flex items-center gap-2 pb-2 border-b border-slate-800">
-            <BookOpen className="w-4 h-4 text-purple-400" />
+        <div className="p-6 rounded-2xl bg-neutral-900/90 border border-neutral-800 space-y-4">
+          <div className="flex items-center gap-2 pb-2 border-b border-neutral-800">
+            <BookOpen className="w-4 h-4 text-[#6D22B5]" />
             <h3 className="text-sm font-bold text-white uppercase tracking-wider">
               1. Basic Program Details
             </h3>
@@ -463,7 +486,7 @@ export const AdminCourseForm: React.FC = () => {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             {/* Title */}
             <div className="md:col-span-2">
-              <label className="text-xs font-bold text-slate-300 block mb-1">
+              <label className="text-xs font-bold text-neutral-300 block mb-1">
                 Course Title <span className="text-red-400">*</span>
               </label>
               <input
@@ -472,14 +495,14 @@ export const AdminCourseForm: React.FC = () => {
                 placeholder="e.g. Master Program in Data Science and AI"
                 value={title}
                 onChange={(e) => handleTitleChange(e.target.value)}
-                className="w-full px-3.5 py-2.5 bg-slate-950 border border-slate-800 rounded-xl text-xs text-white placeholder-slate-500 focus:outline-none focus:border-purple-500"
+                className="w-full px-3.5 py-2.5 bg-black border border-neutral-800 rounded-xl text-xs text-white placeholder-neutral-500 focus:outline-none focus:border-[#6D22B5] focus:ring-1 focus:ring-[#6D22B5]"
               />
             </div>
 
             {/* Slug */}
             <div>
-              <label className="text-xs font-bold text-slate-300 block mb-1">
-                URL Slug <span className="text-slate-500 font-normal">(e.g. /courses/master-program-data-science-ai)</span>
+              <label className="text-xs font-bold text-neutral-300 block mb-1">
+                URL Slug <span className="text-neutral-500 font-normal">(e.g. /courses/master-program-data-science-ai)</span>
               </label>
               <input
                 type="text"
@@ -490,17 +513,17 @@ export const AdminCourseForm: React.FC = () => {
                   setSlug(e.target.value);
                   setSlugModifiedManually(true);
                 }}
-                className="w-full px-3.5 py-2.5 bg-slate-950 border border-slate-800 rounded-xl text-xs font-mono text-purple-300 placeholder-slate-500 focus:outline-none focus:border-purple-500"
+                className="w-full px-3.5 py-2.5 bg-black border border-neutral-800 rounded-xl text-xs font-mono text-[#6D22B5] placeholder-neutral-500 focus:outline-none focus:border-[#6D22B5] focus:ring-1 focus:ring-[#6D22B5]"
               />
             </div>
 
             {/* Multi-Category Selector */}
             <div className="md:col-span-2">
-              <label className="text-xs font-bold text-slate-300 block mb-1.5">
-                Assigned Category Tracks <span className="text-red-400">*</span> <span className="text-slate-500 font-normal">(Select all that apply)</span>
+              <label className="text-xs font-bold text-neutral-300 block mb-1.5">
+                Assigned Category Tracks <span className="text-red-400">*</span> <span className="text-neutral-500 font-normal">(Select all that apply)</span>
               </label>
               <div className="flex flex-wrap gap-2">
-                {PROGRAM_CATEGORIES.map((cat) => {
+                {(dbCategories.length > 0 ? dbCategories.map((c) => c.name) : categories).map((cat) => {
                   const isSelected = categories.includes(cat);
                   return (
                     <button
@@ -509,8 +532,8 @@ export const AdminCourseForm: React.FC = () => {
                       onClick={() => handleToggleCategory(cat)}
                       className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all border cursor-pointer ${
                         isSelected
-                          ? 'bg-purple-600 text-white border-purple-500 shadow-sm'
-                          : 'bg-slate-950 text-slate-400 border-slate-800 hover:border-slate-700'
+                          ? 'bg-[#6D22B5] text-white border-[#6D22B5] shadow-sm'
+                          : 'bg-black text-neutral-400 border-neutral-800 hover:border-neutral-700'
                       }`}
                     >
                       {cat} {isSelected && '✓'}
@@ -522,13 +545,13 @@ export const AdminCourseForm: React.FC = () => {
 
             {/* Level */}
             <div>
-              <label className="text-xs font-bold text-slate-300 block mb-1">
+              <label className="text-xs font-bold text-neutral-300 block mb-1">
                 Skill Level
               </label>
               <select
                 value={level}
                 onChange={(e) => setLevel(e.target.value)}
-                className="w-full px-3.5 py-2.5 bg-slate-950 border border-slate-800 rounded-xl text-xs text-slate-200 focus:outline-none focus:border-purple-500"
+                className="w-full px-3.5 py-2.5 bg-black border border-neutral-800 rounded-xl text-xs text-neutral-200 focus:outline-none focus:border-[#6D22B5] focus:ring-1 focus:ring-[#6D22B5]"
               >
                 <option value="Beginner to Advanced">Beginner to Advanced</option>
                 <option value="Beginner">Beginner</option>
@@ -539,7 +562,7 @@ export const AdminCourseForm: React.FC = () => {
 
             {/* Duration */}
             <div>
-              <label className="text-xs font-bold text-slate-300 block mb-1">
+              <label className="text-xs font-bold text-neutral-300 block mb-1">
                 Duration
               </label>
               <input
@@ -547,13 +570,13 @@ export const AdminCourseForm: React.FC = () => {
                 placeholder="e.g. 11 Months, 6 Months, Flexible duration"
                 value={duration}
                 onChange={(e) => setDuration(e.target.value)}
-                className="w-full px-3.5 py-2.5 bg-slate-950 border border-slate-800 rounded-xl text-xs text-white placeholder-slate-500 focus:outline-none focus:border-purple-500"
+                className="w-full px-3.5 py-2.5 bg-black border border-neutral-800 rounded-xl text-xs text-white placeholder-neutral-500 focus:outline-none focus:border-[#6D22B5] focus:ring-1 focus:ring-[#6D22B5]"
               />
             </div>
 
             {/* Live Learning Hours */}
             <div>
-              <label className="text-xs font-bold text-slate-300 block mb-1">
+              <label className="text-xs font-bold text-neutral-300 block mb-1">
                 Live Learning Hours
               </label>
               <input
@@ -561,19 +584,19 @@ export const AdminCourseForm: React.FC = () => {
                 placeholder="e.g. 90+ Hours, 70+ Hours, 30+ Hours"
                 value={liveHours}
                 onChange={(e) => setLiveHours(e.target.value)}
-                className="w-full px-3.5 py-2.5 bg-slate-950 border border-slate-800 rounded-xl text-xs text-white placeholder-slate-500 focus:outline-none focus:border-purple-500"
+                className="w-full px-3.5 py-2.5 bg-black border border-neutral-800 rounded-xl text-xs text-white placeholder-neutral-500 focus:outline-none focus:border-[#6D22B5] focus:ring-1 focus:ring-[#6D22B5]"
               />
             </div>
 
             {/* Status */}
             <div>
-              <label className="text-xs font-bold text-slate-300 block mb-1">
+              <label className="text-xs font-bold text-neutral-300 block mb-1">
                 Enrollment Status
               </label>
               <select
                 value={status}
                 onChange={(e) => setStatus(e.target.value as 'available' | 'coming-soon')}
-                className="w-full px-3.5 py-2.5 bg-slate-950 border border-slate-800 rounded-xl text-xs text-slate-200 focus:outline-none focus:border-purple-500"
+                className="w-full px-3.5 py-2.5 bg-black border border-neutral-800 rounded-xl text-xs text-neutral-200 focus:outline-none focus:border-[#6D22B5] focus:ring-1 focus:ring-[#6D22B5]"
               >
                 <option value="available">Available (Open for Enquiries)</option>
                 <option value="coming-soon">Coming Soon</option>
@@ -587,7 +610,7 @@ export const AdminCourseForm: React.FC = () => {
                   type="checkbox"
                   checked={featured}
                   onChange={(e) => setFeatured(e.target.checked)}
-                  className="w-4 h-4 rounded text-purple-600 bg-slate-950 border-slate-700 focus:ring-purple-500"
+                  className="w-4 h-4 rounded text-[#6D22B5] bg-black border-neutral-700 focus:ring-[#6D22B5] accent-[#6D22B5]"
                 />
                 <span className="text-xs font-bold text-white">
                   Mark as Featured Track on Homepage
@@ -598,8 +621,8 @@ export const AdminCourseForm: React.FC = () => {
         </div>
 
         {/* SECTION 2: Pricing & Metrics */}
-        <div className="p-6 rounded-2xl bg-slate-900/90 border border-slate-800 space-y-4">
-          <div className="flex items-center gap-2 pb-2 border-b border-slate-800">
+        <div className="p-6 rounded-2xl bg-neutral-900/90 border border-neutral-800 space-y-4">
+          <div className="flex items-center gap-2 pb-2 border-b border-neutral-800">
             <span className="text-sm font-bold text-white uppercase tracking-wider">
               2. Pricing & Enrollment Metrics
             </span>
@@ -608,36 +631,36 @@ export const AdminCourseForm: React.FC = () => {
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4">
             {/* Offer Price */}
             <div>
-              {/* <label className="text-xs font-bold text-slate-300 block mb-1">
+              <label className="text-xs font-bold text-neutral-300 block mb-1">
                 Offer Price (₹) <span className="text-red-400">*</span>
-              </label> */}
+              </label>
               <input
                 type="number"
                 required
                 min={0}
                 value={price}
                 onChange={(e) => setPrice(Number(e.target.value))}
-                className="w-full px-3.5 py-2.5 bg-slate-950 border border-slate-800 rounded-xl text-xs text-white focus:outline-none focus:border-purple-500"
+                className="w-full px-3.5 py-2.5 bg-black border border-neutral-800 rounded-xl text-xs text-white focus:outline-none focus:border-[#6D22B5] focus:ring-1 focus:ring-[#6D22B5]"
               />
             </div>
 
             {/* Original Price */}
             <div>
-              {/* <label className="text-xs font-bold text-slate-300 block mb-1">
+              <label className="text-xs font-bold text-neutral-300 block mb-1">
                 Original Price (₹)
-              </label> */}
+              </label>
               <input
                 type="number"
                 min={0}
                 value={originalPrice}
                 onChange={(e) => setOriginalPrice(Number(e.target.value))}
-                className="w-full px-3.5 py-2.5 bg-slate-950 border border-slate-800 rounded-xl text-xs text-white focus:outline-none focus:border-purple-500"
+                className="w-full px-3.5 py-2.5 bg-black border border-neutral-800 rounded-xl text-xs text-white focus:outline-none focus:border-[#6D22B5] focus:ring-1 focus:ring-[#6D22B5]"
               />
             </div>
 
             {/* Initial Rating */}
             <div>
-              <label className="text-xs font-bold text-slate-300 block mb-1">
+              <label className="text-xs font-bold text-neutral-300 block mb-1">
                 Initial Rating (out of 5.0)
               </label>
               <input
@@ -647,13 +670,13 @@ export const AdminCourseForm: React.FC = () => {
                 max={5}
                 value={rating}
                 onChange={(e) => setRating(Number(e.target.value))}
-                className="w-full px-3.5 py-2.5 bg-slate-950 border border-slate-800 rounded-xl text-xs text-white focus:outline-none focus:border-purple-500"
+                className="w-full px-3.5 py-2.5 bg-black border border-neutral-800 rounded-xl text-xs text-white focus:outline-none focus:border-[#6D22B5] focus:ring-1 focus:ring-[#6D22B5]"
               />
             </div>
 
             {/* Students Enrolled */}
             <div>
-              <label className="text-xs font-bold text-slate-300 block mb-1">
+              <label className="text-xs font-bold text-neutral-300 block mb-1">
                 Students Enrolled
               </label>
               <input
@@ -661,15 +684,15 @@ export const AdminCourseForm: React.FC = () => {
                 min={0}
                 value={students}
                 onChange={(e) => setStudents(Number(e.target.value))}
-                className="w-full px-3.5 py-2.5 bg-slate-950 border border-slate-800 rounded-xl text-xs text-white focus:outline-none focus:border-purple-500"
+                className="w-full px-3.5 py-2.5 bg-black border border-neutral-800 rounded-xl text-xs text-white focus:outline-none focus:border-[#6D22B5] focus:ring-1 focus:ring-[#6D22B5]"
               />
             </div>
           </div>
         </div>
 
         {/* SECTION 3: Media & Comprehensive Description */}
-        <div className="p-6 rounded-2xl bg-slate-900/90 border border-slate-800 space-y-4">
-          <div className="flex items-center gap-2 pb-2 border-b border-slate-800">
+        <div className="p-6 rounded-2xl bg-neutral-900/90 border border-neutral-800 space-y-4">
+          <div className="flex items-center gap-2 pb-2 border-b border-neutral-800">
             <span className="text-sm font-bold text-white uppercase tracking-wider">
               3. Media & Program Description
             </span>
@@ -678,8 +701,8 @@ export const AdminCourseForm: React.FC = () => {
           <div className="space-y-4">
             {/* Image URL with file upload and live preview */}
             <div>
-              <label className="text-xs font-bold text-slate-300 block mb-1">
-                Course Banner Image <span className="text-slate-500 font-normal">(File upload or Image URL)</span>
+              <label className="text-xs font-bold text-neutral-300 block mb-1">
+                Course Banner Image <span className="text-neutral-500 font-normal">(File upload or Image URL)</span>
               </label>
               <div className="space-y-3">
                 <div className="flex flex-col sm:flex-row gap-3 items-start sm:items-center">
@@ -692,10 +715,10 @@ export const AdminCourseForm: React.FC = () => {
                         setImage(e.target.value);
                         console.log('IMAGE UPDATE STARTED', { newUrl: e.target.value });
                       }}
-                      className="flex-1 px-3.5 py-2.5 bg-slate-950 border border-slate-800 rounded-xl text-xs text-white focus:outline-none focus:border-purple-500 font-mono"
+                      className="flex-1 px-3.5 py-2.5 bg-black border border-neutral-800 rounded-xl text-xs text-white focus:outline-none focus:border-[#6D22B5] focus:ring-1 focus:ring-[#6D22B5] font-mono"
                     />
-                    <label className="cursor-pointer px-3.5 py-2.5 bg-slate-800 hover:bg-slate-700 border border-slate-700 rounded-xl text-xs font-semibold text-slate-200 flex items-center gap-1.5 transition-colors shrink-0">
-                      <Upload className="w-3.5 h-3.5 text-purple-400" />
+                    <label className="cursor-pointer px-3.5 py-2.5 bg-neutral-800 hover:bg-neutral-700 border border-neutral-700 rounded-xl text-xs font-semibold text-neutral-200 flex items-center gap-1.5 transition-colors shrink-0">
+                      <Upload className="w-3.5 h-3.5 text-[#6D22B5]" />
                       <span>Upload</span>
                       <input
                         type="file"
@@ -706,11 +729,11 @@ export const AdminCourseForm: React.FC = () => {
                     </label>
                   </div>
                   {image && (
-                    <div className="flex items-center gap-2 p-1.5 bg-slate-950 border border-slate-800 rounded-xl shrink-0">
+                    <div className="flex items-center gap-2 p-1.5 bg-black border border-neutral-800 rounded-xl shrink-0">
                       <img
                         src={image}
                         alt="Preview"
-                        className="w-16 h-11 rounded-lg object-cover border border-slate-700 flex-shrink-0"
+                        className="w-16 h-11 rounded-lg object-cover border border-neutral-700 flex-shrink-0"
                         onError={(e) => ((e.target as HTMLElement).style.display = 'none')}
                       />
                       <button
@@ -719,7 +742,7 @@ export const AdminCourseForm: React.FC = () => {
                           setImage('');
                           console.log('IMAGE REMOVED');
                         }}
-                        className="p-1 hover:bg-slate-800 rounded text-slate-400 hover:text-red-400 text-xs px-2"
+                        className="p-1 hover:bg-neutral-800 rounded text-neutral-400 hover:text-red-400 text-xs px-2"
                         title="Remove image"
                       >
                         ✕
@@ -732,7 +755,7 @@ export const AdminCourseForm: React.FC = () => {
 
             {/* Description */}
             <div>
-              <label className="text-xs font-bold text-slate-300 block mb-1">
+              <label className="text-xs font-bold text-neutral-300 block mb-1">
                 Full Description <span className="text-red-400">*</span>
               </label>
               <textarea
@@ -741,13 +764,13 @@ export const AdminCourseForm: React.FC = () => {
                 placeholder="Describe what learners will achieve in this program track..."
                 value={description}
                 onChange={(e) => setDescription(e.target.value)}
-                className="w-full px-3.5 py-2.5 bg-slate-950 border border-slate-800 rounded-xl text-xs text-white placeholder-slate-500 focus:outline-none focus:border-purple-500 leading-relaxed"
+                className="w-full px-3.5 py-2.5 bg-black border border-neutral-800 rounded-xl text-xs text-white placeholder-neutral-500 focus:outline-none focus:border-[#6D22B5] focus:ring-1 focus:ring-[#6D22B5] leading-relaxed"
               />
             </div>
 
             {/* Outcome */}
             <div>
-              <label className="text-xs font-bold text-slate-300 block mb-1">
+              <label className="text-xs font-bold text-neutral-300 block mb-1">
                 Program Learning Outcome
               </label>
               <textarea
@@ -755,16 +778,16 @@ export const AdminCourseForm: React.FC = () => {
                 placeholder="By the end of the program, learners will be equipped with..."
                 value={outcome}
                 onChange={(e) => setOutcome(e.target.value)}
-                className="w-full px-3.5 py-2.5 bg-slate-950 border border-slate-800 rounded-xl text-xs text-white placeholder-slate-500 focus:outline-none focus:border-purple-500 leading-relaxed"
+                className="w-full px-3.5 py-2.5 bg-black border border-neutral-800 rounded-xl text-xs text-white placeholder-neutral-500 focus:outline-none focus:border-[#6D22B5] focus:ring-1 focus:ring-[#6D22B5] leading-relaxed"
               />
             </div>
           </div>
         </div>
 
         {/* SECTION 4: Skills Covered Tags */}
-        <div className="p-6 rounded-2xl bg-slate-900/90 border border-slate-800 space-y-4">
-          <div className="flex items-center gap-2 pb-2 border-b border-slate-800">
-            <Tag className="w-4 h-4 text-purple-400" />
+        <div className="p-6 rounded-2xl bg-neutral-900/90 border border-neutral-800 space-y-4">
+          <div className="flex items-center gap-2 pb-2 border-b border-neutral-800">
+            <Tag className="w-4 h-4 text-[#6D22B5]" />
             <h3 className="text-sm font-bold text-white uppercase tracking-wider">
               4. Key Skills Covered
             </h3>
@@ -783,12 +806,12 @@ export const AdminCourseForm: React.FC = () => {
                     handleAddSkill(e);
                   }
                 }}
-                className="flex-1 px-3.5 py-2 bg-slate-950 border border-slate-800 rounded-xl text-xs text-white placeholder-slate-500 focus:outline-none focus:border-purple-500"
+                className="flex-1 px-3.5 py-2 bg-black border border-neutral-800 rounded-xl text-xs text-white placeholder-neutral-500 focus:outline-none focus:border-[#6D22B5] focus:ring-1 focus:ring-[#6D22B5]"
               />
               <button
                 type="button"
                 onClick={handleAddSkill}
-                className="px-3.5 py-2 rounded-xl bg-purple-600 hover:bg-purple-500 text-xs font-bold text-white transition-colors"
+                className="px-3.5 py-2 rounded-xl bg-[#6D22B5] hover:bg-[#853FD5] text-xs font-bold text-black transition-colors"
               >
                 Add Tag
               </button>
@@ -798,13 +821,13 @@ export const AdminCourseForm: React.FC = () => {
               {skills.map((skill) => (
                 <span
                   key={skill}
-                  className="px-2.5 py-1 rounded-lg bg-purple-950/60 text-purple-300 border border-purple-800/80 text-xs font-bold flex items-center gap-1.5"
+                  className="px-2.5 py-1 rounded-lg bg-[#F1E8FA]/15 text-[#6D22B5] border border-[#6D22B5]/30 text-xs font-bold flex items-center gap-1.5"
                 >
                   <span>{skill}</span>
                   <button
                     type="button"
                     onClick={() => handleRemoveSkill(skill)}
-                    className="hover:text-red-400 text-purple-400 transition-colors"
+                    className="hover:text-red-400 text-neutral-400 transition-colors"
                   >
                     ✕
                   </button>
@@ -817,8 +840,8 @@ export const AdminCourseForm: React.FC = () => {
         {/* SECTION 5: Target Audience & Prerequisites */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           {/* Who is it for */}
-          <div className="p-6 rounded-2xl bg-slate-900/90 border border-slate-800 space-y-4">
-            <div className="flex items-center gap-2 pb-2 border-b border-slate-800">
+          <div className="p-6 rounded-2xl bg-neutral-900/90 border border-neutral-800 space-y-4">
+            <div className="flex items-center gap-2 pb-2 border-b border-neutral-800">
               <span className="text-sm font-bold text-white uppercase tracking-wider">
                 5. Who Is This Track For?
               </span>
@@ -837,12 +860,12 @@ export const AdminCourseForm: React.FC = () => {
                       handleAddWho(e);
                     }
                   }}
-                  className="flex-1 px-3 py-1.5 bg-slate-950 border border-slate-800 rounded-xl text-xs text-white focus:outline-none focus:border-purple-500"
+                  className="flex-1 px-3 py-1.5 bg-black border border-neutral-800 rounded-xl text-xs text-white focus:outline-none focus:border-[#6D22B5] focus:ring-1 focus:ring-[#6D22B5]"
                 />
                 <button
                   type="button"
                   onClick={handleAddWho}
-                  className="px-3 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-xs font-bold text-slate-200"
+                  className="px-3 py-1.5 rounded-xl bg-neutral-800 hover:bg-neutral-700 text-xs font-bold text-neutral-200"
                 >
                   Add
                 </button>
@@ -852,13 +875,13 @@ export const AdminCourseForm: React.FC = () => {
                 {whoIsItFor.map((item, idx) => (
                   <li
                     key={idx}
-                    className="p-2 rounded-lg bg-slate-950/50 border border-slate-800/60 flex items-center justify-between text-xs text-slate-300"
+                    className="p-2 rounded-lg bg-black/60 border border-neutral-800 flex items-center justify-between text-xs text-neutral-300"
                   >
                     <span>• {item}</span>
                     <button
                       type="button"
                       onClick={() => handleRemoveWho(idx)}
-                      className="text-slate-500 hover:text-red-400"
+                      className="text-neutral-500 hover:text-red-400"
                     >
                       ✕
                     </button>
@@ -869,8 +892,8 @@ export const AdminCourseForm: React.FC = () => {
           </div>
 
           {/* Requirements */}
-          <div className="p-6 rounded-2xl bg-slate-900/90 border border-slate-800 space-y-4">
-            <div className="flex items-center gap-2 pb-2 border-b border-slate-800">
+          <div className="p-6 rounded-2xl bg-neutral-900/90 border border-neutral-800 space-y-4">
+            <div className="flex items-center gap-2 pb-2 border-b border-neutral-800">
               <span className="text-sm font-bold text-white uppercase tracking-wider">
                 6. Prerequisites & Requirements
               </span>
@@ -889,12 +912,12 @@ export const AdminCourseForm: React.FC = () => {
                       handleAddReq(e);
                     }
                   }}
-                  className="flex-1 px-3 py-1.5 bg-slate-950 border border-slate-800 rounded-xl text-xs text-white focus:outline-none focus:border-purple-500"
+                  className="flex-1 px-3 py-1.5 bg-black border border-neutral-800 rounded-xl text-xs text-white focus:outline-none focus:border-[#6D22B5] focus:ring-1 focus:ring-[#6D22B5]"
                 />
                 <button
                   type="button"
                   onClick={handleAddReq}
-                  className="px-3 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-xs font-bold text-slate-200"
+                  className="px-3 py-1.5 rounded-xl bg-neutral-800 hover:bg-neutral-700 text-xs font-bold text-neutral-200"
                 >
                   Add
                 </button>
@@ -904,13 +927,13 @@ export const AdminCourseForm: React.FC = () => {
                 {requirements.map((item, idx) => (
                   <li
                     key={idx}
-                    className="p-2 rounded-lg bg-slate-950/50 border border-slate-800/60 flex items-center justify-between text-xs text-slate-300"
+                    className="p-2 rounded-lg bg-black/60 border border-neutral-800 flex items-center justify-between text-xs text-neutral-300"
                   >
                     <span>• {item}</span>
                     <button
                       type="button"
                       onClick={() => handleRemoveReq(idx)}
-                      className="text-slate-500 hover:text-red-400"
+                      className="text-neutral-500 hover:text-red-400"
                     >
                       ✕
                     </button>
@@ -922,15 +945,15 @@ export const AdminCourseForm: React.FC = () => {
         </div>
 
         {/* SECTION 6: Interactive Syllabus / Curriculum Builder */}
-        <div className="p-6 rounded-2xl bg-slate-900/90 border border-slate-800 space-y-6">
-          <div className="flex items-center justify-between pb-3 border-b border-slate-800">
+        <div className="p-6 rounded-2xl bg-neutral-900/90 border border-neutral-800 space-y-6">
+          <div className="flex items-center justify-between pb-3 border-b border-neutral-800">
             <div className="flex items-center gap-2">
-              <Layers className="w-4 h-4 text-purple-400" />
+              <Layers className="w-4 h-4 text-[#6D22B5]" />
               <div>
                 <h3 className="text-sm font-bold text-white uppercase tracking-wider">
                   7. Curriculum & Syllabus Builder
                 </h3>
-                <span className="text-[11px] text-slate-400">
+                <span className="text-[11px] text-neutral-400">
                   {modules.length} Modules • {totalCalculatedLessons} Total Lessons
                 </span>
               </div>
@@ -939,7 +962,7 @@ export const AdminCourseForm: React.FC = () => {
             <button
               type="button"
               onClick={handleAddModule}
-              className="px-3 py-1.5 rounded-xl bg-purple-600/30 hover:bg-purple-600/50 text-purple-300 border border-purple-500/40 text-xs font-bold flex items-center gap-1.5 transition-colors"
+              className="px-3 py-1.5 rounded-xl bg-[#6D22B5]/15 hover:bg-[#6D22B5]/25 text-[#6D22B5] border border-[#6D22B5]/30 text-xs font-bold flex items-center gap-1.5 transition-colors"
             >
               <Plus className="w-3.5 h-3.5" />
               <span>Add Module</span>
@@ -950,7 +973,7 @@ export const AdminCourseForm: React.FC = () => {
             {modules.map((module, modIdx) => (
               <div
                 key={module.id || modIdx}
-                className="p-4 rounded-xl bg-slate-950 border border-slate-800/90 space-y-3"
+                className="p-4 rounded-xl bg-black border border-neutral-800 space-y-3"
               >
                 {/* Module Header */}
                 <div className="flex items-center justify-between gap-3">
@@ -959,13 +982,13 @@ export const AdminCourseForm: React.FC = () => {
                       type="text"
                       value={module.title}
                       onChange={(e) => handleUpdateModule(modIdx, { title: e.target.value })}
-                      className="w-full px-3 py-1.5 bg-slate-900 border border-slate-700 rounded-lg text-xs font-bold text-white focus:outline-none focus:border-purple-500"
+                      className="w-full px-3 py-1.5 bg-neutral-900 border border-neutral-700 rounded-lg text-xs font-bold text-white focus:outline-none focus:border-[#6D22B5] focus:ring-1 focus:ring-[#6D22B5]"
                     />
                   </div>
                   <button
                     type="button"
                     onClick={() => handleRemoveModule(modIdx)}
-                    className="p-1.5 text-slate-500 hover:text-red-400 rounded-lg transition-colors"
+                    className="p-1.5 text-neutral-500 hover:text-red-400 rounded-lg transition-colors"
                     title="Delete module"
                   >
                     <Trash2 className="w-4 h-4" />
@@ -973,11 +996,11 @@ export const AdminCourseForm: React.FC = () => {
                 </div>
 
                 {/* Lessons inside Module */}
-                <div className="space-y-2 pl-3 border-l-2 border-purple-500/40">
+                <div className="space-y-2 pl-3 border-l-2 border-[#6D22B5]/40">
                   {module.lessons.map((lesson, lesIdx) => (
                     <div
                       key={lesson.id || lesIdx}
-                      className="p-2.5 rounded-lg bg-slate-900/70 border border-slate-800/80 flex flex-col sm:flex-row items-center gap-2.5 text-xs"
+                      className="p-2.5 rounded-lg bg-neutral-900/80 border border-neutral-800 flex flex-col sm:flex-row items-center gap-2.5 text-xs"
                     >
                       <input
                         type="text"
@@ -986,7 +1009,7 @@ export const AdminCourseForm: React.FC = () => {
                         onChange={(e) =>
                           handleUpdateLesson(modIdx, lesIdx, { title: e.target.value })
                         }
-                        className="flex-1 w-full sm:w-auto px-2.5 py-1 bg-slate-950 border border-slate-800 rounded-md text-xs text-white focus:outline-none focus:border-purple-500"
+                        className="flex-1 w-full sm:w-auto px-2.5 py-1 bg-black border border-neutral-800 rounded-md text-xs text-white focus:outline-none focus:border-[#6D22B5] focus:ring-1 focus:ring-[#6D22B5]"
                       />
 
                       <input
@@ -996,17 +1019,17 @@ export const AdminCourseForm: React.FC = () => {
                         onChange={(e) =>
                           handleUpdateLesson(modIdx, lesIdx, { duration: e.target.value })
                         }
-                        className="w-full sm:w-28 px-2.5 py-1 bg-slate-950 border border-slate-800 rounded-md text-xs text-slate-300 focus:outline-none focus:border-purple-500"
+                        className="w-full sm:w-28 px-2.5 py-1 bg-black border border-neutral-800 rounded-md text-xs text-neutral-300 focus:outline-none focus:border-[#6D22B5] focus:ring-1 focus:ring-[#6D22B5]"
                       />
 
-                      <label className="flex items-center gap-1.5 text-slate-300 text-[11px] cursor-pointer whitespace-nowrap">
+                      <label className="flex items-center gap-1.5 text-neutral-300 text-[11px] cursor-pointer whitespace-nowrap">
                         <input
                           type="checkbox"
                           checked={Boolean(lesson.isPreview)}
                           onChange={(e) =>
                             handleUpdateLesson(modIdx, lesIdx, { isPreview: e.target.checked })
                           }
-                          className="rounded text-purple-600 bg-slate-950 border-slate-700"
+                          className="rounded text-[#6D22B5] bg-black border-neutral-700 accent-[#6D22B5]"
                         />
                         <span>Preview Lab</span>
                       </label>
@@ -1014,7 +1037,7 @@ export const AdminCourseForm: React.FC = () => {
                       <button
                         type="button"
                         onClick={() => handleRemoveLesson(modIdx, lesIdx)}
-                        className="text-slate-500 hover:text-red-400 p-1"
+                        className="text-neutral-500 hover:text-red-400 p-1"
                         title="Remove lesson"
                       >
                         ✕
@@ -1025,7 +1048,7 @@ export const AdminCourseForm: React.FC = () => {
                   <button
                     type="button"
                     onClick={() => handleAddLesson(modIdx)}
-                    className="mt-2 text-[11px] font-bold text-purple-400 hover:text-purple-300 flex items-center gap-1 transition-colors"
+                    className="mt-2 text-[11px] font-bold text-[#6D22B5] hover:text-[#853FD5] flex items-center gap-1 transition-colors"
                   >
                     <Plus className="w-3 h-3" />
                     <span>Add Lesson to {module.title.split(':')[0]}</span>
@@ -1037,14 +1060,14 @@ export const AdminCourseForm: React.FC = () => {
         </div>
 
         {/* SECTION 8: Search Engine Optimization (SEO) Controls */}
-        <div className="p-6 rounded-2xl bg-slate-900/90 border border-slate-800 space-y-4">
-          <div className="flex items-center justify-between pb-2 border-b border-slate-800">
+        <div className="p-6 rounded-2xl bg-neutral-900/90 border border-neutral-800 space-y-4">
+          <div className="flex items-center justify-between pb-2 border-b border-neutral-800">
             <div className="flex items-center gap-2">
               <span className="text-sm font-bold text-white uppercase tracking-wider">
                 8. Search Engine Optimization (SEO) Controls
               </span>
             </div>
-            <span className="text-[11px] text-purple-400 font-semibold">
+            <span className="text-[11px] text-[#6D22B5] font-semibold">
               Admins Only • Auto-fallback if empty
             </span>
           </div>
@@ -1053,10 +1076,10 @@ export const AdminCourseForm: React.FC = () => {
             {/* Custom SEO Title */}
             <div>
               <div className="flex justify-between items-center mb-1">
-                <label className="text-xs font-bold text-slate-300">
+                <label className="text-xs font-bold text-neutral-300">
                   Custom SEO Page Title
                 </label>
-                <span className={`text-[11px] font-mono ${seoTitle.length > 60 ? 'text-amber-400' : 'text-slate-400'}`}>
+                <span className={`text-[11px] font-mono ${seoTitle.length > 60 ? 'text-amber-400' : 'text-neutral-400'}`}>
                   {seoTitle.length}/60 chars (Recommended: 50–60)
                 </span>
               </div>
@@ -1065,9 +1088,9 @@ export const AdminCourseForm: React.FC = () => {
                 placeholder={`Default: ${title ? `${title} | Online Course | Edqoo` : 'Course Title | Online Course | Edqoo'}`}
                 value={seoTitle}
                 onChange={(e) => setSeoTitle(e.target.value)}
-                className="w-full px-3.5 py-2.5 bg-slate-950 border border-slate-800 rounded-xl text-xs text-white placeholder-slate-500 focus:outline-none focus:border-purple-500"
+                className="w-full px-3.5 py-2.5 bg-black border border-neutral-800 rounded-xl text-xs text-white placeholder-neutral-500 focus:outline-none focus:border-[#6D22B5] focus:ring-1 focus:ring-[#6D22B5]"
               />
-              <p className="text-[11px] text-slate-400 mt-1">
+              <p className="text-[11px] text-neutral-400 mt-1">
                 Leave empty to automatically generate from the course title.
               </p>
             </div>
@@ -1075,10 +1098,10 @@ export const AdminCourseForm: React.FC = () => {
             {/* Custom SEO Meta Description */}
             <div>
               <div className="flex justify-between items-center mb-1">
-                <label className="text-xs font-bold text-slate-300">
+                <label className="text-xs font-bold text-neutral-300">
                   Custom Meta Description
                 </label>
-                <span className={`text-[11px] font-mono ${seoDescription.length > 160 ? 'text-amber-400' : 'text-slate-400'}`}>
+                <span className={`text-[11px] font-mono ${seoDescription.length > 160 ? 'text-amber-400' : 'text-neutral-400'}`}>
                   {seoDescription.length}/160 chars (Recommended: 140–160)
                 </span>
               </div>
@@ -1087,16 +1110,16 @@ export const AdminCourseForm: React.FC = () => {
                 placeholder={`Default: Learn ${title || 'this program'} through practical lessons, projects and industry-focused training with Edqoo.`}
                 value={seoDescription}
                 onChange={(e) => setSeoDescription(e.target.value)}
-                className="w-full px-3.5 py-2.5 bg-slate-950 border border-slate-800 rounded-xl text-xs text-white placeholder-slate-500 focus:outline-none focus:border-purple-500 leading-relaxed"
+                className="w-full px-3.5 py-2.5 bg-black border border-neutral-800 rounded-xl text-xs text-white placeholder-neutral-500 focus:outline-none focus:border-[#6D22B5] focus:ring-1 focus:ring-[#6D22B5] leading-relaxed"
               />
-              <p className="text-[11px] text-slate-400 mt-1">
+              <p className="text-[11px] text-neutral-400 mt-1">
                 Keep summary concise and informative for Google search result snippets.
               </p>
             </div>
 
             {/* Target SEO Keywords */}
             <div>
-              <label className="text-xs font-bold text-slate-300 block mb-1">
+              <label className="text-xs font-bold text-neutral-300 block mb-1">
                 Target SEO Search Keywords
               </label>
               <div className="flex gap-2">
@@ -1111,12 +1134,12 @@ export const AdminCourseForm: React.FC = () => {
                       handleAddSeoKeyword(e);
                     }
                   }}
-                  className="flex-1 px-3.5 py-2 bg-slate-950 border border-slate-800 rounded-xl text-xs text-white placeholder-slate-500 focus:outline-none focus:border-purple-500"
+                  className="flex-1 px-3.5 py-2 bg-black border border-neutral-800 rounded-xl text-xs text-white placeholder-neutral-500 focus:outline-none focus:border-[#6D22B5] focus:ring-1 focus:ring-[#6D22B5]"
                 />
                 <button
                   type="button"
                   onClick={handleAddSeoKeyword}
-                  className="px-3.5 py-2 rounded-xl bg-purple-600 hover:bg-purple-500 text-xs font-bold text-white transition-colors"
+                  className="px-3.5 py-2 rounded-xl bg-[#6D22B5] hover:bg-[#853FD5] text-xs font-bold text-black transition-colors"
                 >
                   Add Keyword
                 </button>
@@ -1126,13 +1149,13 @@ export const AdminCourseForm: React.FC = () => {
                 {seoKeywords.map((kw) => (
                   <span
                     key={kw}
-                    className="px-2.5 py-1 rounded-lg bg-indigo-950/60 text-indigo-300 border border-indigo-800/80 text-xs font-bold flex items-center gap-1.5"
+                    className="px-2.5 py-1 rounded-lg bg-[#F1E8FA]/15 text-[#6D22B5] border border-[#6D22B5]/30 text-xs font-bold flex items-center gap-1.5"
                   >
                     <span>{kw}</span>
                     <button
                       type="button"
                       onClick={() => handleRemoveSeoKeyword(kw)}
-                      className="hover:text-red-400 text-indigo-400 transition-colors"
+                      className="hover:text-red-400 text-neutral-400 transition-colors"
                     >
                       ✕
                     </button>
@@ -1144,17 +1167,17 @@ export const AdminCourseForm: React.FC = () => {
         </div>
 
         {/* Footer Action Buttons */}
-        <div className="flex items-center justify-end gap-3 pt-4 border-t border-slate-800">
+        <div className="flex items-center justify-end gap-3 pt-4 border-t border-neutral-800">
           <Link
             to="/admin/courses"
-            className="px-4 py-2 rounded-xl bg-slate-900 hover:bg-slate-800 border border-slate-700 text-xs font-bold text-slate-300 transition-colors"
+            className="px-4 py-2 rounded-xl bg-neutral-900 hover:bg-neutral-800 border border-neutral-700 text-xs font-bold text-neutral-300 transition-colors"
           >
             Cancel
           </Link>
           <button
             type="submit"
             disabled={loading}
-            className="px-6 py-2 rounded-xl bg-purple-600 hover:bg-purple-500 text-xs font-bold text-white flex items-center gap-2 transition-all shadow-md shadow-purple-600/30 disabled:opacity-50"
+            className="px-6 py-2 rounded-xl bg-[#6D22B5] hover:bg-[#853FD5] text-xs font-bold text-black flex items-center gap-2 transition-all shadow-md shadow-[#6D22B5]/20 disabled:opacity-50"
           >
             <Save className="w-4 h-4" />
             <span>{loading ? 'Saving...' : isEditing ? 'Update Course Track' : 'Publish Course Track'}</span>

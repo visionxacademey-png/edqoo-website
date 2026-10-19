@@ -12,6 +12,7 @@ import instructorApplicationsRoutes from './routes/instructorApplications.js';
 import partnersRoutes from './routes/partners.js';
 import leadershipRoutes from './routes/leadership.js';
 import chatRoutes from './routes/chat.js';
+import categoriesRoutes from './routes/categories.js';
 import sitemapRoutes from './routes/sitemap.js';
 
 dotenv.config();
@@ -100,6 +101,7 @@ app.get(['/api/health', '/health', '/api', '/'], (_req, res) => {
 app.use(['/api/auth', '/auth'], authRoutes);
 app.use(['/api/admin', '/admin'], adminRoutes);
 app.use(['/api/courses', '/courses'], coursesRoutes);
+app.use(['/api/categories', '/categories'], categoriesRoutes);
 app.use(['/api/enquiries', '/enquiries', '/api/contact', '/contact'], enquiriesRoutes);
 app.use(['/api/instructors', '/instructors'], instructorsRoutes);
 app.use(['/api/hiring-enquiries', '/hiring-enquiries'], hiringRoutes);

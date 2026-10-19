@@ -133,7 +133,7 @@ export const StudentOfferModal: React.FC = () => {
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             onClick={handleClose}
-            className="fixed inset-0 bg-slate-950/70 backdrop-blur-xs transition-opacity"
+            className="fixed inset-0 bg-slate-950/60 backdrop-blur-xs transition-opacity"
           />
 
           {/* Modal Container */}
@@ -142,12 +142,12 @@ export const StudentOfferModal: React.FC = () => {
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.95, y: 16 }}
             transition={{ duration: 0.25, ease: 'easeOut' }}
-            className="relative w-full max-w-2xl bg-white rounded-3xl shadow-2xl border border-slate-200 overflow-hidden z-10 my-6 max-h-[92vh] flex flex-col text-left"
+            className="relative w-full max-w-2xl bg-white rounded-3xl shadow-2xl border border-[#E6E3EA] overflow-hidden z-10 my-6 max-h-[92vh] flex flex-col text-left"
           >
             {/* Close Button */}
             <button
               onClick={handleClose}
-              className="absolute top-4 right-4 z-20 w-8 h-8 rounded-full bg-slate-100/90 hover:bg-slate-200 text-slate-600 hover:text-slate-900 flex items-center justify-center transition-colors shadow-2xs cursor-pointer"
+              className="absolute top-4 right-4 z-20 w-8 h-8 rounded-full bg-slate-100 hover:bg-[#F1E8FA] text-slate-500 hover:text-[#6D22B5] flex items-center justify-center transition-colors shadow-2xs cursor-pointer"
               aria-label="Close modal"
             >
               <X className="w-4 h-4" />
@@ -156,24 +156,24 @@ export const StudentOfferModal: React.FC = () => {
             {isSubmitted ? (
               /* Success State */
               <div className="p-8 sm:p-12 text-center space-y-5 my-auto">
-                <div className="w-16 h-16 rounded-2xl bg-emerald-50 border border-emerald-200 text-emerald-600 flex items-center justify-center mx-auto shadow-xs">
+                <div className="w-16 h-16 rounded-2xl bg-[#F1E8FA] border border-[#E0CEF5] text-[#6D22B5] flex items-center justify-center mx-auto shadow-xs">
                   <CheckCircle className="w-8 h-8" />
                 </div>
                 <div className="space-y-2 max-w-md mx-auto">
-                  <span className="px-3 py-1 rounded-full text-xs font-extrabold bg-emerald-100 text-emerald-800 uppercase tracking-wider inline-block">
+                  <span className="px-3 py-1 rounded-full text-xs font-extrabold bg-[#F1E8FA] text-[#6D22B5] border border-[#E0CEF5] uppercase tracking-wider inline-block">
                     Enquiry Received
                   </span>
-                  <h3 className="text-xl sm:text-2xl font-display font-black text-slate-950">
+                  <h3 className="text-xl sm:text-2xl font-display font-black text-[#202126]">
                     Thank You!
                   </h3>
-                  <p className="text-xs sm:text-sm text-slate-600 leading-relaxed">
+                  <p className="text-xs sm:text-sm text-[#6B6875] leading-relaxed">
                     Your enquiry has been submitted successfully. Our team will contact you soon with your 60% student offer details.
                   </p>
                 </div>
                 <button
                   type="button"
                   onClick={handleClose}
-                  className="px-6 py-2.5 bg-purple-600 hover:bg-purple-700 text-white text-xs sm:text-sm font-bold rounded-xl transition-all shadow-xs cursor-pointer"
+                  className="btn-primary px-6 py-2.5 text-xs sm:text-sm font-bold rounded-xl transition-all shadow-xs cursor-pointer"
                 >
                   Continue Browsing
                 </button>
@@ -182,14 +182,11 @@ export const StudentOfferModal: React.FC = () => {
               /* Main Offer + Form Grid Layout */
               <div className="grid grid-cols-1 md:grid-cols-12 overflow-y-auto">
                 
-                {/* Left Promo Banner (Desktop) */}
-                <div className="md:col-span-5 bg-gradient-to-br from-purple-900 via-purple-800 to-indigo-950 text-white p-6 sm:p-8 flex flex-col justify-between relative overflow-hidden">
-                  <div className="absolute -top-12 -left-12 w-36 h-36 bg-purple-500/20 rounded-full blur-2xl pointer-events-none" />
-                  <div className="absolute -bottom-12 -right-12 w-36 h-36 bg-indigo-500/20 rounded-full blur-2xl pointer-events-none" />
-
+                {/* Left Promo Banner */}
+                <div className="md:col-span-5 bg-[#7024C4] text-white p-6 sm:p-8 flex flex-col justify-between relative overflow-hidden">
                   <div className="space-y-4 relative z-10">
-                    <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/15 backdrop-blur-md border border-white/20 text-purple-200 text-[10px] font-extrabold uppercase tracking-widest">
-                      <Gift className="w-3.5 h-3.5 text-amber-300" />
+                    <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/15 border border-white/25 text-white text-[10px] font-extrabold uppercase tracking-widest shadow-2xs">
+                      <Gift className="w-3.5 h-3.5 text-white" />
                       <span>Limited Student Access</span>
                     </div>
 
@@ -197,27 +194,33 @@ export const StudentOfferModal: React.FC = () => {
                       <div className="text-3xl sm:text-4xl font-display font-black text-white tracking-tight">
                         60% OFF
                       </div>
-                      <h2 className="text-lg sm:text-xl font-display font-extrabold text-purple-100 leading-snug">
+                      <h2 className="text-lg sm:text-xl font-display font-extrabold text-white leading-snug">
                         Get 60% Student Offer
                       </h2>
-                      <p className="text-xs text-purple-200/90 leading-relaxed">
+                      <p className="text-xs text-white/90 leading-relaxed">
                         Unlock exclusive benefits available for students.
                       </p>
                     </div>
                   </div>
 
                   {/* Student Pillars */}
-                  <div className="pt-6 border-t border-white/10 space-y-2.5 text-xs text-purple-200 relative z-10">
-                    <div className="flex items-center gap-2">
-                      <CheckCircle2 className="w-4 h-4 text-emerald-400 flex-shrink-0" />
+                  <div className="pt-6 border-t border-white/20 space-y-2.5 text-xs text-white font-medium relative z-10">
+                    <div className="flex items-center gap-2.5">
+                      <div className="w-5 h-5 rounded-full bg-white/15 border border-white/25 flex items-center justify-center shrink-0 shadow-2xs">
+                        <CheckCircle2 className="w-3.5 h-3.5 text-white" />
+                      </div>
                       <span>Faculty Mentorship</span>
                     </div>
-                    <div className="flex items-center gap-2">
-                      <CheckCircle2 className="w-4 h-4 text-emerald-400 flex-shrink-0" />
+                    <div className="flex items-center gap-2.5">
+                      <div className="w-5 h-5 rounded-full bg-white/15 border border-white/25 flex items-center justify-center shrink-0 shadow-2xs">
+                        <CheckCircle2 className="w-3.5 h-3.5 text-white" />
+                      </div>
                       <span>Real-World Industry Capstones</span>
                     </div>
-                    <div className="flex items-center gap-2">
-                      <CheckCircle2 className="w-4 h-4 text-emerald-400 flex-shrink-0" />
+                    <div className="flex items-center gap-2.5">
+                      <div className="w-5 h-5 rounded-full bg-white/15 border border-white/25 flex items-center justify-center shrink-0 shadow-2xs">
+                        <CheckCircle2 className="w-3.5 h-3.5 text-white" />
+                      </div>
                       <span>Placement Interview Support</span>
                     </div>
                   </div>
@@ -226,13 +229,13 @@ export const StudentOfferModal: React.FC = () => {
                 {/* Right Form Section */}
                 <div className="md:col-span-7 p-6 sm:p-8 bg-white flex flex-col justify-center">
                   <div className="space-y-1 mb-5">
-                    <span className="text-[10px] font-extrabold text-purple-600 uppercase tracking-widest block">
+                    <span className="text-[10px] font-extrabold text-[#6D22B5] uppercase tracking-widest block">
                       STUDENT ADVISORY
                     </span>
-                    <h3 className="text-lg sm:text-xl font-display font-bold text-slate-950">
+                    <h3 className="text-lg sm:text-xl font-display font-bold text-[#202126]">
                       Enquire Now
                     </h3>
-                    <p className="text-xs text-slate-500">
+                    <p className="text-xs text-[#6B6875]">
                       Fill out your details to check your student scholarship eligibility.
                     </p>
                   </div>
@@ -248,16 +251,16 @@ export const StudentOfferModal: React.FC = () => {
                     {/* Full Name */}
                     <div className="space-y-1">
                       <label className="text-[11px] font-bold text-slate-700 block">
-                        Full Name <span className="text-red-500">*</span>
+                        Full Name <span className="text-[#6D22B5] font-bold">*</span>
                       </label>
                       <div className="relative">
                         <input
                           type="text"
                           placeholder="e.g. Rahul Sharma"
                           {...register('name')}
-                          className={`w-full bg-slate-50 border ${
-                            errors.name ? 'border-red-400 bg-red-50/20' : 'border-slate-200'
-                          } rounded-xl py-2 pl-9 pr-3 text-xs text-slate-900 placeholder-slate-400 focus:bg-white focus:border-purple-600 focus:outline-none focus:ring-2 focus:ring-purple-100 transition-colors`}
+                          className={`w-full bg-[#F8F4FC]/60 border ${
+                            errors.name ? 'border-red-400 bg-red-50/20' : 'border-[#E6E3EA]'
+                          } rounded-xl py-2 pl-9 pr-3 text-xs text-[#202126] placeholder:text-slate-400 focus:bg-white focus:border-[#6D22B5] focus:outline-none focus:ring-2 focus:ring-[#6D22B5]/20 transition-colors`}
                         />
                         <User className="w-3.5 h-3.5 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
                       </div>
@@ -269,16 +272,16 @@ export const StudentOfferModal: React.FC = () => {
                     {/* Email Address */}
                     <div className="space-y-1">
                       <label className="text-[11px] font-bold text-slate-700 block">
-                        Email Address <span className="text-red-500">*</span>
+                        Email Address <span className="text-[#6D22B5] font-bold">*</span>
                       </label>
                       <div className="relative">
                         <input
                           type="email"
                           placeholder="e.g. rahul@example.com"
                           {...register('email')}
-                          className={`w-full bg-slate-50 border ${
-                            errors.email ? 'border-red-400 bg-red-50/20' : 'border-slate-200'
-                          } rounded-xl py-2 pl-9 pr-3 text-xs text-slate-900 placeholder-slate-400 focus:bg-white focus:border-purple-600 focus:outline-none focus:ring-2 focus:ring-purple-100 transition-colors`}
+                          className={`w-full bg-[#F8F4FC]/60 border ${
+                            errors.email ? 'border-red-400 bg-red-50/20' : 'border-[#E6E3EA]'
+                          } rounded-xl py-2 pl-9 pr-3 text-xs text-[#202126] placeholder:text-slate-400 focus:bg-white focus:border-[#6D22B5] focus:outline-none focus:ring-2 focus:ring-[#6D22B5]/20 transition-colors`}
                         />
                         <Mail className="w-3.5 h-3.5 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
                       </div>
@@ -290,16 +293,16 @@ export const StudentOfferModal: React.FC = () => {
                     {/* Mobile Number */}
                     <div className="space-y-1">
                       <label className="text-[11px] font-bold text-slate-700 block">
-                        Mobile Number <span className="text-red-500">*</span>
+                        Mobile Number <span className="text-[#6D22B5] font-bold">*</span>
                       </label>
                       <div className="relative">
                         <input
                           type="tel"
                           placeholder="e.g. +91 98765 43210"
                           {...register('phone')}
-                          className={`w-full bg-slate-50 border ${
-                            errors.phone ? 'border-red-400 bg-red-50/20' : 'border-slate-200'
-                          } rounded-xl py-2 pl-9 pr-3 text-xs text-slate-900 placeholder-slate-400 focus:bg-white focus:border-purple-600 focus:outline-none focus:ring-2 focus:ring-purple-100 transition-colors`}
+                          className={`w-full bg-[#F8F4FC]/60 border ${
+                            errors.phone ? 'border-red-400 bg-red-50/20' : 'border-[#E6E3EA]'
+                          } rounded-xl py-2 pl-9 pr-3 text-xs text-[#202126] placeholder:text-slate-400 focus:bg-white focus:border-[#6D22B5] focus:outline-none focus:ring-2 focus:ring-[#6D22B5]/20 transition-colors`}
                         />
                         <Phone className="w-3.5 h-3.5 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
                       </div>
@@ -311,16 +314,16 @@ export const StudentOfferModal: React.FC = () => {
                     {/* College / School */}
                     <div className="space-y-1">
                       <label className="text-[11px] font-bold text-slate-700 block">
-                        College / School <span className="text-red-500">*</span>
+                        College / School <span className="text-[#6D22B5] font-bold">*</span>
                       </label>
                       <div className="relative">
                         <input
                           type="text"
                           placeholder="e.g. National Institute of Technology"
                           {...register('collegeOrSchool')}
-                          className={`w-full bg-slate-50 border ${
-                            errors.collegeOrSchool ? 'border-red-400 bg-red-50/20' : 'border-slate-200'
-                          } rounded-xl py-2 pl-9 pr-3 text-xs text-slate-900 placeholder-slate-400 focus:bg-white focus:border-purple-600 focus:outline-none focus:ring-2 focus:ring-purple-100 transition-colors`}
+                          className={`w-full bg-[#F8F4FC]/60 border ${
+                            errors.collegeOrSchool ? 'border-red-400 bg-red-50/20' : 'border-[#E6E3EA]'
+                          } rounded-xl py-2 pl-9 pr-3 text-xs text-[#202126] placeholder:text-slate-400 focus:bg-white focus:border-[#6D22B5] focus:outline-none focus:ring-2 focus:ring-[#6D22B5]/20 transition-colors`}
                         />
                         <GraduationCap className="w-3.5 h-3.5 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
                       </div>
@@ -333,7 +336,7 @@ export const StudentOfferModal: React.FC = () => {
                     <button
                       type="submit"
                       disabled={isSubmitting}
-                      className="w-full mt-2 py-2.5 bg-purple-600 hover:bg-purple-700 active:scale-[0.99] disabled:opacity-60 disabled:cursor-not-allowed text-white text-xs sm:text-sm font-bold rounded-xl transition-all shadow-md shadow-purple-600/20 flex items-center justify-center gap-2 cursor-pointer"
+                      className="btn-primary w-full mt-2 py-3 text-xs sm:text-sm font-bold rounded-xl transition-all shadow-md flex items-center justify-center gap-2 cursor-pointer focus:outline-none focus:ring-2 focus:ring-[#6D22B5] focus:ring-offset-2"
                     >
                       {isSubmitting ? (
                         <>

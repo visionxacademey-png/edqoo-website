@@ -68,27 +68,27 @@ export const ContactSupportCard: React.FC<{
     <motion.div
       initial={{ opacity: 0, scale: 0.96, y: 6 }}
       animate={{ opacity: 1, scale: 1, y: 0 }}
-      className="mt-3 p-3.5 bg-gradient-to-br from-blue-50/95 via-indigo-50/80 to-purple-50/70 border border-blue-200/90 rounded-2xl shadow-xs text-left space-y-2.5"
+      className="mt-3 p-3.5 bg-[#F1E8FA] border border-[#E0CEF5] rounded-2xl shadow-xs text-left space-y-2.5"
     >
-      <div className="flex items-center gap-2 text-blue-950 font-bold text-xs">
-        <HelpCircle className="w-4 h-4 text-blue-600 shrink-0" />
+      <div className="flex items-center gap-2 text-slate-900 font-bold text-xs">
+        <HelpCircle className="w-4 h-4 text-[#6D22B5] shrink-0" />
         <span>{title}</span>
       </div>
 
-      <p className="text-[11px] text-slate-600 leading-normal">
+      <p className="text-[11px] text-slate-700 leading-normal">
         {subtitle}
       </p>
 
       {/* Visible contact numbers */}
-      <div className="bg-white/90 border border-blue-100/90 rounded-xl p-2.5 space-y-1.5 text-xs text-slate-800">
+      <div className="bg-white border border-[#E0CEF5] rounded-xl p-2.5 space-y-1.5 text-xs text-slate-800">
         <div className="flex items-center justify-between">
           <span className="flex items-center gap-1.5 text-slate-500 font-medium text-[11px]">
-            <PhoneCall className="w-3.5 h-3.5 text-blue-600" />
+            <PhoneCall className="w-3.5 h-3.5 text-[#6D22B5]" />
             <span>Call us:</span>
           </span>
           <a
             href={`tel:${cleanPhone}`}
-            className="font-bold text-blue-900 hover:text-blue-700 hover:underline tracking-tight"
+            className="font-bold text-slate-900 hover:text-[#6D22B5] hover:underline tracking-tight"
           >
             {phone}
           </a>
@@ -96,14 +96,14 @@ export const ContactSupportCard: React.FC<{
 
         <div className="flex items-center justify-between pt-1 border-t border-slate-100">
           <span className="flex items-center gap-1.5 text-slate-500 font-medium text-[11px]">
-            <MessageCircle className="w-3.5 h-3.5 text-emerald-600" />
+            <MessageCircle className="w-3.5 h-3.5 text-[#6D22B5]" />
             <span>WhatsApp:</span>
           </span>
           <a
             href={`https://wa.me/${cleanWa}`}
             target="_blank"
             rel="noopener noreferrer"
-            className="font-bold text-emerald-900 hover:text-emerald-700 hover:underline tracking-tight"
+            className="font-bold text-[#6D22B5] hover:text-[#6D22B5] hover:underline tracking-tight"
           >
             {phone}
           </a>
@@ -114,20 +114,20 @@ export const ContactSupportCard: React.FC<{
       <div className="grid grid-cols-2 gap-2 pt-0.5">
         <a
           href={`tel:${cleanPhone}`}
-          className="flex items-center justify-center gap-1.5 px-3 py-2 bg-blue-600 hover:bg-blue-700 active:bg-blue-800 text-white rounded-xl text-xs font-bold shadow-2xs transition-colors"
+          className="flex items-center justify-center gap-1.5 px-3 py-2 bg-[#000000] hover:bg-[#111111] active:scale-[0.98] text-[#6D22B5] rounded-xl text-xs font-bold shadow-2xs transition-colors"
         >
           <PhoneCall className="w-3.5 h-3.5" />
-          <span>📞 Call Now</span>
+          <span>Call Now</span>
         </a>
 
         <a
           href={`https://wa.me/${cleanWa}`}
           target="_blank"
           rel="noopener noreferrer"
-          className="flex items-center justify-center gap-1.5 px-3 py-2 bg-emerald-600 hover:bg-emerald-700 active:bg-emerald-800 text-white rounded-xl text-xs font-bold shadow-2xs transition-colors"
+          className="flex items-center justify-center gap-1.5 px-3 py-2 bg-[#6D22B5] hover:bg-[#853FD5] active:scale-[0.98] text-black rounded-xl text-xs font-bold shadow-2xs transition-colors"
         >
           <MessageCircle className="w-3.5 h-3.5" />
-          <span>💬 WhatsApp</span>
+          <span>WhatsApp</span>
         </a>
       </div>
     </motion.div>
@@ -136,7 +136,7 @@ export const ContactSupportCard: React.FC<{
 
 export const FloatingSupport: React.FC = () => {
   const [isOpen, setIsOpen] = useState(false);
-  const [showTeaser, setShowTeaser] = useState(true);
+  const [showTeaser, setShowTeaser] = useState(false);
   const [messages, setMessages] = useState<Message[]>([
     {
       id: 'welcome-1',
@@ -300,21 +300,19 @@ export const FloatingSupport: React.FC = () => {
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: 10, scale: 0.95 }}
             transition={{ duration: 0.25 }}
-            className="absolute bottom-16 right-0 w-72 sm:w-80 bg-white rounded-2xl shadow-xl border border-blue-100 p-4 text-left overflow-hidden z-40"
+            className="absolute bottom-16 right-0 w-72 sm:w-80 bg-white rounded-2xl shadow-xl border border-[#E5E5E5] p-4 text-left overflow-hidden z-40"
           >
-            <div className="absolute -top-10 -right-10 w-28 h-28 bg-blue-100/60 rounded-full blur-xl pointer-events-none" />
-
             <div className="flex items-start justify-between gap-2 relative z-10">
               <div className="flex items-center gap-2">
-                <div className="w-8 h-8 rounded-xl bg-gradient-to-tr from-blue-600 to-indigo-600 text-white flex items-center justify-center shadow-xs">
-                  <Bot className="w-4 h-4 text-blue-100" />
+                <div className="w-8 h-8 rounded-xl bg-[#000000] text-[#6D22B5] flex items-center justify-center shadow-xs">
+                  <Bot className="w-4 h-4 text-[#6D22B5]" />
                 </div>
                 <div>
                   <h4 className="text-xs font-bold text-slate-900 uppercase tracking-wider">
                     AI Assistant
                   </h4>
-                  <span className="inline-flex items-center gap-1 text-[10px] text-emerald-600 font-medium">
-                    <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
+                  <span className="inline-flex items-center gap-1 text-[10px] text-[#6D22B5] font-medium">
+                    <span className="w-1.5 h-1.5 rounded-full bg-[#6D22B5] animate-pulse" />
                     Online &bull; Instant Answers
                   </span>
                 </div>
@@ -337,13 +335,13 @@ export const FloatingSupport: React.FC = () => {
               </p>
             </div>
 
-            <div className="mt-3.5 pt-2.5 border-t border-slate-100 flex items-center justify-between relative z-10">
+            <div className="mt-3.5 pt-2.5 border-t border-[#E5E5E5] flex items-center justify-between relative z-10">
               <button
                 onClick={() => {
                   setIsOpen(true);
                   setShowTeaser(false);
                 }}
-                className="w-full py-2 px-3.5 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white text-xs font-bold rounded-xl shadow-xs transition-all flex items-center justify-center gap-1.5 group cursor-pointer"
+                className="btn-primary w-full py-2 px-3.5 text-xs font-bold rounded-xl shadow-xs transition-all flex items-center justify-center gap-1.5 group cursor-pointer"
               >
                 <span>Chat with AI</span>
                 <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-0.5 transition-transform" />
@@ -363,25 +361,25 @@ export const FloatingSupport: React.FC = () => {
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.95, y: 20 }}
             transition={{ duration: 0.25, ease: 'easeOut' }}
-            className="fixed inset-x-2 bottom-2 top-16 sm:inset-auto sm:bottom-20 sm:right-0 sm:w-[420px] sm:h-[620px] sm:max-h-[85vh] bg-white rounded-2xl shadow-2xl border border-slate-200 flex flex-col overflow-hidden z-50"
+            className="fixed inset-x-2 bottom-2 top-16 sm:inset-auto sm:bottom-20 sm:right-0 sm:w-[420px] sm:h-[620px] sm:max-h-[85vh] bg-white rounded-2xl shadow-2xl border border-[#E5E5E5] flex flex-col overflow-hidden z-50"
           >
             {/* PANEL HEADER */}
-            <div className="bg-gradient-to-r from-blue-700 via-indigo-700 to-purple-800 text-white px-4 py-3.5 flex items-center justify-between shadow-xs select-none">
+            <div className="bg-white text-slate-900 px-4 py-3.5 flex items-center justify-between shadow-xs select-none border-b border-slate-200">
               <div className="flex items-center gap-3">
                 <div className="relative">
-                  <div className="w-9 h-9 rounded-xl bg-white/15 backdrop-blur-xs border border-white/20 flex items-center justify-center text-white shadow-xs">
-                    <Bot className="w-5 h-5 text-blue-200" />
+                  <div className="w-9 h-9 rounded-xl bg-[#F1E8FA] border border-[#E0CEF5] flex items-center justify-center text-[#6D22B5] shadow-xs">
+                    <Bot className="w-5 h-5 text-[#6D22B5]" />
                   </div>
-                  <span className="absolute -bottom-0.5 -right-0.5 w-2.5 h-2.5 rounded-full bg-emerald-400 border-2 border-indigo-900" />
+                  <span className="absolute -bottom-0.5 -right-0.5 w-2.5 h-2.5 rounded-full bg-[#6D22B5] border-2 border-white" />
                 </div>
                 <div className="text-left">
                   <div className="flex items-center gap-2">
-                    <h3 className="font-bold text-sm text-white tracking-wide">AI Assistant</h3>
-                    <span className="px-1.5 py-0.5 rounded text-[10px] font-semibold bg-white/20 text-blue-100">
+                    <h3 className="font-bold text-sm text-slate-950 tracking-wide">AI Assistant</h3>
+                    <span className="px-1.5 py-0.5 rounded text-[10px] font-bold bg-[#F1E8FA] text-[#6D22B5] border border-[#E0CEF5]">
                       Edqoo Verified
                     </span>
                   </div>
-                  <p className="text-[11px] text-blue-100/90 font-normal truncate max-w-[210px] sm:max-w-none">
+                  <p className="text-[11px] text-slate-500 font-normal truncate max-w-[210px] sm:max-w-none">
                     Ask us anything about our programs and services.
                   </p>
                 </div>
@@ -392,7 +390,7 @@ export const FloatingSupport: React.FC = () => {
                 <button
                   onClick={handleResetChat}
                   title="Restart Conversation"
-                  className="p-1.5 text-white/80 hover:text-white hover:bg-white/10 rounded-lg transition-colors cursor-pointer"
+                  className="p-1.5 text-slate-400 hover:text-slate-800 hover:bg-slate-100 rounded-lg transition-colors cursor-pointer"
                   aria-label="Restart chat"
                 >
                   <RotateCcw className="w-4 h-4" />
@@ -402,7 +400,7 @@ export const FloatingSupport: React.FC = () => {
                 <button
                   onClick={() => setIsOpen(false)}
                   title="Close Assistant"
-                  className="p-1.5 text-white/80 hover:text-white hover:bg-white/10 rounded-lg transition-colors cursor-pointer"
+                  className="p-1.5 text-slate-400 hover:text-slate-800 hover:bg-slate-100 rounded-lg transition-colors cursor-pointer"
                   aria-label="Close chatbot modal"
                 >
                   <X className="w-5 h-5" />
@@ -411,7 +409,7 @@ export const FloatingSupport: React.FC = () => {
             </div>
 
             {/* MESSAGES SCROLLABLE BODY */}
-            <div className="flex-1 p-4 overflow-y-auto space-y-4 bg-slate-50/70 text-left text-xs sm:text-sm">
+            <div className="flex-1 p-4 overflow-y-auto space-y-4 bg-[#F7F7F7] text-left text-xs sm:text-sm">
               {messages.map((msg) => {
                 const isUser = msg.role === 'user';
                 const hasCourses = msg.results && msg.results.some((r) => r.type === 'course');
@@ -429,11 +427,11 @@ export const FloatingSupport: React.FC = () => {
                       <div
                         className={`w-7 h-7 rounded-lg shrink-0 flex items-center justify-center text-xs ${
                           isUser
-                            ? 'bg-blue-600 text-white shadow-xs'
-                            : 'bg-gradient-to-tr from-indigo-600 to-purple-600 text-white shadow-xs'
+                            ? 'bg-[#000000] text-[#6D22B5] shadow-xs'
+                            : 'bg-[#6D22B5] text-white font-bold shadow-xs'
                         }`}
                       >
-                        {isUser ? <User className="w-3.5 h-3.5" /> : <Bot className="w-4 h-4 text-blue-100" />}
+                        {isUser ? <User className="w-3.5 h-3.5" /> : <Bot className="w-4 h-4 text-black" />}
                       </div>
 
                       {/* Message Bubble Content */}
@@ -441,8 +439,8 @@ export const FloatingSupport: React.FC = () => {
                         <div
                           className={`p-3.5 rounded-2xl shadow-2xs leading-relaxed ${
                             isUser
-                              ? 'bg-blue-600 text-white rounded-tr-xs'
-                              : 'bg-white text-slate-800 border border-slate-200/90 rounded-tl-xs'
+                              ? 'bg-[#000000] text-white rounded-tr-xs'
+                              : 'bg-white text-slate-800 border border-[#E5E5E5] rounded-tl-xs'
                           }`}
                         >
                           {isUser ? (
@@ -471,13 +469,13 @@ export const FloatingSupport: React.FC = () => {
                               return (
                                 <div
                                   key={item.id}
-                                  className="bg-white border border-slate-200/90 hover:border-blue-300 rounded-xl p-3 shadow-2xs transition-all text-left space-y-1.5"
+                                  className="bg-white border border-[#E5E5E5] hover:border-[#6D22B5] rounded-xl p-3 shadow-2xs transition-all text-left space-y-1.5"
                                 >
                                   <div className="flex items-start justify-between gap-2">
                                     <h6 className="font-bold text-slate-950 text-xs leading-snug">
                                       {item.title}
                                     </h6>
-                                    <span className="shrink-0 text-[10px] font-semibold px-2 py-0.5 rounded-md bg-blue-50 text-blue-700 border border-blue-100">
+                                    <span className="shrink-0 text-[10px] font-bold px-2 py-0.5 rounded-md bg-[#F1E8FA] text-[#6D22B5] border border-[#E0CEF5]">
                                       {item.category}
                                     </span>
                                   </div>
@@ -491,7 +489,7 @@ export const FloatingSupport: React.FC = () => {
                                   <div className="flex items-center justify-between pt-1.5 border-t border-slate-100">
                                     <span className="text-[10px] font-medium text-slate-500">
                                       {isFree ? (
-                                        <span className="text-emerald-600 font-semibold">100% Free</span>
+                                        <span className="text-[#6D22B5] font-bold">100% Free</span>
                                       ) : item.duration ? (
                                         <span>{item.duration}</span>
                                       ) : (
@@ -502,7 +500,7 @@ export const FloatingSupport: React.FC = () => {
                                     <Link
                                       to={item.url}
                                       onClick={() => setIsOpen(false)}
-                                      className="inline-flex items-center gap-1 px-3 py-1.5 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-xs font-bold shadow-2xs transition-colors cursor-pointer"
+                                      className="btn-primary inline-flex items-center gap-1 px-3 py-1.5 text-xs font-bold rounded-lg shadow-2xs transition-colors cursor-pointer"
                                     >
                                       <span>{buttonText}</span>
                                       <ArrowRight className="w-3 h-3" />
@@ -518,7 +516,7 @@ export const FloatingSupport: React.FC = () => {
                                 <Link
                                   to="/courses"
                                   onClick={() => setIsOpen(false)}
-                                  className="inline-flex items-center justify-center gap-1.5 w-full py-2 px-3 bg-slate-100 hover:bg-blue-50 text-blue-700 hover:text-blue-800 rounded-xl text-xs font-semibold border border-slate-200 hover:border-blue-200 transition-colors"
+                                  className="inline-flex items-center justify-center gap-1.5 w-full py-2 px-3 bg-white hover:bg-[#F1E8FA] text-black hover:text-[#6D22B5] rounded-xl text-xs font-bold border border-[#E5E5E5] hover:border-[#E0CEF5] transition-colors"
                                 >
                                   <BookOpen className="w-3.5 h-3.5" />
                                   <span>View all courses on website</span>
@@ -559,13 +557,13 @@ export const FloatingSupport: React.FC = () => {
               {/* TYPING INDICATOR */}
               {isLoading && (
                 <div className="flex items-start gap-2">
-                  <div className="w-7 h-7 rounded-lg bg-gradient-to-tr from-indigo-600 to-purple-600 text-white flex items-center justify-center shrink-0 shadow-xs">
-                    <Bot className="w-4 h-4 text-blue-100" />
+                  <div className="w-7 h-7 rounded-lg bg-[#000000] text-[#6D22B5] flex items-center justify-center shrink-0 shadow-xs">
+                    <Bot className="w-4 h-4 text-[#6D22B5]" />
                   </div>
-                  <div className="p-3 bg-white border border-slate-200 rounded-2xl rounded-tl-xs shadow-2xs flex items-center gap-1.5">
-                    <span className="w-2 h-2 rounded-full bg-blue-600 animate-bounce" style={{ animationDelay: '0ms' }} />
-                    <span className="w-2 h-2 rounded-full bg-indigo-600 animate-bounce" style={{ animationDelay: '150ms' }} />
-                    <span className="w-2 h-2 rounded-full bg-purple-600 animate-bounce" style={{ animationDelay: '300ms' }} />
+                  <div className="p-3 bg-white border border-[#E5E5E5] rounded-2xl rounded-tl-xs shadow-2xs flex items-center gap-1.5">
+                    <span className="w-2 h-2 rounded-full bg-[#6D22B5] animate-bounce" style={{ animationDelay: '0ms' }} />
+                    <span className="w-2 h-2 rounded-full bg-black animate-bounce" style={{ animationDelay: '150ms' }} />
+                    <span className="w-2 h-2 rounded-full bg-[#6D22B5] animate-bounce" style={{ animationDelay: '300ms' }} />
                     <span className="text-[11px] text-slate-400 font-medium ml-1">Searching database...</span>
                   </div>
                 </div>
@@ -582,7 +580,7 @@ export const FloatingSupport: React.FC = () => {
                       <button
                         key={idx}
                         onClick={() => handleSendMessage(q)}
-                        className="text-left text-xs bg-white hover:bg-blue-50 border border-slate-200 hover:border-blue-300 text-slate-700 hover:text-blue-900 py-1.5 px-2.5 rounded-xl transition-all shadow-2xs cursor-pointer"
+                        className="text-left text-xs bg-white hover:bg-[#F1E8FA] border border-[#E5E5E5] hover:border-[#E0CEF5] text-slate-700 hover:text-[#6D22B5] py-1.5 px-2.5 rounded-xl transition-all shadow-2xs cursor-pointer"
                       >
                         {q}
                       </button>
@@ -595,29 +593,29 @@ export const FloatingSupport: React.FC = () => {
             </div>
 
             {/* QUICK CONTACT BOTTOM BAR (ALWAYS ACCESSIBLE) */}
-            <div className="border-t border-slate-200 bg-slate-50 px-3 py-1.5 text-[11px] flex items-center justify-between text-slate-600">
+            <div className="border-t border-[#E5E5E5] bg-white px-3 py-1.5 text-[11px] flex items-center justify-between text-slate-600">
               <div className="flex items-center gap-1 text-[11px] text-slate-500">
                 <span className="font-medium">Direct Support:</span>
                 <a
                   href={`tel:${contactFallback.phone.replace(/[^0-9+]/g, '')}`}
-                  className="text-blue-700 font-bold hover:underline inline-flex items-center gap-0.5"
+                  className="text-black font-bold hover:text-[#6D22B5] hover:underline inline-flex items-center gap-0.5"
                 >
-                  <PhoneCall className="w-3 h-3 text-blue-600" /> {contactFallback.phone}
+                  <PhoneCall className="w-3 h-3 text-[#6D22B5]" /> {contactFallback.phone}
                 </a>
                 <span>&bull;</span>
                 <a
                   href={`https://wa.me/${contactFallback.whatsapp.replace(/[^0-9]/g, '')}`}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="text-emerald-700 font-bold hover:underline inline-flex items-center gap-0.5"
+                  className="text-[#6D22B5] font-bold hover:text-[#6D22B5] hover:underline inline-flex items-center gap-0.5"
                 >
-                  <MessageCircle className="w-3 h-3 text-emerald-600" /> WhatsApp
+                  <MessageCircle className="w-3 h-3 text-[#6D22B5]" /> WhatsApp
                 </a>
               </div>
             </div>
 
             {/* INPUT / SEND AREA */}
-            <div className="p-3 bg-white border-t border-slate-200">
+            <div className="p-3 bg-white border-t border-[#E5E5E5]">
               <form
                 onSubmit={(e) => {
                   e.preventDefault();
@@ -634,14 +632,14 @@ export const FloatingSupport: React.FC = () => {
                   onKeyDown={handleKeyDown}
                   disabled={isLoading}
                   maxLength={1000}
-                  className="flex-1 px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs sm:text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none focus:border-blue-600 focus:bg-white transition-all disabled:opacity-50"
+                  className="flex-1 px-3.5 py-2.5 bg-[#F7F7F7] border border-[#E5E5E5] rounded-xl text-xs sm:text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none focus:border-[#6D22B5] focus:bg-white transition-all disabled:opacity-50"
                 />
 
                 <button
                   type="submit"
                   disabled={!inputValue.trim() || isLoading}
                   aria-label="Send question to AI Assistant"
-                  className="p-2.5 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 disabled:from-slate-300 disabled:to-slate-300 text-white rounded-xl shadow-xs transition-all flex items-center justify-center cursor-pointer disabled:cursor-not-allowed"
+                  className="btn-primary p-2.5 rounded-xl shadow-xs transition-all flex items-center justify-center cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   {isLoading ? (
                     <Loader2 className="w-4 h-4 animate-spin" />
@@ -659,23 +657,27 @@ export const FloatingSupport: React.FC = () => {
       {/* FLOATING ACTION TRIGGER BUBBLE                                 */}
       {/* ------------------------------------------------------------- */}
       <motion.button
-        whileHover={{ scale: 1.05 }}
-        whileTap={{ scale: 0.95 }}
+        whileHover={{ scale: 1.06 }}
+        whileTap={{ scale: 0.94 }}
         onClick={() => {
           setIsOpen(!isOpen);
           setShowTeaser(false);
         }}
         aria-label={isOpen ? 'Close AI Assistant' : 'Open AI Assistant'}
-        className="p-4 bg-gradient-to-tr from-blue-600 via-indigo-600 to-purple-600 text-white rounded-full shadow-2xl hover:shadow-blue-500/25 transition-all duration-300 border-2 border-white/80 relative flex items-center justify-center cursor-pointer group"
+        style={{
+          background: 'linear-gradient(135deg, #6938EF 0%, #4F46F5 100%)'
+        }}
+        className="w-16 h-16 sm:w-[72px] sm:h-[72px] rounded-full border-[1.5px] sm:border-2 border-white text-white shadow-xl shadow-[#4F46F5]/30 hover:shadow-2xl hover:shadow-[#6938EF]/40 focus:outline-none focus-visible:ring-4 focus-visible:ring-[#6938EF]/40 focus-visible:ring-offset-2 transition-all duration-300 relative flex items-center justify-center cursor-pointer group"
       >
         {isOpen ? (
-          <X className="w-6 h-6" />
+          <X className="w-7 h-7 sm:w-8 sm:h-8 text-white" />
         ) : (
           <>
-            <Bot className="w-6 h-6 group-hover:rotate-6 transition-transform" />
-            <span className="absolute -top-1 -right-1 flex h-3.5 w-3.5">
-              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75" />
-              <span className="relative inline-flex rounded-full h-3.5 w-3.5 bg-emerald-500 border-2 border-white" />
+            <Bot className="w-8 h-8 sm:w-9 sm:h-9 text-white group-hover:rotate-6 transition-transform" />
+            {/* Small green online status indicator with thin white border */}
+            <span className="absolute top-0 right-0 sm:top-0.5 sm:right-0.5 flex h-3.5 w-3.5 sm:h-4 sm:w-4 pointer-events-none">
+              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#00C389] opacity-75" />
+              <span className="relative inline-flex rounded-full h-3.5 w-3.5 sm:h-4 sm:w-4 bg-[#00C389] border-2 border-white shadow-xs" />
             </span>
           </>
         )}

@@ -75,16 +75,15 @@ export const Instructors: React.FC = () => {
       />
 
       {/* Hero Header */}
-      <section className="bg-gradient-to-b from-purple-50/70 via-slate-50 to-white text-slate-950 py-14 sm:py-20 text-center relative overflow-hidden border-b border-slate-200">
-        <div className="absolute inset-0 bg-[radial-gradient(ellipse_80%_60%_at_50%_-20%,rgba(109,34,181,0.08),rgba(255,255,255,0))] pointer-events-none" />
+      <section className="bg-gradient-to-b from-[#F1E8FA]/40 via-[#F7F7F7] to-white text-slate-950 py-14 sm:py-20 text-center relative overflow-hidden border-b border-slate-200">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 space-y-4 relative z-10">
-          <div className="inline-flex items-center gap-2 px-3.5 py-1.5 bg-purple-100 border border-purple-200 text-purple-800 rounded-full text-xs font-bold uppercase tracking-wider">
-            <GraduationCap className="w-4 h-4 text-purple-600" />
+          <div className="inline-flex items-center gap-2 px-3.5 py-1.5 bg-[#F1E8FA] border border-[#E0CEF5] text-[#6D22B5] rounded-full text-xs font-bold uppercase tracking-wider">
+            <GraduationCap className="w-4 h-4 text-[#6D22B5]" />
             <span>World-Class Mentorship</span>
           </div>
 
           <h1 className="text-3xl sm:text-4xl lg:text-5xl font-display font-black text-slate-950 tracking-tight">
-            Meet Our Instructors & Faculty
+            Meet Our Instructors &amp; Faculty
           </h1>
 
           <p className="text-slate-600 text-sm sm:text-base max-w-2xl mx-auto leading-relaxed">
@@ -102,7 +101,7 @@ export const Instructors: React.FC = () => {
 
       {/* Search & Filter Controls */}
       <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-10 pb-6">
-        <div className="bg-white border border-slate-200 p-4 sm:p-5 rounded-2xl shadow-2xs flex flex-col md:flex-row gap-4 items-center justify-between">
+        <div className="bg-white border border-slate-200 p-4 sm:p-5 rounded-2xl shadow-sm flex flex-col md:flex-row gap-4 items-center justify-between">
           
           {/* Search Bar */}
           <div className="relative w-full md:w-80">
@@ -111,7 +110,7 @@ export const Instructors: React.FC = () => {
               placeholder="Search instructors by name, skill, or course..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full pl-9 pr-4 py-2 text-xs bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:bg-white focus:border-purple-600 text-slate-900 placeholder-slate-400 shadow-2xs transition-all"
+              className="w-full pl-9 pr-4 py-2 text-xs bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:bg-white focus:border-[#6D22B5] focus:ring-1 focus:ring-[#6D22B5] text-slate-900 placeholder-slate-400 transition-all"
             />
             <Search className="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
           </div>
@@ -122,7 +121,7 @@ export const Instructors: React.FC = () => {
               onClick={() => setSelectedExpertise('all')}
               className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-colors whitespace-nowrap ${
                 selectedExpertise === 'all'
-                  ? 'bg-purple-600 text-white shadow-2xs'
+                  ? 'bg-[#6D22B5] text-white shadow-sm'
                   : 'bg-slate-100 text-slate-700 hover:bg-slate-200'
               }`}
             >
@@ -134,7 +133,7 @@ export const Instructors: React.FC = () => {
                 onClick={() => setSelectedExpertise(exp)}
                 className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-colors whitespace-nowrap ${
                   selectedExpertise === exp
-                    ? 'bg-purple-600 text-white shadow-2xs'
+                    ? 'bg-[#6D22B5] text-white shadow-sm'
                     : 'bg-slate-100 text-slate-700 hover:bg-slate-200'
                 }`}
               >
@@ -150,13 +149,13 @@ export const Instructors: React.FC = () => {
       <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-16">
         {loading ? (
           <div className="py-20 flex flex-col items-center justify-center space-y-3">
-            <div className="w-8 h-8 border-3 border-purple-600 border-t-transparent rounded-full animate-spin" />
+            <div className="w-8 h-8 border-3 border-[#6D22B5] border-t-transparent rounded-full animate-spin" />
             <span className="text-xs text-slate-500 font-semibold uppercase tracking-wider">
               Loading Faculty Profiles...
             </span>
           </div>
         ) : filteredInstructors.length === 0 ? (
-          <div className="bg-white border border-slate-200 rounded-2xl p-12 text-center max-w-md mx-auto space-y-3 shadow-2xs">
+          <div className="bg-white border border-slate-200 rounded-2xl p-12 text-center max-w-md mx-auto space-y-3 shadow-sm">
             <GraduationCap className="w-12 h-12 text-slate-300 mx-auto" />
             <h3 className="text-base font-bold text-slate-900">No instructors found</h3>
             <p className="text-xs text-slate-500">
@@ -167,7 +166,7 @@ export const Instructors: React.FC = () => {
                 setSearchQuery('');
                 setSelectedExpertise('all');
               }}
-              className="px-4 py-2 bg-purple-50 text-purple-700 font-bold text-xs rounded-lg hover:bg-purple-100 transition-colors"
+              className="px-4 py-2 bg-[#F1E8FA] text-[#6D22B5] font-bold text-xs rounded-lg hover:bg-[#d8f0c5] transition-colors"
             >
               Reset Filters
             </button>
@@ -183,7 +182,7 @@ export const Instructors: React.FC = () => {
               return (
                 <div
                   key={inst.id}
-                  className="bg-white border border-slate-200 rounded-2xl p-6 sm:p-7 shadow-2xs hover:shadow-md hover:border-purple-300 transition-all flex flex-col justify-between group"
+                  className="bg-white border border-slate-200 rounded-2xl p-6 sm:p-7 shadow-sm hover:shadow-md hover:border-[#6D22B5]/40 transition-all flex flex-col justify-between group"
                 >
                   <div className="space-y-5">
                     {/* Header: Photo + Core Details */}
@@ -192,10 +191,10 @@ export const Instructors: React.FC = () => {
                         <img
                           src={photo}
                           alt={inst.name}
-                          className="w-20 h-20 sm:w-24 sm:h-24 rounded-2xl object-cover border-2 border-purple-100 shadow-2xs group-hover:scale-102 transition-transform duration-300"
+                          className="w-20 h-20 sm:w-24 sm:h-24 rounded-2xl object-cover border-2 border-slate-200 shadow-sm group-hover:scale-102 transition-transform duration-300"
                         />
                         {inst.experience && (
-                          <span className="absolute -bottom-2 -right-1 bg-purple-600 text-white text-[10px] font-extrabold px-2 py-0.5 rounded-full shadow-xs">
+                          <span className="absolute -bottom-2 -right-1 bg-[#050505] text-[#6D22B5] border border-[#6D22B5]/30 text-[10px] font-extrabold px-2 py-0.5 rounded-full shadow-xs">
                             {inst.experience}
                           </span>
                         )}
@@ -205,7 +204,7 @@ export const Instructors: React.FC = () => {
                         <div className="flex items-start justify-between gap-2">
                           <Link
                             to={`/instructors/${inst.id}`}
-                            className="text-base sm:text-lg font-display font-bold text-slate-950 hover:text-purple-600 transition-colors truncate block"
+                            className="text-base sm:text-lg font-display font-bold text-slate-950 hover:text-[#6D22B5] transition-colors truncate block"
                           >
                             {inst.name}
                           </Link>
@@ -214,7 +213,7 @@ export const Instructors: React.FC = () => {
                               href={inst.linkedin}
                               target="_blank"
                               rel="noopener noreferrer"
-                              className="p-1 text-slate-400 hover:text-purple-600 transition-colors"
+                              className="p-1 text-slate-400 hover:text-[#6D22B5] transition-colors"
                               aria-label={`${inst.name} LinkedIn Profile`}
                             >
                               <svg className="w-4 h-4 fill-current" viewBox="0 0 24 24">
@@ -224,7 +223,7 @@ export const Instructors: React.FC = () => {
                           )}
                         </div>
 
-                        <p className="text-xs font-bold text-purple-700 leading-tight">
+                        <p className="text-xs font-bold text-[#6D22B5] leading-tight">
                           {inst.designation || inst.role}
                         </p>
 
@@ -235,7 +234,7 @@ export const Instructors: React.FC = () => {
 
                         {inst.qualifications && (
                           <p className="text-[11px] text-slate-500 font-medium flex items-center gap-1">
-                            <Award className="w-3 h-3 text-purple-600 flex-shrink-0" />
+                            <Award className="w-3 h-3 text-[#6D22B5] flex-shrink-0" />
                             <span className="truncate">{inst.qualifications}</span>
                           </p>
                         )}
@@ -257,7 +256,7 @@ export const Instructors: React.FC = () => {
                           {inst.expertise.map((exp, idx) => (
                             <span
                               key={idx}
-                              className="px-2 py-0.5 bg-purple-50 border border-purple-100 text-purple-800 text-[11px] font-semibold rounded-md"
+                              className="px-2 py-0.5 bg-[#F1E8FA] border border-[#E0CEF5] text-[#381061] text-[11px] font-semibold rounded-md"
                             >
                               {exp}
                             </span>
@@ -278,7 +277,7 @@ export const Instructors: React.FC = () => {
                               key={idx}
                               className="flex items-center gap-1.5 text-xs font-medium text-slate-700 bg-slate-50 px-2.5 py-1 rounded-lg border border-slate-200/70"
                             >
-                              <BookOpen className="w-3.5 h-3.5 text-purple-600 flex-shrink-0" />
+                              <BookOpen className="w-3.5 h-3.5 text-[#6D22B5] flex-shrink-0" />
                               <span className="truncate">{courseTitle}</span>
                             </div>
                           ))}
@@ -291,7 +290,7 @@ export const Instructors: React.FC = () => {
                   <div className="pt-5 mt-5 border-t border-slate-100 flex items-center justify-between gap-3">
                     <Link
                       to={`/instructors/${inst.id}`}
-                      className="inline-flex items-center gap-1.5 text-xs font-bold text-purple-700 hover:text-purple-900 group-hover:translate-x-0.5 transition-all"
+                      className="inline-flex items-center gap-1.5 text-xs font-bold text-[#6D22B5] hover:text-[#386200] group-hover:translate-x-0.5 transition-all"
                     >
                       <span>View Complete Profile &amp; Qualifications</span>
                       <ArrowRight className="w-3.5 h-3.5" />
@@ -300,7 +299,7 @@ export const Instructors: React.FC = () => {
                     <button
                       type="button"
                       onClick={() => openEnquiryModal()}
-                      className="px-3 py-1.5 bg-slate-100 hover:bg-purple-50 hover:text-purple-700 text-slate-700 text-xs font-bold rounded-lg transition-colors inline-flex items-center gap-1"
+                      className="px-3 py-1.5 bg-[#F1E8FA] hover:bg-[#d8f0c5] text-[#381061] text-xs font-bold rounded-lg transition-colors inline-flex items-center gap-1"
                     >
                       <span>Enquire</span>
                     </button>
@@ -315,15 +314,15 @@ export const Instructors: React.FC = () => {
       {/* Advisory Banner Section */}
       <section className="bg-white border-t border-slate-200 py-12">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="bg-gradient-to-r from-purple-900 via-indigo-900 to-purple-950 text-white rounded-3xl p-8 sm:p-12 flex flex-col md:flex-row items-center justify-between gap-8 shadow-xl">
+          <div className="bg-[#050505] text-white rounded-3xl p-8 sm:p-12 flex flex-col md:flex-row items-center justify-between gap-8 border border-white/10 shadow-xl">
             <div className="space-y-3 max-w-xl text-center md:text-left">
-              <span className="text-xs font-bold text-purple-300 uppercase tracking-widest block">
+              <span className="inline-block text-[11px] font-bold text-[#6D22B5] uppercase tracking-widest">
                 Direct Faculty Mentorship
               </span>
               <h3 className="text-2xl sm:text-3xl font-display font-black text-white">
                 Learn Directly with Industry Practitioners
               </h3>
-              <p className="text-purple-200 text-xs sm:text-sm leading-relaxed">
+              <p className="text-slate-400 text-xs sm:text-sm leading-relaxed">
                 Connect with our academic counseling team to explore which program track best aligns with your background and career goals.
               </p>
             </div>
@@ -332,16 +331,16 @@ export const Instructors: React.FC = () => {
               <button
                 type="button"
                 onClick={() => openEnquiryModal()}
-                className="px-6 py-3 bg-white text-purple-950 hover:bg-purple-50 font-bold text-xs rounded-xl shadow-md transition-colors flex items-center justify-center gap-2"
+                className="btn-primary px-6 py-3 font-bold text-xs rounded-xl shadow-md transition-all flex items-center justify-center gap-2"
               >
-                <PhoneCall className="w-4 h-4 text-purple-600" />
+                <PhoneCall className="w-4 h-4 text-white" />
                 <span>Request Academic Advisory</span>
               </button>
               <Link
                 to="/courses"
-                className="px-6 py-3 bg-purple-800/80 hover:bg-purple-800 text-white font-bold text-xs rounded-xl border border-purple-600 transition-colors flex items-center justify-center gap-2"
+                className="px-6 py-3 bg-white/10 hover:bg-white/20 text-white font-bold text-xs rounded-xl border border-white/20 transition-colors flex items-center justify-center gap-2"
               >
-                <span>Browse All 9 Programs</span>
+                <span>Browse All Programs</span>
                 <ArrowRight className="w-4 h-4" />
               </Link>
             </div>

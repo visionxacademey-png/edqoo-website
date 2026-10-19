@@ -9,11 +9,15 @@ export default {
       colors: {
         brand: {
           primary: '#6D22B5',
+          'primary-hover': '#853FD5',
           'primary-dark': '#4B1680',
           'primary-light': '#F1E8FA',
           'primary-soft': '#F8F4FC',
           dark: '#202126',
+          'dark-soft': '#29292F',
+          'dark-surface': '#141518',
           text: '#34343A',
+          'text-secondary': '#6B6875',
           border: '#E6E3EA',
         },
         purple: {
@@ -41,6 +45,19 @@ export default {
           800: '#29292F',
           900: '#202126',
           950: '#141518',
+        },
+        evion: {
+          50: '#F8F4FC',
+          100: '#F1E8FA',
+          200: '#E0CEF5',
+          300: '#C5A5EE',
+          400: '#9F6AE2',
+          500: '#853FD5',
+          600: '#6D22B5',
+          700: '#5C1C9A',
+          800: '#4B1680',
+          900: '#381061',
+          950: '#22083D',
         }
       },
       fontFamily: {

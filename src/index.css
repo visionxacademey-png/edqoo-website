@@ -1,14 +1,18 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Outfit:wght@400;500;600;700;800;900&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;700;800&family=Fredoka:wght@500;600;700&family=Nunito:wght@400;500;600;700;800&family=Inter:wght@300;400;500;600;700;800&family=Outfit:wght@400;500;600;700;800;900&family=Noto+Sans+Malayalam:wght@400;600;700;800&family=Noto+Sans+Kannada:wght@400;600;700;800&family=Noto+Sans+Telugu:wght@400;600;700;800&family=Noto+Sans+Tamil:wght@400;600;700;800&family=Noto+Sans+Devanagari:wght@400;600;700;800&display=swap');
 @import "tailwindcss";
 
 :root {
-  /* EDQOO Central Design Token System */
+  /* EDQOO Central Design Token System - Purple Theme */
   --brand-primary: #6D22B5;
+  --brand-primary-hover: #853FD5;
   --brand-primary-dark: #4B1680;
   --brand-primary-light: #F1E8FA;
   --brand-primary-soft: #F8F4FC;
   --brand-dark: #202126;
+  --brand-dark-soft: #29292F;
+  --brand-dark-surface: #141518;
   --brand-text: #34343A;
+  --brand-text-secondary: #6B6875;
   --background: #FFFFFF;
   --surface: #FFFFFF;
   --border: #E6E3EA;
@@ -17,11 +21,15 @@
 @theme {
   /* EDQOO Official Palette Tokens */
   --color-brand-primary: #6D22B5;
+  --color-brand-primary-hover: #853FD5;
   --color-brand-primary-dark: #4B1680;
   --color-brand-primary-light: #F1E8FA;
   --color-brand-primary-soft: #F8F4FC;
   --color-brand-dark: #202126;
+  --color-brand-dark-soft: #29292F;
+  --color-brand-dark-surface: #141518;
   --color-brand-text: #34343A;
+  --color-brand-text-secondary: #6B6875;
   --color-brand-border: #E6E3EA;
 
   /* Purple Color Scale */
@@ -50,6 +58,19 @@
   --color-slate-900: #202126;
   --color-slate-950: #141518;
 
+  /* EVION compatibility alias to Purple palette */
+  --color-evion-50: #F8F4FC;
+  --color-evion-100: #F1E8FA;
+  --color-evion-200: #E0CEF5;
+  --color-evion-300: #C5A5EE;
+  --color-evion-400: #9F6AE2;
+  --color-evion-500: #853FD5;
+  --color-evion-600: #6D22B5;
+  --color-evion-700: #5C1C9A;
+  --color-evion-800: #4B1680;
+  --color-evion-900: #381061;
+  --color-evion-950: #22083D;
+
   /* Aliases for smooth compatibility across legacy utility classes */
   --color-royal-blue-50: #F8F4FC;
   --color-royal-blue-100: #F1E8FA;
@@ -77,6 +98,8 @@
 
   --font-sans: 'Inter', system-ui, -apple-system, sans-serif;
   --font-display: 'Outfit', system-ui, -apple-system, sans-serif;
+  --font-kids-display: 'Fredoka', 'Baloo 2', 'Nunito', system-ui, -apple-system, sans-serif;
+  --font-kids-body: 'Nunito', 'Fredoka', system-ui, -apple-system, sans-serif;
 }
 
 @layer base {
@@ -99,6 +122,58 @@
     font-weight: 700;
     color: #202126;
   }
+}
+
+/* ========================================================================= */
+/* Little Mirrors Dedicated Rounded Child-Friendly Typography System        */
+/* (Fredoka for Headings, Badges & Buttons; Nunito for Body & Descriptions) */
+/* ========================================================================= */
+.font-kids-rounded,
+.font-kids-heading {
+  font-family: 'Fredoka', 'Baloo 2', 'Nunito', system-ui, -apple-system, sans-serif;
+  letter-spacing: 0.015em;
+}
+
+.font-kids-body {
+  font-family: 'Nunito', 'Fredoka', system-ui, -apple-system, sans-serif;
+}
+
+/* Scoped automatically across the entire Little Mirrors page */
+.little-mirrors-page,
+.little-mirrors-scope {
+  font-family: 'Nunito', 'Fredoka', system-ui, -apple-system, sans-serif;
+}
+
+.little-mirrors-page h1,
+.little-mirrors-page h2,
+.little-mirrors-page h3,
+.little-mirrors-page h4,
+.little-mirrors-page h5,
+.little-mirrors-page h6,
+.little-mirrors-scope h1,
+.little-mirrors-scope h2,
+.little-mirrors-scope h3,
+.little-mirrors-scope h4,
+.little-mirrors-scope h5,
+.little-mirrors-scope h6 {
+  font-family: 'Fredoka', 'Baloo 2', 'Nunito', system-ui, -apple-system, sans-serif !important;
+  letter-spacing: 0.015em;
+}
+
+.little-mirrors-page p,
+.little-mirrors-page span,
+.little-mirrors-page li,
+.little-mirrors-scope p,
+.little-mirrors-scope span,
+.little-mirrors-scope li {
+  font-family: 'Nunito', 'Fredoka', system-ui, -apple-system, sans-serif;
+}
+
+.little-mirrors-page button,
+.little-mirrors-page .btn,
+.little-mirrors-scope button,
+.little-mirrors-scope .btn {
+  font-family: 'Fredoka', 'Nunito', system-ui, -apple-system, sans-serif;
 }
 
 /* Custom Utilities */
@@ -137,6 +212,7 @@
 .btn-primary:hover {
   background-color: #4B1680;
   border-color: #4B1680;
+  color: #ffffff;
   box-shadow: 0 4px 12px 0 rgba(109, 34, 181, 0.3);
 }
 
@@ -331,4 +407,34 @@
   height: 100%;
   object-fit: cover;
   object-position: center;
+}
+
+/* Programs Dropdown Smooth Vertical Scrollbar */
+.programs-dropdown {
+  max-height: min(70vh, 560px);
+  overflow-y: auto;
+  overflow-x: hidden;
+  overscroll-behavior: contain;
+  scrollbar-gutter: stable;
+  scrollbar-width: thin;
+  scrollbar-color: #C5A5EE #F8F4FC;
+}
+
+.programs-dropdown::-webkit-scrollbar {
+  width: 6px;
+}
+
+.programs-dropdown::-webkit-scrollbar-track {
+  background: #F8F4FC;
+  border-radius: 9999px;
+  margin: 4px 0;
+}
+
+.programs-dropdown::-webkit-scrollbar-thumb {
+  background: #C5A5EE;
+  border-radius: 9999px;
+}
+
+.programs-dropdown::-webkit-scrollbar-thumb:hover {
+  background: #6D22B5;
 }

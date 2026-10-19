@@ -18,7 +18,7 @@ export const Breadcrumbs: React.FC<BreadcrumbsProps> = ({ items, className = '' 
     >
       <Link
         to="/"
-        className="flex items-center gap-1 hover:text-purple-600 transition-colors text-slate-600"
+        className="flex items-center gap-1 hover:text-[#6D22B5] transition-colors text-slate-600"
         title="Edqoo Home"
       >
         <Home className="w-3.5 h-3.5" />
@@ -35,7 +35,7 @@ export const Breadcrumbs: React.FC<BreadcrumbsProps> = ({ items, className = '' 
             <ChevronRight className="w-3 h-3 text-slate-400 flex-shrink-0" />
             {isLast || !item.url ? (
               <span
-                className="font-bold text-purple-700 truncate max-w-[260px] sm:max-w-md"
+                className="font-bold text-slate-900 truncate max-w-[260px] sm:max-w-md"
                 aria-current={isLast ? 'page' : undefined}
               >
                 {itemName}
@@ -43,7 +43,7 @@ export const Breadcrumbs: React.FC<BreadcrumbsProps> = ({ items, className = '' 
             ) : (
               <Link
                 to={itemUrl}
-                className="hover:text-purple-600 transition-colors text-slate-600 truncate max-w-[200px]"
+                className="hover:text-[#6D22B5] transition-colors text-slate-600 truncate max-w-[200px]"
               >
                 {itemName}
               </Link>

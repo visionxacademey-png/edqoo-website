@@ -1,6 +1,8 @@
 import { Pool, neonConfig } from '@neondatabase/serverless';
 import ws from 'ws';
 import dotenv from 'dotenv';
+import { seedEnglishMirrorCourses } from './seedEnglishMirror.js';
+import { seedCategories } from './seedCategories.js';
 
 dotenv.config();
 
@@ -75,6 +77,7 @@ export const mockStore = {
   users: [] as MockUser[],
   sessions: [] as MockSession[],
   courses: [] as any[],
+  categories: [] as any[],
   instructors: [] as any[],
   enquiries: [] as any[],
   hiringEnquiries: [] as any[],
@@ -97,7 +100,46 @@ export const getDbStatus = () => ({
 
 let initPromise: Promise<void> | null = null;
 let dbReady = false;
+let schemaVerified = false;
 
+/**
+ * Returns or initializes the shared Neon connection pool with sensible limits and error handling.
+ */
+export function getOrCreatePool(): Pool {
+  if (!pool) {
+    lastDbHost = getMaskedDbHost(DATABASE_URL);
+    console.log(`⚡ [DB] Initializing NeonDB PostgreSQL connection pool (${lastDbHost})...`);
+    pool = new Pool({
+      connectionString: DATABASE_URL,
+      max: 10,
+      idleTimeoutMillis: 30000,
+      connectionTimeoutMillis: 30000
+    });
+
+    pool.on('error', (err: any) => {
+      console.warn('⚠️ [DB] Neon pool idle client notice:', err?.message || err);
+    });
+  }
+  return pool;
+}
+
+/**
+ * Safely tear down and reset the connection pool on broken connections.
+ */
+export async function resetPool(): Promise<void> {
+  if (pool) {
+    try {
+      await pool.end();
+    } catch {
+      // ignore errors during teardown
+    }
+    pool = null;
+  }
+}
+
+/**
+ * Ensures the database is initialized. Single-flight promise pattern prevents duplicate calls.
+ */
 export function ensureDbInitialized(): Promise<void> {
   if (dbReady && isNeonConnected && pool) {
     return Promise.resolve();
@@ -106,25 +148,25 @@ export function ensureDbInitialized(): Promise<void> {
     initPromise = initDb()
       .then(() => {
         dbReady = true;
+        isNeonConnected = true;
       })
       .catch((err) => {
         console.error('⚠️ [DB] Database initialization error:', err?.message || err);
-        // Do not block next request from trying
+        // Reset initPromise so subsequent requests can retry
         initPromise = null;
+        dbReady = false;
+        isNeonConnected = false;
+        throw err;
       });
   }
   return initPromise;
 }
 
-// Eagerly trigger database initialization in background
-if (DATABASE_URL && DATABASE_URL !== 'YOUR_NEON_DATABASE_URL_HERE') {
-  ensureDbInitialized().catch(() => {});
-}
-
 /**
- * Initializes the Neon PostgreSQL pool and creates/verifies required tables
+ * Initializes the Neon PostgreSQL pool and verifies connectivity.
+ * Heavy migrations run asynchronously in the background so API startup is near-instant.
  */
-export async function initDb() {
+export async function initDb(): Promise<void> {
   if (dbReady && isNeonConnected && pool) return;
 
   // Pre-seed mock store with default administrator and student for local memory fallback
@@ -207,27 +249,49 @@ export async function initDb() {
   }
 
   try {
-    lastDbHost = getMaskedDbHost(DATABASE_URL);
-    if (!pool) {
-      console.log(`⚡ [DB] Connecting to NeonDB PostgreSQL host (${lastDbHost})...`);
-      pool = new Pool({
-        connectionString: DATABASE_URL,
-        max: 20,
-        idleTimeoutMillis: 30000,
-        connectionTimeoutMillis: 10000
-      });
-    }
+    const currentPool = getOrCreatePool();
 
-    // 1. Test database connection
-    const testResult = await pool.query('SELECT NOW()');
+    // 1. Fast connectivity test
+    const testResult = await currentPool.query('SELECT NOW()');
     isNeonConnected = true;
     connectionError = null;
     dbReady = true;
     console.log(`✅ [DB] Successfully connected to NeonDB at ${testResult.rows[0].now} (host: ${lastDbHost})`);
 
-    // 2. Create core tables and safe schema migrations
-    await pool.query(`
-      CREATE TABLE IF NOT EXISTS users (
+    // 2. Perform background schema check and cache sync without blocking API requests
+    if (!schemaVerified) {
+      runSchemaVerificationAndSync(currentPool).catch((err: any) => {
+        console.warn('⚠️ [DB] Background schema verification notice:', err?.message || err);
+      });
+    }
+  } catch (err: any) {
+    console.error('⚠️ [DB] NeonDB connection error during initialization:', err?.message || err);
+    isNeonConnected = false;
+    connectionError = err?.message || 'Database connection error';
+    dbReady = false;
+    throw err;
+  }
+}
+
+/**
+ * Background schema verification and memory cache sync.
+ * Skips redundant DDL migrations if core tables are already present.
+ */
+async function runSchemaVerificationAndSync(poolInstance: Pool) {
+  const adminPasswordHash = '$2a$10$tZ8V4K9y6t4X0V1b8G4D4eYd0oV.5YtY3wN2qG6K8mP0uL2rS4t';
+  try {
+    // Check if core tables already exist
+    const tablesCheck = await poolInstance.query(`
+      SELECT table_name 
+      FROM information_schema.tables 
+      WHERE table_schema = 'public' AND table_name IN ('courses', 'users', 'categories')
+    `);
+    const foundTables = new Set(tablesCheck.rows.map((r: any) => r.table_name));
+
+    if (!foundTables.has('courses') || !foundTables.has('users') || !foundTables.has('categories')) {
+      console.log('🔄 [DB] Creating core tables and running safe migrations...');
+      await poolInstance.query(`
+        CREATE TABLE IF NOT EXISTS users (
         id VARCHAR(100) PRIMARY KEY,
         name VARCHAR(255) NOT NULL,
         email VARCHAR(255) UNIQUE NOT NULL,
@@ -301,6 +365,8 @@ export async function initDb() {
         features JSONB DEFAULT '[]'::jsonb,
         requirements JSONB DEFAULT '[]'::jsonb,
         who_is_it_for JSONB DEFAULT '[]'::jsonb,
+        supporting_text TEXT,
+        highlight_text TEXT,
         created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
         updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
       );
@@ -327,6 +393,9 @@ export async function initDb() {
       ALTER TABLE user_sessions ADD COLUMN IF NOT EXISTS fingerprint VARCHAR(100);
       ALTER TABLE user_sessions ADD COLUMN IF NOT EXISTS device_info JSONB DEFAULT '{}'::jsonb;
 
+      ALTER TABLE courses ADD COLUMN IF NOT EXISTS category_id VARCHAR(100);
+      ALTER TABLE courses ADD COLUMN IF NOT EXISTS category_ids JSONB DEFAULT '[]'::jsonb;
+      ALTER TABLE courses ADD COLUMN IF NOT EXISTS is_active BOOLEAN DEFAULT true;
       ALTER TABLE courses ADD COLUMN IF NOT EXISTS categories JSONB DEFAULT '[]'::jsonb;
       ALTER TABLE courses ADD COLUMN IF NOT EXISTS short_description TEXT;
       ALTER TABLE courses ADD COLUMN IF NOT EXISTS live_hours VARCHAR(100);
@@ -336,9 +405,20 @@ export async function initDb() {
       ALTER TABLE courses ADD COLUMN IF NOT EXISTS career_readiness JSONB DEFAULT '[]'::jsonb;
       ALTER TABLE courses ADD COLUMN IF NOT EXISTS outcome TEXT;
       ALTER TABLE courses ADD COLUMN IF NOT EXISTS features JSONB DEFAULT '[]'::jsonb;
+      ALTER TABLE courses ADD COLUMN IF NOT EXISTS requirements JSONB DEFAULT '[]'::jsonb;
+      ALTER TABLE courses ADD COLUMN IF NOT EXISTS who_is_it_for JSONB DEFAULT '[]'::jsonb;
+      ALTER TABLE courses ADD COLUMN IF NOT EXISTS faqs JSONB DEFAULT '[]'::jsonb;
+      ALTER TABLE courses ADD COLUMN IF NOT EXISTS hero_image TEXT;
+      ALTER TABLE courses ADD COLUMN IF NOT EXISTS preview_video TEXT;
+      ALTER TABLE courses ADD COLUMN IF NOT EXISTS admissions_info TEXT;
+      ALTER TABLE courses ADD COLUMN IF NOT EXISTS certifications JSONB DEFAULT '[]'::jsonb;
+      ALTER TABLE courses ADD COLUMN IF NOT EXISTS program_highlights JSONB DEFAULT '[]'::jsonb;
+      ALTER TABLE courses ADD COLUMN IF NOT EXISTS badges JSONB DEFAULT '[]'::jsonb;
       ALTER TABLE courses ADD COLUMN IF NOT EXISTS seo_title VARCHAR(255);
       ALTER TABLE courses ADD COLUMN IF NOT EXISTS seo_description TEXT;
       ALTER TABLE courses ADD COLUMN IF NOT EXISTS seo_keywords JSONB DEFAULT '[]'::jsonb;
+      ALTER TABLE courses ADD COLUMN IF NOT EXISTS supporting_text TEXT;
+      ALTER TABLE courses ADD COLUMN IF NOT EXISTS highlight_text TEXT;
 
       CREATE TABLE IF NOT EXISTS enquiries (
         id VARCHAR(100) PRIMARY KEY,
@@ -524,15 +604,55 @@ export async function initDb() {
         created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
         updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
       );
+
+      CREATE TABLE IF NOT EXISTS categories (
+        id VARCHAR(100) PRIMARY KEY,
+        slug VARCHAR(255) UNIQUE NOT NULL,
+        name VARCHAR(255) NOT NULL,
+        title VARCHAR(255),
+        description TEXT,
+        subtitle TEXT,
+        icon VARCHAR(100) DEFAULT 'layers',
+        hero_image TEXT,
+        hero_badge VARCHAR(255),
+        highlights JSONB DEFAULT '[]'::jsonb,
+        curriculum_pillars JSONB DEFAULT '[]'::jsonb,
+        faqs JSONB DEFAULT '[]'::jsonb,
+        display_order INTEGER DEFAULT 0,
+        is_active BOOLEAN DEFAULT true,
+        is_partner BOOLEAN DEFAULT false,
+        badge VARCHAR(100),
+        seo_title VARCHAR(255),
+        seo_description TEXT,
+        meta_keywords JSONB DEFAULT '[]'::jsonb,
+        created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+        updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+      );
+
+      ALTER TABLE categories ADD COLUMN IF NOT EXISTS parent_id VARCHAR(100);
+      ALTER TABLE categories ADD COLUMN IF NOT EXISTS parent_slug VARCHAR(255);
+      ALTER TABLE categories ADD COLUMN IF NOT EXISTS features JSONB DEFAULT '[]'::jsonb;
+      ALTER TABLE categories ADD COLUMN IF NOT EXISTS course_details JSONB DEFAULT '{}'::jsonb;
+      ALTER TABLE categories ADD COLUMN IF NOT EXISTS key_highlights JSONB DEFAULT '[]'::jsonb;
+      ALTER TABLE categories ADD COLUMN IF NOT EXISTS learning_benefits JSONB DEFAULT '[]'::jsonb;
+      ALTER TABLE categories ADD COLUMN IF NOT EXISTS batch_timings JSONB DEFAULT '[]'::jsonb;
+      ALTER TABLE categories ADD COLUMN IF NOT EXISTS learning_format VARCHAR(255);
+      ALTER TABLE categories ADD COLUMN IF NOT EXISTS supporting_text VARCHAR(255);
+      ALTER TABLE categories ADD COLUMN IF NOT EXISTS highlight_text VARCHAR(255);
+      CREATE UNIQUE INDEX IF NOT EXISTS categories_name_lower_idx ON categories (LOWER(TRIM(name)));
     `);
 
-    console.log('✅ [DB] NeonDB tables verified successfully.');
+      console.log('✅ [DB] NeonDB core tables created successfully.');
+    } else {
+      console.log('✅ [DB] NeonDB core tables verified (existing schema intact).');
+    }
+    schemaVerified = true;
 
     // 3. Check and seed default administrator if missing
     try {
-      const adminCheck = await pool.query('SELECT id FROM users WHERE email = $1', ['admin@edqoo.com']);
+      const adminCheck = await poolInstance.query('SELECT id FROM users WHERE email = $1', ['admin@edqoo.com']);
       if (adminCheck.rows.length === 0) {
-        await pool.query(
+        await poolInstance.query(
           `INSERT INTO users (id, name, email, password_hash, phone, avatar, role, is_active, created_at, last_login_at)
            VALUES ($1, $2, $3, $4, $5, $6, $7, $8, NOW(), NOW())`,
           [
@@ -554,7 +674,7 @@ export async function initDb() {
 
     // 4. Check total user count in production database
     try {
-      const userCountRes = await pool.query('SELECT COUNT(*) FROM users');
+      const userCountRes = await poolInstance.query('SELECT COUNT(*) FROM users');
       console.log(`📊 [DB] Total registered production users: ${userCountRes.rows[0].count}`);
     } catch (countErr: any) {
       console.warn('User count query notice:', countErr.message);
@@ -562,7 +682,7 @@ export async function initDb() {
 
     // 5. Sync live database records into in-memory store for instant memory cache
     try {
-      const liveCourses = await pool.query('SELECT * FROM courses ORDER BY created_at ASC');
+      const liveCourses = await poolInstance.query('SELECT * FROM courses ORDER BY created_at ASC');
       if (liveCourses.rows.length > 0) {
         mockStore.courses = liveCourses.rows.map((row: any) => ({
           id: row.id,
@@ -602,7 +722,7 @@ export async function initDb() {
         }));
       }
 
-      const liveInstructors = await pool.query('SELECT * FROM instructors ORDER BY created_at ASC');
+      const liveInstructors = await poolInstance.query('SELECT * FROM instructors ORDER BY created_at ASC');
       if (liveInstructors.rows.length > 0) {
         mockStore.instructors = liveInstructors.rows.map((row: any) => ({
           id: row.id,
@@ -629,7 +749,7 @@ export async function initDb() {
         }));
       }
 
-      const liveLeadership = await pool.query('SELECT * FROM leadership_members ORDER BY display_order ASC, created_at ASC');
+      const liveLeadership = await poolInstance.query('SELECT * FROM leadership_members ORDER BY display_order ASC, created_at ASC');
       if (liveLeadership.rows.length > 0) {
         mockStore.leadershipMembers = liveLeadership.rows.map((row: any) => ({
           id: row.id,
@@ -653,27 +773,135 @@ export async function initDb() {
           updatedAt: row.updated_at
         }));
       }
+
+      const liveCategories = await poolInstance.query('SELECT * FROM categories ORDER BY display_order ASC, created_at ASC');
+      if (liveCategories.rows.length > 0) {
+        mockStore.categories = liveCategories.rows.map((row: any) => ({
+          id: row.id,
+          slug: row.slug,
+          name: row.name,
+          title: row.title,
+          description: row.description,
+          subtitle: row.subtitle,
+          icon: row.icon || 'layers',
+          heroImage: row.hero_image,
+          heroBadge: row.hero_badge,
+          highlights: typeof row.highlights === 'string' ? JSON.parse(row.highlights) : (row.highlights || []),
+          curriculumPillars: typeof row.curriculum_pillars === 'string' ? JSON.parse(row.curriculum_pillars) : (row.curriculum_pillars || []),
+          faqs: typeof row.faqs === 'string' ? JSON.parse(row.faqs) : (row.faqs || []),
+          displayOrder: Number(row.display_order) || 0,
+          isActive: Boolean(row.is_active),
+          isPartner: Boolean(row.is_partner),
+          badge: row.badge,
+          seoTitle: row.seo_title,
+          seoDescription: row.seo_description,
+          metaKeywords: typeof row.meta_keywords === 'string' ? JSON.parse(row.meta_keywords) : (row.meta_keywords || []),
+          parentId: row.parent_id || undefined,
+          parentSlug: row.parent_slug || undefined,
+          features: typeof row.features === 'string' ? JSON.parse(row.features) : (row.features || []),
+          courseDetails: typeof row.course_details === 'string' ? JSON.parse(row.course_details) : (row.course_details || {}),
+          keyHighlights: typeof row.key_highlights === 'string' ? JSON.parse(row.key_highlights) : (row.key_highlights || []),
+          learningBenefits: typeof row.learning_benefits === 'string' ? JSON.parse(row.learning_benefits) : (row.learning_benefits || []),
+          batchTimings: typeof row.batch_timings === 'string' ? JSON.parse(row.batch_timings) : (row.batch_timings || []),
+          learningFormat: row.learning_format || undefined,
+          supportingText: row.supporting_text || undefined,
+          createdAt: row.created_at,
+          updatedAt: row.updated_at
+        }));
+      }
     } catch (mockSyncErr: any) {
       console.warn('[DB] Live memory store sync notice:', mockSyncErr.message);
     }
+
+    // Check total course count; only seed categories & English Mirror if DB courses are empty
+    try {
+      const courseCountRes = await poolInstance.query('SELECT count(*) FROM courses');
+      const courseCount = Number(courseCountRes.rows[0]?.count || 0);
+      console.log(`📊 [DB] Total registered production courses: ${courseCount}`);
+
+      if (courseCount === 0) {
+        console.log('🌱 [DB] Courses table is empty, seeding categories & English Mirror courses...');
+        await seedCategories(poolInstance, mockStore);
+        await seedEnglishMirrorCourses(poolInstance, mockStore);
+      }
+    } catch (seedErr: any) {
+      console.warn('⚠️ [DB] Seeding notice:', seedErr.message);
+    }
   } catch (err: any) {
-    console.error('⚠️ [DB] NeonDB connection or critical migration error:', err.message);
-    isNeonConnected = false;
-    connectionError = err.message;
+    console.warn('⚠️ [DB] Schema verification notice:', err?.message || err);
   }
+}
+
+const MAX_RETRIES = 3;
+const INITIAL_BACKOFF_MS = 500;
+
+function isTransientDbError(err: any): boolean {
+  if (!err) return false;
+  const msg = (err.message || '').toLowerCase();
+  const code = err.code;
+  return (
+    msg.includes('connection terminated') ||
+    msg.includes('timeout') ||
+    msg.includes('connection closed') ||
+    msg.includes('econnreset') ||
+    msg.includes('websocket is not open') ||
+    msg.includes('client has encountered a connection error') ||
+    msg.includes('neon') ||
+    code === '57P01' ||
+    code === '57P02' ||
+    code === '57P03' ||
+    code === '08006' ||
+    code === '08001' ||
+    code === 'ECONNRESET' ||
+    code === 'ETIMEDOUT'
+  );
 }
 
 /**
- * Universal query runner: Uses Neon PostgreSQL when connected
+ * Universal query runner with bounded retries and exponential backoff
  */
 export async function query(text: string, params: any[] = []) {
-  if (!dbReady || !isNeonConnected) {
-    await ensureDbInitialized();
+  if (!dbReady || !isNeonConnected || !pool) {
+    try {
+      await ensureDbInitialized();
+    } catch (initErr: any) {
+      throw new Error(`NeonDB is offline: ${initErr?.message || 'Database unavailable'}`);
+    }
   }
-  if (isNeonConnected && pool) {
-    return pool.query(text, params);
+
+  let lastError: any = null;
+
+  for (let attempt = 1; attempt <= MAX_RETRIES; attempt++) {
+    try {
+      const currentPool = getOrCreatePool();
+      return await currentPool.query(text, params);
+    } catch (err: any) {
+      lastError = err;
+      console.warn(`⚠️ [DB] Query attempt ${attempt}/${MAX_RETRIES} encountered error:`, err.message);
+
+      if (attempt < MAX_RETRIES && isTransientDbError(err)) {
+        if (
+          err.message?.includes('Connection terminated') ||
+          err.message?.includes('WebSocket is not open') ||
+          err.message?.includes('connection error')
+        ) {
+          try {
+            await resetPool();
+          } catch {}
+        }
+        const delayMs = INITIAL_BACKOFF_MS * Math.pow(2, attempt - 1);
+        console.log(`🔄 [DB] Retrying database query in ${delayMs}ms (attempt ${attempt + 1})...`);
+        await new Promise((r) => setTimeout(r, delayMs));
+      } else {
+        break;
+      }
+    }
   }
-  throw new Error('NeonDB is offline. Handled by fallback.');
+
+  isNeonConnected = false;
+  connectionError = lastError?.message || 'Query failed after retries';
+  throw lastError;
 }
 
 export { pool, isNeonConnected };
+

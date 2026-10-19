@@ -48,12 +48,10 @@ export const LeadershipCouncil: React.FC = () => {
       />
 
       {/* Hero Header */}
-      <section className="bg-gradient-to-b from-purple-50/70 via-slate-50 to-white text-slate-950 py-16 sm:py-24 text-center relative overflow-hidden border-b border-slate-200">
-        <div className="absolute inset-0 bg-[radial-gradient(ellipse_80%_60%_at_50%_-20%,rgba(109,34,181,0.08),rgba(255,255,255,0))] pointer-events-none" />
-
+      <section className="bg-gradient-to-b from-[#F1E8FA]/40 via-[#F7F7F7] to-white text-slate-950 py-16 sm:py-24 text-center relative overflow-hidden border-b border-slate-200">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 space-y-5 relative z-10">
-          <div className="inline-flex items-center gap-2 px-3.5 py-1.5 bg-purple-100 border border-purple-200 text-purple-800 rounded-full text-xs font-bold uppercase tracking-wider">
-            <ShieldCheck className="w-4 h-4 text-purple-600" />
+          <div className="inline-flex items-center gap-2 px-3.5 py-1.5 bg-[#F1E8FA] border border-[#E0CEF5] text-[#6D22B5] rounded-full text-xs font-bold uppercase tracking-wider">
+            <ShieldCheck className="w-4 h-4 text-[#6D22B5]" />
             <span>Strategic Direction &amp; Governance</span>
           </div>
 
@@ -69,7 +67,7 @@ export const LeadershipCouncil: React.FC = () => {
             <div className="pt-2">
               <Link
                 to="/admin/leadership/new"
-                className="px-4 py-2 bg-purple-600 hover:bg-purple-700 text-white font-bold text-xs rounded-xl shadow-sm transition-colors inline-flex items-center gap-1.5"
+                className="px-4 py-2 bg-[#6D22B5] hover:bg-[#4B1680] text-white font-bold text-xs rounded-xl shadow-sm transition-colors inline-flex items-center gap-1.5"
               >
                 <PlusCircle className="w-4 h-4" />
                 <span>Add Council Member (Admin)</span>
@@ -86,14 +84,14 @@ export const LeadershipCouncil: React.FC = () => {
       <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
         {loading ? (
           <div className="py-20 flex flex-col items-center justify-center space-y-3">
-            <Loader2 className="w-8 h-8 text-purple-600 animate-spin" />
+            <Loader2 className="w-8 h-8 text-[#6D22B5] animate-spin" />
             <span className="text-xs text-slate-500 font-semibold uppercase tracking-wider">
               Loading Leadership Council...
             </span>
           </div>
         ) : members.length === 0 ? (
-          <div className="max-w-xl mx-auto bg-white border border-slate-200 rounded-2xl p-10 text-center space-y-4 shadow-2xs">
-            <div className="w-12 h-12 rounded-2xl bg-purple-50 border border-purple-200 flex items-center justify-center text-purple-600 mx-auto">
+          <div className="max-w-xl mx-auto bg-white border border-slate-200 rounded-2xl p-10 text-center space-y-4 shadow-sm">
+            <div className="w-12 h-12 rounded-2xl bg-[#F1E8FA] border border-[#E0CEF5] flex items-center justify-center text-[#6D22B5] mx-auto">
               <ShieldCheck className="w-6 h-6" />
             </div>
             <h3 className="text-lg font-display font-black text-slate-900">
@@ -106,7 +104,7 @@ export const LeadershipCouncil: React.FC = () => {
               <div className="pt-2">
                 <Link
                   to="/admin/leadership/new"
-                  className="inline-flex items-center gap-2 px-5 py-2.5 bg-purple-600 hover:bg-purple-700 text-white font-bold text-xs rounded-xl shadow-2xs transition-colors"
+                  className="inline-flex items-center gap-2 px-5 py-2.5 bg-[#6D22B5] hover:bg-[#4B1680] text-white font-bold text-xs rounded-xl shadow-sm transition-colors"
                 >
                   <PlusCircle className="w-4 h-4" />
                   <span>Add First Leadership Member</span>
@@ -136,7 +134,7 @@ export const LeadershipCouncil: React.FC = () => {
               return (
                 <div
                   key={member.id}
-                  className="bg-white border border-slate-200 rounded-2xl p-6 shadow-2xs hover:shadow-md transition-all flex flex-col justify-between group"
+                  className="bg-white border border-slate-200 rounded-2xl p-6 shadow-sm hover:shadow-md transition-all flex flex-col justify-between group"
                 >
                   <div className="space-y-4">
                     {/* Member Photo & Basic Details */}
@@ -144,13 +142,13 @@ export const LeadershipCouncil: React.FC = () => {
                       <img
                         src={photo}
                         alt={member.name}
-                        className="w-16 h-16 sm:w-20 sm:h-20 rounded-2xl object-cover border-2 border-purple-100 shadow-2xs flex-shrink-0 group-hover:border-purple-300 transition-colors"
+                        className="w-16 h-16 sm:w-20 sm:h-20 rounded-2xl object-cover border-2 border-slate-200 shadow-sm flex-shrink-0 group-hover:border-[#6D22B5] transition-colors"
                       />
                       <div className="space-y-1">
-                        <h3 className="text-base sm:text-lg font-display font-black text-slate-950 group-hover:text-purple-600 transition-colors">
+                        <h3 className="text-base sm:text-lg font-display font-black text-slate-950 group-hover:text-[#6D22B5] transition-colors">
                           {member.name}
                         </h3>
-                        <p className="text-xs font-bold text-purple-700 leading-tight">
+                        <p className="text-xs font-bold text-[#6D22B5] leading-tight">
                           {member.designation}
                         </p>
                         <p className="text-[11px] text-slate-500 font-medium">
@@ -176,7 +174,7 @@ export const LeadershipCouncil: React.FC = () => {
                           </span>
                         ))}
                         {member.expertise.length > 3 && (
-                          <span className="px-1.5 py-0.5 text-[10px] text-purple-600 font-bold">
+                          <span className="px-1.5 py-0.5 text-[10px] text-[#6D22B5] font-bold">
                             +{member.expertise.length - 3} more
                           </span>
                         )}
@@ -188,7 +186,7 @@ export const LeadershipCouncil: React.FC = () => {
                   <div className="pt-5 mt-4 border-t border-slate-100 flex items-center justify-between">
                     <button
                       onClick={() => setSelectedMember(member)}
-                      className="inline-flex items-center gap-1.5 text-xs font-bold text-purple-600 hover:text-purple-800 transition-colors"
+                      className="inline-flex items-center gap-1.5 text-xs font-bold text-[#6D22B5] hover:text-[#386200] transition-colors"
                     >
                       <span>View Full Profile</span>
                       <ArrowRight className="w-3.5 h-3.5" />
@@ -199,7 +197,7 @@ export const LeadershipCouncil: React.FC = () => {
                         href={member.linkedin}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="p-1.5 rounded-lg text-slate-400 hover:text-purple-600 hover:bg-purple-50 transition-colors"
+                        className="p-1.5 rounded-lg text-slate-400 hover:text-[#6D22B5] hover:bg-[#F1E8FA] transition-colors"
                         aria-label="LinkedIn profile"
                       >
                         <ExternalLink className="w-3.5 h-3.5" />

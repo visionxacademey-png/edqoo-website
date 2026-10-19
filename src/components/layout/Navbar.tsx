@@ -23,11 +23,25 @@ import {
 import { useAuth } from '../../context/AuthContext';
 import { useEnquiry } from '../../context/EnquiryContext';
 import { CourseSearchBar } from '../common/CourseSearchBar';
+import { categoryService } from '../../services/categoryService';
+import type { Category } from '../../types';
+import { getCategoryIcon } from '../../utils/categoryIcons';
+
+const DEFAULT_TOP_CATEGORIES: Category[] = [
+  { id: 'cat-data-science-ai', slug: 'data-science-and-ai', name: 'Data Science and AI', subtitle: 'Machine Learning, Deep Learning & LLMs', icon: 'binary', displayOrder: 1, isActive: true },
+  { id: 'cat-data-analytics-ai', slug: 'data-analytics-and-ai', name: 'Data Analytics and AI', subtitle: 'Power BI, SQL, Excel & Tableau', icon: 'bar-chart', displayOrder: 2, isActive: true },
+  { id: 'cat-ai-machine-learning', slug: 'ai-and-machine-learning', name: 'AI and Machine Learning', subtitle: 'Supervised, Unsupervised & MLOps', icon: 'brain', displayOrder: 3, isActive: true },
+  { id: 'cat-tools-upskills', slug: 'tools-and-upskills', name: 'Tools and Upskills', subtitle: 'Practical technical mastery & tools', icon: 'code', displayOrder: 4, isActive: true },
+  { id: 'cat-free-learning', slug: 'free-learning', name: 'Free Learning', subtitle: 'Free tutorials, bootcamps & starter kits', icon: 'book-open', displayOrder: 5, isActive: true },
+  { id: 'cat-spoken-tutorial', slug: 'spoken-tutorial', name: 'Spoken English', subtitle: '1:1 Live Fluency, Daily Calling & IELTS', icon: 'message-circle', displayOrder: 6, isActive: true },
+  { id: 'cat-cybersecurity', slug: 'cybersecurity', name: 'Cybersecurity', subtitle: 'Network defense, Ethical Hacking & SOC', icon: 'shield-check', displayOrder: 7, isActive: true }
+];
 
 export const Navbar: React.FC = () => {
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
+  const [categories, setCategories] = useState<Category[]>([]);
 
   const { user, logout, isAuthenticated } = useAuth();
   const { openEnquiryModal } = useEnquiry();
@@ -35,10 +49,43 @@ export const Navbar: React.FC = () => {
   const location = useLocation();
   const userMenuRef = useRef<HTMLDivElement>(null);
 
+  // Memoized top-level categories, ensuring all categories are visible & Spoken English is renamed
+  const topLevelCategories = React.useMemo(() => {
+    const source = categories && categories.length > 0 ? categories : DEFAULT_TOP_CATEGORIES;
+    const filtered = source
+      .filter((cat) => !cat.parentId && !cat.parentSlug)
+      .filter(
+        (cat, index, self) =>
+          index ===
+          self.findIndex(
+            (c) =>
+              c.slug === cat.slug ||
+              c.name.toLowerCase().trim() === cat.name.toLowerCase().trim()
+          )
+      );
+    return filtered.length > 0 ? filtered : DEFAULT_TOP_CATEGORIES;
+  }, [categories]);
+
   // Active section detectors
   const isOrgActive = location.pathname === '/hire-from-us' || location.pathname === '/become-a-partner';
   const isProActive = location.pathname === '/become-an-instructor' || location.pathname.startsWith('/instructors');
   const isAboutActive = location.pathname === '/about' || location.pathname === '/leadership-council';
+
+  // Load dynamic categories
+  useEffect(() => {
+    let isMounted = true;
+    categoryService
+      .getCategories()
+      .then((data) => {
+        if (isMounted && Array.isArray(data)) {
+          setCategories(data);
+        }
+      })
+      .catch((err) => console.error('Navbar category load error:', err));
+    return () => {
+      isMounted = false;
+    };
+  }, []);
 
   // Scroll detection
   useEffect(() => {
@@ -81,8 +128,8 @@ export const Navbar: React.FC = () => {
       <nav
         className={`fixed top-0 left-0 right-0 z-40 transition-all duration-200 ${
           isScrolled
-            ? 'bg-white/95 backdrop-blur-md py-2.5 shadow-sm border-b border-slate-200/80 text-slate-900'
-            : 'bg-white text-slate-900 py-3 border-b border-slate-100'
+            ? 'bg-white/95 backdrop-blur-md py-2.5 shadow-xs border-b border-slate-200 text-black'
+            : 'bg-white text-black py-3 border-b border-slate-100'
         }`}
       >
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -99,15 +146,15 @@ export const Navbar: React.FC = () => {
               </Link>
             </div>
 
-            {/* Center: Desktop Navigation Links with Rich Dropdowns */}
+            {/* Center: Desktop Navigation Links with Clean Dropdowns */}
             <div className="hidden lg:flex items-center gap-1 xl:gap-2">
               <NavLink
                 to="/"
                 className={({ isActive }) =>
                   `text-[13px] xl:text-[14px] font-semibold tracking-normal px-2.5 xl:px-3 py-1.5 rounded-lg transition-all ${
                     isActive
-                      ? 'text-purple-600 bg-purple-50/70 font-bold'
-                      : 'text-slate-700 hover:text-purple-600 hover:bg-slate-50'
+                      ? 'text-black bg-[#F1E8FA] font-bold border-b-2 border-[#6D22B5]'
+                      : 'text-slate-700 hover:text-black hover:bg-slate-50'
                   }`
                 }
               >
@@ -125,106 +172,117 @@ export const Navbar: React.FC = () => {
                   onClick={() => setActiveDropdown(activeDropdown === 'programs' ? null : 'programs')}
                   className={`inline-flex items-center gap-1 text-[13px] xl:text-[14px] font-semibold tracking-normal px-2.5 xl:px-3 py-1.5 rounded-lg transition-all ${
                     location.pathname.startsWith('/programs') || location.pathname === '/courses' || location.pathname === '/tools-and-upskills' || activeDropdown === 'programs'
-                      ? 'text-purple-600 bg-purple-50/70 font-bold'
-                      : 'text-slate-700 hover:text-purple-600 hover:bg-slate-50'
+                      ? 'text-black bg-[#F1E8FA] font-bold border-b-2 border-[#6D22B5]'
+                      : 'text-slate-700 hover:text-black hover:bg-slate-50'
                   }`}
                 >
                   <span>Programs</span>
                   <ChevronDown
                     className={`w-3.5 h-3.5 transition-transform duration-200 ${
-                      activeDropdown === 'programs' ? 'rotate-180 text-purple-600' : 'text-slate-400'
+                      activeDropdown === 'programs' ? 'rotate-180 text-[#6D22B5]' : 'text-slate-400'
                     }`}
                   />
                 </button>
 
                 {activeDropdown === 'programs' && (
-                  <div className="absolute top-full left-0 pt-1.5 w-72 z-50 animate-fadeIn">
-                    <div className="bg-white border border-slate-200/90 rounded-2xl shadow-xl shadow-purple-950/5 p-2 text-left space-y-0.5">
+                  <div className="absolute top-full left-0 pt-1.5 w-80 sm:w-[350px] z-50 animate-fadeIn">
+                    <div className="bg-white border border-slate-200 rounded-2xl shadow-xl shadow-black/10 p-2 text-left space-y-0.5 programs-dropdown">
                       <Link
                         to="/courses"
                         onClick={() => setActiveDropdown(null)}
-                        className="flex items-start gap-2.5 p-2 rounded-xl hover:bg-purple-50 transition-colors group"
+                        className={`flex items-start gap-2.5 p-2 rounded-xl transition-colors group ${
+                          location.pathname === '/courses'
+                            ? 'bg-[#F1E8FA] text-black font-bold'
+                            : 'hover:bg-[#F1E8FA]/60 text-slate-900'
+                        }`}
                       >
-                        <div className="w-7 h-7 rounded-lg bg-purple-100 text-purple-600 flex items-center justify-center flex-shrink-0 group-hover:bg-purple-600 group-hover:text-white transition-colors">
+                        <div
+                          className={`w-7 h-7 rounded-lg flex items-center justify-center flex-shrink-0 transition-colors ${
+                            location.pathname === '/courses'
+                              ? 'bg-[#6D22B5] text-white'
+                              : 'bg-[#F1E8FA] text-[#6D22B5] group-hover:bg-[#6D22B5] group-hover:text-white'
+                          }`}
+                        >
                           <Award className="w-3.5 h-3.5" />
                         </div>
-                        <div>
-                          <span className="text-xs font-bold text-slate-900 block group-hover:text-purple-700">All Master Programs</span>
-                          <span className="text-[10px] text-slate-500 block leading-tight">Explore full certification catalog</span>
+                        <div className="flex-1 min-w-0">
+                          <span className="text-xs font-bold text-slate-900 block group-hover:text-black">
+                            All Categories
+                          </span>
+                          <span className="text-[10px] text-slate-500 block leading-tight truncate">
+                            Explore full certification catalog
+                          </span>
                         </div>
                       </Link>
-                      <Link
-                        to="/programs/data-science-and-ai"
-                        onClick={() => setActiveDropdown(null)}
-                        className="flex items-start gap-2.5 p-2 rounded-xl hover:bg-purple-50 transition-colors group"
-                      >
-                        <div className="w-7 h-7 rounded-lg bg-purple-50 text-purple-600 flex items-center justify-center flex-shrink-0 group-hover:bg-purple-600 group-hover:text-white transition-colors">
-                          <span className="text-[10px] font-black">DS</span>
-                        </div>
-                        <div>
-                          <span className="text-xs font-bold text-slate-900 block group-hover:text-purple-700">Data Science and AI</span>
-                          <span className="text-[10px] text-slate-500 block leading-tight">Machine learning & analytics</span>
-                        </div>
-                      </Link>
-                      <Link
-                        to="/programs/python"
-                        onClick={() => setActiveDropdown(null)}
-                        className="flex items-start gap-2.5 p-2 rounded-xl hover:bg-purple-50 transition-colors group"
-                      >
-                        <div className="w-7 h-7 rounded-lg bg-purple-50 text-purple-600 flex items-center justify-center flex-shrink-0 group-hover:bg-purple-600 group-hover:text-white transition-colors">
-                          <span className="text-[10px] font-black">PY</span>
-                        </div>
-                        <div>
-                          <span className="text-xs font-bold text-slate-900 block group-hover:text-purple-700">Python Programming</span>
-                          <span className="text-[10px] text-slate-500 block leading-tight">Core to advanced software engineering</span>
-                        </div>
-                      </Link>
-                      <Link
-                        to="/programs/ai-and-machine-learning"
-                        onClick={() => setActiveDropdown(null)}
-                        className="flex items-start gap-2.5 p-2 rounded-xl hover:bg-purple-50 transition-colors group"
-                      >
-                        <div className="w-7 h-7 rounded-lg bg-purple-50 text-purple-600 flex items-center justify-center flex-shrink-0 group-hover:bg-purple-600 group-hover:text-white transition-colors">
-                          <span className="text-[10px] font-black">AI</span>
-                        </div>
-                        <div>
-                          <span className="text-xs font-bold text-slate-900 block group-hover:text-purple-700">AI &amp; Machine Learning</span>
-                          <span className="text-[10px] text-slate-500 block leading-tight">Deep learning & LLMs</span>
-                        </div>
-                      </Link>
-                      <Link
-                        to="/programs/data-analytics-and-ai"
-                        onClick={() => setActiveDropdown(null)}
-                        className="flex items-start gap-2.5 p-2 rounded-xl hover:bg-purple-50 transition-colors group"
-                      >
-                        <div className="w-7 h-7 rounded-lg bg-purple-50 text-purple-600 flex items-center justify-center flex-shrink-0 group-hover:bg-purple-600 group-hover:text-white transition-colors">
-                          <span className="text-[10px] font-black">DA</span>
-                        </div>
-                        <div>
-                          <span className="text-xs font-bold text-slate-900 block group-hover:text-purple-700">Data Analytics &amp; AI</span>
-                          <span className="text-[10px] text-slate-500 block leading-tight">Power BI, SQL & Business Intelligence</span>
-                        </div>
-                      </Link>
-                      <Link
-                        to="/tools-and-upskills"
-                        onClick={() => setActiveDropdown(null)}
-                        className="flex items-start gap-2.5 p-2 rounded-xl hover:bg-purple-50 transition-colors group border-t border-slate-100 pt-2"
-                      >
-                        <div className="w-7 h-7 rounded-lg bg-purple-100 text-purple-700 flex items-center justify-center flex-shrink-0 group-hover:bg-purple-600 group-hover:text-white transition-colors">
-                          <span className="text-[10px] font-black">TU</span>
-                        </div>
-                        <div>
-                          <span className="text-xs font-bold text-slate-900 block group-hover:text-purple-700">Tools &amp; Upskills</span>
-                          <span className="text-[10px] text-slate-500 block leading-tight">Excel, Power BI, Prompt Eng., Cloud</span>
-                        </div>
-                      </Link>
+
+                      <div className="my-1 border-t border-slate-100" />
+
+                      {topLevelCategories.map((cat) => {
+                        const isEnglishMirror =
+                          cat.slug === 'spoken-tutorial' ||
+                          cat.slug === 'english-mirror' ||
+                          cat.slug === 'spoken-english' ||
+                          cat.isPartner ||
+                          cat.name.toLowerCase().includes('spoken tutorial') ||
+                          cat.name.toLowerCase().includes('spoken english') ||
+                          cat.name.toLowerCase().includes('english mirror');
+
+                        const displayName = isEnglishMirror ? 'Spoken English' : cat.name;
+                        const displaySubtitle = isEnglishMirror
+                          ? (cat.subtitle || '1:1 Live Fluency, Daily Calling & IELTS')
+                          : (cat.subtitle || cat.description || 'Professional Program Track');
+
+                        const linkUrl = isEnglishMirror
+                          ? '/spoken-tutorial'
+                          : cat.slug === 'tools-and-upskills'
+                          ? '/tools-and-upskills'
+                          : `/programs/${cat.slug}`;
+
+                        const isActive = isEnglishMirror
+                          ? (location.pathname.startsWith('/spoken-tutorial') || location.pathname.startsWith('/english-mirror'))
+                          : cat.slug === 'tools-and-upskills'
+                          ? location.pathname === '/tools-and-upskills'
+                          : location.pathname === `/programs/${cat.slug}`;
+
+                        return (
+                          <Link
+                            key={cat.id || cat.slug}
+                            to={linkUrl}
+                            onClick={() => setActiveDropdown(null)}
+                            className={`flex items-start gap-2.5 p-2 rounded-xl transition-colors group ${
+                              isActive
+                                ? 'bg-[#F1E8FA] text-black font-bold'
+                                : 'hover:bg-[#F1E8FA]/60 text-slate-900'
+                            }`}
+                          >
+                            <div
+                              className={`w-7 h-7 rounded-lg flex items-center justify-center flex-shrink-0 transition-colors ${
+                                isActive
+                                  ? 'bg-[#6D22B5] text-white'
+                                  : 'bg-[#F1E8FA] text-[#6D22B5] group-hover:bg-[#6D22B5] group-hover:text-white'
+                              }`}
+                            >
+                              {getCategoryIcon(cat.icon || (isEnglishMirror ? 'message-circle' : undefined), 'w-3.5 h-3.5')}
+                            </div>
+                            <div className="flex-1 min-w-0">
+                              <span
+                                className={`text-xs block truncate ${
+                                  isActive ? 'font-bold text-black' : 'font-bold text-slate-900 group-hover:text-black'
+                                }`}
+                              >
+                                {displayName}
+                              </span>
+                              <span className="text-[10px] text-slate-500 block leading-tight truncate">
+                                {displaySubtitle}
+                              </span>
+                            </div>
+                          </Link>
+                        );
+                      })}
                     </div>
                   </div>
                 )}
               </div>
-
-              {/* Blog Link */}
-              
 
               {/* For Organizations Dropdown */}
               <div
@@ -237,44 +295,44 @@ export const Navbar: React.FC = () => {
                   onClick={() => setActiveDropdown(activeDropdown === 'organizations' ? null : 'organizations')}
                   className={`inline-flex items-center gap-1 text-[13px] xl:text-[14px] font-semibold tracking-normal px-2.5 xl:px-3 py-1.5 rounded-lg transition-all ${
                     isOrgActive || activeDropdown === 'organizations'
-                      ? 'text-purple-600 bg-purple-50/70 font-bold'
-                      : 'text-slate-700 hover:text-purple-600 hover:bg-slate-50'
+                      ? 'text-black bg-[#F1E8FA] font-bold border-b-2 border-[#6D22B5]'
+                      : 'text-slate-700 hover:text-black hover:bg-slate-50'
                   }`}
                 >
                   <span>Organizations</span>
                   <ChevronDown
                     className={`w-3.5 h-3.5 transition-transform duration-200 ${
-                      activeDropdown === 'organizations' ? 'rotate-180 text-purple-600' : 'text-slate-400'
+                      activeDropdown === 'organizations' ? 'rotate-180 text-[#6D22B5]' : 'text-slate-400'
                     }`}
                   />
                 </button>
 
                 {activeDropdown === 'organizations' && (
                   <div className="absolute top-full left-0 pt-1.5 w-64 z-50 animate-fadeIn">
-                    <div className="bg-white border border-slate-200/90 rounded-2xl shadow-xl shadow-purple-950/5 p-2 text-left">
+                    <div className="bg-white border border-slate-200 rounded-2xl shadow-xl shadow-black/5 p-2 text-left">
                       <Link
                         to="/hire-from-us"
                         onClick={() => setActiveDropdown(null)}
-                        className="flex items-start gap-3 p-2.5 rounded-xl hover:bg-purple-50 transition-colors group"
+                        className="flex items-start gap-3 p-2.5 rounded-xl hover:bg-[#F1E8FA]/60 transition-colors group"
                       >
-                        <div className="w-8 h-8 rounded-lg bg-purple-100 text-purple-600 flex items-center justify-center flex-shrink-0 group-hover:bg-purple-600 group-hover:text-white transition-colors">
+                        <div className="w-8 h-8 rounded-lg bg-[#F1E8FA] text-[#6D22B5] flex items-center justify-center flex-shrink-0 group-hover:bg-[#6D22B5] group-hover:text-black transition-colors">
                           <Briefcase className="w-4 h-4" />
                         </div>
                         <div>
-                          <span className="text-xs font-bold text-slate-900 block group-hover:text-purple-700">Hire From Us</span>
+                          <span className="text-xs font-bold text-slate-900 block group-hover:text-black">Hire From Us</span>
                           <span className="text-[11px] text-slate-500 block leading-tight mt-0.5">Recruit trained AI &amp; tech talent</span>
                         </div>
                       </Link>
                       <Link
                         to="/become-a-partner"
                         onClick={() => setActiveDropdown(null)}
-                        className="flex items-start gap-3 p-2.5 rounded-xl hover:bg-purple-50 transition-colors group mt-0.5"
+                        className="flex items-start gap-3 p-2.5 rounded-xl hover:bg-[#F1E8FA]/60 transition-colors group mt-0.5"
                       >
-                        <div className="w-8 h-8 rounded-lg bg-purple-100 text-purple-600 flex items-center justify-center flex-shrink-0 group-hover:bg-purple-600 group-hover:text-white transition-colors">
+                        <div className="w-8 h-8 rounded-lg bg-[#F1E8FA] text-[#6D22B5] flex items-center justify-center flex-shrink-0 group-hover:bg-[#6D22B5] group-hover:text-black transition-colors">
                           <Handshake className="w-4 h-4" />
                         </div>
                         <div>
-                          <span className="text-xs font-bold text-slate-900 block group-hover:text-purple-700">Become a Partner</span>
+                          <span className="text-xs font-bold text-slate-900 block group-hover:text-black">Become a Partner</span>
                           <span className="text-[11px] text-slate-500 block leading-tight mt-0.5">Academic &amp; corporate alliances</span>
                         </div>
                       </Link>
@@ -294,45 +352,45 @@ export const Navbar: React.FC = () => {
                   onClick={() => setActiveDropdown(activeDropdown === 'professionals' ? null : 'professionals')}
                   className={`inline-flex items-center gap-1 text-[13px] xl:text-[14px] font-semibold tracking-normal px-2.5 xl:px-3 py-1.5 rounded-lg transition-all ${
                     isProActive || activeDropdown === 'professionals'
-                      ? 'text-purple-600 bg-purple-50/70 font-bold'
-                      : 'text-slate-700 hover:text-purple-600 hover:bg-slate-50'
+                      ? 'text-black bg-[#F1E8FA] font-bold border-b-2 border-[#6D22B5]'
+                      : 'text-slate-700 hover:text-black hover:bg-slate-50'
                   }`}
                 >
                   <span>Educators</span>
                   <ChevronDown
                     className={`w-3.5 h-3.5 transition-transform duration-200 ${
-                      activeDropdown === 'professionals' ? 'rotate-180 text-purple-600' : 'text-slate-400'
+                      activeDropdown === 'professionals' ? 'rotate-180 text-[#6D22B5]' : 'text-slate-400'
                     }`}
                   />
                 </button>
 
                 {activeDropdown === 'professionals' && (
                   <div className="absolute top-full left-0 pt-1.5 w-64 z-50 animate-fadeIn">
-                    <div className="bg-white border border-slate-200/90 rounded-2xl shadow-xl shadow-purple-950/5 p-2 text-left">
+                    <div className="bg-white border border-slate-200 rounded-2xl shadow-xl shadow-black/5 p-2 text-left">
                       <Link
                         to="/become-an-instructor"
                         onClick={() => setActiveDropdown(null)}
-                        className="flex items-start gap-3 p-2.5 rounded-xl hover:bg-purple-50 transition-colors group"
+                        className="flex items-start gap-3 p-2.5 rounded-xl hover:bg-[#F1E8FA]/60 transition-colors group"
                       >
-                        <div className="w-8 h-8 rounded-lg bg-purple-100 text-purple-600 flex items-center justify-center flex-shrink-0 group-hover:bg-purple-600 group-hover:text-white transition-colors">
+                        <div className="w-8 h-8 rounded-lg bg-[#F1E8FA] text-[#6D22B5] flex items-center justify-center flex-shrink-0 group-hover:bg-[#6D22B5] group-hover:text-black transition-colors">
                           <GraduationCap className="w-4 h-4" />
                         </div>
                         <div>
-                          <span className="text-xs font-bold text-slate-900 block group-hover:text-purple-700">Become an Instructor</span>
+                          <span className="text-xs font-bold text-slate-900 block group-hover:text-black">Become an Instructor</span>
                           <span className="text-[11px] text-slate-500 block leading-tight mt-0.5">Teach &amp; mentor global learners</span>
                         </div>
                       </Link>
                       <Link
                         to="/instructors"
                         onClick={() => setActiveDropdown(null)}
-                        className="flex items-start gap-3 p-2.5 rounded-xl hover:bg-purple-50 transition-colors group mt-0.5"
+                        className="flex items-start gap-3 p-2.5 rounded-xl hover:bg-[#F1E8FA]/60 transition-colors group mt-0.5"
                       >
-                        <div className="w-8 h-8 rounded-lg bg-purple-100 text-purple-600 flex items-center justify-center flex-shrink-0 group-hover:bg-purple-600 group-hover:text-white transition-colors">
+                        <div className="w-8 h-8 rounded-lg bg-[#F1E8FA] text-[#6D22B5] flex items-center justify-center flex-shrink-0 group-hover:bg-[#6D22B5] group-hover:text-black transition-colors">
                           <Users className="w-4 h-4" />
                         </div>
                         <div>
-                          <span className="text-xs font-bold text-slate-900 block group-hover:text-purple-700">Faculty Directory</span>
-                          <span className="text-[11px] text-slate-500 block leading-tight mt-0.5">Meet our&amp; industry faculty</span>
+                          <span className="text-xs font-bold text-slate-900 block group-hover:text-black">Faculty Directory</span>
+                          <span className="text-[11px] text-slate-500 block leading-tight mt-0.5">Meet our industry faculty</span>
                         </div>
                       </Link>
                     </div>
@@ -351,44 +409,44 @@ export const Navbar: React.FC = () => {
                   onClick={() => setActiveDropdown(activeDropdown === 'about' ? null : 'about')}
                   className={`inline-flex items-center gap-1 text-[13px] xl:text-[14px] font-semibold tracking-normal px-2.5 xl:px-3 py-1.5 rounded-lg transition-all ${
                     isAboutActive || activeDropdown === 'about'
-                      ? 'text-purple-600 bg-purple-50/70 font-bold'
-                      : 'text-slate-700 hover:text-purple-600 hover:bg-slate-50'
+                      ? 'text-black bg-[#F1E8FA] font-bold border-b-2 border-[#6D22B5]'
+                      : 'text-slate-700 hover:text-black hover:bg-slate-50'
                   }`}
                 >
                   <span>About</span>
                   <ChevronDown
                     className={`w-3.5 h-3.5 transition-transform duration-200 ${
-                      activeDropdown === 'about' ? 'rotate-180 text-purple-600' : 'text-slate-400'
+                      activeDropdown === 'about' ? 'rotate-180 text-[#6D22B5]' : 'text-slate-400'
                     }`}
                   />
                 </button>
 
                 {activeDropdown === 'about' && (
                   <div className="absolute top-full left-0 pt-1.5 w-64 z-50 animate-fadeIn">
-                    <div className="bg-white border border-slate-200/90 rounded-2xl shadow-xl shadow-purple-950/5 p-2 text-left">
+                    <div className="bg-white border border-slate-200 rounded-2xl shadow-xl shadow-black/5 p-2 text-left">
                       <Link
                         to="/about"
                         onClick={() => setActiveDropdown(null)}
-                        className="flex items-start gap-3 p-2.5 rounded-xl hover:bg-purple-50 transition-colors group"
+                        className="flex items-start gap-3 p-2.5 rounded-xl hover:bg-[#F1E8FA]/60 transition-colors group"
                       >
-                        <div className="w-8 h-8 rounded-lg bg-purple-100 text-purple-600 flex items-center justify-center flex-shrink-0 group-hover:bg-purple-600 group-hover:text-white transition-colors">
+                        <div className="w-8 h-8 rounded-lg bg-[#F1E8FA] text-[#6D22B5] flex items-center justify-center flex-shrink-0 group-hover:bg-[#6D22B5] group-hover:text-black transition-colors">
                           <Info className="w-4 h-4" />
                         </div>
                         <div>
-                          <span className="text-xs font-bold text-slate-900 block group-hover:text-purple-700">About Us</span>
+                          <span className="text-xs font-bold text-slate-900 block group-hover:text-black">About Us</span>
                           <span className="text-[11px] text-slate-500 block leading-tight mt-0.5">Mission, vision &amp; learning model</span>
                         </div>
                       </Link>
                       <Link
                         to="/leadership-council"
                         onClick={() => setActiveDropdown(null)}
-                        className="flex items-start gap-3 p-2.5 rounded-xl hover:bg-purple-50 transition-colors group mt-0.5"
+                        className="flex items-start gap-3 p-2.5 rounded-xl hover:bg-[#F1E8FA]/60 transition-colors group mt-0.5"
                       >
-                        <div className="w-8 h-8 rounded-lg bg-purple-100 text-purple-600 flex items-center justify-center flex-shrink-0 group-hover:bg-purple-600 group-hover:text-white transition-colors">
+                        <div className="w-8 h-8 rounded-lg bg-[#F1E8FA] text-[#6D22B5] flex items-center justify-center flex-shrink-0 group-hover:bg-[#6D22B5] group-hover:text-black transition-colors">
                           <Award className="w-4 h-4" />
                         </div>
                         <div>
-                          <span className="text-xs font-bold text-slate-900 block group-hover:text-purple-700">Leadership Council</span>
+                          <span className="text-xs font-bold text-slate-900 block group-hover:text-black">Leadership Council</span>
                           <span className="text-[11px] text-slate-500 block leading-tight mt-0.5">Advisory &amp; strategic leadership</span>
                         </div>
                       </Link>
@@ -402,8 +460,8 @@ export const Navbar: React.FC = () => {
                 className={({ isActive }) =>
                   `text-[13px] xl:text-[14px] font-semibold tracking-normal px-2.5 xl:px-3 py-1.5 rounded-lg transition-all ${
                     isActive
-                      ? 'text-purple-600 bg-purple-50/70 font-bold'
-                      : 'text-slate-700 hover:text-purple-600 hover:bg-slate-50'
+                      ? 'text-black bg-[#F1E8FA] font-bold border-b-2 border-[#6D22B5]'
+                      : 'text-slate-700 hover:text-black hover:bg-slate-50'
                   }`
                 }
               >
@@ -423,9 +481,9 @@ export const Navbar: React.FC = () => {
               <button
                 type="button"
                 onClick={() => openEnquiryModal()}
-                className="inline-flex items-center gap-1.5 px-3.5 xl:px-4 py-1.5 xl:py-2 text-xs xl:text-[13px] font-bold text-white bg-purple-600 hover:bg-purple-700 active:scale-[0.98] rounded-xl transition-all shadow-xs"
+                className="inline-flex items-center gap-1.5 px-3.5 xl:px-4 py-1.5 xl:py-2 text-xs xl:text-[13px] font-bold text-white bg-[#6D22B5] hover:bg-[#5C1C9A] active:scale-[0.98] rounded-xl transition-all shadow-xs cursor-pointer"
               >
-                <PhoneCall className="w-3.5 h-3.5" />
+                <PhoneCall className="w-3.5 h-3.5 text-white" />
                 <span>Enquire Now</span>
               </button>
 
@@ -439,13 +497,13 @@ export const Navbar: React.FC = () => {
                     <img
                       src={user.avatar || 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?q=80&w=150&auto=format&fit=crop'}
                       alt={user.name}
-                      className="w-8 h-8 rounded-full object-cover border border-purple-200"
+                      className="w-8 h-8 rounded-full object-cover border border-[#6D22B5]/40"
                     />
                     <div className="text-left hidden xl:block">
                       <span className="text-xs font-bold text-slate-900 block leading-tight truncate max-w-[100px]">
                         {user.name}
                       </span>
-                      <span className="text-[10px] text-purple-600 font-semibold capitalize block">
+                      <span className="text-[10px] text-[#6D22B5] font-semibold capitalize block">
                         {user.role}
                       </span>
                     </div>
@@ -454,7 +512,7 @@ export const Navbar: React.FC = () => {
 
                   {/* User Dropdown Menu */}
                   {isUserMenuOpen && (
-                    <div className="absolute right-0 mt-2 w-56 bg-white border border-slate-200 rounded-2xl shadow-xl shadow-purple-950/10 py-2 z-50 text-left animate-fadeIn">
+                    <div className="absolute right-0 mt-2 w-56 bg-white border border-slate-200 rounded-2xl shadow-xl shadow-black/10 py-2 z-50 text-left animate-fadeIn">
                       <div className="px-4 py-2.5 border-b border-slate-100">
                         <p className="text-xs font-bold text-slate-900 truncate">{user.name}</p>
                         <p className="text-[11px] text-slate-500 truncate">{user.email}</p>
@@ -465,34 +523,34 @@ export const Navbar: React.FC = () => {
                           <Link
                             to="/admin"
                             onClick={() => setIsUserMenuOpen(false)}
-                            className="flex items-center gap-2.5 px-4 py-2 text-xs font-bold text-purple-700 bg-purple-50/80 hover:bg-purple-100 transition-colors border-b border-purple-100 mb-1"
+                            className="flex items-center gap-2.5 px-4 py-2 text-xs font-bold text-[#6D22B5] bg-[#F1E8FA] hover:bg-[#F1E8FA]/80 transition-colors border-b border-[#E0CEF5] mb-1"
                           >
-                            <ShieldCheck className="w-4 h-4 text-purple-600" />
+                            <ShieldCheck className="w-4 h-4 text-[#6D22B5]" />
                             <span>Admin Portal</span>
                           </Link>
                         )}
                         <Link
                           to="/dashboard"
                           onClick={() => setIsUserMenuOpen(false)}
-                          className="flex items-center gap-2.5 px-4 py-2 text-xs font-semibold text-slate-700 hover:bg-purple-50 hover:text-purple-700 transition-colors"
+                          className="flex items-center gap-2.5 px-4 py-2 text-xs font-semibold text-slate-700 hover:bg-[#F1E8FA]/50 hover:text-black transition-colors"
                         >
-                          <LayoutDashboard className="w-4 h-4 text-purple-600" />
+                          <LayoutDashboard className="w-4 h-4 text-[#6D22B5]" />
                           <span>Dashboard Overview</span>
                         </Link>
                         <Link
                           to="/dashboard/enquiries"
                           onClick={() => setIsUserMenuOpen(false)}
-                          className="flex items-center gap-2.5 px-4 py-2 text-xs font-semibold text-slate-700 hover:bg-purple-50 hover:text-purple-700 transition-colors"
+                          className="flex items-center gap-2.5 px-4 py-2 text-xs font-semibold text-slate-700 hover:bg-[#F1E8FA]/50 hover:text-black transition-colors"
                         >
-                          <MessageSquareCheck className="w-4 h-4 text-purple-600" />
+                          <MessageSquareCheck className="w-4 h-4 text-[#6D22B5]" />
                           <span>My Enquiries</span>
                         </Link>
                         <Link
                           to="/dashboard/settings"
                           onClick={() => setIsUserMenuOpen(false)}
-                          className="flex items-center gap-2.5 px-4 py-2 text-xs font-semibold text-slate-700 hover:bg-purple-50 hover:text-purple-700 transition-colors"
+                          className="flex items-center gap-2.5 px-4 py-2 text-xs font-semibold text-slate-700 hover:bg-[#F1E8FA]/50 hover:text-black transition-colors"
                         >
-                          <Settings className="w-4 h-4 text-purple-600" />
+                          <Settings className="w-4 h-4 text-[#6D22B5]" />
                           <span>Profile &amp; Settings</span>
                         </Link>
                       </div>
@@ -504,7 +562,7 @@ export const Navbar: React.FC = () => {
                             setIsUserMenuOpen(false);
                             navigate('/');
                           }}
-                          className="w-full flex items-center gap-2.5 px-4 py-2 text-xs font-semibold text-red-600 hover:bg-red-50 transition-colors text-left"
+                          className="w-full flex items-center gap-2.5 px-4 py-2 text-xs font-semibold text-red-600 hover:bg-red-50 transition-colors text-left cursor-pointer"
                         >
                           <LogOut className="w-4 h-4 text-red-500" />
                           <span>Sign Out</span>
@@ -517,14 +575,14 @@ export const Navbar: React.FC = () => {
                 <div className="flex items-center gap-1.5 xl:gap-2 pl-2 border-l border-slate-200">
                   <Link
                     to="/login"
-                    className="inline-flex items-center gap-1 px-2.5 xl:px-3 py-1.5 text-xs xl:text-[13px] font-semibold text-slate-700 hover:text-purple-600 hover:bg-purple-50/70 rounded-lg transition-colors"
+                    className="inline-flex items-center gap-1 px-2.5 xl:px-3 py-1.5 text-xs xl:text-[13px] font-semibold text-slate-700 hover:text-black hover:bg-slate-50 rounded-lg transition-colors"
                   >
                     <LogIn className="w-3.5 h-3.5" />
                     <span>Login</span>
                   </Link>
                   <Link
                     to="/register"
-                    className="inline-flex items-center gap-1 px-3 xl:px-3.5 py-1.5 text-xs xl:text-[13px] font-bold text-white bg-slate-900 hover:bg-purple-900 rounded-lg transition-colors shadow-2xs"
+                    className="inline-flex items-center gap-1 px-3 xl:px-3.5 py-1.5 text-xs xl:text-[13px] font-bold text-white bg-black hover:bg-slate-800 rounded-lg transition-colors shadow-2xs"
                   >
                     <UserPlus className="w-3.5 h-3.5" />
                     <span>Sign Up</span>
@@ -538,7 +596,7 @@ export const Navbar: React.FC = () => {
               {isAuthenticated && (
                 <Link
                   to="/dashboard"
-                  className="p-2 text-slate-900 hover:text-purple-600"
+                  className="p-2 text-slate-900 hover:text-black"
                   aria-label="Dashboard"
                 >
                   <UserIcon className="w-5 h-5" />
@@ -546,7 +604,7 @@ export const Navbar: React.FC = () => {
               )}
               <button
                 onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-                className="p-1.5 text-slate-900 hover:text-purple-600 transition-colors focus:outline-none"
+                className="p-1.5 text-slate-900 hover:text-black transition-colors focus:outline-none"
                 aria-label="Toggle navigation menu"
               >
                 {isMobileMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
@@ -584,7 +642,7 @@ export const Navbar: React.FC = () => {
               onClick={() => setIsMobileMenuOpen(false)}
               className={({ isActive }) =>
                 `text-xs font-bold py-2 px-3 rounded-lg transition-all ${
-                  isActive ? 'bg-purple-50 text-purple-700 font-extrabold' : 'text-slate-800 hover:bg-slate-50'
+                  isActive ? 'bg-[#F1E8FA] text-black font-extrabold border-l-2 border-[#6D22B5]' : 'text-slate-800 hover:bg-slate-50'
                 }`
               }
             >
@@ -596,7 +654,7 @@ export const Navbar: React.FC = () => {
               onClick={() => setIsMobileMenuOpen(false)}
               className={({ isActive }) =>
                 `text-xs font-bold py-2 px-3 rounded-lg transition-all ${
-                  isActive ? 'bg-purple-50 text-purple-700 font-extrabold' : 'text-slate-800 hover:bg-slate-50'
+                  isActive ? 'bg-[#F1E8FA] text-black font-extrabold border-l-2 border-[#6D22B5]' : 'text-slate-800 hover:bg-slate-50'
                 }`
               }
             >
@@ -609,61 +667,69 @@ export const Navbar: React.FC = () => {
                 Program Categories
               </span>
             </div>
-            <NavLink
-              to="/programs/data-science-and-ai"
-              onClick={() => setIsMobileMenuOpen(false)}
-              className={({ isActive }) =>
-                `text-xs font-bold py-1.5 px-3 pl-5 rounded-lg transition-all ${
-                  isActive ? 'bg-purple-50 text-purple-700 font-extrabold' : 'text-slate-800 hover:bg-slate-50'
-                }`
-              }
-            >
-              Data Science and AI
-            </NavLink>
-            <NavLink
-              to="/programs/python"
-              onClick={() => setIsMobileMenuOpen(false)}
-              className={({ isActive }) =>
-                `text-xs font-bold py-1.5 px-3 pl-5 rounded-lg transition-all ${
-                  isActive ? 'bg-purple-50 text-purple-700 font-extrabold' : 'text-slate-800 hover:bg-slate-50'
-                }`
-              }
-            >
-              Python Programming
-            </NavLink>
-            <NavLink
-              to="/programs/ai-and-machine-learning"
-              onClick={() => setIsMobileMenuOpen(false)}
-              className={({ isActive }) =>
-                `text-xs font-bold py-1.5 px-3 pl-5 rounded-lg transition-all ${
-                  isActive ? 'bg-purple-50 text-purple-700 font-extrabold' : 'text-slate-800 hover:bg-slate-50'
-                }`
-              }
-            >
-              AI &amp; Machine Learning
-            </NavLink>
-            <NavLink
-              to="/programs/data-analytics-and-ai"
-              onClick={() => setIsMobileMenuOpen(false)}
-              className={({ isActive }) =>
-                `text-xs font-bold py-1.5 px-3 pl-5 rounded-lg transition-all ${
-                  isActive ? 'bg-purple-50 text-purple-700 font-extrabold' : 'text-slate-800 hover:bg-slate-50'
-                }`
-              }
-            >
-              Data Analytics &amp; AI
-            </NavLink>
-            <NavLink
-              to="/tools-and-upskills"
-              onClick={() => setIsMobileMenuOpen(false)}
-              className={({ isActive }) =>
-                `text-xs font-bold py-1.5 px-3 pl-5 rounded-lg transition-all ${
-                  isActive ? 'bg-purple-50 text-purple-700 font-extrabold' : 'text-slate-800 hover:bg-slate-50'
-                }`
-              }
-            >
-              Tools &amp; Upskills
-            </NavLink>
+
+            <div className="max-h-[45vh] overflow-y-auto overflow-x-hidden overscroll-contain pr-1 space-y-1 programs-dropdown">
+              <NavLink
+                to="/courses"
+                onClick={() => setIsMobileMenuOpen(false)}
+                className={({ isActive }) =>
+                  `text-xs font-bold py-2 px-3 rounded-xl transition-all flex items-center gap-2.5 ${
+                    isActive
+                      ? 'bg-[#F1E8FA] text-black font-extrabold border-l-2 border-[#6D22B5]'
+                      : 'text-slate-800 hover:bg-slate-50'
+                  }`
+                }
+              >
+                <div className="w-6 h-6 rounded-lg bg-[#F1E8FA] text-[#6D22B5] flex items-center justify-center flex-shrink-0">
+                  <Award className="w-3.5 h-3.5" />
+                </div>
+                <span className="truncate">All Categories</span>
+              </NavLink>
+
+              {topLevelCategories.map((cat) => {
+                const isEnglishMirror =
+                  cat.slug === 'spoken-tutorial' ||
+                  cat.slug === 'english-mirror' ||
+                  cat.slug === 'spoken-english' ||
+                  cat.isPartner ||
+                  cat.name.toLowerCase().includes('spoken tutorial') ||
+                  cat.name.toLowerCase().includes('spoken english') ||
+                  cat.name.toLowerCase().includes('english mirror');
+
+                const displayName = isEnglishMirror ? 'Spoken English' : cat.name;
+                const linkUrl = isEnglishMirror
+                  ? '/spoken-tutorial'
+                  : cat.slug === 'tools-and-upskills'
+                  ? '/tools-and-upskills'
+                  : `/programs/${cat.slug}`;
+
+                const isActive = isEnglishMirror
+                  ? (location.pathname.startsWith('/spoken-tutorial') || location.pathname.startsWith('/english-mirror'))
+                  : cat.slug === 'tools-and-upskills'
+                  ? location.pathname === '/tools-and-upskills'
+                  : location.pathname === `/programs/${cat.slug}`;
+
+                return (
+                  <NavLink
+                    key={cat.id || cat.slug}
+                    to={linkUrl}
+                    onClick={() => setIsMobileMenuOpen(false)}
+                    className={() =>
+                      `text-xs font-bold py-2 px-3 rounded-xl transition-all flex items-center gap-2.5 ${
+                        isActive
+                          ? 'bg-[#F1E8FA] text-black font-extrabold border-l-2 border-[#6D22B5]'
+                          : 'text-slate-800 hover:bg-slate-50'
+                      }`
+                    }
+                  >
+                    <div className="w-6 h-6 rounded-lg bg-[#F1E8FA] text-[#6D22B5] flex items-center justify-center flex-shrink-0">
+                      {getCategoryIcon(cat.icon || (isEnglishMirror ? 'message-circle' : undefined), 'w-3 h-3')}
+                    </div>
+                    <span className="truncate">{displayName}</span>
+                  </NavLink>
+                );
+              })}
+            </div>
 
             {/* Blog Link */}
             <NavLink
@@ -671,7 +737,7 @@ export const Navbar: React.FC = () => {
               onClick={() => setIsMobileMenuOpen(false)}
               className={({ isActive }) =>
                 `text-xs font-bold py-2 px-3 rounded-lg transition-all mt-1 ${
-                  isActive ? 'bg-purple-50 text-purple-700 font-extrabold' : 'text-slate-800 hover:bg-slate-50'
+                  isActive ? 'bg-[#F1E8FA] text-black font-extrabold border-l-2 border-[#6D22B5]' : 'text-slate-800 hover:bg-slate-50'
                 }`
               }
             >
@@ -689,7 +755,7 @@ export const Navbar: React.FC = () => {
               onClick={() => setIsMobileMenuOpen(false)}
               className={({ isActive }) =>
                 `text-xs font-bold py-1.5 px-3 pl-5 rounded-lg transition-all ${
-                  isActive ? 'bg-purple-50 text-purple-700 font-extrabold' : 'text-slate-800 hover:bg-slate-50'
+                  isActive ? 'bg-[#F1E8FA] text-black font-extrabold border-l-2 border-[#6D22B5]' : 'text-slate-800 hover:bg-slate-50'
                 }`
               }
             >
@@ -700,7 +766,7 @@ export const Navbar: React.FC = () => {
               onClick={() => setIsMobileMenuOpen(false)}
               className={({ isActive }) =>
                 `text-xs font-bold py-1.5 px-3 pl-5 rounded-lg transition-all ${
-                  isActive ? 'bg-purple-50 text-purple-700 font-extrabold' : 'text-slate-800 hover:bg-slate-50'
+                  isActive ? 'bg-[#F1E8FA] text-black font-extrabold border-l-2 border-[#6D22B5]' : 'text-slate-800 hover:bg-slate-50'
                 }`
               }
             >
@@ -718,7 +784,7 @@ export const Navbar: React.FC = () => {
               onClick={() => setIsMobileMenuOpen(false)}
               className={({ isActive }) =>
                 `text-xs font-bold py-1.5 px-3 pl-5 rounded-lg transition-all ${
-                  isActive ? 'bg-purple-50 text-purple-700 font-extrabold' : 'text-slate-800 hover:bg-slate-50'
+                  isActive ? 'bg-[#F1E8FA] text-black font-extrabold border-l-2 border-[#6D22B5]' : 'text-slate-800 hover:bg-slate-50'
                 }`
               }
             >
@@ -729,7 +795,7 @@ export const Navbar: React.FC = () => {
               onClick={() => setIsMobileMenuOpen(false)}
               className={({ isActive }) =>
                 `text-xs font-bold py-1.5 px-3 pl-5 rounded-lg transition-all ${
-                  isActive ? 'bg-purple-50 text-purple-700 font-extrabold' : 'text-slate-800 hover:bg-slate-50'
+                  isActive ? 'bg-[#F1E8FA] text-black font-extrabold border-l-2 border-[#6D22B5]' : 'text-slate-800 hover:bg-slate-50'
                 }`
               }
             >
@@ -747,7 +813,7 @@ export const Navbar: React.FC = () => {
               onClick={() => setIsMobileMenuOpen(false)}
               className={({ isActive }) =>
                 `text-xs font-bold py-1.5 px-3 pl-5 rounded-lg transition-all ${
-                  isActive ? 'bg-purple-50 text-purple-700 font-extrabold' : 'text-slate-800 hover:bg-slate-50'
+                  isActive ? 'bg-[#F1E8FA] text-black font-extrabold border-l-2 border-[#6D22B5]' : 'text-slate-800 hover:bg-slate-50'
                 }`
               }
             >
@@ -758,7 +824,7 @@ export const Navbar: React.FC = () => {
               onClick={() => setIsMobileMenuOpen(false)}
               className={({ isActive }) =>
                 `text-xs font-bold py-1.5 px-3 pl-5 rounded-lg transition-all ${
-                  isActive ? 'bg-purple-50 text-purple-700 font-extrabold' : 'text-slate-800 hover:bg-slate-50'
+                  isActive ? 'bg-[#F1E8FA] text-black font-extrabold border-l-2 border-[#6D22B5]' : 'text-slate-800 hover:bg-slate-50'
                 }`
               }
             >
@@ -770,7 +836,7 @@ export const Navbar: React.FC = () => {
               onClick={() => setIsMobileMenuOpen(false)}
               className={({ isActive }) =>
                 `text-xs font-bold py-2 px-3 rounded-lg transition-all mt-1 ${
-                  isActive ? 'bg-purple-50 text-purple-700 font-extrabold' : 'text-slate-800 hover:bg-slate-50'
+                  isActive ? 'bg-[#F1E8FA] text-black font-extrabold border-l-2 border-[#6D22B5]' : 'text-slate-800 hover:bg-slate-50'
                 }`
               }
             >
@@ -783,9 +849,9 @@ export const Navbar: React.FC = () => {
                 setIsMobileMenuOpen(false);
                 openEnquiryModal();
               }}
-              className="flex items-center gap-2 text-xs font-bold text-purple-700 py-2.5 px-3 bg-purple-50 border border-purple-200 rounded-xl text-left mt-2"
+              className="flex items-center gap-2 text-xs font-bold text-white py-2.5 px-3 bg-[#6D22B5] hover:bg-[#5C1C9A] rounded-xl text-left mt-2 cursor-pointer transition-colors"
             >
-              <PhoneCall className="w-4 h-4 text-purple-600" />
+              <PhoneCall className="w-4 h-4 text-white" />
               <span>Enquire Now / Talk to Advisor</span>
             </button>
           </div>
@@ -798,9 +864,9 @@ export const Navbar: React.FC = () => {
                   <Link
                     to="/admin"
                     onClick={() => setIsMobileMenuOpen(false)}
-                    className="w-full py-2.5 bg-purple-900 text-white rounded-xl text-center font-bold text-xs shadow-sm flex items-center justify-center gap-1.5"
+                    className="w-full py-2.5 bg-black text-white rounded-xl text-center font-bold text-xs shadow-sm flex items-center justify-center gap-1.5"
                   >
-                    <ShieldCheck className="w-4 h-4 text-purple-300" />
+                    <ShieldCheck className="w-4 h-4 text-[#6D22B5]" />
                     <span>Admin Control Portal</span>
                   </Link>
                 )}
@@ -815,7 +881,7 @@ export const Navbar: React.FC = () => {
                 <Link
                   to="/dashboard/enquiries"
                   onClick={() => setIsMobileMenuOpen(false)}
-                  className="w-full py-2.5 bg-purple-50 border border-purple-200 text-purple-700 rounded-xl text-center font-bold text-xs hover:bg-purple-100 transition-colors flex items-center justify-center gap-1.5"
+                  className="w-full py-2.5 bg-[#F1E8FA] border border-[#E0CEF5] text-[#6D22B5] rounded-xl text-center font-bold text-xs hover:bg-[#F1E8FA]/80 transition-colors flex items-center justify-center gap-1.5"
                 >
                   <MessageSquareCheck className="w-4 h-4" />
                   <span>My Enquiries</span>
@@ -826,7 +892,7 @@ export const Navbar: React.FC = () => {
                     setIsMobileMenuOpen(false);
                     navigate('/');
                   }}
-                  className="w-full py-2.5 bg-slate-50 border border-slate-200 text-slate-900 rounded-xl text-center font-bold text-xs hover:bg-slate-100 transition-colors flex items-center justify-center gap-1.5"
+                  className="w-full py-2.5 bg-slate-50 border border-slate-200 text-slate-900 rounded-xl text-center font-bold text-xs hover:bg-slate-100 transition-colors flex items-center justify-center gap-1.5 cursor-pointer"
                 >
                   <LogOut className="w-4 h-4 text-red-500" />
                   <span>Sign Out</span>
@@ -837,7 +903,7 @@ export const Navbar: React.FC = () => {
                 <Link
                   to="/login"
                   onClick={() => setIsMobileMenuOpen(false)}
-                  className="w-full py-2.5 border border-slate-200 text-slate-900 hover:bg-slate-50 hover:text-purple-600 rounded-xl text-center font-bold text-xs flex items-center justify-center gap-1.5"
+                  className="w-full py-2.5 border border-slate-200 text-slate-900 hover:bg-slate-50 hover:text-black rounded-xl text-center font-bold text-xs flex items-center justify-center gap-1.5"
                 >
                   <LogIn className="w-4 h-4" />
                   <span>Login</span>

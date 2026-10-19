@@ -13,12 +13,14 @@ import {
   RefreshCw
 } from 'lucide-react';
 import { courseService } from '../../services/courseService';
-import { PROGRAM_CATEGORIES, normalizeCategoryName } from '../../data/courses';
-import type { Course } from '../../types';
+import { categoryService } from '../../services/categoryService';
+import { normalizeCategoryName } from '../../data/courses';
+import type { Course, Category } from '../../types';
 import { getCacheBustedImageUrl } from '../../utils/imageUrl';
 
 export const AdminCourses: React.FC = () => {
   const [courses, setCourses] = useState<Course[]>([]);
+  const [categories, setCategories] = useState<Category[]>([]);
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('all');
   const [selectedStatus, setSelectedStatus] = useState('all');
@@ -44,8 +46,18 @@ export const AdminCourses: React.FC = () => {
     }
   };
 
+  const loadCategories = async () => {
+    try {
+      const cats = await categoryService.getAllCategories();
+      setCategories(cats);
+    } catch (err) {
+      console.warn('[ADMIN COURSES] Failed to load categories:', err);
+    }
+  };
+
   useEffect(() => {
     loadCourses();
+    loadCategories();
   }, []);
 
   const confirmDeleteCourse = async () => {
@@ -100,7 +112,7 @@ export const AdminCourses: React.FC = () => {
     }
   };
 
-  const availableCategories = [...PROGRAM_CATEGORIES];
+  const availableCategories = categories.map((c) => c.name);
 
   const filteredCourses = courses.filter((c) => {
     const term = searchTerm.toLowerCase();
@@ -141,17 +153,17 @@ export const AdminCourses: React.FC = () => {
       )}
 
       {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-2 border-b border-slate-800">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-2 border-b border-neutral-800">
         <div>
           <div className="flex items-center gap-2">
             <h2 className="text-2xl font-black text-white font-display tracking-tight">
               Course Management Catalog
             </h2>
-            <span className="px-2 py-0.5 text-[10px] font-extrabold uppercase tracking-wider rounded-md bg-indigo-900/60 text-indigo-300 border border-indigo-700/50">
+            <span className="px-2 py-0.5 text-[10px] font-extrabold uppercase tracking-wider rounded-md bg-[#F1E8FA]/20 text-[#6D22B5] border border-[#6D22B5]/40">
               {courses.length} Programs
             </span>
           </div>
-          <p className="text-xs text-slate-400 mt-1">
+          <p className="text-xs text-neutral-400 mt-1">
             Create, update syllabus, set pricing, adjust curriculum modules, and manage course visibility.
           </p>
         </div>
@@ -160,30 +172,30 @@ export const AdminCourses: React.FC = () => {
           <button
             onClick={loadCourses}
             disabled={loading}
-            className="px-3.5 py-2 rounded-xl bg-slate-900 hover:bg-slate-800 border border-slate-700 text-xs font-bold text-slate-300 flex items-center gap-2 transition-colors disabled:opacity-50"
+            className="px-3.5 py-2 rounded-xl bg-neutral-900 hover:bg-neutral-800 border border-neutral-700 text-xs font-bold text-slate-300 flex items-center gap-2 transition-colors disabled:opacity-50"
           >
             <RefreshCw className={`w-3.5 h-3.5 ${loading ? 'animate-spin' : ''}`} />
             <span>Refresh</span>
           </button>
           <Link
             to="/admin/courses/new"
-            className="px-4 py-2 rounded-xl bg-purple-600 hover:bg-purple-500 text-xs font-bold text-white flex items-center gap-2 transition-all shadow-md shadow-purple-600/20"
+            className="px-4 py-2 rounded-xl bg-[#6D22B5] hover:bg-[#853FD5] text-xs font-bold text-black flex items-center gap-2 transition-all shadow-md shadow-[#6D22B5]/20"
           >
-            <PlusCircle className="w-4 h-4" />
+            <PlusCircle className="w-4 h-4 text-black" />
             <span>Add New Course</span>
           </Link>
         </div>
       </div>
 
       {/* Filters & Search */}
-      <div className="p-4 rounded-2xl bg-slate-900/90 border border-slate-800 flex flex-col md:flex-row items-center justify-between gap-3">
+      <div className="p-4 rounded-2xl bg-neutral-900/90 border border-neutral-800 flex flex-col md:flex-row items-center justify-between gap-3">
         <div className="relative w-full md:w-80">
           <input
             type="text"
             placeholder="Search programs by title or topic..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            className="w-full pl-9 pr-4 py-2 bg-slate-950 border border-slate-800 rounded-xl text-xs text-white placeholder-slate-500 focus:outline-none focus:border-purple-500 transition-all"
+            className="w-full pl-9 pr-4 py-2 bg-black border border-neutral-800 rounded-xl text-xs text-white placeholder-slate-500 focus:outline-none focus:border-[#6D22B5] transition-all"
           />
           <Search className="w-4 h-4 text-slate-500 absolute left-3 top-1/2 -translate-y-1/2" />
         </div>
@@ -193,7 +205,7 @@ export const AdminCourses: React.FC = () => {
           <select
             value={selectedCategory}
             onChange={(e) => setSelectedCategory(e.target.value)}
-            className="bg-slate-950 border border-slate-800 text-slate-300 text-xs rounded-xl px-3 py-2 focus:outline-none focus:border-purple-500"
+            className="bg-black border border-neutral-800 text-slate-300 text-xs rounded-xl px-3 py-2 focus:outline-none focus:border-[#6D22B5]"
           >
             <option value="all">All Categories</option>
             {availableCategories.map((cat) => (
@@ -207,7 +219,7 @@ export const AdminCourses: React.FC = () => {
           <select
             value={selectedStatus}
             onChange={(e) => setSelectedStatus(e.target.value)}
-            className="bg-slate-950 border border-slate-800 text-slate-300 text-xs rounded-xl px-3 py-2 focus:outline-none focus:border-purple-500"
+            className="bg-black border border-neutral-800 text-slate-300 text-xs rounded-xl px-3 py-2 focus:outline-none focus:border-[#6D22B5]"
           >
             <option value="all">All Statuses</option>
             <option value="available">Available</option>
@@ -217,21 +229,21 @@ export const AdminCourses: React.FC = () => {
       </div>
 
       {/* Courses List Table / Cards */}
-      <div className="rounded-2xl bg-slate-900/90 border border-slate-800 overflow-hidden shadow-sm">
+      <div className="rounded-2xl bg-neutral-900/90 border border-neutral-800 overflow-hidden shadow-sm">
         {loading ? (
           <div className="p-12 text-center space-y-3">
-            <RefreshCw className="w-8 h-8 text-purple-500 animate-spin mx-auto" />
+            <RefreshCw className="w-8 h-8 text-[#6D22B5] animate-spin mx-auto" />
             <p className="text-sm font-bold text-slate-400">Loading courses...</p>
           </div>
         ) : filteredCourses.length === 0 ? (
           <div className="p-12 text-center space-y-3">
-            <BookOpen className="w-10 h-10 text-slate-700 mx-auto" />
+            <BookOpen className="w-10 h-10 text-neutral-700 mx-auto" />
             <p className="text-sm font-bold text-slate-400">No courses match your filter.</p>
             <Link
               to="/admin/courses/new"
-              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-purple-600 text-xs font-bold text-white hover:bg-purple-500"
+              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[#6D22B5] text-xs font-bold text-black hover:bg-[#853FD5]"
             >
-              <PlusCircle className="w-3.5 h-3.5" />
+              <PlusCircle className="w-3.5 h-3.5 text-black" />
               <span>Create First Course</span>
             </Link>
           </div>
@@ -239,35 +251,34 @@ export const AdminCourses: React.FC = () => {
           <div className="overflow-x-auto">
             <table className="w-full text-left border-collapse text-xs">
               <thead>
-                <tr className="border-b border-slate-800 text-slate-400 font-bold uppercase tracking-wider text-[10px] bg-slate-950/40">
+                <tr className="border-b border-neutral-800 text-neutral-400 font-bold uppercase tracking-wider text-[10px] bg-black/40">
                   <th className="py-3 px-4">Program Track</th>
                   <th className="py-3 px-4">Categories</th>
-                  <th className="py-3 px-4">Pricing</th>
                   <th className="py-3 px-4">Duration & Live Hours</th>
                   <th className="py-3 px-4">Featured</th>
                   <th className="py-3 px-4">Status</th>
                   <th className="py-3 px-4 text-right">Actions</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-slate-800/60">
+              <tbody className="divide-y divide-neutral-800/60">
                 {filteredCourses.map((course) => (
-                  <tr key={course.id} className="hover:bg-slate-800/40 transition-colors">
+                  <tr key={course.id} className="hover:bg-neutral-800/40 transition-colors">
                     {/* Course Title & Thumb */}
                     <td className="py-3.5 px-4 max-w-sm">
                       <div className="flex items-center gap-3">
                         <img
                           src={getCacheBustedImageUrl(course.image, course.updatedAt || course.imageUpdatedAt)}
                           alt={course.title}
-                          className="w-12 h-12 rounded-xl object-cover border border-slate-700 flex-shrink-0"
+                          className="w-12 h-12 rounded-xl object-cover border border-neutral-700 flex-shrink-0"
                         />
                         <div className="overflow-hidden">
                           <Link
                             to={`/admin/courses/edit/${course.id}`}
-                            className="font-bold text-white hover:text-purple-400 truncate block transition-colors"
+                            className="font-bold text-white hover:text-[#6D22B5] truncate block transition-colors"
                           >
                             {course.title}
                           </Link>
-                          <span className="text-[10px] text-slate-400 font-mono">
+                          <span className="text-[10px] text-neutral-400 font-mono">
                             /{course.slug}
                           </span>
                         </div>
@@ -280,7 +291,7 @@ export const AdminCourses: React.FC = () => {
                         {(course.categories || [course.category]).map((rawCat) => {
                           const cat = normalizeCategoryName(rawCat);
                           return (
-                            <span key={cat} className="px-2 py-0.5 rounded text-[10px] font-bold bg-slate-800 text-purple-300 border border-purple-900/50">
+                            <span key={cat} className="px-2 py-0.5 rounded text-[10px] font-bold bg-neutral-800 text-[#6D22B5] border border-[#6D22B5]/30">
                               {cat}
                             </span>
                           );
@@ -288,25 +299,13 @@ export const AdminCourses: React.FC = () => {
                       </div>
                     </td>
 
-                    {/* Price */}
-                    {/* <td className="py-3.5 px-4">
-                      <div className="font-bold text-white">
-                        ₹{course.price.toLocaleString('en-IN')}
-                      </div>
-                      {course.originalPrice > course.price && (
-                        <div className="text-[10px] text-slate-500 line-through">
-                          ₹{course.originalPrice.toLocaleString('en-IN')}
-                        </div>
-                      )}
-                    </td> */}
-
                     {/* Duration & Live Hours */}
                     <td className="py-3.5 px-4 text-slate-300">
                       <div className="flex items-center gap-1 font-semibold">
-                        <Clock className="w-3 h-3 text-purple-400" />
+                        <Clock className="w-3 h-3 text-[#6D22B5]" />
                         <span>{course.duration}</span>
                       </div>
-                      <div className="text-[10px] text-slate-400 mt-0.5">
+                      <div className="text-[10px] text-neutral-400 mt-0.5">
                         {course.liveHours ? `${course.liveHours} Live` : `${course.lessons} Practical Lessons`}
                       </div>
                     </td>
@@ -318,7 +317,7 @@ export const AdminCourses: React.FC = () => {
                         className={`px-2 py-0.5 rounded text-[10px] font-bold border transition-colors flex items-center gap-1 ${
                           course.featured
                             ? 'bg-amber-950/60 text-amber-300 border-amber-800/80'
-                            : 'bg-slate-800 text-slate-500 border-slate-700'
+                            : 'bg-neutral-800 text-neutral-500 border-neutral-700'
                         }`}
                         title="Click to toggle featured badge"
                       >
@@ -333,7 +332,7 @@ export const AdminCourses: React.FC = () => {
                         className={`px-2 py-0.5 rounded-full text-[10px] font-bold border transition-colors ${
                           course.status === 'available'
                             ? 'bg-emerald-950 text-emerald-400 border-emerald-800'
-                            : 'bg-slate-800 text-amber-400 border-amber-900/60'
+                            : 'bg-neutral-800 text-amber-400 border-amber-900/60'
                         }`}
                         title="Click to toggle status"
                       >
@@ -347,7 +346,7 @@ export const AdminCourses: React.FC = () => {
                         <Link
                           to={`/courses/${course.slug}`}
                           target="_blank"
-                          className="p-1.5 rounded-lg bg-slate-800 text-slate-400 hover:text-white hover:bg-slate-700 transition-colors"
+                          className="p-1.5 rounded-lg bg-neutral-800 text-neutral-400 hover:text-white hover:bg-neutral-700 transition-colors"
                           title="Preview public page"
                         >
                           <ExternalLink className="w-3.5 h-3.5" />
@@ -355,7 +354,7 @@ export const AdminCourses: React.FC = () => {
 
                         <Link
                           to={`/admin/courses/edit/${course.id}`}
-                          className="p-1.5 rounded-lg bg-purple-900/40 text-purple-300 hover:bg-purple-900/70 border border-purple-700/50 transition-colors"
+                          className="p-1.5 rounded-lg bg-[#F1E8FA]/20 text-[#6D22B5] hover:bg-[#F1E8FA]/30 border border-[#6D22B5]/40 transition-colors"
                           title="Edit course and syllabus"
                         >
                           <Edit className="w-3.5 h-3.5" />

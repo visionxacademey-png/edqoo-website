@@ -40,15 +40,54 @@ export interface ProjectItem {
   imageAlt?: string;
 }
 
+export interface Category {
+  id: string;
+  slug: string;
+  name: string;
+  title?: string;
+  description?: string;
+  subtitle?: string;
+  icon?: string;
+  heroImage?: string;
+  heroBadge?: string;
+  highlights?: string[];
+  curriculumPillars?: Array<{ title: string; desc: string }>;
+  faqs?: Array<{ question: string; answer: string }>;
+  displayOrder: number;
+  isActive: boolean;
+  isPartner?: boolean;
+  badge?: string;
+  seoTitle?: string;
+  seoDescription?: string;
+  metaKeywords?: string[];
+  parentId?: string;
+  parentSlug?: string;
+  features?: any[];
+  courseDetails?: any;
+  keyHighlights?: string[];
+  learningBenefits?: string[];
+  batchTimings?: any[];
+  learningFormat?: string;
+  supportingText?: string;
+  highlightText?: string;
+  courseCount?: number;
+  createdAt?: string | number;
+  updatedAt?: string | number;
+}
+
 export interface Course {
   id: string;
   slug: string;
   title: string;
   category: string;
   categories: string[];
+  categoryId?: string;
+  categoryIds?: string[];
   shortDescription?: string;
   description: string;
   image: string;
+  heroImage?: string;
+  previewVideo?: string;
   price: number;
   originalPrice: number;
   duration: string;
@@ -58,6 +97,7 @@ export interface Course {
   rating: number;
   students: number;
   status: 'available' | 'coming-soon';
+  isActive?: boolean;
   featured: boolean;
   skills: string[];
   curriculum?: CurriculumSection[];
@@ -66,9 +106,16 @@ export interface Course {
   projects?: Array<string | ProjectItem>;
   careerReadiness?: string[];
   outcome?: string;
-  features: string[];
+  features: Array<string | CourseFeatureItem>;
+  supportingText?: string;
+  highlightText?: string;
   requirements?: string[];
   whoIsItFor?: string[];
+  faqs?: Array<{ question: string; answer: string }>;
+  admissionsInfo?: string;
+  certifications?: string[];
+  programHighlights?: string[];
+  badges?: string[];
   // SEO Specific Optional Fields
   seoTitle?: string;
   seoDescription?: string;
@@ -78,6 +125,13 @@ export interface Course {
   createdAt?: string | number;
   updatedAt?: string | number;
   imageUpdatedAt?: string | number;
+}
+
+export interface CourseFeatureItem {
+  id?: number | string;
+  featureNumber?: string;
+  title: string;
+  description?: string;
 }
 
 export interface Instructor {

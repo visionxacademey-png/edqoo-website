@@ -18,13 +18,15 @@ import {
   Clock,
   Radio
 } from 'lucide-react';
-import { normalizeCategoryName } from '../../data/courses';
+import { normalizeCategoryName, isEnglishMirrorCourse } from '../../data/courses';
+import { englishMirrorPrograms } from '../../data/englishMirror';
 import { courseService } from '../../services/courseService';
 import type { Course } from '../../types';
 import { enquiryService } from '../../services/enquiryService';
 import { useEnquiry } from '../../context/EnquiryContext';
 import { useAuth } from '../../context/AuthContext';
 import { ToolsUpskillsEnquiryModal } from './ToolsUpskillsEnquiryModal';
+import { EnglishMirrorEnquiryModal } from '../englishMirror/EnglishMirrorEnquiryModal';
 
 const enquirySchema = zod.object({
   name: zod.string().min(2, { message: 'Please enter your full name (minimum 2 characters).' }),
@@ -168,24 +170,24 @@ const StandardEnquiryModal: React.FC<StandardEnquiryModalProps> = ({
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.95, y: 16 }}
             transition={{ duration: 0.25, ease: 'easeOut' }}
-            className="relative w-full max-w-xl bg-white rounded-2xl shadow-2xl border border-slate-200 overflow-hidden z-10 my-8 max-h-[90vh] flex flex-col"
+            className="relative w-full max-w-xl bg-white rounded-2xl shadow-2xl border border-[#E5E5E5] overflow-hidden z-10 my-8 max-h-[90vh] flex flex-col"
           >
             {/* Header */}
-            <div className="bg-gradient-to-r from-purple-800 via-purple-700 to-purple-900 text-white px-6 py-5 flex items-center justify-between flex-shrink-0">
+            <div className="bg-white text-slate-900 px-6 py-5 flex items-center justify-between flex-shrink-0 border-b border-slate-200">
               <div className="space-y-1 text-left">
-                <div className="text-purple-100 text-xs font-semibold uppercase tracking-wider">
+                <div className="text-[#6D22B5] text-xs font-bold uppercase tracking-wider">
                   <span>Course Enquiry &amp; Advisory</span>
                 </div>
-                <h3 className="text-xl font-display font-bold text-white">
-                  Request Course Details & Callback
+                <h3 className="text-xl font-display font-bold text-slate-950">
+                  Request Course Details &amp; Callback
                 </h3>
-                <p className="text-xs text-purple-100">
+                <p className="text-xs text-slate-500">
                   Connect with our academic advisors for batch schedules, fee structure, and syllabus information.
                 </p>
               </div>
               <button
                 onClick={handleClose}
-                className="p-1.5 rounded-lg text-purple-200 hover:text-white hover:bg-white/10 transition-colors ml-4 self-start"
+                className="p-1.5 rounded-lg text-slate-400 hover:text-slate-800 hover:bg-slate-100 transition-colors ml-4 self-start cursor-pointer"
                 aria-label="Close modal"
               >
                 <X className="w-5 h-5" />
@@ -196,8 +198,8 @@ const StandardEnquiryModal: React.FC<StandardEnquiryModalProps> = ({
             <div className="p-6 overflow-y-auto flex-1">
               {isSuccess ? (
                 <div className="py-8 text-center space-y-4">
-                  <div className="w-16 h-16 bg-emerald-50 text-emerald-600 rounded-full flex items-center justify-center mx-auto shadow-inner border border-emerald-200">
-                    <CheckCircle2 className="w-10 h-10 text-emerald-600" />
+                  <div className="w-16 h-16 bg-[#F1E8FA] text-[#6D22B5] rounded-full flex items-center justify-center mx-auto shadow-inner border border-[#E0CEF5]">
+                    <CheckCircle2 className="w-10 h-10 text-[#6D22B5]" />
                   </div>
                   <div className="space-y-2">
                     <h4 className="text-xl font-display font-bold text-slate-900">
@@ -212,7 +214,7 @@ const StandardEnquiryModal: React.FC<StandardEnquiryModalProps> = ({
                       onClick={handleClose}
                       className="btn-primary px-6 py-2.5 text-xs font-bold rounded-xl shadow-md"
                     >
-                      Close & Return to Website
+                      Close &amp; Return to Website
                     </button>
                   </div>
                 </div>
@@ -238,7 +240,7 @@ const StandardEnquiryModal: React.FC<StandardEnquiryModalProps> = ({
                           placeholder="e.g. Alex Morgan"
                           {...register('name')}
                           className={`w-full pl-9 pr-3 py-2 bg-slate-50 border rounded-lg text-xs text-slate-900 focus:outline-none focus:bg-white transition-all ${
-                            errors.name ? 'border-red-400 focus:border-red-500' : 'border-slate-200 focus:border-purple-600'
+                            errors.name ? 'border-red-400 focus:border-red-500' : 'border-slate-200 focus:border-[#6D22B5]'
                           }`}
                         />
                         <User className="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
@@ -259,7 +261,7 @@ const StandardEnquiryModal: React.FC<StandardEnquiryModalProps> = ({
                           placeholder="e.g. alex@example.com"
                           {...register('email')}
                           className={`w-full pl-9 pr-3 py-2 bg-slate-50 border rounded-lg text-xs text-slate-900 focus:outline-none focus:bg-white transition-all ${
-                            errors.email ? 'border-red-400 focus:border-red-500' : 'border-slate-200 focus:border-purple-600'
+                            errors.email ? 'border-red-400 focus:border-red-500' : 'border-slate-200 focus:border-[#6D22B5]'
                           }`}
                         />
                         <Mail className="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
@@ -283,7 +285,7 @@ const StandardEnquiryModal: React.FC<StandardEnquiryModalProps> = ({
                           placeholder="e.g. +91 90744 50935"
                           {...register('phone')}
                           className={`w-full pl-9 pr-3 py-2 bg-slate-50 border rounded-lg text-xs text-slate-900 focus:outline-none focus:bg-white transition-all ${
-                            errors.phone ? 'border-red-400 focus:border-red-500' : 'border-slate-200 focus:border-purple-600'
+                            errors.phone ? 'border-red-400 focus:border-red-500' : 'border-slate-200 focus:border-[#6D22B5]'
                           }`}
                         />
                         <Phone className="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
@@ -302,7 +304,7 @@ const StandardEnquiryModal: React.FC<StandardEnquiryModalProps> = ({
                         <select
                           {...register('program')}
                           className={`w-full pl-9 pr-3 py-2 bg-slate-50 border rounded-lg text-xs text-slate-900 focus:outline-none focus:bg-white transition-all ${
-                            errors.program ? 'border-red-400 focus:border-red-500' : 'border-slate-200 focus:border-purple-600'
+                            errors.program ? 'border-red-400 focus:border-red-500' : 'border-slate-200 focus:border-[#6D22B5]'
                           }`}
                         >
                           <option value="">Select a Program</option>
@@ -330,7 +332,7 @@ const StandardEnquiryModal: React.FC<StandardEnquiryModalProps> = ({
                       <div className="relative">
                         <select
                           {...register('preferredContactMethod')}
-                          className="w-full pl-9 pr-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-xs text-slate-900 focus:outline-none focus:bg-white focus:border-purple-600"
+                          className="w-full pl-9 pr-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-xs text-slate-900 focus:outline-none focus:bg-white focus:border-[#6D22B5]"
                         >
                           <option value="Phone Call">Phone Call</option>
                           <option value="WhatsApp">WhatsApp</option>
@@ -347,7 +349,7 @@ const StandardEnquiryModal: React.FC<StandardEnquiryModalProps> = ({
                       <div className="relative">
                         <select
                           {...register('preferredCallbackTime')}
-                          className="w-full pl-9 pr-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-xs text-slate-900 focus:outline-none focus:bg-white focus:border-purple-600"
+                          className="w-full pl-9 pr-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-xs text-slate-900 focus:outline-none focus:bg-white focus:border-[#6D22B5]"
                         >
                           <option value="Morning (9 AM - 1 PM)">Morning (9 AM – 1 PM)</option>
                           <option value="Afternoon (1 PM - 5 PM)">Afternoon (1 PM – 5 PM)</option>
@@ -368,7 +370,7 @@ const StandardEnquiryModal: React.FC<StandardEnquiryModalProps> = ({
                       <div className="relative">
                         <select
                           {...register('experienceLevel')}
-                          className="w-full pl-9 pr-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-xs text-slate-900 focus:outline-none focus:bg-white focus:border-purple-600"
+                          className="w-full pl-9 pr-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-xs text-slate-900 focus:outline-none focus:bg-white focus:border-[#6D22B5]"
                         >
                           <option value="College Student / Recent Graduate">College Student / Recent Graduate</option>
                           <option value="0-2 Years IT/Tech Experience">0–2 Years IT / Tech Experience</option>
@@ -389,7 +391,7 @@ const StandardEnquiryModal: React.FC<StandardEnquiryModalProps> = ({
                           type="text"
                           placeholder="e.g. San Francisco / London / Delhi"
                           {...register('location')}
-                          className="w-full pl-9 pr-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-xs text-slate-900 focus:outline-none focus:bg-white focus:border-purple-600"
+                          className="w-full pl-9 pr-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-xs text-slate-900 focus:outline-none focus:bg-white focus:border-[#6D22B5]"
                         />
                         <MapPin className="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
                       </div>
@@ -406,7 +408,7 @@ const StandardEnquiryModal: React.FC<StandardEnquiryModalProps> = ({
                       placeholder="Tell us what you are looking for (e.g. batch timings, syllabus questions, group training, corporate fee schedule)..."
                       {...register('message')}
                       className={`w-full px-3 py-2 bg-slate-50 border rounded-lg text-xs text-slate-900 focus:outline-none focus:bg-white transition-all ${
-                        errors.message ? 'border-red-400 focus:border-red-500' : 'border-slate-200 focus:border-purple-600'
+                        errors.message ? 'border-red-400 focus:border-red-500' : 'border-slate-200 focus:border-[#6D22B5]'
                       }`}
                     />
                     {errors.message && (
@@ -503,6 +505,53 @@ export const EnquiryModal: React.FC = () => {
     }
     return false;
   })();
+
+  // Identify whether this enquiry belongs to English Mirror partner
+  const isEnglishMirror = (() => {
+    const normCat = (selectedCategory || '').toLowerCase().trim();
+    if (
+      normCat === 'english mirror' ||
+      normCat.includes('english mirror') ||
+      normCat === 'spoken english' ||
+      normCat === 'spoken tutorial' ||
+      normCat.includes('spoken tutorial')
+    ) return true;
+    if (isEnglishMirrorCourse({ category: selectedCategory, title: selectedProgram, slug: selectedProgram })) return true;
+    if (
+      selectedProgram &&
+      (englishMirrorPrograms.some(
+        (p) =>
+          p.id === selectedProgram ||
+          p.slug === selectedProgram ||
+          p.title.toLowerCase() === selectedProgram.toLowerCase()
+      ) ||
+        selectedProgram.toLowerCase().includes('english mirror') ||
+        selectedProgram.toLowerCase().includes('spoken tutorial') ||
+        selectedProgram.toLowerCase().includes('spoken english') ||
+        selectedProgram.toLowerCase().includes('fluency builder') ||
+        selectedProgram.toLowerCase().includes('little mirrors') ||
+        selectedProgram.toLowerCase().includes('corporate english') ||
+        selectedProgram.toLowerCase().includes('interview prep') ||
+        selectedProgram.toLowerCase().includes('1-to-1 live spoken') ||
+        selectedProgram.toLowerCase().includes('1-to-1 communicative english') ||
+        selectedProgram.toLowerCase().includes('communicative english mastery') ||
+        selectedProgram.toLowerCase().includes('ielts') ||
+        selectedProgram.toLowerCase().includes('telephonic'))
+    ) {
+      return true;
+    }
+    return false;
+  })();
+
+  if (isEnglishMirror) {
+    return (
+      <EnglishMirrorEnquiryModal
+        isOpen={isEnquiryModalOpen}
+        onClose={closeEnquiryModal}
+        initialProgramId={selectedProgram}
+      />
+    );
+  }
 
   if (isToolsAndUpskills) {
     return (
