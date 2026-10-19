@@ -38,8 +38,9 @@ export const Contact: React.FC = () => {
       await enquiryService.submitEnquiry({
         name: data.name,
         email: data.email,
-        phone: data.phone || '+91 90744 50935',
+        phone: (data.phone || '').trim(),
         program: `Contact Inquiry: ${data.subject}`,
+        category: 'Contact Desk',
         message: data.message
       });
 

@@ -1338,7 +1338,7 @@ export const CourseDetails: React.FC = () => {
             <div className="pt-3 border-t border-slate-100 flex items-center justify-between text-xs text-slate-500">
               <span>Have quick questions?</span>
               <a
-                href="https://wa.me/placeholder"
+                href="https://wa.me/919074450935"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="inline-flex items-center gap-1 font-bold text-[#6D22B5] hover:text-[#6D22B5] transition-colors"

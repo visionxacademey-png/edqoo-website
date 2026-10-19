@@ -349,7 +349,7 @@ export const Dashboard: React.FC = () => {
             </p>
             <div className="space-y-2 pt-1">
               <a
-                href="https://wa.me/placeholder"
+                href="https://wa.me/919074450935"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="w-full py-2.5 px-4 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-xs font-bold transition-colors flex items-center justify-center gap-2 shadow-2xs"

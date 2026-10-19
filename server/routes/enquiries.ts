@@ -65,18 +65,22 @@ router.post('/', async (req, res) => {
       details
     } = req.body;
 
-    if (!name || !email || !phone) {
-      return res.status(400).json({ error: 'Name, email, and phone are required.' });
+    if (!name || !email) {
+      return res.status(400).json({ error: 'Name and email are required.' });
     }
 
     const normalizedEmail = email.trim().toLowerCase();
+    const cleanPhone = (phone || '').toString().trim();
     const id = customId || `enq-${Date.now().toString(36)}-${Math.random().toString(36).substring(2, 6)}`;
     const { ip, userAgent } = getClientMeta(req);
     const sessionId = `sess-${Date.now().toString(36)}-${Math.random().toString(36).substring(2, 6)}`;
     let assignedUserId = userId || `usr-${Date.now().toString(36)}-${Math.random().toString(36).substring(2, 6)}`;
 
     const isContactForm = (program && program.startsWith('Contact Inquiry:')) || category === 'Contact Desk' || enquiryType === 'CONTACT';
-    const finalEnquiryType = enquiryType || (isContactForm ? 'CONTACT' : (category === 'Student Offer' || program?.includes('Student Offer') ? 'STUDENT_OFFER' : 'COURSE_ENQUIRY'));
+    const isEnglishMirror = enquiryType === 'ENGLISH_MIRROR' || category === 'English Mirror' || (program && program.toLowerCase().includes('english mirror')) || (details && details.partner === 'English Mirror');
+    const finalEnquiryType = enquiryType || (isContactForm ? 'CONTACT' : (isEnglishMirror ? 'ENGLISH_MIRROR' : (category === 'Student Offer' || program?.includes('Student Offer') ? 'STUDENT_OFFER' : 'COURSE_ENQUIRY')));
+    const finalCategory = category || (isEnglishMirror ? 'English Mirror' : (finalEnquiryType === 'STUDENT_OFFER' ? 'Student Offer' : (isContactForm ? 'Contact Desk' : 'Tools & Upskills')));
+    const finalSource = source || (isEnglishMirror ? 'English Mirror Modal' : (finalEnquiryType === 'STUDENT_OFFER' ? 'Student Offer Popup' : (isContactForm ? 'Contact Page' : 'Tools & Upskills Enquire Now')));
     const finalCollege = (collegeOrSchool || collegeName || '').trim();
 
     const newEnquiry: Enquiry = {
@@ -84,11 +88,11 @@ router.post('/', async (req, res) => {
       userId: assignedUserId,
       name: name.trim(),
       email: normalizedEmail,
-      phone: phone.trim(),
+      phone: cleanPhone,
       program: program || (finalEnquiryType === 'STUDENT_OFFER' ? '60% Student Offer' : (isContactForm ? 'Contact Inquiry' : 'Tools and Upskills Track')),
       courseId: courseId || '',
-      category: category || (finalEnquiryType === 'STUDENT_OFFER' ? 'Student Offer' : (isContactForm ? 'Contact Desk' : 'Tools & Upskills')),
-      source: source || (finalEnquiryType === 'STUDENT_OFFER' ? 'Student Offer Popup' : (isContactForm ? 'Contact Page' : 'Tools & Upskills Enquire Now')),
+      category: finalCategory,
+      source: finalSource,
       enquiryType: finalEnquiryType,
       collegeOrSchool: finalCollege,
       leadStatus: (leadStatus as any) || (isContactForm || finalEnquiryType === 'STUDENT_OFFER' ? 'Completed' : 'Incomplete'),
@@ -436,6 +440,29 @@ function formatEnquiryRow(row: any): Enquiry {
   };
 }
 
+// GET /api/enquiries/my - Fetch enquiries for the current user or by email query param
+router.get('/my', async (req: any, res) => {
+  try {
+    await ensureDbInitialized().catch(() => {});
+    const email = (req.query.email as string || req.user?.email || '').trim().toLowerCase();
+    if (!email) {
+      return res.json([]);
+    }
+    if (isDbConnected()) {
+      const result = await query(
+        'SELECT * FROM enquiries WHERE LOWER(email) = LOWER($1) ORDER BY submitted_at DESC',
+        [email]
+      );
+      return res.json(result.rows.map(formatEnquiryRow));
+    } else {
+      const matched = mockStore.enquiries.filter(e => e.email.toLowerCase() === email);
+      return res.json(matched);
+    }
+  } catch (err: any) {
+    return res.status(500).json({ error: err.message || 'Failed to fetch user enquiries.' });
+  }
+});
+
 // GET /api/enquiries - Admin: fetch all leads
 router.get('/', authenticateToken, requireAdmin, async (_req, res) => {
   try {
@@ -449,6 +476,29 @@ router.get('/', authenticateToken, requireAdmin, async (_req, res) => {
     }
   } catch (err: any) {
     return res.status(500).json({ error: err.message || 'Failed to fetch enquiries.' });
+  }
+});
+
+// GET /api/enquiries/:id - Fetch single enquiry details
+router.get('/:id', async (req, res) => {
+  try {
+    await ensureDbInitialized().catch(() => {});
+    const { id } = req.params;
+    if (isDbConnected()) {
+      const result = await query('SELECT * FROM enquiries WHERE id = $1', [id]);
+      if (result.rows.length === 0) {
+        return res.status(404).json({ error: 'Enquiry not found.' });
+      }
+      return res.json(formatEnquiryRow(result.rows[0]));
+    } else {
+      const enquiry = mockStore.enquiries.find(e => e.id === id);
+      if (!enquiry) {
+        return res.status(404).json({ error: 'Enquiry not found.' });
+      }
+      return res.json(enquiry);
+    }
+  } catch (err: any) {
+    return res.status(500).json({ error: err.message || 'Failed to fetch enquiry.' });
   }
 });
 

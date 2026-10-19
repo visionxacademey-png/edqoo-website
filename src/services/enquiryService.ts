@@ -7,75 +7,30 @@ export interface EnquiryPayload {
   email: string;
   phone: string;
   program: string;
+  category?: string;
+  source?: string;
+  enquiryType?: string;
   location?: string;
   experienceLevel?: string;
   learningMode?: string;
   preferredContactMethod?: string;
   preferredCallbackTime?: string;
   message?: string;
+  details?: any;
 }
 
 const STORAGE_KEY = 'Edqoo_enquiries';
-
-// Initial sample enquiries for demonstration if storage is empty
-const defaultSeedEnquiries: Enquiry[] = [
-  {
-    id: 'enq-101',
-    name: 'Sarah Jenkins',
-    email: 'sarah.j@example.com',
-    phone: '+91 90744 50935',
-    program: 'Master Program in Data Science and AI',
-    experienceLevel: '0-2 Years',
-    learningMode: 'Online Live / Interactive',
-    location: 'Austin, TX',
-    preferredContactMethod: 'Phone Call',
-    preferredCallbackTime: 'Afternoon (1 PM - 5 PM)',
-    message: 'Interested in SOC analyst curriculum and upcoming weekend batch availability.',
-    status: 'Contacted',
-    notes: 'Called on 02/09. Discussed syllabus and weekend schedule. Candidate requested brochure.',
-    lastContactedDate: '2026-09-02T14:30:00.000Z',
-    submittedAt: '2026-09-01T10:15:00.000Z'
-  },
-  {
-    id: 'enq-102',
-    name: 'David Kumar',
-    email: 'david.k@example.com',
-    phone: '+91 90744 50935',
-    program: 'Data Science & Machine Learning Specialist',
-    experienceLevel: '3-5 Years',
-    learningMode: 'Online Live / Interactive',
-    location: 'San Jose, CA',
-    preferredContactMethod: 'WhatsApp',
-    preferredCallbackTime: 'Evening (5 PM - 8 PM)',
-    message: 'Looking for detailed curriculum on PyTorch, MLOps, and capstone project review process.',
-    status: 'Under Review',
-    notes: 'Assigned to Senior Advisor Alex for technical assessment review.',
-    submittedAt: '2026-09-03T16:45:00.000Z'
-  }
-];
 
 const getStoredEnquiries = (): Enquiry[] => {
   try {
     const raw = localStorage.getItem(STORAGE_KEY);
     if (!raw) {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(defaultSeedEnquiries));
-      return defaultSeedEnquiries;
+      return [];
     }
     const parsed: Enquiry[] = JSON.parse(raw);
-    let modified = false;
-    const sanitized = parsed.map((item) => {
-      if (item.phone && (item.phone.includes('+1') || item.phone.includes('555'))) {
-        modified = true;
-        return { ...item, phone: '+91 90744 50935' };
-      }
-      return item;
-    });
-    if (modified) {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(sanitized));
-    }
-    return sanitized;
+    return Array.isArray(parsed) ? parsed : [];
   } catch {
-    return defaultSeedEnquiries;
+    return [];
   }
 };
 
@@ -253,7 +208,10 @@ export const enquiryService = {
   getUserEnquiries: async (userEmail: string): Promise<Enquiry[]> => {
     try {
       const response = await api.get('/enquiries/my', { params: { email: userEmail } });
-      return response.data;
+      if (Array.isArray(response.data)) {
+        return response.data;
+      }
+      return [];
     } catch {
       const all = getStoredEnquiries();
       if (!userEmail) return all;
@@ -264,7 +222,11 @@ export const enquiryService = {
   getAllEnquiries: async (): Promise<Enquiry[]> => {
     try {
       const response = await api.get('/enquiries');
-      return response.data;
+      if (Array.isArray(response.data)) {
+        saveStoredEnquiries(response.data);
+        return response.data;
+      }
+      return [];
     } catch {
       return getStoredEnquiries();
     }

@@ -158,9 +158,21 @@ export const EnglishMirrorEnquiryModal: React.FC<EnglishMirrorEnquiryModalProps>
         email: data.email,
         phone: data.phone,
         program: `${data.program}${data.planOption ? ` (${data.planOption})` : ''}`,
+        category: 'English Mirror',
+        source: 'English Mirror Modal',
+        enquiryType: 'ENGLISH_MIRROR' as any,
         preferredContactMethod: 'WhatsApp / Phone',
         preferredCallbackTime: data.preferredTiming,
         experienceLevel: data.learningGoal,
+        details: {
+          partner: 'English Mirror',
+          category: 'English Mirror',
+          enquiryType: 'ENGLISH_MIRROR',
+          planOption: data.planOption,
+          durationMonths: data.durationMonths,
+          preferredTiming: data.preferredTiming,
+          learningGoal: data.learningGoal
+        },
         message: data.message
           ? `${data.message} | Plan: ${data.planOption || 'Default'} | Duration: ${data.durationMonths}`
           : `English Mirror enquiry for ${data.program} [${data.durationMonths || '3 Months'}]`

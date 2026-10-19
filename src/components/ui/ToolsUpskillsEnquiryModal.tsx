@@ -628,7 +628,7 @@ export const ToolsUpskillsEnquiryModal: React.FC<ToolsUpskillsEnquiryModalProps>
                   <div className="mt-3 pt-3 border-t border-slate-100 flex items-center justify-between text-xs text-slate-500">
                     <span>Quick question?</span>
                     <a
-                      href="https://wa.me/placeholder"
+                      href="https://wa.me/919074450935"
                       target="_blank"
                       rel="noopener noreferrer"
                       className="inline-flex items-center gap-1.5 font-bold text-emerald-700 hover:text-emerald-800 transition-colors"
