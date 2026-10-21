@@ -25,8 +25,8 @@ export const LANGUAGE_COURSE_CONTAINERS: LanguageCourseContainer[] = [
     fontFamily: "'Noto Sans Malayalam', 'Outfit', sans-serif",
     directionIndicator: 'മലയാളം → English',
     description: 'Learn to speak English confidently with explanations and guidance in Malayalam.',
-    image: 'https://images.unsplash.com/photo-1522202176988-66273c2fd55f?q=80&w=800&auto=format&fit=crop',
-    fallbackImage: 'https://images.unsplash.com/photo-1571260899304-425eee4c7efc?q=80&w=800&auto=format&fit=crop',
+    image: '/images/spoken-tutorial/languages/malayalam-english.webp',
+    fallbackImage: '/images/spoken-tutorial/languages/malayalam-english.jpg',
   },
   {
     id: 'hindi',
@@ -37,8 +37,8 @@ export const LANGUAGE_COURSE_CONTAINERS: LanguageCourseContainer[] = [
     fontFamily: "'Noto Sans Devanagari', 'Outfit', sans-serif",
     directionIndicator: 'हिन्दी → English',
     description: 'Learn spoken English confidently with explanations and guidance in Hindi.',
-    image: 'https://images.unsplash.com/photo-1524178232363-1fb2b075b655?q=80&w=800&auto=format&fit=crop',
-    fallbackImage: 'https://images.unsplash.com/photo-1577896851231-70ef18881754?q=80&w=800&auto=format&fit=crop',
+    image: '/images/spoken-tutorial/languages/hindi-english.webp',
+    fallbackImage: '/images/spoken-tutorial/languages/hindi-english.jpg',
   },
   {
     id: 'tamil',
@@ -49,8 +49,8 @@ export const LANGUAGE_COURSE_CONTAINERS: LanguageCourseContainer[] = [
     fontFamily: "'Noto Sans Tamil', 'Outfit', sans-serif",
     directionIndicator: 'தமிழ் → English',
     description: 'Build English fluency step by step with clear explanations in Tamil.',
-    image: 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?q=80&w=800&auto=format&fit=crop',
-    fallbackImage: 'https://images.unsplash.com/photo-1522071820081-009f0129c71c?q=80&w=800&auto=format&fit=crop',
+    image: '/images/spoken-tutorial/languages/tamil-english.webp',
+    fallbackImage: '/images/spoken-tutorial/languages/tamil-english.jpg',
   },
   {
     id: 'kannada',
@@ -61,8 +61,8 @@ export const LANGUAGE_COURSE_CONTAINERS: LanguageCourseContainer[] = [
     fontFamily: "'Noto Sans Kannada', 'Outfit', sans-serif",
     directionIndicator: 'ಕನ್ನಡ → English',
     description: 'Improve your English speaking skills through easy explanations in Kannada.',
-    image: 'https://images.unsplash.com/photo-1516321318423-f06f85e504b3?q=80&w=800&auto=format&fit=crop',
-    fallbackImage: 'https://images.unsplash.com/photo-1523240795612-9a054b0db644?q=80&w=800&auto=format&fit=crop',
+    image: '/images/spoken-tutorial/languages/kannada-english.webp',
+    fallbackImage: '/images/spoken-tutorial/languages/kannada-english.jpg',
   },
   {
     id: 'telugu',
@@ -73,8 +73,8 @@ export const LANGUAGE_COURSE_CONTAINERS: LanguageCourseContainer[] = [
     fontFamily: "'Noto Sans Telugu', 'Outfit', sans-serif",
     directionIndicator: 'తెలుగు → English',
     description: 'Learn everyday English conversations with guidance in Telugu.',
-    image: 'https://images.unsplash.com/photo-1517245386807-bb43f82c33c4?q=80&w=800&auto=format&fit=crop',
-    fallbackImage: 'https://images.unsplash.com/photo-1529156069898-49953e39b3ac?q=80&w=800&auto=format&fit=crop',
+    image: '/images/spoken-tutorial/languages/telugu-english.webp',
+    fallbackImage: '/images/spoken-tutorial/languages/telugu-english.jpg',
   },
 ];
 

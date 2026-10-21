@@ -231,7 +231,7 @@ export function evaluateFuzzyMatch(
     };
   }
 
-  // 4. CONTAINS SUBSTRING MATCH (Score: 750)
+  // 4. CONTAINS SUBSTRING MATCH (Score: 750-780)
   if (normTarget.includes(normQuery) || cleanAliases.some((a) => a.includes(normQuery))) {
     return {
       similarity: 0.90,
@@ -239,6 +239,19 @@ export function evaluateFuzzyMatch(
       isMatch: true,
       matchType: 'contains',
       matchedTarget: target
+    };
+  }
+
+  // 4b. QUERY CONTAINS TARGET OR ALIAS (Score: 780)
+  // e.g., query "do you have a python course" contains "python"
+  const matchedAliasInQuery = cleanAliases.find((a) => a.length >= 3 && normQuery.includes(a));
+  if ((normTarget.length >= 3 && normQuery.includes(normTarget)) || matchedAliasInQuery) {
+    return {
+      similarity: 0.92,
+      rankScore: 780,
+      isMatch: true,
+      matchType: 'contains',
+      matchedTarget: matchedAliasInQuery || target
     };
   }
 

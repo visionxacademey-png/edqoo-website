@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef, useMemo } from 'react';
+import React, { useState, useEffect, useLayoutEffect, useRef, useMemo } from 'react';
 import { Link } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
@@ -44,9 +44,9 @@ const heroSlides = [
     primaryCta: 'Explore All Programs',
     primaryLink: '/programs',
     secondaryCta: 'Talk to Advisor',
-    desktopImage: 'https://images.unsplash.com/photo-1522071820081-009f0129c71c?q=80&w=1600&auto=format&fit=crop',
-    image: 'https://images.unsplash.com/photo-1522071820081-009f0129c71c?q=80&w=1600&auto=format&fit=crop',
-    mobileImage: 'https://images.unsplash.com/photo-1531482615713-2afd69097998?q=80&w=1080&h=1920&auto=format&fit=crop',
+    desktopImage: '/images/hero/hero-slide-1-desktop.webp',
+    image: '/images/hero/hero-slide-1-desktop.webp',
+    mobileImage: '/images/hero/hero-slide-1-mobile.webp',
     statHighlight: '53% of learners received 50% and above salary hike post completion of the program*',
     partnerLogo: 'Enterprise Benchmark'
   },
@@ -59,9 +59,9 @@ const heroSlides = [
     primaryCta: 'View Data Science and AI',
     primaryLink: '/programs/data-science-and-ai',
     secondaryCta: 'Request Syllabus',
-    desktopImage: 'https://images.unsplash.com/photo-1551288049-bebda4e38f71?q=80&w=1600&auto=format&fit=crop',
-    image: 'https://images.unsplash.com/photo-1551288049-bebda4e38f71?q=80&w=1600&auto=format&fit=crop',
-    mobileImage: 'https://images.unsplash.com/photo-1551836022-d5d88e9218df?q=80&w=1080&h=1920&auto=format&fit=crop',
+    desktopImage: '/images/hero/hero-slide-2-desktop.webp',
+    image: '/images/hero/hero-slide-2-desktop.webp',
+    mobileImage: '/images/hero/hero-slide-2-mobile.webp',
     statHighlight: '94% of alumni report direct career advancement in data & AI operations*',
     partnerLogo: 'Accredited Labs'
   },
@@ -74,9 +74,9 @@ const heroSlides = [
     primaryCta: 'View AI & Machine Learning Track',
     primaryLink: '/programs/ai-and-machine-learning',
     secondaryCta: 'Book Advisory Call',
-    desktopImage: 'https://images.unsplash.com/photo-1531482615713-2afd69097998?q=80&w=1600&auto=format&fit=crop',
-    image: 'https://images.unsplash.com/photo-1531482615713-2afd69097998?q=80&w=1600&auto=format&fit=crop',
-    mobileImage: 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?q=80&w=1080&h=1920&auto=format&fit=crop',
+    desktopImage: '/images/hero/hero-slide-3-desktop.webp',
+    image: '/images/hero/hero-slide-3-desktop.webp',
+    mobileImage: '/images/hero/hero-slide-3-mobile.webp',
     statHighlight: 'Over 2,500+ active practitioners enrolled across modern engineering tracks*',
     partnerLogo: 'Global Standards'
   },
@@ -89,9 +89,9 @@ const heroSlides = [
     primaryCta: 'Explore Tools & Upskills',
     primaryLink: '/tools-and-upskills',
     secondaryCta: 'Enquire for Teams',
-    desktopImage: 'https://images.unsplash.com/photo-1460925895917-afdab827c52f?q=80&w=1600&auto=format&fit=crop',
-    image: 'https://images.unsplash.com/photo-1460925895917-afdab827c52f?q=80&w=1600&auto=format&fit=crop',
-    mobileImage: 'https://images.unsplash.com/photo-1552664730-d307ca884978?q=80&w=1080&h=1920&auto=format&fit=crop',
+    desktopImage: '/images/hero/hero-slide-4-desktop.webp',
+    image: '/images/hero/hero-slide-4-desktop.webp',
+    mobileImage: '/images/hero/hero-slide-4-mobile.webp',
     statHighlight: '100% lab-driven curriculum audited and verified by enterprise architects*',
     partnerLogo: 'Industry Verified'
   }
@@ -159,6 +159,55 @@ export const Home: React.FC = () => {
   const [programsError, setProgramsError] = useState<string | null>(null);
   const statsSectionRef = useRef<HTMLDivElement>(null);
   const touchStartX = useRef<number | null>(null);
+  const programsSectionRef = useRef<HTMLElement>(null);
+  const scrollLockRef = useRef<number | null>(null);
+
+  const handleCategoryClick = (categoryId: string, e?: React.MouseEvent) => {
+    if (e) {
+      e.preventDefault();
+      (e.currentTarget as HTMLElement).blur();
+    }
+    if (categoryId === selectedCategory) return;
+
+    // Capture current window scroll position before state update
+    const currentScrollY = window.scrollY;
+    scrollLockRef.current = currentScrollY;
+
+    setSelectedCategory(categoryId);
+  };
+
+  // Synchronously stabilize scroll position before browser paint to prevent unwanted jumps
+  useLayoutEffect(() => {
+    if (scrollLockRef.current === null) return;
+    const targetY = scrollLockRef.current;
+    scrollLockRef.current = null;
+
+    const section = programsSectionRef.current || document.getElementById('programs');
+    if (!section) return;
+
+    const rect = section.getBoundingClientRect();
+    const viewportHeight = window.innerHeight;
+
+    // If the section is currently visible in the viewport, maintain the exact current scroll position
+    if (rect.bottom > 80 && rect.top < viewportHeight) {
+      if (Math.abs(window.scrollY - targetY) > 0.5) {
+        window.scrollTo({
+          top: targetY,
+          behavior: 'instant' as ScrollBehavior,
+        });
+      }
+    } else if (rect.bottom <= 80) {
+      // If the section collapsed above the viewport because the selected category has fewer cards,
+      // align the viewport so the user can directly see the category content they just selected
+      const navHeight = 80;
+      const sectionAbsoluteTop = rect.top + window.scrollY;
+      const safeScrollY = Math.max(0, sectionAbsoluteTop - navHeight);
+      window.scrollTo({
+        top: safeScrollY,
+        behavior: 'instant' as ScrollBehavior,
+      });
+    }
+  }, [selectedCategory]);
 
   // Preload all hero slide images for instant switching (desktop and mobile)
   useEffect(() => {
@@ -377,7 +426,7 @@ export const Home: React.FC = () => {
     }
 
     return filterCoursesByCategory(programs, selectedCategory);
-  }, [programs, selectedCategory, categories]);
+  }, [programs, selectedCategory, categories, isSpokenEnglishSelected]);
 
   const standardHomePrograms = useMemo(() => {
     return displayedPrograms.filter((c) => !isEnglishMirrorCourse(c));
@@ -456,7 +505,14 @@ export const Home: React.FC = () => {
               animate={{ opacity: 1, scale: 1 }}
               exit={{ opacity: 0 }}
               transition={{ duration: 0.45, ease: 'easeOut' }}
-              className="absolute inset-0 w-full h-full object-cover object-center"
+              className="absolute inset-0 w-full h-full object-cover object-top"
+              onError={(e) => {
+                const target = e.currentTarget;
+                const fallback = (currentHero.mobileImage || '').replace('.webp', '.jpg');
+                if (target.src !== fallback && fallback) {
+                  target.src = fallback;
+                }
+              }}
             />
           </AnimatePresence>
           <div className="absolute inset-0 bg-gradient-to-b from-slate-950/40 via-transparent to-transparent" />
@@ -577,8 +633,15 @@ export const Home: React.FC = () => {
               animate={{ opacity: 1, scale: 1 }}
               exit={{ opacity: 0 }}
               transition={{ duration: 0.5, ease: 'easeOut' }}
-              className="w-full h-full object-cover object-center"
+              className="w-full h-full object-cover object-right lg:object-right"
               loading="eager"
+              onError={(e) => {
+                const target = e.currentTarget;
+                const fallback = (currentHero.desktopImage || currentHero.image || '').replace('.webp', '.jpg');
+                if (target.src !== fallback && fallback) {
+                  target.src = fallback;
+                }
+              }}
             />
           </AnimatePresence>
           {/* Dual Multi-Stop Gradient Overlays for High Legibility & Premium Contrast */}
@@ -742,7 +805,12 @@ export const Home: React.FC = () => {
       {/* ========================================================================= */}
       {/* 4. EXPLORE OUR PROGRAMS SECTION                                           */}
       {/* ========================================================================= */}
-      <section id="programs" className="section-padding bg-white border-b border-slate-200">
+      <section
+        id="programs"
+        ref={programsSectionRef}
+        style={{ overflowAnchor: 'none' }}
+        className="section-padding bg-white border-b border-slate-200"
+      >
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-8">
           
           <div className="text-center max-w-3xl mx-auto space-y-2">
@@ -804,7 +872,8 @@ export const Home: React.FC = () => {
                     return (
                       <button
                         key={cat.id}
-                        onClick={() => setSelectedCategory(cat.id)}
+                        type="button"
+                        onClick={(e) => handleCategoryClick(cat.id, e)}
                         className={`w-full flex items-center justify-between px-3.5 py-3 text-xs font-bold rounded-xl transition-all text-left cursor-pointer border ${
                           isActive
                             ? 'bg-[#6D22B5] text-white border-[#6D22B5] shadow-sm'
@@ -860,7 +929,8 @@ export const Home: React.FC = () => {
                   return (
                     <button
                       key={cat.id}
-                      onClick={() => setSelectedCategory(cat.id)}
+                      type="button"
+                      onClick={(e) => handleCategoryClick(cat.id, e)}
                       className={`px-3 py-1.5 text-xs font-bold rounded-xl flex items-center gap-1.5 transition-all cursor-pointer whitespace-nowrap border flex-shrink-0 ${
                         isActive
                           ? 'bg-[#6D22B5] text-white border-[#6D22B5] shadow-sm'
@@ -930,33 +1000,39 @@ export const Home: React.FC = () => {
                     <span>Try Again</span>
                   </button>
                 </div>
-              ) : isSpokenEnglishSelected ? (
-                /* When Spoken English is selected in Program Tracks, display the 5 language options */
-                <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-5 sm:gap-6">
-                  {PROGRAM_TRACK_LANGUAGES.map((lang) => (
-                    <LanguageTrackCard key={lang.id} language={lang} />
-                  ))}
-                </div>
-              ) : standardHomePrograms.length === 0 && !hasEnglishInHome ? (
-                <div className="py-12 text-center text-slate-500 text-xs bg-slate-50 border border-slate-200 rounded-2xl">
-                  No courses available in this category.
-                </div>
               ) : (
-                <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-5">
-                  {standardHomePrograms.map((course: Course) => (
-                    <CourseCard
-                      key={course.id}
-                      course={course}
-                      selectedCategory={selectedCategory}
-                      onEnquire={(title, details) => openEnquiryModal(title, details)}
-                    />
-                  ))}
-
-                  {/* Replace the individual Spoken English course cards with the 5 language options */}
-                  {hasEnglishInHome &&
+                /* Unified permanent grid container to prevent DOM remounting and layout shift */
+                <div
+                  className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-5"
+                  style={{ overflowAnchor: 'none' }}
+                >
+                  {isSpokenEnglishSelected ? (
+                    /* When Spoken English is selected in Program Tracks, display the 5 language options */
                     PROGRAM_TRACK_LANGUAGES.map((lang) => (
                       <LanguageTrackCard key={lang.id} language={lang} />
-                    ))}
+                    ))
+                  ) : standardHomePrograms.length === 0 && !hasEnglishInHome ? (
+                    <div className="col-span-full py-12 text-center text-slate-500 text-xs bg-slate-50 border border-slate-200 rounded-2xl">
+                      No courses available in this category.
+                    </div>
+                  ) : (
+                    <>
+                      {standardHomePrograms.map((course: Course) => (
+                        <CourseCard
+                          key={course.id}
+                          course={course}
+                          selectedCategory={selectedCategory}
+                          onEnquire={(title, details) => openEnquiryModal(title, details)}
+                        />
+                      ))}
+
+                      {/* Replace the individual Spoken English course cards with the 5 language options */}
+                      {hasEnglishInHome &&
+                        PROGRAM_TRACK_LANGUAGES.map((lang) => (
+                          <LanguageTrackCard key={lang.id} language={lang} />
+                        ))}
+                    </>
+                  )}
                 </div>
               )}
 

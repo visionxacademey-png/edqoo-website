@@ -1323,7 +1323,13 @@ ${rawQuery}
 
     let geminiText = '';
 
-    const candidateModels = ['gemini-2.0-flash', 'gemini-1.5-flash'];
+    const candidateModels = [
+      'gemini-3.5-flash',
+      'gemini-3.8-flash',
+      'gemini-flash-latest',
+      'gemini-2.5-flash-lite',
+      'gemini-flash-lite-latest'
+    ];
     for (const modelName of candidateModels) {
       try {
         const response = await ai.models.generateContent({
@@ -1337,7 +1343,8 @@ ${rawQuery}
         });
         geminiText = response.text?.trim() || '';
         if (geminiText) break;
-      } catch {
+      } catch (modelErr: any) {
+        console.warn(`[CHATBOT] Model ${modelName} unavailable, falling to next:`, modelErr?.status || modelErr?.message);
         // Try next candidate model
       }
     }
