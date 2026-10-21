@@ -170,7 +170,7 @@ export async function initDb(): Promise<void> {
   if (dbReady && isNeonConnected && pool) return;
 
   // Pre-seed mock store with default administrator and student for local memory fallback
-  const adminPasswordHash = '$2a$10$tZ8V4K9y6t4X0V1b8G4D4eYd0oV.5YtY3wN2qG6K8mP0uL2rS4t';
+  const adminPasswordHash = '$2b$10$QHDMkWeaHtNl3aGmVCZoxuWA4QtENGVLpzV9K48Tx6PpU7bEECjuu';
   const studentPasswordHash = '$2a$10$tZ8V4K9y6t4X0V1b8G4D4eYd0oV.5YtY3wN2qG6K8mP0uL2rS4t';
 
   if (mockStore.users.length === 0) {
@@ -278,7 +278,7 @@ export async function initDb(): Promise<void> {
  * Skips redundant DDL migrations if core tables are already present.
  */
 async function runSchemaVerificationAndSync(poolInstance: Pool) {
-  const adminPasswordHash = '$2a$10$tZ8V4K9y6t4X0V1b8G4D4eYd0oV.5YtY3wN2qG6K8mP0uL2rS4t';
+  const adminPasswordHash = '$2b$10$QHDMkWeaHtNl3aGmVCZoxuWA4QtENGVLpzV9K48Tx6PpU7bEECjuu';
   try {
     // Check if core tables already exist
     const tablesCheck = await poolInstance.query(`

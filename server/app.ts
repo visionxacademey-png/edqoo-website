@@ -1,7 +1,9 @@
 import express from 'express';
 import cors from 'cors';
+import helmet from 'helmet';
 import dotenv from 'dotenv';
 import { ensureDbInitialized, getDbStatus, query } from './db/index.js';
+import { generalLimiter } from './middleware/security.js';
 import authRoutes from './routes/auth.js';
 import adminRoutes from './routes/admin.js';
 import coursesRoutes from './routes/courses.js';
@@ -19,13 +21,48 @@ dotenv.config();
 
 const app = express();
 
-// Security & Body Parsing Middlewares
-app.use(cors({
-  origin: true,
-  credentials: true
+// 1. HTTP Security Headers
+app.use(helmet({
+  contentSecurityPolicy: false, // Let React SPA fetch external fonts and media assets safely
+  crossOriginEmbedderPolicy: false
 }));
-app.use(express.json({ limit: '10mb' }));
-app.use(express.urlencoded({ extended: true, limit: '10mb' }));
+
+// 2. Strict CORS Configuration
+const ALLOWED_ORIGINS = [
+  'https://www.edqoo.com',
+  'https://edqoo.com',
+  'http://localhost:5173',
+  'http://localhost:5001',
+  'http://localhost:3000',
+  'http://127.0.0.1:5173',
+  'http://127.0.0.1:5001'
+];
+
+app.use(cors({
+  origin: (origin, callback) => {
+    // Allow non-browser requests (tools, serverless rewrites, curl)
+    if (!origin) return callback(null, true);
+    if (
+      ALLOWED_ORIGINS.includes(origin) ||
+      origin.endsWith('.vercel.app') ||
+      origin.endsWith('.edqoo.com')
+    ) {
+      return callback(null, true);
+    }
+    return callback(new Error('Cross-Origin Request Blocked by Security Policy'));
+  },
+  credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With', 'Accept']
+}));
+
+// 3. Body parsers with sensible limits to prevent payload exhaustion attacks
+app.use(express.json({ limit: '2mb' }));
+app.use(express.urlencoded({ extended: true, limit: '2mb' }));
+
+// 4. General Rate Limiter on API requests
+app.use(['/api', '/api/'], generalLimiter);
+
 
 // Middleware to normalize Vercel serverless request URLs and ensure DB readiness
 app.use(async (req, _res, next) => {
@@ -55,9 +92,13 @@ app.use(async (req, _res, next) => {
   next();
 });
 
-// Diagnostic Database Endpoint
-app.get(['/api/debug/database', '/debug/database'], async (_req, res) => {
+// Diagnostic Database Endpoint (Disabled in production to prevent information disclosure)
+app.get(['/api/debug/database', '/debug/database'], async (req, res) => {
+  if (process.env.NODE_ENV === 'production') {
+    return res.status(404).json({ error: 'Endpoint not found' });
+  }
   try {
+
     await ensureDbInitialized();
     const timeRes = await query('SELECT NOW()');
     const countRes = await query('SELECT COUNT(*) FROM courses');

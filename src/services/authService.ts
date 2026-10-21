@@ -138,30 +138,6 @@ export const authService = {
       }
       return response.data;
     } catch (error: any) {
-      console.warn('Backend login endpoint response/error:', error?.message);
-      
-      // Fallback for default admin and student accounts if server is unreachable
-      if (normalizedEmail === 'admin@edqoo.com' && password === 'Admin@123456') {
-        const clientToken = 'edqoo_jwt_admin_session_' + Date.now().toString(36);
-        recordUserActivity(DEFAULT_ADMIN);
-        return {
-          success: true,
-          token: clientToken,
-          user: DEFAULT_ADMIN
-        };
-      }
-      
-      if (normalizedEmail === 'alex.student@edqoo.com' && password === 'Student@123456') {
-        const clientToken = 'edqoo_jwt_student_session_' + Date.now().toString(36);
-        recordUserActivity(DEFAULT_STUDENT);
-        return {
-          success: true,
-          token: clientToken,
-          user: DEFAULT_STUDENT
-        };
-      }
-
-      // Re-throw server error message
       const errorMsg = error.response?.data?.error || error.message || 'Invalid email or password.';
       throw new Error(errorMsg);
     }
@@ -170,7 +146,6 @@ export const authService = {
   register: async (name: string, email: string, phone: string, password: string): Promise<{ success: boolean; token: string; user: User }> => {
     const normalizedEmail = email.toLowerCase().trim();
     const cleanPhone = (phone || '').toString().trim();
-    const role: 'admin' | 'user' = normalizedEmail.includes('admin') ? 'admin' : 'user';
     const deviceInfo = getDeviceInfo();
 
     try {
@@ -193,45 +168,11 @@ export const authService = {
 
       throw new Error(response.data?.error || 'Registration failed.');
     } catch (error: any) {
-      console.warn('Backend register endpoint error or offline fallback:', error?.message);
-
-      // Check if it's a 4xx validation error from the server (e.g. invalid inputs)
-      if (error.response?.status && error.response.status >= 400 && error.response.status < 500) {
-        const serverError = error.response?.data?.error || 'Registration rejected by server.';
-        throw new Error(serverError);
-      }
-
-      // Offline / Network / Local Client Fallback:
-      const clientUserId = `usr-${Date.now().toString(36)}-${Math.random().toString(36).substring(2, 6)}`;
-      const clientToken = `edqoo_jwt_client_reg_${Date.now().toString(36)}_${Math.random().toString(36).substring(2, 6)}`;
-      const avatar = 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?q=80&w=150&auto=format&fit=crop';
-
-      const fallbackUser: User = {
-        id: clientUserId,
-        name: name.trim(),
-        email: normalizedEmail,
-        phone: cleanPhone,
-        avatar,
-        role,
-        deviceInfo,
-        lastIp: '127.0.0.1',
-        lastDeviceId: deviceInfo.deviceId,
-        lastDeviceType: deviceInfo.deviceType,
-        lastOs: deviceInfo.os,
-        lastBrowser: deviceInfo.browser,
-        lastTimezone: deviceInfo.timezone,
-        createdAt: new Date().toISOString()
-      };
-
-      recordUserActivity(fallbackUser);
-
-      return {
-        success: true,
-        token: clientToken,
-        user: fallbackUser
-      };
+      const errorMsg = error.response?.data?.error || error.message || 'Registration failed. Please try again.';
+      throw new Error(errorMsg);
     }
   },
+
 
   logout: async (): Promise<{ success: boolean }> => {
     try {

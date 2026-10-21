@@ -2,8 +2,10 @@ import { Router, type Response } from 'express';
 import bcrypt from 'bcryptjs';
 import { query, isDbConnected, ensureDbInitialized, mockStore, type MockUser, type MockSession } from '../db/index.js';
 import { generateToken, authenticateToken, type AuthRequest } from '../middleware/auth.js';
+import { authLimiter } from '../middleware/security.js';
 
 const router = Router();
+
 
 // Helper to get client IP and parse complete device information
 function parseDeviceInfo(bodyDeviceInfo: any, req: any) {
@@ -88,7 +90,7 @@ function generateId(prefix: string = 'usr') {
 }
 
 // POST /api/auth/register
-router.post('/register', async (req, res) => {
+router.post('/register', authLimiter, async (req, res) => {
   try {
     await ensureDbInitialized();
     const { name, email, phone, password, deviceInfo: rawDeviceInfo } = req.body;
@@ -97,13 +99,24 @@ router.post('/register', async (req, res) => {
       return res.status(400).json({ error: 'Name, email, and password are required.' });
     }
 
-    if (password.length < 6) {
+    if (typeof password !== 'string' || password.length < 6) {
       return res.status(400).json({ error: 'Password must be at least 6 characters long.' });
     }
 
+    if (password.length > 128) {
+      return res.status(400).json({ error: 'Password cannot exceed 128 characters.' });
+    }
+
     const normalizedEmail = email.toLowerCase().trim();
-    const role: 'admin' | 'user' = normalizedEmail.includes('admin') ? 'admin' : 'user';
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(normalizedEmail) || normalizedEmail.length > 255) {
+      return res.status(400).json({ error: 'Please enter a valid email address.' });
+    }
+
+    // Role is strictly 'user' for public registration (prevent privilege escalation)
+    const role: 'admin' | 'user' = 'user';
     const passwordHash = await bcrypt.hash(password, 10);
+
     const userId = generateId('usr');
     const sessionId = generateId('sess');
     const meta = parseDeviceInfo(rawDeviceInfo, req);
@@ -310,16 +323,25 @@ router.post('/register', async (req, res) => {
 });
 
 // POST /api/auth/login
-router.post('/login', async (req, res) => {
+router.post('/login', authLimiter, async (req, res) => {
   try {
     const { email, password, deviceInfo: rawDeviceInfo } = req.body;
 
-    if (!email || !password) {
+    if (!email || !password || typeof email !== 'string' || typeof password !== 'string') {
       return res.status(400).json({ error: 'Email and password are required.' });
+    }
+
+    if (password.length > 128) {
+      return res.status(400).json({ error: 'Invalid email or password.' });
     }
 
     await ensureDbInitialized();
     const normalizedEmail = email.toLowerCase().trim();
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(normalizedEmail) || normalizedEmail.length > 255) {
+      return res.status(400).json({ error: 'Please enter a valid email address.' });
+    }
+
     const meta = parseDeviceInfo(rawDeviceInfo, req);
     const sessionId = generateId('sess');
     let userRecord: any = null;
@@ -327,60 +349,19 @@ router.post('/login', async (req, res) => {
     if (isDbConnected()) {
       const result = await query('SELECT * FROM users WHERE LOWER(email) = LOWER($1)', [normalizedEmail]);
       if (result.rows.length === 0) {
-        // Auto-provision candidate/student account upon first login
-        const role: 'admin' | 'user' = normalizedEmail.includes('admin') ? 'admin' : 'user';
-        const passwordHash = await bcrypt.hash(password, 10);
-        const userId = generateId('usr');
-        const defaultName = normalizedEmail.split('@')[0].replace(/[._]/g, ' ').replace(/\b\w/g, (l: string) => l.toUpperCase());
-        const avatar = 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?q=80&w=150&auto=format&fit=crop';
+        return res.status(401).json({ error: 'Invalid email or password.' });
+      }
 
-        await query(
-          `INSERT INTO users (
-            id, name, email, password_hash, phone, avatar, role,
-            device_info, last_ip, last_device_id, last_device_type, last_os, last_browser, last_timezone,
-            is_active, created_at, last_login_at
-          ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, true, NOW(), NOW())`,
-          [
-            userId,
-            defaultName,
-            normalizedEmail,
-            passwordHash,
-            '',
-            avatar,
-            role,
-            JSON.stringify(meta.deviceInfo),
-            meta.ip,
-            meta.deviceId,
-            meta.deviceType,
-            meta.os,
-            meta.browser,
-            meta.timezone
-          ]
-        );
+      userRecord = result.rows[0];
+      
+      if (!userRecord.is_active) {
+        return res.status(403).json({ error: 'Your account has been suspended. Please contact administrator.' });
+      }
 
-        const newlyCreated = await query('SELECT * FROM users WHERE id = $1', [userId]);
-        userRecord = newlyCreated.rows[0];
-      } else {
-        userRecord = result.rows[0];
-        
-        if (!userRecord.is_active) {
-          return res.status(403).json({ error: 'Your account has been suspended. Please contact administrator.' });
-        }
-
-        const passwordMatches = await bcrypt.compare(password, userRecord.password_hash);
-        const isDemoStudent = normalizedEmail === 'alex.student@edqoo.com' && password === 'Student@123456';
-        const isDemoAdmin = normalizedEmail === 'admin@edqoo.com' && password === 'Admin@123456';
-        const isEnquiryAccount = userRecord.id?.startsWith('usr-enq-') || (userRecord.password_hash && userRecord.password_hash.length < 10);
-
-        if (!passwordMatches && !isDemoStudent && !isDemoAdmin && !isEnquiryAccount) {
-          return res.status(401).json({ error: 'Invalid email or password.' });
-        }
-
-        // If enquiry account or first login, update their password hash to the newly chosen password
-        if (isEnquiryAccount && password.length >= 6) {
-          const newHash = await bcrypt.hash(password, 10);
-          await query('UPDATE users SET password_hash = $1 WHERE id = $2', [newHash, userRecord.id]);
-        }
+      // Cryptographic bcrypt verification
+      const passwordMatches = await bcrypt.compare(password, userRecord.password_hash);
+      if (!passwordMatches) {
+        return res.status(401).json({ error: 'Invalid email or password.' });
       }
 
       // Update last_login_at and device telemetry in NeonDB
@@ -446,41 +427,16 @@ router.post('/login', async (req, res) => {
     } else {
       userRecord = mockStore.users.find(u => u.email.toLowerCase() === normalizedEmail);
       if (!userRecord) {
-        const role: 'admin' | 'user' = normalizedEmail.includes('admin') ? 'admin' : 'user';
-        const passwordHash = await bcrypt.hash(password, 10);
-        const userId = generateId('usr');
-        const defaultName = normalizedEmail.split('@')[0].replace(/[._]/g, ' ').replace(/\b\w/g, (l: string) => l.toUpperCase());
-        const newUser: MockUser = {
-          id: userId,
-          name: defaultName,
-          email: normalizedEmail,
-          password_hash: passwordHash,
-          phone: '',
-          avatar: 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?q=80&w=150&auto=format&fit=crop',
-          role,
-          is_active: true,
-          created_at: new Date().toISOString(),
-          last_login_at: new Date().toISOString(),
-          device_info: meta.deviceInfo,
-          last_ip: meta.ip,
-          last_device_id: meta.deviceId,
-          last_device_type: meta.deviceType,
-          last_os: meta.os,
-          last_browser: meta.browser,
-          last_timezone: meta.timezone
-        };
-        mockStore.users.unshift(newUser);
-        userRecord = newUser;
-      } else {
-        if (!userRecord.is_active) {
-          return res.status(403).json({ error: 'Your account has been suspended. Please contact administrator.' });
-        }
-        const passwordMatches = await bcrypt.compare(password, userRecord.password_hash);
-        const isDemoStudent = normalizedEmail === 'alex.student@edqoo.com' && password === 'Student@123456';
-        const isDemoAdmin = normalizedEmail === 'admin@edqoo.com' && password === 'Admin@123456';
-        if (!passwordMatches && !isDemoStudent && !isDemoAdmin) {
-          return res.status(401).json({ error: 'Invalid email or password.' });
-        }
+        return res.status(401).json({ error: 'Invalid email or password.' });
+      }
+
+      if (!userRecord.is_active) {
+        return res.status(403).json({ error: 'Your account has been suspended. Please contact administrator.' });
+      }
+
+      const passwordMatches = await bcrypt.compare(password, userRecord.password_hash);
+      if (!passwordMatches) {
+        return res.status(401).json({ error: 'Invalid email or password.' });
       }
 
       userRecord.last_login_at = new Date().toISOString();
@@ -662,7 +618,7 @@ router.put('/profile', authenticateToken, async (req: AuthRequest, res: Response
         }
 
         const passwordMatches = await bcrypt.compare(currentPassword, currentUser.password_hash);
-        if (!passwordMatches && currentPassword !== 'Admin@123456' && currentPassword !== 'Student@123456') {
+        if (!passwordMatches) {
           return res.status(400).json({ error: 'Incorrect current password.' });
         }
 
@@ -725,7 +681,7 @@ router.put('/profile', authenticateToken, async (req: AuthRequest, res: Response
           return res.status(400).json({ error: 'Current password is required to set a new password.' });
         }
         const passwordMatches = await bcrypt.compare(currentPassword, user.password_hash);
-        if (!passwordMatches && currentPassword !== 'Admin@123456' && currentPassword !== 'Student@123456') {
+        if (!passwordMatches) {
           return res.status(400).json({ error: 'Incorrect current password.' });
         }
         user.password_hash = await bcrypt.hash(newPassword, 10);
@@ -804,5 +760,29 @@ router.post('/ping-session', authenticateToken, async (req: AuthRequest, res: Re
   }
 });
 
+// POST /api/auth/forgot-password (Protected against enumeration & brute-force)
+router.post('/forgot-password', authLimiter, async (req, res) => {
+  try {
+    const { email } = req.body;
+    if (!email || typeof email !== 'string') {
+      return res.status(400).json({ error: 'Valid email address is required.' });
+    }
+    const normalizedEmail = email.toLowerCase().trim();
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(normalizedEmail) || normalizedEmail.length > 255) {
+      return res.status(400).json({ error: 'Please enter a valid email address.' });
+    }
+
+    // Always return safe success message regardless of existence to prevent user enumeration attacks
+    return res.json({
+      success: true,
+      message: 'If an account exists with this email address, password reset instructions have been sent.'
+    });
+  } catch (err: any) {
+    return res.status(500).json({ error: err.message || 'Server error processing password reset.' });
+  }
+});
+
 export default router;
+
 

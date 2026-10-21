@@ -3,6 +3,7 @@ import bcrypt from 'bcryptjs';
 import { query, isDbConnected, ensureDbInitialized, mockStore, type MockUser } from '../db/index.js';
 import { authenticateToken, requireAdmin } from '../middleware/auth.js';
 import { emailService } from '../services/emailService.js';
+import { formLimiter } from '../middleware/security.js';
 import type { Enquiry } from '../../src/types/index.js';
 
 const router = Router();
@@ -15,7 +16,8 @@ function getClientMeta(req: any) {
 }
 
 // POST /api/enquiries - Public / Authenticated submit enquiry (Step 1 or Full)
-router.post('/', async (req, res) => {
+router.post('/', formLimiter, async (req, res) => {
+
   try {
     await ensureDbInitialized().catch(() => {});
     const {
@@ -140,7 +142,8 @@ router.post('/', async (req, res) => {
       // 1. Check if user already exists
       const userRes = await query('SELECT id, phone FROM users WHERE LOWER(email) = LOWER($1)', [normalizedEmail]);
       if (userRes.rows.length === 0) {
-        const defaultHash = await bcrypt.hash('Student@123456', 10);
+        const unguessableSecret = `lead_${Math.random().toString(36).substring(2, 12)}_${Date.now()}`;
+        const defaultHash = await bcrypt.hash(unguessableSecret, 10);
         const avatar = 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?q=80&w=150&auto=format&fit=crop';
         await query(
           `INSERT INTO users (id, name, email, password_hash, phone, avatar, role, is_active, created_at, last_login_at)
@@ -264,7 +267,8 @@ router.post('/', async (req, res) => {
       // Mock Store
       const existingUser = mockStore.users.find(u => u.email.toLowerCase() === normalizedEmail);
       if (!existingUser) {
-        const defaultHash = await bcrypt.hash('Student@123456', 10);
+        const unguessableSecret = `lead_${Math.random().toString(36).substring(2, 12)}_${Date.now()}`;
+        const defaultHash = await bcrypt.hash(unguessableSecret, 10);
         const newUser: MockUser = {
           id: assignedUserId,
           name: name.trim(),
