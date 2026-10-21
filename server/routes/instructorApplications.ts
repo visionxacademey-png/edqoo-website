@@ -2,6 +2,7 @@ import { Router, type Response } from 'express';
 import { query, isDbConnected, ensureDbInitialized, mockStore } from '../db/index.js';
 import { authenticateToken, requireAdmin, type AuthRequest } from '../middleware/auth.js';
 import { emailService } from '../services/emailService.js';
+import { formLimiter } from '../middleware/security.js';
 import type { InstructorApplication } from '../../src/types/index.js';
 
 const router = Router();
@@ -35,7 +36,7 @@ function formatApplicationRow(row: any): InstructorApplication {
  * POST /api/instructor-applications
  * Public endpoint to submit instructor / faculty applications
  */
-router.post('/', async (req, res: Response) => {
+router.post('/', formLimiter, async (req, res: Response) => {
   try {
     await ensureDbInitialized().catch(() => {});
     const {

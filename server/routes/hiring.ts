@@ -2,6 +2,7 @@ import { Router, type Response } from 'express';
 import { query, isDbConnected, ensureDbInitialized, mockStore } from '../db/index.js';
 import { authenticateToken, requireAdmin, type AuthRequest } from '../middleware/auth.js';
 import { emailService } from '../services/emailService.js';
+import { formLimiter } from '../middleware/security.js';
 import type { HiringEnquiry } from '../../src/types/index.js';
 
 const router = Router();
@@ -31,7 +32,7 @@ function formatHiringRow(row: any): HiringEnquiry {
  * POST /api/hiring-enquiries
  * Public endpoint to submit corporate hiring requirements
  */
-router.post('/', async (req, res: Response) => {
+router.post('/', formLimiter, async (req, res: Response) => {
   try {
     await ensureDbInitialized().catch(() => {});
     const {

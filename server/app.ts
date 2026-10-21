@@ -93,8 +93,9 @@ app.use(async (req, _res, next) => {
 });
 
 // Diagnostic Database Endpoint (Disabled in production to prevent information disclosure)
-app.get(['/api/debug/database', '/debug/database'], async (req, res) => {
+app.get(['/api/debug/database', '/debug/database'], async (_req, res) => {
   if (process.env.NODE_ENV === 'production') {
+
     return res.status(404).json({ error: 'Endpoint not found' });
   }
   try {
