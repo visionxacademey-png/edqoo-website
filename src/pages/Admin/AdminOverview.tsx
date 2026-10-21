@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { Link } from 'react-router-dom';
 import {
   Users,
@@ -29,9 +29,13 @@ export const AdminOverview: React.FC = () => {
   const [recentSessions, setRecentSessions] = useState<UserSession[]>([]);
   const [recentCourses, setRecentCourses] = useState<Course[]>([]);
   const [loading, setLoading] = useState(true);
+  const [isRefreshing, setIsRefreshing] = useState(false);
+  const isMountedRef = useRef(true);
 
-  const loadData = async () => {
-    setLoading(true);
+  const loadData = useCallback(async (silent: boolean = false) => {
+    if (!silent) setLoading(true);
+    else setIsRefreshing(true);
+
     try {
       const [statsData, dbData, sessionsData, coursesData] = await Promise.all([
         adminService.getStats(),
@@ -39,6 +43,7 @@ export const AdminOverview: React.FC = () => {
         adminService.getActiveSessions(),
         courseService.getCourses()
       ]);
+      if (!isMountedRef.current) return;
       setStats(statsData);
       setDbStatus(dbData);
       setRecentSessions(sessionsData.slice(0, 5));
@@ -46,13 +51,58 @@ export const AdminOverview: React.FC = () => {
     } catch (err) {
       console.error('Failed to load admin overview data:', err);
     } finally {
-      setLoading(false);
+      if (isMountedRef.current) {
+        if (!silent) setLoading(false);
+        else setIsRefreshing(false);
+      }
     }
-  };
+  }, []);
 
   useEffect(() => {
-    loadData();
-  }, []);
+    isMountedRef.current = true;
+    loadData(false);
+
+    let intervalId: any = null;
+    const startPolling = () => {
+      if (intervalId) clearInterval(intervalId);
+      intervalId = setInterval(() => {
+        if (document.visibilityState === 'visible') {
+          loadData(true);
+        }
+      }, 8000);
+    };
+
+    const stopPolling = () => {
+      if (intervalId) {
+        clearInterval(intervalId);
+        intervalId = null;
+      }
+    };
+
+    const handleVisibilityChange = () => {
+      if (document.visibilityState === 'visible') {
+        loadData(true);
+        startPolling();
+      } else {
+        stopPolling();
+      }
+    };
+
+    const handleWindowFocus = () => {
+      loadData(true);
+    };
+
+    startPolling();
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+    window.addEventListener('focus', handleWindowFocus);
+
+    return () => {
+      isMountedRef.current = false;
+      stopPolling();
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
+      window.removeEventListener('focus', handleWindowFocus);
+    };
+  }, [loadData]);
 
   return (
     <div className="space-y-8 max-w-7xl mx-auto">
@@ -63,23 +113,24 @@ export const AdminOverview: React.FC = () => {
             <h2 className="text-2xl font-black text-white font-display tracking-tight">
               Platform Command Center
             </h2>
-            <span className="px-2 py-0.5 text-[10px] font-extrabold uppercase tracking-wider rounded-md bg-[#F1E8FA]/20 text-[#6D22B5] border border-[#6D22B5]/40">
-              Live
+            <span className="inline-flex items-center gap-1.5 px-2 py-0.5 text-[10px] font-extrabold uppercase tracking-wider rounded-md bg-[#F1E8FA]/20 text-[#6D22B5] border border-[#6D22B5]/40">
+              <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
+              Live Sync
             </span>
           </div>
           <p className="text-xs text-neutral-400 mt-1">
-            Real-time monitoring of user sessions, NeonDB PostgreSQL status, and academic course catalog.
+            Real-time monitoring of user sessions, NeonDB PostgreSQL status, enquiries, and academic course catalog.
           </p>
         </div>
 
         <div className="flex items-center gap-2.5">
           <button
-            onClick={loadData}
-            disabled={loading}
+            onClick={() => loadData(false)}
+            disabled={loading || isRefreshing}
             className="px-3 py-1.5 rounded-lg bg-neutral-900 hover:bg-neutral-800 border border-neutral-700 text-xs font-semibold text-slate-300 flex items-center gap-1.5 transition-colors disabled:opacity-50"
           >
-            <RefreshCw className={`w-3.5 h-3.5 ${loading ? 'animate-spin' : ''}`} />
-            <span>Refresh</span>
+            <RefreshCw className={`w-3.5 h-3.5 ${loading || isRefreshing ? 'animate-spin' : ''}`} />
+            <span>{isRefreshing ? 'Syncing...' : 'Refresh'}</span>
           </button>
           <Link
             to="/admin/courses/new"

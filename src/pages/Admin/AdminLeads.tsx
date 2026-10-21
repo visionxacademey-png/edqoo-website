@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { Link } from 'react-router-dom';
 import {
   MessageSquareCheck,
@@ -16,6 +16,28 @@ import { enquiryService } from '../../services/enquiryService';
 import { normalizeCategoryName } from '../../data/courses';
 import type { Enquiry, EnquiryStatus } from '../../types';
 
+// Subtle Web Audio notification chime (zero external dependencies)
+function playNotificationChime() {
+  try {
+    const AudioCtx = window.AudioContext || (window as any).webkitAudioContext;
+    if (!AudioCtx) return;
+    const ctx = new AudioCtx();
+    const osc = ctx.createOscillator();
+    const gain = ctx.createGain();
+    osc.type = 'sine';
+    osc.frequency.setValueAtTime(880, ctx.currentTime);
+    osc.frequency.exponentialRampToValueAtTime(1320, ctx.currentTime + 0.15);
+    gain.gain.setValueAtTime(0.12, ctx.currentTime);
+    gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.35);
+    osc.connect(gain);
+    gain.connect(ctx.destination);
+    osc.start();
+    osc.stop(ctx.currentTime + 0.35);
+  } catch {
+    // Ignore if audio context is blocked by browser interaction policies
+  }
+}
+
 export const AdminLeads: React.FC = () => {
   const [leads, setLeads] = useState<Enquiry[]>([]);
   const [searchTerm, setSearchTerm] = useState('');
@@ -24,28 +46,147 @@ export const AdminLeads: React.FC = () => {
   const [noteInput, setNoteInput] = useState('');
   const [statusInput, setStatusInput] = useState<EnquiryStatus>('Submitted');
   const [loading, setLoading] = useState(true);
+  const [isRefreshing, setIsRefreshing] = useState(false);
+  const [lastSyncTime, setLastSyncTime] = useState<Date>(new Date());
+  const [newlyArrivedIds, setNewlyArrivedIds] = useState<Set<string>>(new Set());
   const [toast, setToast] = useState<{ text: string; type: 'success' | 'error' } | null>(null);
+
+  const leadsRef = useRef<Enquiry[]>([]);
+  const isInitialLoadRef = useRef(true);
+  const isMountedRef = useRef(true);
 
   const showToast = (text: string, type: 'success' | 'error' = 'success') => {
     setToast({ text, type });
-    setTimeout(() => setToast(null), 3500);
+    setTimeout(() => setToast(null), 4000);
   };
 
-  const fetchLeads = async () => {
-    setLoading(true);
+  const syncLeads = useCallback(async (silent: boolean = true) => {
+    if (!silent) {
+      setIsRefreshing(true);
+    }
     try {
       const data = await enquiryService.getAllEnquiries();
-      setLeads(data);
-    } catch (err: any) {
-      showToast(err.message || 'Failed to fetch enquiries.', 'error');
-    } finally {
-      setLoading(false);
-    }
-  };
+      if (!isMountedRef.current) return;
 
-  useEffect(() => {
-    fetchLeads();
+      // Sort newest first by submittedAt
+      const sorted = [...data].sort((a, b) => {
+        const timeA = new Date(a.submittedAt || 0).getTime();
+        const timeB = new Date(b.submittedAt || 0).getTime();
+        return timeB - timeA;
+      });
+
+      // Deduplicate by ID
+      const seen = new Set<string>();
+      const deduped: Enquiry[] = [];
+      for (const item of sorted) {
+        if (!seen.has(item.id)) {
+          seen.add(item.id);
+          deduped.push(item);
+        }
+      }
+
+      // Check for newly arrived enquiries (only if not initial load)
+      if (!isInitialLoadRef.current && leadsRef.current.length > 0) {
+        const prevIdSet = new Set(leadsRef.current.map((l) => l.id));
+        const newItems = deduped.filter((l) => !prevIdSet.has(l.id));
+
+        if (newItems.length > 0) {
+          // Track new IDs to show subtle visual indicator
+          setNewlyArrivedIds((prev) => {
+            const next = new Set(prev);
+            newItems.forEach((item) => next.add(item.id));
+            return next;
+          });
+
+          // Play pleasant chime
+          playNotificationChime();
+
+          // Show subtle informative toast
+          const leadTitle = newItems[0].name
+            ? `${newItems[0].name} (${newItems[0].program || 'Course Enquiry'})`
+            : (newItems[0].program || 'New Lead');
+
+          showToast(
+            `🔔 ${newItems.length === 1 ? 'New enquiry received' : `${newItems.length} new enquiries received`}: ${leadTitle}`,
+            'success'
+          );
+
+          // Auto-clear new highlight after 12 seconds
+          setTimeout(() => {
+            if (isMountedRef.current) {
+              setNewlyArrivedIds(new Set());
+            }
+          }, 12000);
+        }
+      }
+
+      leadsRef.current = deduped;
+      setLeads(deduped);
+      setLastSyncTime(new Date());
+      isInitialLoadRef.current = false;
+    } catch (err: any) {
+      if (!silent) {
+        showToast(err.message || 'Failed to fetch enquiries.', 'error');
+      }
+    } finally {
+      if (isMountedRef.current) {
+        if (!silent) setIsRefreshing(false);
+        setLoading(false);
+      }
+    }
   }, []);
+
+  // Polling & Visibility synchronization lifecycle
+  useEffect(() => {
+    isMountedRef.current = true;
+    
+    // Initial fetch
+    syncLeads(false);
+
+    let intervalId: any = null;
+
+    const startPolling = () => {
+      if (intervalId) clearInterval(intervalId);
+      intervalId = setInterval(() => {
+        if (document.visibilityState === 'visible') {
+          syncLeads(true);
+        }
+      }, 5000);
+    };
+
+    const stopPolling = () => {
+      if (intervalId) {
+        clearInterval(intervalId);
+        intervalId = null;
+      }
+    };
+
+    // Visibility change handler: pause polling when tab is hidden, immediately sync when tab becomes visible
+    const handleVisibilityChange = () => {
+      if (document.visibilityState === 'visible') {
+        syncLeads(true);
+        startPolling();
+      } else {
+        stopPolling();
+      }
+    };
+
+    // Window focus handler: sync immediately when window gains focus
+    const handleWindowFocus = () => {
+      syncLeads(true);
+    };
+
+    startPolling();
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+    window.addEventListener('focus', handleWindowFocus);
+
+    return () => {
+      isMountedRef.current = false;
+      stopPolling();
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
+      window.removeEventListener('focus', handleWindowFocus);
+    };
+  }, [syncLeads]);
 
   const handleOpenLeadModal = (lead: Enquiry) => {
     setActiveLead(lead);
@@ -62,12 +203,13 @@ export const AdminLeads: React.FC = () => {
       if (res.success && res.enquiry) {
         setActiveLead(res.enquiry);
         showToast('Lead status updated successfully!');
-        fetchLeads();
+        syncLeads(true);
       }
     } catch (err: any) {
       showToast(err.message || 'Failed to update lead.', 'error');
     }
   };
+
 
   const filteredLeads = leads.filter((lead) => {
     const isStudentOffer =
@@ -145,6 +287,13 @@ export const AdminLeads: React.FC = () => {
             <span className="px-2 py-0.5 text-[10px] font-extrabold uppercase tracking-wider rounded-md bg-[#F1E8FA]/15 text-[#6D22B5] border border-[#6D22B5]/30">
               {leads.length} Enquiries
             </span>
+            <span
+              className="inline-flex items-center gap-1.5 px-2 py-0.5 text-[10px] font-medium rounded-md bg-emerald-950/40 text-emerald-400 border border-emerald-800/40"
+              title="Live auto-synchronization every 5 seconds (pauses when tab is inactive)"
+            >
+              <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
+              Live Sync (5s)
+            </span>
           </div>
           <p className="text-xs text-neutral-400 mt-1">
             Track student consultation requests, Tools &amp; Upskills 2-step leads, counselor notes, and admissions.
@@ -159,12 +308,13 @@ export const AdminLeads: React.FC = () => {
             <span>Logged-In Users Telemetry →</span>
           </Link>
           <button
-            onClick={fetchLeads}
-            disabled={loading}
+            onClick={() => syncLeads(false)}
+            disabled={loading || isRefreshing}
             className="px-3.5 py-2 rounded-xl bg-neutral-900 hover:bg-neutral-800 border border-neutral-700 text-xs font-bold text-neutral-300 flex items-center gap-2 transition-colors disabled:opacity-50"
+            title={`Last synced: ${lastSyncTime.toLocaleTimeString()}`}
           >
-            <RefreshCw className={`w-3.5 h-3.5 ${loading ? 'animate-spin text-[#6D22B5]' : ''}`} />
-            <span>Refresh Leads</span>
+            <RefreshCw className={`w-3.5 h-3.5 ${loading || isRefreshing ? 'animate-spin text-[#6D22B5]' : ''}`} />
+            <span>{isRefreshing ? 'Syncing...' : 'Refresh Leads'}</span>
           </button>
         </div>
       </div>
@@ -243,11 +393,25 @@ export const AdminLeads: React.FC = () => {
                     (lead.program && lead.program.toLowerCase().includes('english mirror')) ||
                     lead.details?.partner === 'English Mirror';
 
+                  const isNewlyArrived = newlyArrivedIds.has(lead.id);
+
                   return (
-                    <tr key={lead.id} className="hover:bg-neutral-800/40 transition-colors">
+                    <tr
+                      key={lead.id}
+                      className={`transition-colors duration-700 ${
+                        isNewlyArrived
+                          ? 'bg-[#6D22B5]/15 border-l-4 border-[#6D22B5] hover:bg-[#6D22B5]/25'
+                          : 'hover:bg-neutral-800/40'
+                      }`}
+                    >
                       <td className="py-3.5 px-4 font-bold text-white">
                         <div className="flex items-center gap-1.5">
                           <span>{lead.name}</span>
+                          {isNewlyArrived && (
+                            <span className="inline-flex items-center px-1.5 py-0.5 rounded text-[9px] font-extrabold uppercase bg-[#6D22B5] text-white animate-pulse tracking-wider">
+                              New
+                            </span>
+                          )}
                           {lead.profession && (
                             <span className="text-[10px] px-1.5 py-0.2 rounded bg-neutral-800 text-neutral-400 font-normal">
                               {lead.profession}
