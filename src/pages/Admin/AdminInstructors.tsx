@@ -152,14 +152,9 @@ export const AdminInstructors: React.FC = () => {
           <span className="text-[11px] uppercase tracking-wider text-neutral-400 font-bold block">
             Live Website View
           </span>
-          <Link
-            to="/instructors"
-            target="_blank"
-            className="text-xs font-bold text-[#6D22B5] hover:text-[#853FD5] hover:underline mt-2 inline-flex items-center gap-1"
-          >
-            <span>Preview Public Directory</span>
-            <ExternalLink className="w-3 h-3" />
-          </Link>
+          <span className="text-xs font-semibold text-neutral-400 mt-2 inline-flex items-center gap-1">
+            Directory Disabled (Public)
+          </span>
         </div>
       </div>
 

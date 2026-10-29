@@ -1193,10 +1193,10 @@ export const Home: React.FC = () => {
 
           <div className="text-center pt-2">
             <Link
-              to="/instructors"
+              to="/about"
               className="btn-primary px-5 py-2.5 text-xs font-bold rounded-xl shadow-md transition-colors inline-flex items-center gap-1.5"
             >
-              <span>Meet Our Faculty &amp; Mentors</span>
+              <span>Learn More About Edqoo</span>
               <ArrowRight className="w-3.5 h-3.5" />
             </Link>
           </div>

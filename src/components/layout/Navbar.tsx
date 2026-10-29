@@ -16,7 +16,6 @@ import {
   Briefcase,
   Handshake,
   GraduationCap,
-  Users,
   Info,
   Award
 } from 'lucide-react';
@@ -68,7 +67,7 @@ export const Navbar: React.FC = () => {
 
   // Active section detectors
   const isOrgActive = location.pathname === '/hire-from-us' || location.pathname === '/become-a-partner';
-  const isProActive = location.pathname === '/become-an-instructor' || location.pathname.startsWith('/instructors');
+  const isProActive = location.pathname === '/become-an-instructor';
   const isAboutActive = location.pathname === '/about' || location.pathname === '/leadership-council';
 
   // Load dynamic categories
@@ -378,19 +377,6 @@ export const Navbar: React.FC = () => {
                         <div>
                           <span className="text-xs font-bold text-slate-900 block group-hover:text-black">Become an Instructor</span>
                           <span className="text-[11px] text-slate-500 block leading-tight mt-0.5">Teach &amp; mentor global learners</span>
-                        </div>
-                      </Link>
-                      <Link
-                        to="/instructors"
-                        onClick={() => setActiveDropdown(null)}
-                        className="flex items-start gap-3 p-2.5 rounded-xl hover:bg-[#F1E8FA]/60 transition-colors group mt-0.5"
-                      >
-                        <div className="w-8 h-8 rounded-lg bg-[#F1E8FA] text-[#6D22B5] flex items-center justify-center flex-shrink-0 group-hover:bg-[#6D22B5] group-hover:text-black transition-colors">
-                          <Users className="w-4 h-4" />
-                        </div>
-                        <div>
-                          <span className="text-xs font-bold text-slate-900 block group-hover:text-black">Faculty Directory</span>
-                          <span className="text-[11px] text-slate-500 block leading-tight mt-0.5">Meet our industry faculty</span>
                         </div>
                       </Link>
                     </div>
@@ -776,7 +762,7 @@ export const Navbar: React.FC = () => {
             {/* Professionals Group */}
             <div className="pt-2 pb-1 px-3">
               <span className="text-[10px] font-extrabold uppercase tracking-wider text-slate-400">
-                For Professionals &amp; Faculty
+                For Instructors
               </span>
             </div>
             <NavLink
@@ -789,17 +775,6 @@ export const Navbar: React.FC = () => {
               }
             >
               Become an Instructor
-            </NavLink>
-            <NavLink
-              to="/instructors"
-              onClick={() => setIsMobileMenuOpen(false)}
-              className={({ isActive }) =>
-                `text-xs font-bold py-1.5 px-3 pl-5 rounded-lg transition-all ${
-                  isActive ? 'bg-[#F1E8FA] text-black font-extrabold border-l-2 border-[#6D22B5]' : 'text-slate-800 hover:bg-slate-50'
-                }`
-              }
-            >
-              Instructors Directory
             </NavLink>
 
             {/* About Group */}

@@ -20,8 +20,8 @@ const About = React.lazy(() => import('../pages/About').then(module => ({ defaul
 const Contact = React.lazy(() => import('../pages/Contact').then(module => ({ default: module.Contact })));
 const TermsAndConditions = React.lazy(() => import('../pages/TermsAndConditions').then(module => ({ default: module.TermsAndConditions })));
 const PrivacyPolicy = React.lazy(() => import('../pages/PrivacyPolicy').then(module => ({ default: module.PrivacyPolicy })));
-const Instructors = React.lazy(() => import('../pages/Instructors').then(module => ({ default: module.Instructors })));
-const InstructorDetail = React.lazy(() => import('../pages/Instructors/InstructorDetail').then(module => ({ default: module.InstructorDetail })));
+// const Instructors = React.lazy(() => import('../pages/Instructors').then(module => ({ default: module.Instructors })));
+// const InstructorDetail = React.lazy(() => import('../pages/Instructors/InstructorDetail').then(module => ({ default: module.InstructorDetail })));
 const NotFound = React.lazy(() => import('../pages/NotFound').then(module => ({ default: module.NotFound })));
 
 // 4 New Professional Pages
@@ -95,8 +95,9 @@ export const AppRoutes: React.FC = () => {
           <Route path="/resources" element={<Navigate to="/blog" replace />} />
           <Route path="/resources/:slug" element={<Navigate to="/blog" replace />} />
           
-          <Route path="/instructors" element={<Instructors />} />
-          <Route path="/instructors/:id" element={<InstructorDetail />} />
+          {/* Faculty directory temporarily disabled */}
+          <Route path="/instructors" element={<Navigate to="/" replace />} />
+          <Route path="/instructors/:id" element={<Navigate to="/" replace />} />
           <Route path="/about" element={<About />} />
           <Route path="/contact" element={<Contact />} />
           <Route path="/terms-and-conditions" element={<TermsAndConditions />} />
