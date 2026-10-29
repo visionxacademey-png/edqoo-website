@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useLayoutEffect, useRef, useMemo } from 'react';
+import React, { useState, useEffect, useRef, useMemo } from 'react';
 import { Link } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
@@ -160,54 +160,55 @@ export const Home: React.FC = () => {
   const statsSectionRef = useRef<HTMLDivElement>(null);
   const touchStartX = useRef<number | null>(null);
   const programsSectionRef = useRef<HTMLElement>(null);
-  const scrollLockRef = useRef<number | null>(null);
+  const coursesRef = useRef<HTMLDivElement>(null);
+  const shouldScrollToCoursesRef = useRef(false);
+  const isInitialMountRef = useRef(true);
+
+  // Smoothly scroll the course listing section into view, accounting for the fixed navbar
+  const scrollToCourses = () => {
+    requestAnimationFrame(() => {
+      requestAnimationFrame(() => {
+        const targetElement = coursesRef.current || document.getElementById('program-courses');
+        if (!targetElement) return;
+
+        targetElement.scrollIntoView({
+          behavior: 'smooth',
+          block: 'start',
+        });
+      });
+    });
+  };
 
   const handleCategoryClick = (categoryId: string, e?: React.MouseEvent) => {
     if (e) {
       e.preventDefault();
       (e.currentTarget as HTMLElement).blur();
     }
-    if (categoryId === selectedCategory) return;
 
-    // Capture current window scroll position before state update
-    const currentScrollY = window.scrollY;
-    scrollLockRef.current = currentScrollY;
+    shouldScrollToCoursesRef.current = true;
+
+    // If the clicked category is already active, scroll to the top of the course cards immediately
+    if (categoryId === selectedCategory) {
+      scrollToCourses();
+      return;
+    }
 
     setSelectedCategory(categoryId);
   };
 
-  // Synchronously stabilize scroll position before browser paint to prevent unwanted jumps
-  useLayoutEffect(() => {
-    if (scrollLockRef.current === null) return;
-    const targetY = scrollLockRef.current;
-    scrollLockRef.current = null;
-
-    const section = programsSectionRef.current || document.getElementById('programs');
-    if (!section) return;
-
-    const rect = section.getBoundingClientRect();
-    const viewportHeight = window.innerHeight;
-
-    // If the section is currently visible in the viewport, maintain the exact current scroll position
-    if (rect.bottom > 80 && rect.top < viewportHeight) {
-      if (Math.abs(window.scrollY - targetY) > 0.5) {
-        window.scrollTo({
-          top: targetY,
-          behavior: 'instant' as ScrollBehavior,
-        });
-      }
-    } else if (rect.bottom <= 80) {
-      // If the section collapsed above the viewport because the selected category has fewer cards,
-      // align the viewport so the user can directly see the category content they just selected
-      const navHeight = 80;
-      const sectionAbsoluteTop = rect.top + window.scrollY;
-      const safeScrollY = Math.max(0, sectionAbsoluteTop - navHeight);
-      window.scrollTo({
-        top: safeScrollY,
-        behavior: 'instant' as ScrollBehavior,
-      });
+  // Automatically scroll to the beginning of the course listing whenever the selected category changes
+  useEffect(() => {
+    // Prevent scrolling on initial page load
+    if (isInitialMountRef.current) {
+      isInitialMountRef.current = false;
+      return;
     }
-  }, [selectedCategory]);
+
+    if (shouldScrollToCoursesRef.current && !programsLoading) {
+      shouldScrollToCoursesRef.current = false;
+      scrollToCourses();
+    }
+  }, [selectedCategory, programsLoading]);
 
   // Preload all hero slide images for instant switching (desktop and mobile)
   useEffect(() => {
@@ -435,8 +436,8 @@ export const Home: React.FC = () => {
   const hasEnglishInHome = useMemo(() => {
     if (isSpokenEnglishSelected) return true;
     if (selectedCategory === 'all' || selectedCategory === 'All Categories' || !selectedCategory) return true;
-    return displayedPrograms.some(isEnglishMirrorCourse);
-  }, [isSpokenEnglishSelected, selectedCategory, displayedPrograms]);
+    return false;
+  }, [isSpokenEnglishSelected, selectedCategory]);
 
   const totalHomeCount = isSpokenEnglishSelected
     ? PROGRAM_TRACK_LANGUAGES.length
@@ -955,7 +956,12 @@ export const Home: React.FC = () => {
             </div>
 
             {/* Right Courses Cards Grid */}
-            <div className="lg:col-span-9 space-y-6">
+            <div
+              ref={coursesRef}
+              id="program-courses"
+              className="lg:col-span-9 space-y-6 scroll-mt-[100px]"
+              style={{ scrollMarginTop: '100px' }}
+            >
               
               <div className="flex items-center justify-between border-b border-slate-200 pb-3 min-h-[32px]">
                 {programsLoading ? (

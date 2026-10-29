@@ -438,3 +438,8 @@
 .programs-dropdown::-webkit-scrollbar-thumb:hover {
   background: #6D22B5;
 }
+
+/* Ensure the program course listing section accounts for the sticky/fixed navbar */
+#program-courses {
+  scroll-margin-top: 100px;
+}

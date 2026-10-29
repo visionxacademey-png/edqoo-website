@@ -189,7 +189,7 @@ export const Courses: React.FC = () => {
     }
 
     if (!isEnglishChosen) {
-      return orderCoursesWithEnglishMirrorLast(result);
+      return result.filter((c) => !isEnglishMirrorCourse(c));
     }
 
     return result;
@@ -202,8 +202,8 @@ export const Courses: React.FC = () => {
   const hasEnglishInCourses = useMemo(() => {
     if (isEnglishChosen) return true;
     if (selectedCategory === 'all' || selectedCategory === 'All Categories' || !selectedCategory) return true;
-    return filteredCourses.some(isEnglishMirrorCourse);
-  }, [isEnglishChosen, selectedCategory, filteredCourses]);
+    return false;
+  }, [isEnglishChosen, selectedCategory]);
 
   const totalCourseCount = isEnglishChosen
     ? PROGRAM_TRACK_LANGUAGES.length

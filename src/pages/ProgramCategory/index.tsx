@@ -22,6 +22,68 @@ import { CourseSkeleton } from '../../components/ui/CourseSkeleton';
 import { getCategoryIcon } from '../../utils/categoryIcons';
 import { EnglishMirrorCategoryCard } from '../../components/englishMirror/EnglishMirrorCategoryCard';
 import { LanguageTrackCard, PROGRAM_TRACK_LANGUAGES } from '../../components/common/LanguageTrackCard';
+import { isEnglishMirrorCourse } from '../../data/courses';
+
+/**
+ * Checks whether a category belongs specifically to the Spoken English / English Mirror partner track.
+ */
+export const isEnglishMirrorCategory = (
+  cat?: {
+    id?: string;
+    slug?: string;
+    name?: string;
+    parentId?: string;
+    parentSlug?: string;
+    isPartner?: boolean;
+  } | null
+): boolean => {
+  if (!cat) return false;
+  const slug = (cat.slug || '').toLowerCase().trim();
+  const id = (cat.id || '').toLowerCase().trim();
+  const name = (cat.name || '').toLowerCase().trim();
+  const parentId = (cat.parentId || '').toLowerCase().trim();
+  const parentSlug = (cat.parentSlug || '').toLowerCase().trim();
+
+  if (
+    slug === 'english-mirror' ||
+    slug === 'spoken-tutorial' ||
+    slug === 'spoken-english' ||
+    slug === 'englishmirror' ||
+    id === 'cat-spoken-tutorial' ||
+    id === 'cat-english-mirror' ||
+    parentSlug === 'spoken-tutorial' ||
+    parentSlug === 'english-mirror' ||
+    parentSlug === 'spoken-english' ||
+    parentId === 'cat-spoken-tutorial' ||
+    parentId === 'cat-english-mirror' ||
+    name.includes('spoken english') ||
+    name.includes('spoken tutorial') ||
+    name.includes('english mirror')
+  ) {
+    return true;
+  }
+
+  if (cat.isPartner) {
+    return (
+      slug.includes('english') ||
+      slug.includes('spoken') ||
+      slug.includes('ielts') ||
+      slug.includes('fluency') ||
+      slug.includes('mirror') ||
+      id.includes('english') ||
+      id.includes('spoken') ||
+      id.includes('ielts') ||
+      id.includes('fluency') ||
+      id.includes('mirror') ||
+      name.includes('english') ||
+      name.includes('ielts') ||
+      name.includes('fluency') ||
+      name.includes('mirror')
+    );
+  }
+
+  return false;
+};
 
 export const ProgramCategory: React.FC = () => {
   const { categorySlug } = useParams<{ categorySlug?: string }>();
@@ -102,21 +164,87 @@ export const ProgramCategory: React.FC = () => {
   // Find active category by slug or id
   const activeCategory = useMemo(() => {
     if (targetSlug === 'all') return null;
-    return (
-      categories.find(
-        (c) =>
-          c.slug.toLowerCase() === targetSlug.toLowerCase() ||
-          c.id === targetSlug ||
-          c.name.toLowerCase().replace(/\s+/g, '-') === targetSlug.toLowerCase()
-      ) || null
+    const lower = targetSlug.toLowerCase().trim();
+
+    // 1. Direct slug or id match
+    const directMatch = categories.find(
+      (c) =>
+        c.slug.toLowerCase().trim() === lower ||
+        c.id.toLowerCase().trim() === lower ||
+        c.name.toLowerCase().replace(/\s+/g, '-') === lower
     );
+    if (directMatch) return directMatch;
+
+    // 2. English Mirror / Spoken Tutorial alias match
+    if (lower === 'english-mirror' || lower === 'spoken-tutorial' || lower === 'spoken-english' || lower === 'englishmirror') {
+      const englishCat = categories.find((c) => isEnglishMirrorCategory(c));
+      if (englishCat) return englishCat;
+    }
+
+    // 3. Python specific track match
+    if (lower === 'python' || lower === 'master-program-in-python') {
+      const pythonCat = categories.find(
+        (c) =>
+          c.slug.toLowerCase().includes('python') ||
+          c.name.toLowerCase().includes('python') ||
+          c.id.toLowerCase().includes('python')
+      );
+      if (pythonCat) return pythonCat;
+
+      return {
+        id: 'cat-python',
+        slug: lower,
+        name: lower === 'master-program-in-python' ? 'Master Program in Python' : 'Python Programming',
+        title: 'Master Program in Python & Software Engineering',
+        description: 'Comprehensive Python programming from core syntax to OOP, APIs, web scraping, and data processing.',
+        subtitle: 'Master Python programming from fundamentals to advanced enterprise workflows.',
+        icon: 'code',
+        heroImage: 'https://images.unsplash.com/photo-1526379095098-d400fd0bf935?q=80&w=1200&auto=format&fit=crop',
+        heroBadge: 'Core Programming Track',
+        highlights: [
+          'Full-stack Python programming from basics to production code',
+          'Data structures, algorithms, and object-oriented programming (OOP)',
+          'Automated data pipelines, REST APIs, and database integrations',
+          'Industry portfolio projects with mentor code reviews'
+        ],
+        curriculumPillars: [
+          { title: 'Core Python Syntax & Logic', desc: 'Variables, loops, functions, data structures, and algorithmic foundations.' },
+          { title: 'Object-Oriented Programming (OOP)', desc: 'Classes, inheritance, encapsulation, polymorphism, and design patterns.' },
+          { title: 'APIs & Web Automation', desc: 'FastAPI, requests, BeautifulSoup, web scraping, and database integrations.' },
+          { title: 'Capstone & Production Deployment', desc: 'Building, testing, packaging, and deploying Python applications.' }
+        ],
+        faqs: [
+          { question: 'Who should enroll in the Python Master Program?', answer: 'Anyone looking to build a strong software engineering foundation or transition into data science, web development, or automation.' },
+          { question: 'Do I need prior coding knowledge?', answer: 'No, the curriculum starts with fundamental programming concepts before advancing to real-world applications.' }
+        ],
+        displayOrder: 7,
+        isActive: true,
+        isPartner: false,
+        seoTitle: 'Master Program in Python | Edqoo',
+        seoDescription: 'Learn Python programming with Edqoo. Master syntax, OOP, APIs, automation, and real-world projects.',
+        metaKeywords: ['Python programming', 'Master Program in Python', 'learn python online', 'python certification']
+      } as Category;
+    }
+
+    return null;
   }, [categories, targetSlug]);
 
   // Filter courses for active category
   const categoryCourses = useMemo(() => {
     if (!activeCategory) return courseList;
+    const isCategoryEnglish = isEnglishMirrorCategory(activeCategory);
 
     return courseList.filter((course) => {
+      // Exclude English Mirror courses from non-English categories
+      if (!isCategoryEnglish && isEnglishMirrorCourse(course)) {
+        return false;
+      }
+
+      // If English category, match only English courses
+      if (isCategoryEnglish) {
+        return isEnglishMirrorCourse(course);
+      }
+
       // 1. Check direct categoryId match
       if (course.categoryId && course.categoryId === activeCategory.id) {
         return true;
@@ -147,7 +275,11 @@ export const ProgramCategory: React.FC = () => {
         return true;
       }
       // 6. Handle python specific match
-      if (activeCategory.slug === 'python') {
+      if (
+        activeCategory.slug === 'python' ||
+        activeCategory.slug === 'master-program-in-python' ||
+        activeCategory.name.toLowerCase().includes('python')
+      ) {
         return (
           course.title.toLowerCase().includes('python') ||
           course.slug.includes('python') ||
@@ -220,11 +352,11 @@ export const ProgramCategory: React.FC = () => {
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {categories.map((item) => {
-                const isEnglishMirror = item.slug === 'english-mirror' || item.isPartner;
+                const isEnglishMirrorItem = isEnglishMirrorCategory(item);
                 const linkUrl = item.slug === 'tools-and-upskills'
                   ? '/tools-and-upskills'
-                  : item.slug === 'english-mirror'
-                  ? '/english-mirror'
+                  : isEnglishMirrorItem
+                  ? '/spoken-tutorial'
                   : `/programs/${item.slug}`;
 
                 return (
@@ -234,7 +366,7 @@ export const ProgramCategory: React.FC = () => {
                   >
                     <div className="p-6 space-y-4">
                       <div className="flex items-center justify-between">
-                        {isEnglishMirror ? (
+                        {isEnglishMirrorItem ? (
                           <div className="w-12 h-12 rounded-xl bg-purple-50 border border-purple-200 flex items-center justify-center p-1.5 group-hover:scale-105 transition-transform overflow-hidden">
                             <img src="/englishclass.png" alt="English Mirror Logo" className="w-full h-full object-contain" />
                           </div>
@@ -244,7 +376,7 @@ export const ProgramCategory: React.FC = () => {
                           </div>
                         )}
                         <span className="text-[11px] font-bold text-slate-500 uppercase">
-                          {item.badge || (isEnglishMirror ? 'Partner Track' : 'Track')}
+                          {item.badge || (isEnglishMirrorItem ? 'Partner Track' : 'Track')}
                         </span>
                       </div>
 
@@ -389,16 +521,7 @@ export const ProgramCategory: React.FC = () => {
     content: <p className="text-xs leading-relaxed text-slate-600">{f.answer}</p>
   }));
 
-  const isEnglishMirror =
-    activeCategory.slug === 'english-mirror' ||
-    activeCategory.slug === 'spoken-tutorial' ||
-    activeCategory.slug === 'spoken-english' ||
-    activeCategory.id === 'cat-spoken-tutorial' ||
-    activeCategory.id === 'cat-english-mirror' ||
-    activeCategory.name.toLowerCase().includes('spoken english') ||
-    activeCategory.name.toLowerCase().includes('spoken tutorial') ||
-    activeCategory.name.toLowerCase().includes('english mirror') ||
-    Boolean(activeCategory.isPartner);
+  const isEnglishMirror = isEnglishMirrorCategory(activeCategory);
 
   return (
     <div className="bg-white min-h-screen text-slate-900 text-left">
@@ -540,6 +663,7 @@ export const ProgramCategory: React.FC = () => {
             </div>
           ) : isEnglishMirror ? (
             <div className="col-span-full grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              <EnglishMirrorCategoryCard variant="home_grid" />
               {PROGRAM_TRACK_LANGUAGES.map((lang) => (
                 <LanguageTrackCard key={lang.id} language={lang} />
               ))}
@@ -549,71 +673,64 @@ export const ProgramCategory: React.FC = () => {
               No courses currently listed under {categoryH1}.
             </div>
           ) : (
-            <>
-              {categoryCourses.map((course) => (
-                <div
-                  key={course.id}
-                  className="bg-white border border-slate-200 rounded-2xl overflow-hidden shadow-2xs hover:shadow-md hover:border-[#6D22B5] transition-all flex flex-col justify-between group"
-                >
-                  {/* Course Image */}
-                  <div className="relative aspect-[16/10] overflow-hidden bg-slate-100 flex items-center justify-center">
-                    <img
-                      src={getCacheBustedImageUrl(course.image, course.updatedAt || course.imageUpdatedAt, DEFAULT_ENGLISH_COURSE_FALLBACK)}
-                      alt={`${course.title} - Edqoo online course`}
-                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-                      loading="lazy"
-                      onError={(e) => {
-                        const target = e.currentTarget;
-                        if (target.src !== DEFAULT_ENGLISH_COURSE_FALLBACK) {
-                          target.src = DEFAULT_ENGLISH_COURSE_FALLBACK;
-                        }
-                      }}
-                    />
-                    <div className="absolute top-3 left-3 flex items-center gap-1.5 bg-white/90 backdrop-blur-xs px-2.5 py-1 rounded-lg text-[10px] font-bold text-slate-800 border border-slate-200 shadow-2xs">
-                      <Clock className="w-3 h-3 text-[#6D22B5]" />
-                      <span>{course.duration}</span>
-                    </div>
-                  </div>
-
-                  {/* Course Info */}
-                  <div className="p-5 flex-1 flex flex-col justify-between space-y-4">
-                    <div className="space-y-2">
-                      <div className="flex items-center gap-1.5 text-xs text-amber-500 font-bold">
-                        <Star className="w-3.5 h-3.5 fill-current" />
-                        <span>{course.rating.toFixed(1)}</span>
-                        <span className="text-slate-400 font-normal">({course.students}+ enrolled)</span>
-                      </div>
-
-                      <h3 className="font-display font-bold text-base text-slate-900 group-hover:text-black transition-colors line-clamp-2">
-                        <Link to={`/courses/${course.slug}`}>{course.title}</Link>
-                      </h3>
-
-                      <p className="text-xs text-slate-500 line-clamp-2 leading-relaxed">
-                        {course.shortDescription || course.description}
-                      </p>
-                    </div>
-
-                    <div className="pt-3 border-t border-slate-100 flex items-center justify-between">
-                      <span className="text-xs font-semibold text-slate-600">
-                        {course.level || 'Beginner to Advanced'}
-                      </span>
-                      <Link
-                        to={`/courses/${course.slug}`}
-                        className="px-3 py-1.5 bg-[#F1E8FA] hover:bg-[#E0CEF5]/60 text-[#6D22B5] text-xs font-bold rounded-lg border border-[#E0CEF5] inline-flex items-center gap-1 transition-colors"
-                      >
-                        <span>View Syllabus</span>
-                        <ArrowRight className="w-3 h-3" />
-                      </Link>
-                    </div>
+            categoryCourses.map((course) => (
+              <div
+                key={course.id}
+                className="bg-white border border-slate-200 rounded-2xl overflow-hidden shadow-2xs hover:shadow-md hover:border-[#6D22B5] transition-all flex flex-col justify-between group"
+              >
+                {/* Course Image */}
+                <div className="relative aspect-[16/10] overflow-hidden bg-slate-100 flex items-center justify-center">
+                  <img
+                    src={getCacheBustedImageUrl(course.image, course.updatedAt || course.imageUpdatedAt, DEFAULT_ENGLISH_COURSE_FALLBACK)}
+                    alt={`${course.title} - Edqoo online course`}
+                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                    loading="lazy"
+                    onError={(e) => {
+                      const target = e.currentTarget;
+                      if (target.src !== DEFAULT_ENGLISH_COURSE_FALLBACK) {
+                        target.src = DEFAULT_ENGLISH_COURSE_FALLBACK;
+                      }
+                    }}
+                  />
+                  <div className="absolute top-3 left-3 flex items-center gap-1.5 bg-white/90 backdrop-blur-xs px-2.5 py-1 rounded-lg text-[10px] font-bold text-slate-800 border border-slate-200 shadow-2xs">
+                    <Clock className="w-3 h-3 text-[#6D22B5]" />
+                    <span>{course.duration}</span>
                   </div>
                 </div>
-              ))}
 
-              {/* English Mirror card if relevant */}
-              {!isEnglishMirror && activeCategory.slug !== 'english-mirror' && (
-                <EnglishMirrorCategoryCard variant="home_grid" />
-              )}
-            </>
+                {/* Course Info */}
+                <div className="p-5 flex-1 flex flex-col justify-between space-y-4">
+                  <div className="space-y-2">
+                    <div className="flex items-center gap-1.5 text-xs text-amber-500 font-bold">
+                      <Star className="w-3.5 h-3.5 fill-current" />
+                      <span>{course.rating.toFixed(1)}</span>
+                      <span className="text-slate-400 font-normal">({course.students}+ enrolled)</span>
+                    </div>
+
+                    <h3 className="font-display font-bold text-base text-slate-900 group-hover:text-black transition-colors line-clamp-2">
+                      <Link to={`/courses/${course.slug}`}>{course.title}</Link>
+                    </h3>
+
+                    <p className="text-xs text-slate-500 line-clamp-2 leading-relaxed">
+                      {course.shortDescription || course.description}
+                    </p>
+                  </div>
+
+                  <div className="pt-3 border-t border-slate-100 flex items-center justify-between">
+                    <span className="text-xs font-semibold text-slate-600">
+                      {course.level || 'Beginner to Advanced'}
+                    </span>
+                    <Link
+                      to={`/courses/${course.slug}`}
+                      className="px-3 py-1.5 bg-[#F1E8FA] hover:bg-[#E0CEF5]/60 text-[#6D22B5] text-xs font-bold rounded-lg border border-[#E0CEF5] inline-flex items-center gap-1 transition-colors"
+                    >
+                      <span>View Syllabus</span>
+                      <ArrowRight className="w-3 h-3" />
+                    </Link>
+                  </div>
+                </div>
+              </div>
+            ))
           )}
         </div>
       </section>
