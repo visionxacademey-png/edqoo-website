@@ -652,7 +652,7 @@ export const CourseDetails: React.FC = () => {
             {/* Quick stats indicators */}
             <div className="flex flex-wrap items-center justify-center gap-x-6 gap-y-2 pt-4 border-t border-slate-100 text-xs font-semibold text-slate-600">
               <span className="flex items-center gap-1.5">
-                <Star className="w-4 h-4 text-amber-500 fill-current" />
+                <Star className="w-4 h-4 text-green-600 fill-current" />
                 <span className="text-slate-900 font-bold">{course.rating}</span> ({course.students} Active Learners)
               </span>
               <span className="flex items-center gap-1.5 font-bold text-slate-800">
@@ -753,7 +753,7 @@ export const CourseDetails: React.FC = () => {
             {/* Quick stats indicators */}
             <div className="flex flex-wrap items-center justify-center gap-x-6 gap-y-2 pt-4 border-t border-slate-200 text-xs font-semibold text-[#333333]">
               <span className="flex items-center gap-1.5">
-                <Star className="w-4 h-4 text-amber-500 fill-current" />
+                <Star className="w-4 h-4 text-green-600 fill-current" />
                 <span className="text-[#202020] font-bold">{course.rating}</span> ({course.students} Learners Enrolled)
               </span>
               <span className="flex items-center gap-1.5 font-bold text-[#333333]">
@@ -819,7 +819,7 @@ export const CourseDetails: React.FC = () => {
             {/* Quick stats indicators */}
             <div className="flex flex-wrap gap-x-6 gap-y-2 pt-2 text-xs font-semibold text-slate-600">
               <span className="flex items-center gap-1.5">
-                <Star className="w-4 h-4 text-amber-500 fill-current" />
+                <Star className="w-4 h-4 text-green-600 fill-current" />
                 <span className="text-slate-950 font-bold">{course.rating}</span> ({course.students} Learners Enrolled)
               </span>
               <span className="flex items-center gap-1.5 font-bold text-slate-800">

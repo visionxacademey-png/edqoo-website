@@ -43,9 +43,9 @@ export function getOrganizationSchema() {
       addressCountry: 'IN'
     },
     sameAs: [
-      'https://www.linkedin.com/company/edqoo',
-      'https://www.youtube.com/@edqoo',
-      'https://www.facebook.com/edqoo'
+      'https://www.linkedin.com/company/edqoo/',
+      'https://x.com/edqooapp',
+      'https://www.instagram.com/edqoo.app'
     ]
   };
 }

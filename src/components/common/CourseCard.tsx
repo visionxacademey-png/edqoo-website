@@ -100,7 +100,7 @@ export const CourseCard: React.FC<CourseCardProps> = ({
             <Clock className="w-3.5 h-3.5 text-[#6D22B5]" />
             {course.duration}
           </span>
-          <span className="flex items-center gap-1 text-amber-500 font-bold">
+          <span className="flex items-center gap-1 text-green-600 font-bold">
             <Star className="w-3.5 h-3.5 fill-current" />
             {course.rating > 0 ? (typeof course.rating === 'number' ? course.rating.toFixed(1) : course.rating) : '4.9'}
           </span>

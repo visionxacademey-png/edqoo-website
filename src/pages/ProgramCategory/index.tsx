@@ -701,7 +701,7 @@ export const ProgramCategory: React.FC = () => {
                 {/* Course Info */}
                 <div className="p-5 flex-1 flex flex-col justify-between space-y-4">
                   <div className="space-y-2">
-                    <div className="flex items-center gap-1.5 text-xs text-amber-500 font-bold">
+                    <div className="flex items-center gap-1.5 text-xs text-green-600 font-bold">
                       <Star className="w-3.5 h-3.5 fill-current" />
                       <span>{course.rating.toFixed(1)}</span>
                       <span className="text-slate-400 font-normal">({course.students}+ enrolled)</span>
