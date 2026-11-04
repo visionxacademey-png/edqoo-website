@@ -45,9 +45,9 @@ const heroSlides = [
     primaryCta: 'Explore All Programs',
     primaryLink: '/programs',
     secondaryCta: 'Talk to Advisor',
-    desktopImage: '/images/hero/hero-slide-1-desktop.webp',
-    image: '/images/hero/hero-slide-1-desktop.webp',
-    mobileImage: '/images/hero/hero-slide-1-mobile.webp',
+    desktopImage: '/images/hero/hero-slide-1-desktop.webp?v=4',
+    image: '/images/hero/hero-slide-1-desktop.webp?v=4',
+    mobileImage: '/images/hero/hero-slide-1-mobile.webp?v=4',
     statHighlight: '53% of learners received 50% and above salary hike post completion of the program*',
     partnerLogo: 'Enterprise Benchmark'
   },
@@ -61,9 +61,9 @@ const heroSlides = [
     primaryCta: 'View Data Science and AI',
     primaryLink: '/programs/data-science-and-ai',
     secondaryCta: 'Request Syllabus',
-    desktopImage: '/images/hero/hero-slide-2-desktop.webp',
-    image: '/images/hero/hero-slide-2-desktop.webp',
-    mobileImage: '/images/hero/hero-slide-2-mobile.webp',
+    desktopImage: '/images/hero/hero-slide-2-desktop.webp?v=4',
+    image: '/images/hero/hero-slide-2-desktop.webp?v=4',
+    mobileImage: '/images/hero/hero-slide-2-mobile.webp?v=4',
     statHighlight: '94% of alumni report direct career advancement in data & AI operations*',
     partnerLogo: 'Accredited Labs'
   },
@@ -77,9 +77,9 @@ const heroSlides = [
     primaryCta: 'View AI & Machine Learning Track',
     primaryLink: '/programs/ai-and-machine-learning',
     secondaryCta: 'Book Advisory Call',
-    desktopImage: '/images/hero/hero-slide-3-desktop.webp',
-    image: '/images/hero/hero-slide-3-desktop.webp',
-    mobileImage: '/images/hero/hero-slide-3-mobile.webp',
+    desktopImage: '/images/hero/hero-slide-3-desktop.webp?v=5',
+    image: '/images/hero/hero-slide-3-desktop.webp?v=5',
+    mobileImage: '/images/hero/hero-slide-3-mobile.webp?v=5',
     statHighlight: 'Over 2,500+ active practitioners enrolled across modern engineering tracks*',
     partnerLogo: 'Global Standards'
   },
@@ -93,9 +93,9 @@ const heroSlides = [
     primaryCta: 'Explore Tools & Upskills',
     primaryLink: '/tools-and-upskills',
     secondaryCta: 'Enquire for Teams',
-    desktopImage: '/images/hero/hero-slide-4-desktop.webp',
-    image: '/images/hero/hero-slide-4-desktop.webp',
-    mobileImage: '/images/hero/hero-slide-4-mobile.webp',
+    desktopImage: '/images/hero/hero-slide-4-desktop.webp?v=4',
+    image: '/images/hero/hero-slide-4-desktop.webp?v=4',
+    mobileImage: '/images/hero/hero-slide-4-mobile.webp?v=4',
     statHighlight: '100% lab-driven curriculum audited and verified by enterprise architects*',
     partnerLogo: 'Industry Verified'
   }
@@ -510,7 +510,7 @@ export const Home: React.FC = () => {
               animate={{ opacity: 1, scale: 1 }}
               exit={{ opacity: 0 }}
               transition={{ duration: 0.45, ease: 'easeOut' }}
-              className="absolute -top-[14%] inset-x-0 w-full h-[125%] object-cover object-top"
+              className="absolute inset-0 w-full h-full object-cover object-top"
               onError={(e) => {
                 const target = e.currentTarget;
                 const fallback = (currentHero.mobileImage || '').replace('.webp', '.jpg');
@@ -521,10 +521,10 @@ export const Home: React.FC = () => {
             />
           </AnimatePresence>
           <div className="absolute inset-x-0 top-0 h-20 bg-gradient-to-b from-black/20 to-transparent" />
-          <div className="absolute inset-x-0 bottom-0 top-[48%] bg-gradient-to-t from-white via-white/95 to-transparent" />
+          <div className="absolute inset-x-0 bottom-0 top-[40%] bg-gradient-to-t from-white via-white/80 to-transparent" />
         </div>
 
-        <div className="w-full relative z-10 px-5 pt-6 pb-5 flex flex-col space-y-4 text-left">
+        <div className="w-full relative z-10 bg-white/95 backdrop-blur-xl border-t border-slate-200/90 rounded-t-3xl px-5 pt-5 pb-5 shadow-[0_-10px_30px_rgba(0,0,0,0.12)] flex flex-col space-y-3.5 text-left">
           <AnimatePresence mode="wait">
             <motion.div
               key={currentHero.id}
@@ -534,7 +534,7 @@ export const Home: React.FC = () => {
               transition={{ duration: 0.3, ease: 'easeOut' }}
               className="w-full space-y-3.5"
             >
-              <h1 className="text-[22px] sm:text-2xl font-display font-black text-slate-950 tracking-tight leading-[1.2]">
+              <h1 className="text-[21px] sm:text-2xl font-display font-black text-slate-950 tracking-tight leading-[1.2]">
                 {currentHero.mainLine}
               </h1>
 
@@ -568,7 +568,7 @@ export const Home: React.FC = () => {
           </AnimatePresence>
 
           {/* Hero Slider Navigation Indicators */}
-          <div className="flex items-center gap-1.5 pt-1">
+          <div className="flex items-center justify-center gap-1.5 pt-1">
             {heroSlides.map((_, idx) => (
               <button
                 key={idx}
