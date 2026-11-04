@@ -40,7 +40,8 @@ const heroSlides = [
     launchBadge: 'Enterprise Technology Masterclasses & Live Hybrid Tracks',
     accentLine: 'Learn With Purpose.',
     mainLine: 'Build With Confidence',
-    pills: ['AI-Age Curriculum', 'Hands-on Cloud Labs', 'Real-World Projects', 'Placement Assistance in India'],
+    points: ['AI-Age Curriculum', 'Hands-on Cloud Labs', 'Placement Assistance in India'],
+    pills: ['AI-Age Curriculum', 'Hands-on Cloud Labs', 'Placement Assistance in India'],
     primaryCta: 'Explore All Programs',
     primaryLink: '/programs',
     secondaryCta: 'Talk to Advisor',
@@ -55,7 +56,8 @@ const heroSlides = [
     launchBadge: 'Advanced Executive Program in Data Science and AI',
     accentLine: 'Engineer Real AI.',
     mainLine: 'Deploy Predictive Models & GenAI from Day 1',
-    pills: ['Python & PyTorch', 'LLMs & RAG Architectures', '1:1 Mentor Reviews', 'Kerala & Pan-India Batches'],
+    points: ['Python & PyTorch', 'LLMs & RAG Architectures', '1:1 Mentor Reviews'],
+    pills: ['Python & PyTorch', 'LLMs & RAG Architectures', '1:1 Mentor Reviews'],
     primaryCta: 'View Data Science and AI',
     primaryLink: '/programs/data-science-and-ai',
     secondaryCta: 'Request Syllabus',
@@ -70,6 +72,7 @@ const heroSlides = [
     launchBadge: 'Executive Professional Certificate in Data Science and AI',
     accentLine: 'Master Modern AI.',
     mainLine: 'Build Deep Neural Networks & Autonomous Agents',
+    points: ['Computer Vision', 'Transformers & NLP', 'MLOps Serving'],
     pills: ['Computer Vision', 'Transformers & NLP', 'MLOps Serving'],
     primaryCta: 'View AI & Machine Learning Track',
     primaryLink: '/programs/ai-and-machine-learning',
@@ -85,6 +88,7 @@ const heroSlides = [
     launchBadge: 'Tools and Upskills — Executive Fast-Tracks',
     accentLine: 'Executive Power Skills.',
     mainLine: 'Master Python, Power BI, Excel & Prompt Engineering',
+    points: ['Flexible Duration', 'Executive Certificate', 'Instant Workplace Impact'],
     pills: ['Flexible Duration', 'Executive Certificate', 'Instant Workplace Impact'],
     primaryCta: 'Explore Tools & Upskills',
     primaryLink: '/tools-and-upskills',
@@ -492,7 +496,7 @@ export const Home: React.FC = () => {
       {/* 1A. MOBILE HERO SLIDER                                                    */}
       {/* ========================================================================= */}
       <section
-        className="flex md:hidden relative bg-white text-slate-900 overflow-hidden w-full max-w-full select-none min-h-[calc(100svh-64px)] flex-col justify-between border-b border-slate-200"
+        className="flex md:hidden relative bg-white text-slate-900 overflow-hidden w-full max-w-full select-none min-h-[calc(100svh-64px)] flex-col justify-end border-b border-slate-200"
         onTouchStart={handleTouchStart}
         onTouchEnd={handleTouchEnd}
       >
@@ -506,7 +510,7 @@ export const Home: React.FC = () => {
               animate={{ opacity: 1, scale: 1 }}
               exit={{ opacity: 0 }}
               transition={{ duration: 0.45, ease: 'easeOut' }}
-              className="absolute inset-0 w-full h-full object-cover object-top"
+              className="absolute -top-[14%] inset-x-0 w-full h-[125%] object-cover object-top"
               onError={(e) => {
                 const target = e.currentTarget;
                 const fallback = (currentHero.mobileImage || '').replace('.webp', '.jpg');
@@ -516,11 +520,11 @@ export const Home: React.FC = () => {
               }}
             />
           </AnimatePresence>
-          <div className="absolute inset-0 bg-gradient-to-b from-slate-950/40 via-transparent to-transparent" />
-          <div className="absolute inset-x-0 bottom-0 top-[28%] bg-gradient-to-t from-white via-white/95 to-transparent" />
+          <div className="absolute inset-x-0 top-0 h-20 bg-gradient-to-b from-black/20 to-transparent" />
+          <div className="absolute inset-x-0 bottom-0 top-[48%] bg-gradient-to-t from-white via-white/95 to-transparent" />
         </div>
 
-        <div className="w-full relative z-10 px-5 pt-6 pb-4 flex-1 flex flex-col justify-end space-y-3.5 text-left">
+        <div className="w-full relative z-10 px-5 pt-6 pb-5 flex flex-col space-y-4 text-left">
           <AnimatePresence mode="wait">
             <motion.div
               key={currentHero.id}
@@ -528,37 +532,23 @@ export const Home: React.FC = () => {
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -10 }}
               transition={{ duration: 0.3, ease: 'easeOut' }}
-              className="w-full space-y-3"
+              className="w-full space-y-3.5"
             >
-              <div className="inline-flex items-center px-3 py-1 rounded-full bg-[#F1E8FA] border border-[#E0CEF5] text-[#6D22B5] text-[11px] font-bold tracking-wide shadow-2xs backdrop-blur-xs max-w-full">
-                <span className="truncate">{currentHero.launchBadge}</span>
-              </div>
+              <h1 className="text-[22px] sm:text-2xl font-display font-black text-slate-950 tracking-tight leading-[1.2]">
+                {currentHero.mainLine}
+              </h1>
 
-              <div className="space-y-1">
-                <span className="block text-[#6D22B5] font-display font-extrabold text-xs sm:text-sm tracking-tight">
-                  {currentHero.accentLine}
-                </span>
-                <h1 className="text-[23px] sm:text-2xl font-display font-black text-slate-950 tracking-tight leading-[1.16]">
-                  {currentHero.mainLine}
-                </h1>
-              </div>
-
-              <p className="text-xs text-slate-600 leading-relaxed font-normal">
-                Edqoo is an online learning platform for building practical skills in Data Science, AI, Python, Data Analytics and other in-demand technologies.
-              </p>
-
-              <div className="flex flex-wrap gap-1.5 pt-0.5">
-                {currentHero.pills.map((pill, idx) => (
-                  <span
-                    key={idx}
-                    className="px-2.5 py-0.5 bg-slate-100/95 border border-slate-200/90 rounded-lg text-[11px] font-semibold text-slate-700 backdrop-blur-xs shadow-2xs"
-                  >
-                    {pill}
-                  </span>
+              {/* Three Points under Main Heading */}
+              <div className="space-y-1.5 pt-0.5">
+                {(currentHero.points || currentHero.pills).map((point, idx) => (
+                  <div key={idx} className="flex items-center gap-2 text-xs font-semibold text-slate-800">
+                    <CheckCircle className="w-3.5 h-3.5 text-[#6D22B5] flex-shrink-0" />
+                    <span>{point}</span>
+                  </div>
                 ))}
               </div>
 
-              <div className="flex flex-col gap-2 pt-1 w-full">
+              <div className="flex flex-col gap-2.5 pt-1 w-full">
                 <Link
                   to={currentHero.primaryLink}
                   className="btn-primary w-full py-3.5 text-xs font-bold rounded-xl shadow-md inline-flex items-center justify-center gap-2"
@@ -576,39 +566,19 @@ export const Home: React.FC = () => {
               </div>
             </motion.div>
           </AnimatePresence>
-        </div>
 
-        <div className="relative z-20 bg-white/95 backdrop-blur-md border-t border-slate-200/90 px-5 py-3 w-full">
-          <AnimatePresence mode="wait">
-            <motion.div
-              key={currentHero.id}
-              initial={{ opacity: 0, x: -4 }}
-              animate={{ opacity: 1, x: 0 }}
-              exit={{ opacity: 0, x: 4 }}
-              transition={{ duration: 0.2 }}
-              className="flex items-start gap-2 text-[11px] text-slate-600 mb-2.5 leading-snug"
-            >
-              <span className="w-2 h-2 rounded-full bg-[#6D22B5] animate-pulse flex-shrink-0 mt-0.5" />
-              <p>
-                <span className="font-bold text-slate-900">{currentHero.partnerLogo}: </span>
-                <span>{currentHero.statHighlight}</span>
-              </p>
-            </motion.div>
-          </AnimatePresence>
-
-          <div className="flex items-center justify-between pt-1 border-t border-slate-100">
-            <div className="flex items-center gap-1.5">
-              {heroSlides.map((_, idx) => (
-                <button
-                  key={idx}
-                  onClick={() => setActiveSlide(idx)}
-                  className={`h-1.5 rounded-full transition-all duration-300 ${
-                    activeSlide === idx ? 'w-6 bg-[#6D22B5]' : 'w-2 bg-slate-300 hover:bg-slate-400'
-                  }`}
-                  aria-label={`Go to slide ${idx + 1}`}
-                />
-              ))}
-            </div>
+          {/* Hero Slider Navigation Indicators */}
+          <div className="flex items-center gap-1.5 pt-1">
+            {heroSlides.map((_, idx) => (
+              <button
+                key={idx}
+                onClick={() => setActiveSlide(idx)}
+                className={`h-1.5 rounded-full transition-all duration-300 ${
+                  activeSlide === idx ? 'w-6 bg-[#6D22B5]' : 'w-2 bg-slate-300 hover:bg-slate-400'
+                }`}
+                aria-label={`Go to slide ${idx + 1}`}
+              />
+            ))}
           </div>
         </div>
       </section>
@@ -762,9 +732,9 @@ export const Home: React.FC = () => {
       </section>
 
       {/* ========================================================================= */}
-      {/* 2. TRUST & ENTERPRISE STANDARDS SECTION                                   */}
+      {/* 2. TRUST & ENTERPRISE STANDARDS SECTION (Hidden on mobile)               */}
       {/* ========================================================================= */}
-      <section className="bg-slate-50 border-b border-slate-200/80 py-6 sm:py-8">
+      <section className="hidden md:block bg-slate-50 border-b border-slate-200/80 py-6 sm:py-8">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex flex-col md:flex-row items-center justify-between gap-4">
             <div className="text-center md:text-left flex-shrink-0">
